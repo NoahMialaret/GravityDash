@@ -4,8 +4,6 @@
 #define GRID_WIDTH 14
 #define GRID_HEIGHT 6
 
-#include <SFML/Graphics.hpp>
-
 #include "SubMenu.h"
 #include "Utility.h"
 

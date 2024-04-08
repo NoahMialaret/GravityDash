@@ -1,8 +1,6 @@
 #ifndef CONTROLS_H
 #define CONTROLS_H
 
-#include <SFML/Graphics.hpp>
-
 #include "Utility.h"
 
 class Controls

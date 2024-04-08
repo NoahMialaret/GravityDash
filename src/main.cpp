@@ -1,4 +1,6 @@
-#include <SFML/Graphics.hpp>
+#define STB_IMAGE_IMPLEMENTATION
+
+#include "Texture.hpp"
 
 #include "Program.h"
 #include "Utility.h"

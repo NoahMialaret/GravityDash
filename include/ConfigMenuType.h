@@ -4,8 +4,6 @@
 #define TAB_TEX_SIZE sf::Vector2i(39, 10)
 #define SCROLL_OFFSET sf::Vector2f(20.0f, -20.0f)
 
-#include <SFML/Graphics.hpp>
-
 #include "SubMenu.h"
 #include "Utility.h"
 

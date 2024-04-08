@@ -4,8 +4,6 @@
 #define NUM_TEX_WIDTH 5
 #define NUM_TEX_HEIGHT 6
 
-#include <SFML/Graphics.hpp>
-
 #include "Utility.h"
 
 #include <string>

@@ -1,8 +1,6 @@
 #ifndef SUBMENU_H
 #define SUBMENU_H
 
-#include <SFML/Graphics.hpp>
-
 #include "Game.h"
 #include "Utility.h"
 

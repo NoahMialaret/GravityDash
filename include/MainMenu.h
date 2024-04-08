@@ -1,8 +1,6 @@
 #ifndef MAINMENU_H
 #define MAINMENU_H
 
-#include <SFML/Graphics.hpp>
-
 #include "Entity.h"
 #include "Particle.h"
 #include "Character.h"

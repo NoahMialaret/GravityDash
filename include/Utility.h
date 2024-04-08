@@ -12,8 +12,6 @@
 // The current global time in milliseconds
 #define CUR_TIME Utility::clock.getElapsedTime().asMilliseconds()
 
-#include <SFML/Graphics.hpp>
-
 #include "Event.h"
 
 #include <iostream>

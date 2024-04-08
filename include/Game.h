@@ -1,8 +1,6 @@
 #ifndef GAME_H
 #define GAME_H
 
-#include <SFML/Graphics.hpp>
-
 #include "Character.h"
 #include "Controls.h"
 #include "Entity.h"

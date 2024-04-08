@@ -1,8 +1,6 @@
 #ifndef CHARACTER_H
 #define CHARACTER_H
 
-#include <SFML/Graphics.hpp>
-
 #include "Animation.h"
 #include "Controls.h"
 #include "Particle.h"

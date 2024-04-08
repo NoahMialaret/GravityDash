@@ -1,8 +1,6 @@
 #ifndef PARTICLE_H
 #define PARTICLE_H
 
-#include <SFML/Graphics.hpp>
-
 #include "Animation.h"
 #include "Utility.h"
 

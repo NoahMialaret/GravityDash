@@ -4,8 +4,6 @@
 #define SCORE_TEX_WIDTH 7
 #define SCORE_TEX_HEIGHT 8
 
-#include <SFML/Graphics.hpp>
-
 #include "Utility.h"
 
 #include <string>

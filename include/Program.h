@@ -1,8 +1,6 @@
 #ifndef PROGRAM_H
 #define PROGRAM_H
 
-#include <SFML/Graphics.hpp>
-
 #include "Event.h"
 #include "Game.h"
 #include "Particle.h"

@@ -1,8 +1,6 @@
 #ifndef WORLD_H
 #define WORLD_H
 
-#include <SFML/Graphics.hpp>
-
 #include "Utility.h"
 
 #include <iostream>
