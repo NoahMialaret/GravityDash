@@ -1,8 +1,8 @@
-#ifndef SUBMENU_H
-#define SUBMENU_H
+#ifndef SUBMENU_HPP
+#define SUBMENU_HPP
 
-#include "Game.h"
-#include "Utility.h"
+#include "Game.hpp"
+#include "Utility.hpp"
 
 #include <iostream>
 #include <memory>
@@ -27,20 +27,20 @@
 class SubMenu
 {
 public:
-    SubMenu(std::string name);
-    virtual ~SubMenu() = default;
-    virtual void Update() = 0;
-    virtual std::unique_ptr<SubMenu> ClickButton() = 0;
-    virtual std::unique_ptr<SubMenu> Return() = 0;
-    virtual void Render(sf::RenderWindow* win) const;
-    static void SetBottomLeftTitlePosition(sf::Vector2f bottomLeft); // should use the camera
+  SubMenu(std::string name);
+  virtual ~SubMenu() = default;
+  virtual void Update() = 0;
+  virtual std::unique_ptr<SubMenu> ClickButton() = 0;
+  virtual std::unique_ptr<SubMenu> Return() = 0;
+  virtual void Render() const;
+  static void SetBottomLeftTitlePosition(fVec2 bottomLeft); // should use the camera
 
-    GameConfig GetGameConfig() const;
+  GameConfig GetGameConfig() const;
 private:
-    sf::Text name;
-    static sf::Vector2f namePosition;
+  //sf::Text name;
+  static fVec2 namePosition;
 protected:
-    GameConfig gameConfig;
+  GameConfig gameConfig;
 };
 
 #endif

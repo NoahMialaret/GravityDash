@@ -22,11 +22,11 @@ public:
 
   void Use();
   
-  void SetUniform(const char* name, float value) const;
-  void SetUniform(const char* name, int value) const;
-  void SetUniform(const char* name, bool value) const;
-  void SetUniform(const char* name, float x, float y, float z) const;
-  void SetUniform(const char* name, glm::mat4& mat) const;
+  void SetUniform(const char* name, const float value) const;
+  void SetUniform(const char* name, const int value) const;
+  void SetUniform(const char* name, const bool value) const;
+  void SetUniform(const char* name, const float x, const float y, const float z) const;
+  void SetUniform(const char* name, const glm::mat4& mat) const;
 
   unsigned int GetID() const;
 

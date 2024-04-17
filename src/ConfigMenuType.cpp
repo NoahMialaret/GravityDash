@@ -1,53 +1,44 @@
-#include "ConfigMenuType.h"
+#include "ConfigMenuType.hpp"
 
 ConfigMenuType::ConfigMenuType(std::string name, std::vector<std::string> tabNames)
   :
-  SubMenu("")
+  SubMenu(""),
+  tabTexts(tabNames)
 {
   int numTabs = tabNames.size();
   elements.resize(numTabs);
   // TODO: Use Camera class to determine top of screen
   // TODO: Support more than 4 tabs on one screen
 
-  if (!tabTex.loadFromFile("assets/Tabs.png")) 
-  {
-    std::cout << "\tTab textures could not be loaded!\n";
-  }
+  tabTex.LoadFromFile("assets/Tabs.png");
+  toggleTex.LoadFromFile("assets/Toggle.png");
+  arrowTex.LoadFromFile("assets/Arrow.png");
 
-  if (!toggleTex.loadFromFile("assets/Toggle.png")) 
-  {
-    std::cout << "\tToggle texture could not be loaded!\n";
-  }
-  if (!arrowTex.loadFromFile("assets/Arrow.png")) 
-  {
-    std::cout << "\tArrow texture could not be loaded!\n";
-  }
-
-  tabButton.setTexture(tabTex);
-  tabButton.setScale(DEFAULT_SCALE);
-  tabButton.setTextureRect(sf::IntRect(sf::Vector2i(0, 0), TAB_TEX_SIZE));
-  tabButton.setOrigin(sf::Vector2f((float)TAB_TEX_SIZE.x / 2, float(TAB_TEX_SIZE.y - 1) / 2));
+  tabButton.SetTexture(&tabTex);
+  tabButton.SetScale(DEFAULT_SCALE);
+  tabButton.SetTextureBounds(IRect(iVec2(0, 0), TAB_TEX_SIZE));
+  tabButton.SetOrigin(fVec2((float)TAB_TEX_SIZE.x / 2, float(TAB_TEX_SIZE.y - 1) / 2));
 
   float offset = (numTabs - 1) * 4 * SCALED_DIM / 2;
-  tabButton.setPosition(sf::Vector2f(- offset, -220.0f));
+  tabButton.SetTranslation(fVec2(- offset, -220.0f));
 
-  sf::Vector2f textPos = tabButton.getPosition();
-  for (auto name : tabNames)
-  {
-    sf::Text newText(name, Utility::programFont);
-    newText.setCharacterSize(SCALED_DIM);
-    newText.setFillColor(sf::Color(173, 103, 78));
-    newText.setPosition(textPos);
+  // fVec2 textPos = tabButton.GetTranslation();
+  // for (auto name : tabNames)
+  // {
+  //   sf::Text newText(name, Utility::programFont);
+  //   newText.setCharacterSize(SCALED_DIM);
+  //   newText.setFillColor(sf::Color(173, 103, 78));
+  //   newText.setPosition(textPos);
 
-    sf::FloatRect textBounds = newText.getLocalBounds();
-    newText.setOrigin(sf::Vector2f(textBounds.left + textBounds.width / 2, textBounds.top + textBounds.height / 2));
+  //   sf::FloatRect textBounds = newText.getLocalBounds();
+  //   newText.setOrigin(fVec2(textBounds.left + textBounds.width / 2, textBounds.top + textBounds.height / 2));
 
-    textPos += sf::Vector2f((TAB_TEX_SIZE.x - Utility::spriteDim + 1) * Utility::gameScale , 0.0f);
+  //   textPos += fVec2((TAB_TEX_SIZE.x - Utility::spriteDim + 1) * Utility::gameScale , 0.0f);
 
-    tabTexts.push_back(newText);
-  }
+  //   tabTexts.push_back(newText);
+  // }
 
-  tabTexts[0].move(sf::Vector2f(0.0f, Utility::gameScale));
+  // tabTexts[0].move(fVec2(0.0f, Utility::gameScale));
 }
 
 // void ConfigMenuType::AddElement(std::unique_ptr<Element>& element, int tabIndex)
@@ -59,7 +50,7 @@ ConfigMenuType::ConfigMenuType(std::string name, std::vector<std::string> tabNam
 
 void ConfigMenuType::Update()
 {
-  int elementMove = Utility::CheckInitialPress(sf::Keyboard::S) - Utility::CheckInitialPress(sf::Keyboard::W);
+  int elementMove = Utility::CheckInitialPress(GLFW_KEY_S) - Utility::CheckInitialPress(GLFW_KEY_W);
   if (elementMove != 0 && elementIndex + elementMove >= 0 && elementIndex + elementMove < elements[tabIndex].size())
   {
     float offset = 12.0f * Utility::gameScale * elementMove;
@@ -70,17 +61,17 @@ void ConfigMenuType::Update()
     elementIndex += elementMove;
   }  
 
-  int tabMove = Utility::CheckInitialPress(sf::Keyboard::E) - Utility::CheckInitialPress(sf::Keyboard::Q);
+  int tabMove = Utility::CheckInitialPress(GLFW_KEY_E) - Utility::CheckInitialPress(GLFW_KEY_Q);
   if (tabMove != 0 && tabIndex + tabMove >= 0 && tabIndex + tabMove < tabTexts.size())
   {
-    tabTexts[tabIndex].move(sf::Vector2f(0.0f, - Utility::gameScale));
+    // tabTexts[tabIndex].move(fVec2(0.0f, - Utility::gameScale));
     float offset = 12.0f * Utility::gameScale * elementIndex;
     for (auto& e : elements[tabIndex])
     {
       e.get()->Move(offset);
     }
     tabIndex += tabMove;
-    tabTexts[tabIndex].move(sf::Vector2f(0.0f, Utility::gameScale));
+    // tabTexts[tabIndex].move(fVec2(0.0f, Utility::gameScale));
     elementIndex = 0;
   }
 
@@ -89,37 +80,37 @@ void ConfigMenuType::Update()
   // move all elements in current tab by - SCROLL_VALUE * elementIndex to reset position
 }
 
-void ConfigMenuType::Render(sf::RenderWindow* win) const
+void ConfigMenuType::Render() const
 {
-  sf::Sprite tabSprite(tabButton);
+  Sprite tabSprite(tabButton);
 
   for (int i = std::max(elementIndex - 2, 0); i < std::min(elementIndex + 3, (int)elements[tabIndex].size()); i++)
   {
-    elements[tabIndex][i].get()->Render(win);
+    elements[tabIndex][i].get()->Render();
   }
 
   for (size_t i = 0; i < tabTexts.size(); i++)
   {
     if (i == tabIndex)
     {
-      sf::IntRect newTexRect = tabSprite.getTextureRect();
+      IRect newTexRect = tabSprite.GetTextureBounds();
       newTexRect.top += TAB_TEX_SIZE.y;
-      tabSprite.setTextureRect(newTexRect);
+      tabSprite.SetTextureBounds(newTexRect);
 
     }
     
-    win->draw(tabSprite);
-    win->draw(tabTexts[i]);
+    tabSprite.Render();
+    // win->draw(tabTexts[i]);
 
     if (i == tabIndex)
     {
-      tabSprite.setTextureRect(tabButton.getTextureRect());
+      tabSprite.SetTextureBounds(tabButton.GetTextureBounds());
     }
-    tabSprite.move(sf::Vector2f((TAB_TEX_SIZE.x - Utility::spriteDim + 1) * Utility::gameScale , 0.0f));
+    tabSprite.Translate(fVec2((TAB_TEX_SIZE.x - Utility::spriteDim + 1) * Utility::gameScale , 0.0f));
   }
 
 
-  SubMenu::Render(win);
+  SubMenu::Render();
 }
 
 std::map<std::string, int> ConfigMenuType::GetConfigs() const
@@ -153,24 +144,24 @@ ConfigMenuType::Element::Element(std::string name, int initValue)
   :
   value(initValue)
 {
-  text.setString(name);
-  text.setFont(Utility::programFont);
-  text.setCharacterSize(SCALED_DIM);
-  text.setFillColor(sf::Color(173, 103, 78));
-  text.setPosition(sf::Vector2f(-50 * Utility::gameScale, 0.0f));
+  // text.setString(name);
+  // text.setFont(Utility::programFont);
+  // text.setCharacterSize(SCALED_DIM);
+  // text.setFillColor(sf::Color(173, 103, 78));
+  // text.setPosition(fVec2(-50 * Utility::gameScale, 0.0f));
 
-  sf::FloatRect textBounds = text.getLocalBounds();
-  text.setOrigin(sf::Vector2f(textBounds.left, textBounds.top + textBounds.height / 2));
+  // sf::FloatRect textBounds = text.getLocalBounds();
+  // text.setOrigin(fVec2(textBounds.left, textBounds.top + textBounds.height / 2));
 }
 
 void ConfigMenuType::Element::Move(float moveAmount)
 {
-  text.move(sf::Vector2f(- moveAmount, moveAmount));
+  //text.move(fVec2(- moveAmount, moveAmount));
 }
 
 std::string ConfigMenuType::Element::GetName() const
 {
-  return text.getString();
+  return NULL; //text.getString();
 }
 
 int ConfigMenuType::Element::GetValue() const
@@ -178,108 +169,108 @@ int ConfigMenuType::Element::GetValue() const
   return value;
 }
 
-void ConfigMenuType::Element::Render(sf::RenderWindow* win) const
+void ConfigMenuType::Element::Render() const
 {
-  win->draw(text);
+  //win->draw(text);
 }
 
 
 
-ConfigMenuType::Toggle::Toggle(std::string name, bool isToggled, float offset, sf::Texture* tex)
+ConfigMenuType::Toggle::Toggle(std::string name, bool isToggled, float offset, Texture* tex)
   :
   Element(name, (int)isToggled)
 {
-  toggleSprite.setTexture(*tex);
-  toggleSprite.setScale(DEFAULT_SCALE);
-  toggleSprite.setPosition(sf::Vector2f(50 * Utility::gameScale, 0.0f));
-  toggleSprite.setTextureRect(sf::IntRect(sf::Vector2i(isToggled * 8, 0), sf::Vector2i(8, 5)));
-  toggleSprite.setOrigin(sf::Vector2f(8, 2.5));
+  toggleSprite.SetTexture(tex);
+  toggleSprite.SetScale(DEFAULT_SCALE);
+  toggleSprite.SetTranslation(fVec2(50 * Utility::gameScale, 0.0f));
+  toggleSprite.SetTextureBounds(IRect(iVec2(isToggled * 8, 0), iVec2(8, 5)));
+  toggleSprite.SetOrigin(fVec2(8, 2.5));
   Move(offset);
 }
 
 void ConfigMenuType::Toggle::Move(float moveAmount)
 {
-  toggleSprite.move(sf::Vector2f(- moveAmount, moveAmount));
+  toggleSprite.Translate(fVec2(- moveAmount, moveAmount));
   Element::Move(moveAmount);
 }
 
 void ConfigMenuType::Toggle::Update()
 {
-  if (value == 0 && Utility::CheckInitialPress(sf::Keyboard::D))
+  if (value == 0 && Utility::CheckInitialPress(GLFW_KEY_D))
   {
     value = 1;
-    toggleSprite.setTextureRect(sf::IntRect(sf::Vector2i(8, 0), sf::Vector2i(8, 5)));
+    toggleSprite.SetTextureBounds(IRect(iVec2(8, 0), iVec2(8, 5)));
   }
-  else if (value == 1 && Utility::CheckInitialPress(sf::Keyboard::A))
+  else if (value == 1 && Utility::CheckInitialPress(GLFW_KEY_A))
   {
     value = 0;
-    toggleSprite.setTextureRect(sf::IntRect(sf::Vector2i(0, 0), sf::Vector2i(8, 5)));
+    toggleSprite.SetTextureBounds(IRect(iVec2(0, 0), iVec2(8, 5)));
   }
 }
 
-void ConfigMenuType::Toggle::Render(sf::RenderWindow* win) const
+void ConfigMenuType::Toggle::Render() const
 {
-  win->draw(toggleSprite);
-  Element::Render(win);
+  toggleSprite.Render();
+  Element::Render();
 }
 
 
 
 
-ConfigMenuType::Range::Range(std::string name, int value, float offset, sf::Texture *tex)
+ConfigMenuType::Range::Range(std::string name, int value, float offset, Texture* tex)
   :
   Element(name, value)
 {
-  arrowSpriteRight.setTexture(*tex);
-  arrowSpriteRight.setScale(DEFAULT_SCALE);
-  arrowSpriteRight.setPosition(sf::Vector2f(50 * Utility::gameScale, 0.0f));
-  arrowSpriteRight.setTextureRect(sf::IntRect(sf::Vector2i(0, 0), sf::Vector2i(4, 5)));
-  arrowSpriteRight.setOrigin(sf::Vector2f(4, 2.5));
+  arrowSpriteRight.SetTexture(tex);
+  arrowSpriteRight.SetScale(DEFAULT_SCALE);
+  arrowSpriteRight.SetTranslation(fVec2(50 * Utility::gameScale, 0.0f));
+  arrowSpriteRight.SetTextureBounds(IRect(iVec2(0, 0), iVec2(4, 5)));
+  arrowSpriteRight.SetOrigin(fVec2(4, 2.5));
 
-  arrowSpriteLeft.setTexture(*tex);
-  arrowSpriteLeft.setScale(sf::Vector2f(-Utility::gameScale, Utility::gameScale));
-  arrowSpriteLeft.setPosition(sf::Vector2f(41 * Utility::gameScale, 0.0f));
-  arrowSpriteLeft.setTextureRect(sf::IntRect(sf::Vector2i(0, 0), sf::Vector2i(4, 5)));
-  arrowSpriteLeft.setOrigin(sf::Vector2f(0, 2.5));
+  arrowSpriteLeft.SetTexture(tex);
+  arrowSpriteLeft.SetScale(fVec2(-Utility::gameScale, Utility::gameScale));
+  arrowSpriteLeft.SetTranslation(fVec2(41 * Utility::gameScale, 0.0f));
+  arrowSpriteLeft.SetTextureBounds(IRect(iVec2(0, 0), iVec2(4, 5)));
+  arrowSpriteLeft.SetOrigin(fVec2(0, 2.5));
 
-  valueText.setString(Utility::IntToString(value));
-  valueText.setFont(Utility::programFont);
-  valueText.setCharacterSize(SCALED_DIM);
-  valueText.setFillColor(sf::Color(173, 103, 78));
-  valueText.setPosition(sf::Vector2f(45 * Utility::gameScale, 0.0f));
+  // valueText.setString(Utility::IntToString(value));
+  // valueText.setFont(Utility::programFont);
+  // valueText.setCharacterSize(SCALED_DIM);
+  // valueText.setFillColor(sf::Color(173, 103, 78));
+  // valueText.setPosition(fVec2(45 * Utility::gameScale, 0.0f));
 
-  sf::FloatRect textBounds = valueText.getLocalBounds();
-  valueText.setOrigin(sf::Vector2f(textBounds.left + textBounds.width, textBounds.top + textBounds.height / 2));
+  // FRect textBounds = valueText.getLocalBounds();
+  // valueText.setOrigin(fVec2(textBounds.left + textBounds.width, textBounds.top + textBounds.height / 2));
 
   Move(offset);
 }
 
 void ConfigMenuType::Range::Move(float moveAmount)
 {
-  arrowSpriteRight.move(sf::Vector2f(- moveAmount, moveAmount));
-  arrowSpriteLeft.move(sf::Vector2f(- moveAmount, moveAmount));
-  valueText.move(sf::Vector2f(- moveAmount, moveAmount));
+  arrowSpriteRight.Translate(fVec2(- moveAmount, moveAmount));
+  arrowSpriteLeft.Translate(fVec2(- moveAmount, moveAmount));
+  // valueText.move(fVec2(- moveAmount, moveAmount));
   Element::Move(moveAmount);
 }
 
 void ConfigMenuType::Range::Update()
 {
-  if (value < 9 && Utility::CheckInitialPress(sf::Keyboard::D))
+  if (value < 9 && Utility::CheckInitialPress(GLFW_KEY_D))
   {
     value++;
-    valueText.setString(Utility::IntToString(value));
+    //valueText.setString(Utility::IntToString(value));
   }
-  else if (value > 0 && Utility::CheckInitialPress(sf::Keyboard::A))
+  else if (value > 0 && Utility::CheckInitialPress(GLFW_KEY_A))
   {
     value--;
-    valueText.setString(Utility::IntToString(value));
+    //valueText.setString(Utility::IntToString(value));
   }  
 }
 
-void ConfigMenuType::Range::Render(sf::RenderWindow *win) const
+void ConfigMenuType::Range::Render() const
 {
-  win->draw(arrowSpriteRight);
-  win->draw(arrowSpriteLeft);
-  win->draw(valueText);
-  Element::Render(win);
+  arrowSpriteRight.Render();
+  arrowSpriteLeft.Render();
+  // win->draw(valueText);
+  Element::Render();
 }

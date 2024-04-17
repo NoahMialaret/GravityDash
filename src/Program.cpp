@@ -1,15 +1,41 @@
-#include "Program.h"
+#include "Program.hpp"
 
 Program::Program(const char* name)
 {
 	std::cout << "--=== Program Init ===--\n"  << "Initialising SFML Window...\n";
 
-		sf::VideoMode desktop = sf::VideoMode::getDesktopMode();	
-		sf::Vector2f minWindowSize(160, 90);
-		sf::Vector2f windowSize = minWindowSize;
+		//sf::VideoMode desktop = sf::VideoMode::getDesktopMode();	
+    
+
+    stbi_set_flip_vertically_on_load(true);
+    // Initialising GLFW
+    glfwInit();
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+    #ifdef __APPLE__
+      glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+    #endif
+
+    // Initialising the GLFW window
+    win = glfwCreateWindow(800, 600, "GravDash", NULL, NULL);
+    
+    if (win == NULL)
+    {
+      std::cout << "Could not create a GLFW window!\n";
+      glfwTerminate();
+      return;
+    }
+    glfwMakeContextCurrent(win);
+
+		iVec2 minWindowSize(160, 90);
+		iVec2 windowSize = minWindowSize;
+    iVec2 desktopSize;
+    glfwGetMonitorWorkarea(glfwGetPrimaryMonitor(), NULL, NULL, &desktopSize.x, &desktopSize.y);
 		int scale = 1;
 
-		while (windowSize.x < desktop.width / 2 && windowSize.y < desktop.height / 2)
+		while (windowSize.x < desktopSize.x / 2 && windowSize.y < desktopSize.y / 2)
 		{
 			windowSize += minWindowSize;
 			scale++;
@@ -17,61 +43,56 @@ Program::Program(const char* name)
 
 		std::cout << "\tGame scale: " << scale << '\n';
 		std::cout << "\tWindow dimensions: " << windowSize.x << "px x " << windowSize.y << "px\n";
-		std::cout << "\tDesktop dimensions: " << desktop.width << "px x " << desktop.height << "px\n";
+		std::cout << "\tDesktop dimensions: " << desktopSize.x << "px x " << desktopSize.y << "px\n";
 
 		Utility::gameScale = scale;
 
-		window.create(sf::VideoMode(windowSize.x, windowSize.y), name, sf::Style::Close);
+    glfwSetWindowSize(win, windowSize.x, windowSize.y);
 
-		window.setPosition(sf::Vector2i((desktop.width - window.getSize().x) / 2, (desktop.height - window.getSize().y) / 2));
+    // Initialise GLAD
+    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+    {
+      std::cout << "Could not load GLAD!\n";
+      return;
+    }
 
-		window.setKeyRepeatEnabled(false);
+		// window.create(sf::VideoMode(windowSize.x, windowSize.y), name, sf::Style::Close);
 
-		window.setMouseCursorVisible(false);
+		// window.setPosition(iVec2((desktop.width - window.getSize().x) / 2, (desktop.height - window.getSize().y) / 2));
 
-		mainView = window.getDefaultView();
+		// window.setKeyRepeatEnabled(false);
 
-		mainView.setCenter({0.0f, 0.0f});
+		// window.setMouseCursorVisible(false);
 
-		window.setView(mainView);
+		// mainView = window.getDefaultView();
 
-		window.setVerticalSyncEnabled(true);
+		// mainView.setCenter({0.0f, 0.0f});
+
+		// window.setView(mainView);
+
+		// window.setVerticalSyncEnabled(true);
 
 	std::cout << "Loading necessary textures..." << std::endl;
 
-    if (!sf::Shader::isAvailable())
-    {
-      std::cout << "\tShaders are not available on this hardware!\n";
-    }
-    if (!Utility::shaderTest.loadFromFile("assets/test.vs", "assets/test.fs"))
-    {
-      std::cout << "ERROR\n";
-    }
-    Utility::shaderTest.setUniform("texture", sf::Shader::CurrentTexture);
+    // if (!sf::Shader::isAvailable())
+    // {
+    //   std::cout << "\tShaders are not available on this hardware!\n";
+    // }
+    // if (!Utility::shaderTest.loadFromFile("assets/test.vs", "assets/test.fs"))
+    // {
+    //   std::cout << "ERROR\n";
+    // }
+    // Utility::shaderTest.setUniform("texture", sf::Shader::CurrentTexture);
+    Particle::tex.LoadFromFile("assets/GravParticles.png");
+    GridMenu::buttonTex.LoadFromFile("assets/Buttons.png");
 
-		if (!Particle::tex.loadFromFile("assets/GravParticles.png")) 
-		{
-			std::cout << "\tParticle textures could not be loaded!\n";
-		}
-
-		if (!Utility::debugTexture.loadFromFile("assets/DebugPos.png")) 
-		{
-			std::cout << "\tDebug texture could not be loaded!\n";
-		}
-		if (!Point::tex.loadFromFile("assets/nums.png")) 
-		{
-			std::cout << "\tPoints texture could not be loaded!\n";
-		}
-		if (!Utility::programFont.loadFromFile("assets/GravDash.ttf"))
-		{
-			std::cout << "\tCould not load the game font!\n";
-		}
-
-		GridMenu::SetTexture("assets/Buttons.png");
+		Utility::debugTexture.LoadFromFile("assets/DebugPos.png");
+		Point::tex.LoadFromFile("assets/nums.png");
+		// Utility::programFont.loadFromFile("assets/GravDash.ttf");
 		
-		Utility::debugSprite.setTexture(Utility::debugTexture, true);    
-		Utility::debugSprite.setOrigin(0.5f * sf::Vector2f(Utility::spriteDim, Utility::spriteDim));
-		Utility::debugSprite.setScale(sf::Vector2f(Utility::gameScale, -Utility::gameScale));
+		// Utility::debugSprite.SetTexture(&Utility::debugTexture);    
+		// Utility::debugSprite.SetOrigin(fVec2(Utility::spriteDim, Utility::spriteDim * 0.5f));
+		// Utility::debugSprite.SetScale(fVec2(Utility::gameScale, -Utility::gameScale));
 
 	std::cout << "Initialising Program objects...\n";
 
@@ -86,7 +107,7 @@ Program::Program(const char* name)
 
 Program::~Program()
 {
-	window.close();
+	// window.close();
 
 	Particle::DeleteParticles();
 
@@ -124,54 +145,56 @@ void Program::HandleEvents()
 		}
 	}
 
-	sf::Event SFMLevent;
+  glfwPollEvents();
+
+	// sf::Event SFMLevent;
 	
-	while (window.pollEvent(SFMLevent)) 
-	{
-		switch (SFMLevent.type) 
-		{
-		case sf::Event::Closed:
-			std::cout << "Window close event called.\n";
-			ProgramExit();
-			break;
+	// while (window.pollEvent(SFMLevent)) 
+	// {
+	// 	switch (SFMLevent.type) 
+	// 	{
+	// 	case sf::Event::Closed:
+	// 		std::cout << "Window close event called.\n";
+	// 		ProgramExit();
+	// 		break;
 		
-		case sf::Event::LostFocus:
-			//Pause();
-			break;
+	// 	case sf::Event::LostFocus:
+	// 		//Pause();
+	// 		break;
 
-		case sf::Event::KeyPressed:
-			switch (SFMLevent.key.code) 
-			{
-			case sf::Keyboard::Escape:
-				if (curState == State::startMenu)
-				{
-					mainMenu.get()->Return();
-				}
-				// if gameplay, pause
-				break;
+	// 	case sf::Event::KeyPressed:
+	// 		switch (SFMLevent.key.code) 
+	// 		{
+	// 		case sf::Keyboard::Escape:
+	// 			if (curState == State::startMenu)
+	// 			{
+	// 				mainMenu.get()->Return();
+	// 			}
+	// 			// if gameplay, pause
+	// 			break;
 
-			case sf::Keyboard::Tab:
-				Utility::FlushDebugSprites();
-				break;
+	// 		case sf::Keyboard::Tab:
+	// 			Utility::FlushDebugSprites();
+	// 			break;
 
-			case sf::Keyboard::R:
-				std::cout << "Restarting Game!\n";
-				game = nullptr;
-				mainMenu = std::make_unique<MainMenu>();
-				curState = State::startMenu;
-				break;
+	// 		case sf::Keyboard::R:
+	// 			std::cout << "Restarting Game!\n";
+	// 			game = nullptr;
+	// 			mainMenu = std::make_unique<MainMenu>();
+	// 			curState = State::startMenu;
+	// 			break;
 			
-			default:
-				Utility::AddKeyPress(SFMLevent.key.code);
-				break;
-			}
+	// 		default:
+	// 			Utility::AddKeyPress(SFMLevent.key.code);
+	// 			break;
+	// 		}
 
-			break;
+	// 		break;
 
-		default:
-			break;
-		}
-	}
+	// 	default:
+	// 		break;
+	// 	}
+	// }
 }
 
 void Program::Update() 
@@ -182,7 +205,7 @@ void Program::Update()
 	}
 
 	// float cameraDistance = std::max(abs(mainView.getCenter().y - targetPos.y), abs(targetPos.y - mainView.getCenter().y));
-	// mainView.move(sf::Vector2f(0.0f, - cameraDistance / 10));
+	// mainView.move(fVec2(0.0f, - cameraDistance / 10));
 	// window.setView(mainView);
 
 	switch (curState)
@@ -206,7 +229,7 @@ void Program::Update()
 
 void Program::Render()
 {
-	window.clear(sf::Color(230, 176, 138));
+  glClearColor(230.0f / 255.0f, 176.0f / 255.0f, 138.0f / 255.0f, 1.0f);
 	//window.clear(sf::Color(255, 229, 181));
 
 	if (curState == State::notRunning) 
@@ -217,21 +240,21 @@ void Program::Render()
 	switch (curState)
 	{
 	case State::startMenu:
-		mainMenu.get()->Render(&window);
+		mainMenu.get()->Render();
 		break;
 
 	case State::gameplay:
-		game.get()->Render(&window);
-		Particle::RenderParticles(&window);
+		game.get()->Render();
+		Particle::RenderParticles();
 		break;
 	
 	default:
 		break;
 	}
 
-	Utility::Render(&window);
+	Utility::Render();
 
-	window.display();	
+  glfwSwapBuffers(win);
 }
 
 Program::State Program::GetCurState() const 

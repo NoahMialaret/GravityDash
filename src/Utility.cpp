@@ -1,6 +1,6 @@
-#include "Utility.h"
+#include "Utility.hpp"
 
-sf::Clock Utility::clock;
+//sf::Clock Utility::clock;
 
 float Utility::targetFrameRate = 60.0f;
 float Utility::gameScale = 6.0f;
@@ -10,15 +10,15 @@ std::mt19937 Utility::rng = std::mt19937(std::random_device()());
 
 std::vector<int> Utility::initialKeyPresses;
 
-sf::Texture Utility::debugTexture;
-sf::Sprite Utility::debugSprite;
-std::vector<sf::Vector2f> Utility::debugPos;
+Texture Utility::debugTexture;
+// Sprite Utility::debugSprite;
+std::vector<fVec2> Utility::debugPos;
 
-sf::Font Utility::programFont;
+//sf::Font Utility::programFont;
 
 std::vector<Event> Utility::events;
 
-sf::Shader Utility::shaderTest;
+// Shader Utility::defaultShader("files/test.vs", "files/test.fs");
 
 std::string Utility::IntToString(int number, int minDigits)
 {
@@ -66,11 +66,11 @@ int Utility::GetSign(float num)
     return 0;
 }
 
-float Utility::GetSquaredDistanceToLineSegment(sf::Vector2f centrePos, std::pair<sf::Vector2f, sf::Vector2f> lineSegPoints)
+float Utility::GetSquaredDistanceToLineSegment(fVec2 centrePos, std::pair<fVec2, fVec2> lineSegPoints)
 {
-	sf::Vector2f lineSeg = lineSegPoints.second - lineSegPoints.first;
-	sf::Vector2f firstToCentre = centrePos - lineSegPoints.first;
-	sf::Vector2f secondToCentre = centrePos - lineSegPoints.second;
+	fVec2 lineSeg = lineSegPoints.second - lineSegPoints.first;
+	fVec2 firstToCentre = centrePos - lineSegPoints.first;
+	fVec2 secondToCentre = centrePos - lineSegPoints.second;
 
 	float dotProdFirst = lineSeg.x * firstToCentre.x + lineSeg.y * firstToCentre.y;
 	float dotProdSecond = lineSeg.x * secondToCentre.x + lineSeg.y * secondToCentre.y;
@@ -97,13 +97,13 @@ float Utility::GetSquaredDistanceToLineSegment(sf::Vector2f centrePos, std::pair
 	return distanceSquared;
 }
 
-void Utility::Render(sf::RenderWindow* win)
+void Utility::Render()
 {
-	for(auto& pos : debugPos)
-	{
-		debugSprite.setPosition(pos);
-		win->draw(debugSprite);
-	}
+	// for(auto& pos : debugPos)
+	// {
+  //   // debugSprite.SetTranslation(pos);
+  //   // debugSprite.Render();
+	// }
 }
 
 void Utility::AddKeyPress(int key)

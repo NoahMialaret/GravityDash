@@ -1,4 +1,4 @@
-#include "Controls.h"
+#include "Controls.hpp"
 
 int Controls::HeldDirection()
 {
@@ -15,21 +15,21 @@ Keyboard::Keyboard(int playerNumber)
   // Get keybindings for player: <playerNumber>
   if (playerNumber == 0)
   {
-    leftKey = sf::Keyboard::Key::A;
-    rightKey = sf::Keyboard::Key::D;
-    jumpKey = sf::Keyboard::Key::Space;
+    leftKey = GLFW_KEY_A;
+    rightKey = GLFW_KEY_D;
+    jumpKey = GLFW_KEY_SPACE;
   }
   else if (playerNumber == 1)
   {
-    leftKey = sf::Keyboard::Key::Left;
-    rightKey = sf::Keyboard::Key::Right;
-    jumpKey = sf::Keyboard::Key::Up;
+    leftKey = GLFW_KEY_LEFT;
+    rightKey = GLFW_KEY_RIGHT;
+    jumpKey = GLFW_KEY_UP;
   }
 }
 
 void Keyboard::Update()
 {
-  heldDirection = sf::Keyboard::isKeyPressed(rightKey) - sf::Keyboard::isKeyPressed(leftKey);
+  // heldDirection = sf::Keyboard::isKeyPressed(rightKey) - sf::Keyboard::isKeyPressed(leftKey);
 
   if (heldDirection != 0)
   {

@@ -1,35 +1,33 @@
-#include "Game.h"
+#include "Game.hpp"
 
 Game::Game(GameConfig& config)
   :
   config(config)
 {
+  entityTex.LoadFromFile("assets/GravWEs.png");
+  charTex.LoadFromFile("assets/GravTestChar.png");
+
 	for (int i = 0; i < config.numCharacters; i++)
 	{
     std::unique_ptr<Controls> control = std::make_unique<Keyboard>(i);
-		players.push_back(std::make_unique<PlayableCharacter>("assets/GravTestChar.png", control));
+		players.push_back(std::make_unique<PlayableCharacter>(&charTex, control));
 		players[i].get()->StartJump();
 	}
 
-  if (!entityTex.loadFromFile("assets/GravWEs.png")) 
-  {
-    std::cout << "\tEntity textures could not be loaded!\n";
-  }
-
-  sf::Vector2i worldSize = int(SCALED_DIM) * sf::Vector2i(16, 8);
-	sf::IntRect worldRect(- worldSize / 2, worldSize);
+  iVec2 worldSize = iVec2(16, 8) * int(SCALED_DIM);
+	IRect worldRect(worldSize / -2, worldSize);
   world = std::make_unique<World>(worldRect);
 
-	sf::Vector2f topRightPos(worldRect.left + worldRect.width, worldRect.top - (SCORE_TEX_HEIGHT + 1) * Utility::gameScale);
+	fVec2 topRightPos(worldRect.left + worldRect.width, worldRect.top - (SCORE_TEX_HEIGHT + 1) * Utility::gameScale);
 	score = std::make_unique<Score>("assets/BigNums.png", topRightPos);
 
-  nextSpikeSpawnTimeMin = 1000 + CUR_TIME;
+  nextSpikeSpawnTimeMin = 1.0 + CUR_TIME;
   // BeginNextPhase = 5000 + CUR_TIME;
 
-  timer = CUR_TIME + 60000;
+  timer = CUR_TIME + 60.0;
 
-  timerRect.setFillColor(sf::Color(173, 103, 78));
-  timerRect.setPosition((- (sf::Vector2f)worldSize / 2.0f) - sf::Vector2f(0.0f, 32.0f));
+  // timerRect.setFillColor(sf::Color(173, 103, 78));
+  // timerRect.setPosition((- (fVec2)worldSize / 2.0f) - fVec2(0.0f, 32.0f));
 }
 
 Game::~Game()
@@ -42,7 +40,7 @@ Game::~Game()
 void Game::Update()
 {
 
-  if (Utility::CheckInitialPress(sf::Keyboard::H))
+  if (Utility::CheckInitialPress(GLFW_KEY_H))
   {
   auto node = entities.Start();
   while(node != nullptr)
@@ -62,7 +60,7 @@ void Game::Update()
 		p.get()->Update();
 	}
 
-  timerRect.setSize(sf::Vector2f(((float)timer - CUR_TIME) * 400.0f / 60000.0f, 32.0f));
+  // timerRect.setSize(fVec2(((float)timer - CUR_TIME) * 400.0f / 60000.0f, 32.0f));
 
 	if ((players.size() == 1 && players[0].get()->GetCurState() == Character::State::dead) || (timer < CUR_TIME))
 	{
@@ -139,11 +137,11 @@ void Game::Update()
 	// 	return;
     // }
 
-	sf::IntRect playableRegion = world.get()->GetRegion();
+	IRect playableRegion = world.get()->GetRegion();
   std::uniform_int_distribution spawnChance(0, 99);
   int randomInt = spawnChance(Utility::rng);
 
-  if (nextSpikeSpawnTimeMin < Utility::clock.getElapsedTime().asMilliseconds())
+  if (nextSpikeSpawnTimeMin < CUR_TIME)
   {
     //std::cout << "Spawning obastacle! Last one spawned " << CUR_TIME - nextSpikeSpawnTimeMin + 1000 << " ms ago.\n";
     Entity* temp = new Saw(&entityTex, playableRegion);
@@ -152,7 +150,7 @@ void Game::Update()
       searchFrom = entities.End();
 
     entities.InsertData(temp, searchFrom);
-    nextSpikeSpawnTimeMin = 500 + randomInt * 10 + CUR_TIME; // Spawns every 1000 +- 500 ms
+    nextSpikeSpawnTimeMin = 0.500 + randomInt * 10 + CUR_TIME; // Spawns every 1000 +- 500 ms
   }
 
   if (randomInt > config.targetSpawnChance)
@@ -165,35 +163,35 @@ void Game::Update()
   }  
 }
 
-void Game::Render(sf::RenderWindow* win) const
+void Game::Render() const
 {
-	world.get()->Render(win);
+	world.get()->Render();
 
-	score.get()->Render(win);
+	score.get()->Render();
 
   auto node = entities.Start();
   while(node != nullptr)
   {
-    node->GetData()->Render(win);
+    node->GetData()->Render();
     node = node->GetNextNode();
   }
 
 	for (auto& p : players)
 	{
-		p.get()->Render(win);
+		p.get()->Render();
 	}
 
-  win->draw(timerRect);
+  // win->draw(timerRect);
 }
 
 void Game::CorrectCharacterPos(Character* player)
 {
   // Clean up when adding rebound feature
 
-	sf::Vector2f playerPos = player->GetPosition();
+	fVec2 playerPos = player->GetPosition();
 	float posBuffer = 0.5f * SCALED_DIM;
 
-	sf::IntRect playableRegion = world.get()->GetRegion();
+	IRect playableRegion = world.get()->GetRegion();
 
 	if (playerPos.x - posBuffer < playableRegion.left)
 	{

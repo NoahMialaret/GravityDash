@@ -1,10 +1,10 @@
-#ifndef TEMPMEN_H
-#define TEMPMEN_H
+#ifndef TEMPMEN_HPP
+#define TEMPMEN_HPP
 
-#include "SubMenu.h"
-#include "Game.h"
-#include "GridMenu.h"
-#include "ConfigMenuType.h"
+#include "SubMenu.hpp"
+#include "Game.hpp"
+#include "GridMenu.hpp"
+#include "ConfigMenuType.hpp"
 
 class Title : public GridMenu
 {

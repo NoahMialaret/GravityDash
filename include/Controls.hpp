@@ -1,7 +1,9 @@
-#ifndef CONTROLS_H
-#define CONTROLS_H
+#ifndef CONTROLS_HPP
+#define CONTROLS_HPP
 
-#include "Utility.h"
+#include "Utility.hpp"
+
+#include <GLFW/glfw3.h>
 
 class Controls
 {
@@ -27,9 +29,9 @@ public:
   void Update() override;
 
 private:
-  sf::Keyboard::Key leftKey;
-  sf::Keyboard::Key rightKey;
-  sf::Keyboard::Key jumpKey;
+  int leftKey;
+  int rightKey;
+  int jumpKey;
 };
 
 // class Controller : public Controls

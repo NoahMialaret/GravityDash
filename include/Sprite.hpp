@@ -1,6 +1,7 @@
 #ifndef SPRITE_HPP
 #define SPRITE_HPP
 
+#include "Rect.hpp"
 #include "Texture.hpp"
 #include "Shader.hpp"
 #include "Vec2.hpp"
@@ -20,39 +21,44 @@ public:
   
   void SetTexture(Texture* tex);
   void SetTextureBounds(iVec2 topLeft, iVec2 bottomRight);
+  void SetTextureBounds(IRect bounds);
   void SetShader(Shader* shad);
 
   void SetOrigin(fVec2 pos);
 
-  void GetBoundingRectangle();
+  Texture* GetTexture() const;
 
-  void Render();
+  FRect GetBoundingRectangle() const;
+  IRect GetTextureBounds() const;
 
-  void Translate();
-  void SetPosition();
-  void Rotate();
-  void SetRotation();
-  void Scale();
-  void SetScale(float scale);
-  void SetScale(fVec2 scale);
+  void Render() const;
+
+  void Translate(fVec2 value);
+  void SetTranslation(fVec2 value);
+  void Rotate(float value);
+  void SetRotation(float value);
+  void Scale(float value);
+  void Scale(fVec2 value);
+  void SetScale(float value);
+  void SetScale(fVec2 value);
 
   fVec2 GetTranslation() const;
   float GetRotation() const;
   fVec2 GetScale() const;
 
 private:
-  Texture* texture = nullptr;
-  Shader* shader = nullptr;
+  mutable Texture* texture = nullptr;
+  mutable Shader shader = Shader("assets/vert.vs", "assets/frag.fs");
 
   unsigned int VAO;
   unsigned int VBO;
   unsigned int EBO;
 
   // The sprites transformation matrix
-  glm::mat4 transform = glm::mat4(1.0f);
+  mutable glm::mat4 transform = glm::mat4(1.0f);
   // Determine if the transformation matrix should be updated
   // due to one of the transformations being changed
-  bool renderPropertiesChanged = false;
+  mutable bool renderPropertiesChanged = false;
 
   fVec2 origin;
   fVec2 translation;

@@ -41,26 +41,26 @@ void Shader::Use()
   glUseProgram(programID);
 }
 
-void Shader::SetUniform(const char* name, float value) const
+void Shader::SetUniform(const char* name, const float value) const
 {
   glUniform1f(glGetUniformLocation(programID, name), value);
 }
-void Shader::SetUniform(const char* name, bool value) const
+void Shader::SetUniform(const char* name, const bool value) const
 {
   SetUniform(name, (int)value);
 }
 
-void Shader::SetUniform(const char* name, int value) const
+void Shader::SetUniform(const char* name, const int value) const
 {
   glUniform1i(glGetUniformLocation(programID, name), value);
 }
 
-void Shader::SetUniform(const char* name, float x, float y, float z) const
+void Shader::SetUniform(const char* name, const float x, const float y, const float z) const
 {
   glUniform3f(glGetUniformLocation(programID, name), x, y, z);
 }
 
-void Shader::SetUniform(const char* name, glm::mat4& mat) const
+void Shader::SetUniform(const char* name, const glm::mat4& mat) const
 {
   glUniformMatrix4fv(glGetUniformLocation(programID, name), 1, GL_FALSE, glm::value_ptr(mat));
 }

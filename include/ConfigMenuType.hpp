@@ -1,13 +1,16 @@
-#ifndef CONFIG_MENU_TYPE_H
-#define CONFIG_MENU_TYPE_H
+#ifndef CONFIG_MENU_TYPE_HPP
+#define CONFIG_MENU_TYPE_HPP
 
-#define TAB_TEX_SIZE sf::Vector2i(39, 10)
-#define SCROLL_OFFSET sf::Vector2f(20.0f, -20.0f)
+#define TAB_TEX_SIZE iVec2(39, 10)
+#define SCROLL_OFFSET fVec2(20.0f, -20.0f)
 
-#include "SubMenu.h"
-#include "Utility.h"
+#include "Sprite.hpp"
+#include "SubMenu.hpp"
+#include "Texture.hpp"
+#include "Utility.hpp"
 
 #include <iostream>
+#include <map>
 
 // Used for menus that show multiple lists of elements whose value can be changed
 class ConfigMenuType : public SubMenu
@@ -29,10 +32,10 @@ protected:
     // Handles updating the value of this element if it has been selected
     virtual void Update() = 0;
 
-    virtual void Render(sf::RenderWindow *win) const;
+    virtual void Render() const;
 
   protected:
-    sf::Text text; // The name of the button to be displayed
+    // sf::Text text; // The name of the button to be displayed
     int value = 0; // The value of the setting/config this element represents
 
     bool isHighlighted = false;
@@ -41,31 +44,31 @@ protected:
   class Toggle : public Element
   {
   public:
-    Toggle(std::string name, bool isToggled, float offset, sf::Texture *tex);
+    Toggle(std::string name, bool isToggled, float offset, Texture* tex);
 
     void Move(float moveAmount) override;
 
     void Update() override;
-    void Render(sf::RenderWindow *win) const override;
+    void Render() const override;
 
   private:
-    sf::Sprite toggleSprite;
+    Sprite toggleSprite;
   };
 
   class Range : public Element
   {
   public:
-    Range(std::string name, int value, float offset, sf::Texture *tex);
+    Range(std::string name, int value, float offset, Texture* tex);
 
     void Move(float moveAmount) override;
 
     void Update() override;
-    void Render(sf::RenderWindow *win) const override;
+    void Render() const override;
 
   private:
-    sf::Sprite arrowSpriteLeft;
-    sf::Sprite arrowSpriteRight;
-    sf::Text valueText;
+    Sprite arrowSpriteLeft;
+    Sprite arrowSpriteRight;
+    //sf::Text valueText;
     // arrow button sprites + extra sf::text for value
   };
 
@@ -84,7 +87,7 @@ public:
   // void AddElement(std::unique_ptr<Element>& element, int tabIndex);
 
   void Update() override; // will have events for if settings are saved, exited, etc
-  void Render(sf::RenderWindow *win) const override;
+  void Render() const override;
 
   std::map<std::string, int> GetConfigs() const;
 
@@ -96,12 +99,13 @@ private:
   int tabIndex = 0;
   int elementIndex = 0;
 
-  std::vector<sf::Text> tabTexts;
-  sf::Texture tabTex;
-  sf::Sprite tabButton;
+  //std::vector<sf::Text> tabTexts;
+  std::vector<std::string> tabTexts;
+  Texture tabTex;
+  Sprite tabButton;
 
-  sf::Texture toggleTex;
-  sf::Texture arrowTex;
+  Texture toggleTex;
+  Texture arrowTex;
 
   std::vector<std::vector<std::unique_ptr<Element>>> elements;
 };

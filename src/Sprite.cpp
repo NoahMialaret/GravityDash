@@ -21,12 +21,14 @@ Sprite::Sprite()
   glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
   glEnableVertexAttribArray(0);
   glEnableVertexAttribArray(1);
+
+  // shader = &Utility::defaultShader;
 }
 
 Sprite::Sprite(Texture *tex, Shader *shad)
   :
-  texture(tex),
-  shader(shad)
+  texture(tex)
+  // shader(&shad)
 {
   std::cout << tex->GetSize().x << " - " << tex->GetSize().y << '\n';
 
@@ -83,9 +85,14 @@ void Sprite::SetTextureBounds(iVec2 topLeft, iVec2 bottomRight)
   vertices[15] = 1.0f - (float)bottomRight.y / texture->GetSize().y;
 }
 
+void Sprite::SetTextureBounds(IRect bounds)
+{
+  SetTextureBounds(iVec2(bounds.left, bounds.top), iVec2(bounds.left + bounds.width, bounds.top + bounds.height));
+}
+
 void Sprite::SetShader(Shader* shad)
 {
-  shader = shad;
+  // shader = shad;
 }
 
 void Sprite::SetOrigin(fVec2 pos)
@@ -93,9 +100,33 @@ void Sprite::SetOrigin(fVec2 pos)
   origin = pos;
 }
 
-void Sprite::Render()
+Texture* Sprite::GetTexture() const
 {
-  shader->Use();
+  return texture;
+}
+
+FRect Sprite::GetBoundingRectangle() const
+{
+  return FRect();
+}
+
+IRect Sprite::GetTextureBounds() const
+{
+  return IRect();
+}
+
+void Sprite::Render() const
+{
+  if (renderPropertiesChanged)
+  {
+    renderPropertiesChanged = true;
+
+    transform = glm::translate(glm::mat4(1.0f), glm::vec3(translation.x, translation.y, 0.0f));
+    transform = glm::rotate(transform, rotation, glm::vec3(0.0f, 0.0f, 1.0f));
+    transform = glm::scale(transform, glm::vec3(scale.x, scale.y, 1.0f));
+  }
+
+  shader.Use();
   texture->Bind();
 
     // glm::mat4 mat = glm::mat4(1.0f);
@@ -103,17 +134,81 @@ void Sprite::Render()
     // mat = glm::rotate(mat, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
     // mat = glm::scale(mat, glm::vec3(2.0f));
 
-    shader->SetUniform("transform", transform);
+    shader.SetUniform("transform", transform);
 
   glBindVertexArray(VAO);
 
   glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 }
 
+void Sprite::Translate(fVec2 value)
+{
+  translation += value;
+  renderPropertiesChanged = true;
+}
+
+void Sprite::SetTranslation(fVec2 value)
+{
+  translation = value;
+  renderPropertiesChanged = true;
+}
+
+void Sprite::Rotate(float value)
+{
+  rotation += value;
+  renderPropertiesChanged = true;
+}
+
+void Sprite::SetRotation(float value)
+{
+  rotation = value;
+  while (rotation >= 360.0f)
+  {
+    rotation -= 360.0f;
+  }
+  while (rotation < 0.0f)
+  {
+    rotation += 360.0f;
+  }
+  renderPropertiesChanged = true;
+}
+
+void Sprite::Scale(float value)
+{
+  scale *= value;
+  renderPropertiesChanged = true;
+}
+
+void Sprite::Scale(fVec2 value)
+{
+  scale.x *= value.x;
+  scale.y *= value.y;
+  renderPropertiesChanged = true;
+}
+
 void Sprite::SetScale(float value)
 {
   scale = fVec2(value);
-  transform = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f));
-  transform = glm::rotate(transform, 0.0f, glm::vec3(0.0f, 0.0f, 1.0f));
-  transform = glm::scale(transform, glm::vec3(scale.x, scale.y, 1.0f));
+  renderPropertiesChanged = true;
+}
+
+void Sprite::SetScale(fVec2 value)
+{
+  scale = value;
+  renderPropertiesChanged = true;
+}
+
+fVec2 Sprite::GetTranslation() const
+{
+  return translation;
+}
+
+float Sprite::GetRotation() const
+{
+  return rotation;
+}
+
+fVec2 Sprite::GetScale() const
+{
+  return scale;
 }

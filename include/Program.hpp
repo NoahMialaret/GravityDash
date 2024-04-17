@@ -1,12 +1,12 @@
-#ifndef PROGRAM_H
-#define PROGRAM_H
+#ifndef PROGRAM_HPP
+#define PROGRAM_HPP
 
-#include "Event.h"
-#include "Game.h"
-#include "Particle.h"
-#include "Score.h"
-#include "MainMenu.h"
-#include "Utility.h"
+#include "Event.hpp"
+#include "Game.hpp"
+#include "Particle.hpp"
+#include "Score.hpp"
+#include "MainMenu.hpp"
+#include "Utility.hpp"
 
 #include <algorithm>
 #include <iostream>
@@ -48,8 +48,9 @@ private:
 
 private:
 	//SFML Objects --------------------------------------------------------
-    sf::RenderWindow window;	// The window of the program 
-	sf::View mainView; 			// Represents the region of the gameworld that should be displayed onto the window
+  //sf::RenderWindow window;	// The window of the program 
+  GLFWwindow* win;
+	//sf::View mainView; 			// Represents the region of the gameworld that should be displayed onto the window
 
 	//Program Variables ---------------------------------------------------
 	State curState = State::notRunning; // The current state of the game

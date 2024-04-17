@@ -1,9 +1,9 @@
-#include "Entity.h"
+#include "Entity.hpp"
 
-Entity::Entity(sf::Texture *tex)
+Entity::Entity(Texture* tex)
 {
-  sprite.setTexture(*tex);
-  sprite.setOrigin(CENTRED_ORIGIN);
+  sprite.SetTexture(tex);
+  sprite.SetOrigin(CENTRED_ORIGIN);
 }
 
 bool Entity::EndOfLife() const
@@ -21,57 +21,62 @@ void Entity::Unfreeze()
   isFrozen = false;
 }
 
-void Entity::Render(sf::RenderWindow *win) const
+void Entity::Render() const
 {
   //Utility::shaderTest.setUniform("texture", sprite.getTexture());
-  win->draw(sprite, &Utility::shaderTest);
+  sprite.Render();
 }
 
 bool Entity::operator<=(Entity& rhs)
 {
-  return this->sprite.getPosition().y <= rhs.sprite.getPosition().y;
+  return this->sprite.GetTranslation().y <= rhs.sprite.GetTranslation().y;
 }
 
 bool Entity::operator<(Entity& rhs)
 {
-  return this->sprite.getPosition().y < rhs.sprite.getPosition().y;
+  return this->sprite.GetTranslation().y < rhs.sprite.GetTranslation().y;
 }
 
 bool Entity::operator>=(Entity& rhs)
 {
-  return this->sprite.getPosition().y >= rhs.sprite.getPosition().y;
+  return this->sprite.GetTranslation().y >= rhs.sprite.GetTranslation().y;
 }
 
 bool Entity::operator>(Entity& rhs)
 {
-  return this->sprite.getPosition().y > rhs.sprite.getPosition().y;
+  return this->sprite.GetTranslation().y > rhs.sprite.GetTranslation().y;
 }
 
 bool Entity::operator<=(float rhs)
 {
-  return this->sprite.getPosition().y <= rhs;
+  return this->sprite.GetTranslation().y <= rhs;
 }
 
 bool Entity::operator<(float rhs)
 {
-  return this->sprite.getPosition().y < rhs;
+  return this->sprite.GetTranslation().y < rhs;
 }
 
 bool Entity::operator>=(float rhs)
 {
-  return this->sprite.getPosition().y >= rhs;
+  return this->sprite.GetTranslation().y >= rhs;
 }
 
 bool Entity::operator>(float rhs)
 {
-  return this->sprite.getPosition().y > rhs;
+  return this->sprite.GetTranslation().y > rhs;
 }
+
+fVec2 Entity::GetPosition()
+{
+  return sprite.GetTranslation();
+} 
 
 // = --------- =
 // = Saw Class =
 // = --------- =
 
-Saw::Saw(sf::Texture* tex, sf::IntRect &worldBorder)
+Saw::Saw(Texture* tex, IRect &worldBorder)
   :
   Entity(tex)
 {
@@ -86,19 +91,19 @@ Saw::Saw(sf::Texture* tex, sf::IntRect &worldBorder)
   float xPos = isGoingRight ? worldBorder.left - SCALED_DIM : worldBorder.left + worldBorder.width;
   float yPos = isOnTop ? worldBorder.top : worldBorder.top + worldBorder.height;
 
-  sprite.setPosition({xPos, yPos});
+  sprite.SetTranslation({xPos, yPos});
   // TODO: change scaling now that it is a saw instead of a spike
-  sprite.setScale({Utility::gameScale, (isOnTop ? 1.0f : -1.0f) * Utility::gameScale});
+  sprite.SetScale({Utility::gameScale, (isOnTop ? 1.0f : -1.0f) * Utility::gameScale});
   cutOffPoint = worldBorder.left + (isGoingRight ? worldBorder.width : 0.0f);
 
   anim = Animation(&sprite);
-  anim.ChangeAnimation(0, 50);
+  anim.ChangeAnimation(0, 0.050);
 }
 
 void Saw::Update(std::vector<Character*> players)
 {
-  if ((vel > 0.0f && sprite.getPosition().x > cutOffPoint) ||
-      (vel < 0.0f && sprite.getPosition().x + SCALED_DIM < cutOffPoint))
+  if ((vel > 0.0f && sprite.GetTranslation().x > cutOffPoint) ||
+      (vel < 0.0f && sprite.GetTranslation().x + SCALED_DIM < cutOffPoint))
   {
     endOfLife = true;
     return;
@@ -106,21 +111,21 @@ void Saw::Update(std::vector<Character*> players)
 
   if (!isFrozen)
   {
-    sprite.move({vel, 0.0f});
+    sprite.Translate({vel, 0.0f});
   }
 
   for (auto& p : players)
   {
-    if (sprite.getGlobalBounds().intersects(p->GetHitBox()))
+    if (sprite.GetBoundingRectangle().IsColliding(p->GetHitBox()))
     // Change to radial distance chenck (is spritedim * gamescale < distance between the two)
     {
       p->Hit();
       // if (p->Hit())
       // {
-      //   sf::Vector2f middlePos = 0.5f * (p->GetLineHitBox().second + p->GetLineHitBox().first);
+      //   fVec2 middlePos = 0.5f * (p->GetLineHitBox().second + p->GetLineHitBox().first);
 
-      //   sf::Vector2f pointVel = 0.2f * (sprite.getPosition() - middlePos);
-      //   p->AddNewPoint(-1000, sprite.getPosition(), pointVel);
+      //   fVec2 pointVel = 0.2f * (sprite.GetTranslation() - middlePos);
+      //   p->AddNewPoint(-1000, sprite.GetTranslation(), pointVel);
       // }
     }
   }
@@ -132,7 +137,7 @@ void Saw::Update(std::vector<Character*> players)
 // = Target Class =
 // = ------------ =
 
-MovingTarget::MovingTarget(sf::Texture* tex, sf::IntRect &worldBorder)
+MovingTarget::MovingTarget(Texture* tex, IRect &worldBorder)
   :
   Entity(tex)
 {
@@ -149,20 +154,20 @@ MovingTarget::MovingTarget(sf::Texture* tex, sf::IntRect &worldBorder)
   float xPos = isGoingRight ? worldBorder.left - SCALED_DIM + posBuffer : worldBorder.left + worldBorder.width + posBuffer;
   float yPos = yDist(Utility::rng);
 
-  sprite.setPosition({xPos, yPos});
-  sprite.setScale(DEFAULT_SCALE);
+  sprite.SetTranslation({xPos, yPos});
+  sprite.SetScale(DEFAULT_SCALE);
   cutOffPoint = worldBorder.left + posBuffer + (isGoingRight ? worldBorder.width : 0.0f);
 
   anim = Animation(&sprite);
-  anim.ChangeAnimation(1, 100);
+  anim.ChangeAnimation(1, 0.100);
 }
 
 
 void MovingTarget::Update(std::vector<Character*> players)
 {
 
-  if ((vel > 0.0f && sprite.getPosition().x > cutOffPoint) ||
-      (vel < 0.0f && sprite.getPosition().x + SCALED_DIM < cutOffPoint))
+  if ((vel > 0.0f && sprite.GetTranslation().x > cutOffPoint) ||
+      (vel < 0.0f && sprite.GetTranslation().x + SCALED_DIM < cutOffPoint))
   {
     endOfLife = true;
     return;
@@ -170,7 +175,7 @@ void MovingTarget::Update(std::vector<Character*> players)
   
   if (!isFrozen)
   {
-    sprite.move({vel, 0.0f});
+    sprite.Translate({vel, 0.0f});
   }
 
   float distanceSquaredThresh = SCALED_DIM * SCALED_DIM;
@@ -184,7 +189,7 @@ void MovingTarget::Update(std::vector<Character*> players)
     {
       // needs to loop through all line segments if there are multiple
       // maybe try to optimise by doing a broad check of proximity before doing line segment calculations
-      float squaredDistance = Utility::GetSquaredDistanceToLineSegment(sprite.getPosition(), players[i]->GetLineHitBox());
+      float squaredDistance = Utility::GetSquaredDistanceToLineSegment(sprite.GetTranslation(), players[i]->GetLineHitBox());
       if (squaredDistance < closestDistance)
       {
         closestIndex = i;
@@ -199,23 +204,23 @@ void MovingTarget::Update(std::vector<Character*> players)
     return;
   }
 
-  Particle *temp = new Particle(Particle::Type::targetExplosion, ZERO_VECTOR, sprite.getPosition(), sprite.getScale());
+  Particle *temp = new Particle(Particle::Type::targetExplosion, ZERO_VECTOR, sprite.GetTranslation(), sprite.GetScale());
   Particle::CreateNewParticle(temp);
 
-  //players[closestIndex].TargetHit(sprite.getPosition());
+  //players[closestIndex].TargetHit(sprite.GetTranslation());
 
   // in player, loop through vector of points (that represent the segment), and take the average
-  sf::Vector2f middlePos = 0.5f * (players[closestIndex]->GetLineHitBox().second + players[closestIndex]->GetLineHitBox().first);
+  fVec2 middlePos = (players[closestIndex]->GetLineHitBox().second + players[closestIndex]->GetLineHitBox().first) * 0.5f;
 
-  sf::Vector2f pointVel = 0.2f * (sprite.getPosition() - middlePos);
+  fVec2 pointVel = (sprite.GetTranslation() - middlePos) * 0.2f;
 
-  players[closestIndex]->AddNewPoint(sprite.getPosition(), pointVel);
+  players[closestIndex]->AddNewPoint(sprite.GetTranslation(), pointVel);
 
   endOfLife = true;
   players[closestIndex]->IncrementComboCount();
 }
 
-// Target::StationaryTarget(sf::Vector2f pos) // Maybe seperate "MovingTarget" class
+// Target::StationaryTarget(fVec2 pos) // Maybe seperate "MovingTarget" class
 // {
 //   sprite.setTexture(tex);
 

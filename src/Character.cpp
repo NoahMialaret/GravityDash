@@ -1,18 +1,18 @@
-#include "Character.h"
+#include "Character.hpp"
 
-Character::Character(const char* spritePath)
+Character::Character(Texture* tex)
   : 
   acceleration(0.2f * Utility::gameScale)
 {
-  if (!tex.loadFromFile(spritePath)) 
-  {
-      std::cout << "Character texture could not be loaded!\n";
-  }
+  // if (!tex.loadFromFile(spritePath)) 
+  // {
+  //     std::cout << "Character texture could not be loaded!\n";
+  // }
 
-  sprite.setTexture(tex);    
-  sprite.setOrigin(CENTRED_ORIGIN);
+  sprite.SetTexture(tex);
+  sprite.SetOrigin(CENTRED_ORIGIN);
 
-  sprite.setScale({Utility::gameScale, -Utility::gameScale});
+  sprite.SetScale({Utility::gameScale, -Utility::gameScale});
 
   anim = Animation(&sprite);
   anim.ChangeAnimation((int)curState, 150);
@@ -32,7 +32,7 @@ void Character::Update()
     UpdateVelocity(move);
   }
   
-  prevPos = sprite.getPosition();
+  prevPos = sprite.GetTranslation();
 
   switch (curState)
   {
@@ -44,32 +44,32 @@ void Character::Update()
 
     curState = State::moving;
 
-    anim.ChangeAnimation((int)curState, (isLastStand ? 3.0f : 1.0f) * 100);
-    sprite.setScale({move * Utility::gameScale, sprite.getScale().y});
+    anim.ChangeAnimation((int)curState, (isLastStand ? 3.0f : 1.0f) * 0.100);
+    sprite.SetScale({move * Utility::gameScale, sprite.GetScale().y});
 
-    nextRunParticle = (isLastStand ? 4.0f : 1.0f) * 150 + CUR_TIME;
+    nextRunParticle = (isLastStand ? 4.0f : 1.0f) * 0.150 + CUR_TIME;
     break;
 
   case State::moving:
     if (vel == ZERO_VECTOR && move == 0)
     {
       curState = State::idle;
-      anim.ChangeAnimation((int)curState, (isLastStand ? 2.0f : 1.0f) * 150);
+      anim.ChangeAnimation((int)curState, (isLastStand ? 2.0f : 1.0f) * 0.150);
       break;
     }
 
-    if (move != 0 && move != Utility::GetSign(sprite.getScale().x))
+    if (move != 0 && move != Utility::GetSign(sprite.GetScale().x))
     {
-      sprite.scale({-1.0f, 1.0f});
+      sprite.Scale({-1.0f, 1.0f});
     }
 
     if (nextRunParticle < CUR_TIME)
     {
-      sf::Vector2f partVel(-move * 0.2f * Utility::gameScale, (isUpright ? -0.1f : 0.1f) * Utility::gameScale);
-      Particle* temp = new Particle(Particle::Type::walkDust, partVel, sprite.getPosition() - 
-        sf::Vector2f(move * 0.5f * SCALED_DIM, 0.0f));
+      fVec2 partVel(-move * 0.2f * Utility::gameScale, (isUpright ? -0.1f : 0.1f) * Utility::gameScale);
+      Particle* temp = new Particle(Particle::Type::walkDust, partVel, sprite.GetTranslation() - 
+        fVec2(move * 0.5f * SCALED_DIM, 0.0f));
       Particle::CreateNewParticle(temp);
-      nextRunParticle += (isLastStand ? 4.0f : 1.0f) * 150;
+      nextRunParticle += (isLastStand ? 4.0f : 1.0f) * 0.150;
     }
     break;
 
@@ -81,15 +81,16 @@ void Character::Update()
     break;
   }
 
-  sprite.move((isLastStand ? 0.5f : 1.0f) * vel);
+  sprite.Translate(vel * (isLastStand ? 0.5f : 1.0f));
   anim.Update();
 }
 
-void Character::Render(sf::RenderWindow *win) const
+void Character::Render() const
 {
-  win->draw(sprite, &Utility::shaderTest);
+  //win->draw(sprite, &Utility::shaderTest);
+  sprite.Render();
 
-  Point::RenderPoints(points, win);
+  Point::RenderPoints(points);
 }
 
 void Character::UpdateVelocity(int dir)
@@ -135,15 +136,15 @@ int Character::Land()
   vel.y = 0.0f;
   curState = State::idle;
 
-  anim.ChangeAnimation((int)State::airborne + 1, 100, 0, (int)curState, 150, 300);
-  sprite.scale({1.0f, -1.0f});
+  anim.ChangeAnimation((int)State::airborne + 1, 0.100, 0, (int)curState, 0.150, 0.300);
+  sprite.Scale({1.0f, -1.0f});
 
-  sf::Vector2f partVel = {Utility::gameScale * 0.3f, 0.0f};
-  sf::Vector2f offset = {0.5f * SCALED_DIM, 0.0f};
+  fVec2 partVel = {Utility::gameScale * 0.3f, 0.0f};
+  fVec2 offset = {0.5f * SCALED_DIM, 0.0f};
 
-  Particle* temp = new Particle(Particle::Type::landingImpact, partVel, sprite.getPosition() + offset, {fabsf(sprite.getScale().x), sprite.getScale().y});
+  Particle* temp = new Particle(Particle::Type::landingImpact, partVel, sprite.GetTranslation() + offset, {fabsf(sprite.GetScale().x), sprite.GetScale().y});
   Particle::CreateNewParticle(temp);
-  temp = new Particle(Particle::Type::landingImpact, -partVel, sprite.getPosition() - offset, {-fabsf(sprite.getScale().x), sprite.getScale().y});
+  temp = new Particle(Particle::Type::landingImpact, partVel * -1.0f, sprite.GetTranslation() - offset, {-fabsf(sprite.GetScale().x), sprite.GetScale().y});
   Particle::CreateNewParticle(temp);
 
   if (isLastStand)
@@ -158,7 +159,7 @@ int Character::Land()
 
   comboCount = 0;
 
-	sf::Vector2f avPos = Point::GetAveragePosition(points);
+	fVec2 avPos = Point::GetAveragePosition(points);
 
 	unsigned int accumulatedPoints = Point::GetTotalScore(points);
 
@@ -199,26 +200,26 @@ bool Character::IsLastStand() const
     return isLastStand;
 }
 
-sf::Vector2f Character::GetPosition() const
+fVec2 Character::GetPosition() const
 {
-    return sprite.getPosition();
+    return sprite.GetTranslation();
 }
 
-void Character::SetPosition(sf::Vector2f& newPos)
+void Character::SetPosition(fVec2& newPos)
 {
     vel.x = 0.0f;
     move = 0;
-    sprite.setPosition(newPos);
+    sprite.SetTranslation(newPos);
 }
 
-sf::FloatRect Character::GetHitBox() const
+FRect Character::GetHitBox() const
 {
-    return sprite.getGlobalBounds();
+    return sprite.GetBoundingRectangle();
 }
 
-std::pair<sf::Vector2f, sf::Vector2f> Character::GetLineHitBox() const
+std::pair<fVec2, fVec2> Character::GetLineHitBox() const
 {
-    return std::pair<sf::Vector2f, sf::Vector2f>(prevPos, sprite.getPosition());
+    return std::pair<fVec2, fVec2>(prevPos, sprite.GetTranslation());
 }
 
 void Character::IncrementComboCount()
@@ -226,7 +227,7 @@ void Character::IncrementComboCount()
   comboCount++;
 }
 
-void Character::AddNewPoint(sf::Vector2f pos, sf::Vector2f vel)
+void Character::AddNewPoint(fVec2 pos, fVec2 vel)
 {
   int value = 50 * (int)pow(2, comboCount);
   if (value >= 25600) // The score from hitting 10th target in a row
@@ -238,7 +239,7 @@ void Character::AddNewPoint(sf::Vector2f pos, sf::Vector2f vel)
   AddNewPoint(value, pos, vel);
 }
 
-void Character::AddNewPoint(int value, sf::Vector2f pos, sf::Vector2f vel)
+void Character::AddNewPoint(int value, fVec2 pos, fVec2 vel)
 {
   if (value < 0) // Temp code until points and entity link lists are refactored
   {
@@ -252,9 +253,9 @@ void Character::AddNewPoint(int value, sf::Vector2f pos, sf::Vector2f vel)
 // Playable Character
 // ------------------
 
-PlayableCharacter::PlayableCharacter(const char* spritePath, std::unique_ptr<Controls>& controls)
+PlayableCharacter::PlayableCharacter(Texture* tex, std::unique_ptr<Controls>& controls)
     : 
-    Character(spritePath)
+    Character(tex)
 {
   this->controls = std::move(controls);
 }
@@ -285,9 +286,9 @@ void PlayableCharacter::Update()
 // Computer Character
 // ------------------
 
-ComputerCharacter::ComputerCharacter(const char* spritePath)
+ComputerCharacter::ComputerCharacter(Texture* tex)
   :
-  Character(spritePath)
+  Character(tex)
 {}
 
 void ComputerCharacter::Update()

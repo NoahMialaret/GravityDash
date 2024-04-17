@@ -1,8 +1,8 @@
-#include "Point.h"
+#include "Point.hpp"
 
-sf::Texture Point::tex;
+Texture Point::tex;
 
-Point::Point(int value, sf::Vector2f pos, sf::Vector2f vel)
+Point::Point(int value, fVec2 pos, fVec2 vel)
     :
     value(value),
     pos(pos),
@@ -11,22 +11,22 @@ Point::Point(int value, sf::Vector2f pos, sf::Vector2f vel)
   bool isNegative = value < 0;
 
     std::string digits = Utility::IntToString(abs(value));
-    sf::IntRect texRect(0, 0, NUM_TEX_WIDTH, NUM_TEX_HEIGHT);
-    sf::Vector2f spritePos = pos;
+    IRect texRect(0, 0, NUM_TEX_WIDTH, NUM_TEX_HEIGHT);
+    fVec2 spritePos = pos;
     float posOffset = (Utility::gameScale / 2) * (NUM_TEX_WIDTH - 1);
     spritePos.x = pos.x - (digits.size() - 1 + isNegative) * (posOffset / 2.0f);
 
     if (isNegative)
     {
-        sf::Sprite temp;
+        Sprite temp;
 
-        temp.setTexture(tex);
-        texRect.left = tex.getSize().x - NUM_TEX_WIDTH;
-        temp.setTextureRect(texRect);
+        temp.SetTexture(&tex);
+        texRect.left = tex.GetSize().x - NUM_TEX_WIDTH;
+        temp.SetTextureBounds(texRect);
 
-        temp.setOrigin(CENTRED_ORIGIN);
-        temp.setPosition(spritePos);
-        temp.setScale(0.5f * DEFAULT_SCALE);
+        temp.SetOrigin(CENTRED_ORIGIN);
+        temp.SetTranslation(spritePos);
+        temp.SetScale(DEFAULT_SCALE * 0.5f);
 
         sprites.push_back(temp);
 
@@ -35,15 +35,15 @@ Point::Point(int value, sf::Vector2f pos, sf::Vector2f vel)
 
     for (auto& d : digits)
     {
-        sf::Sprite temp;
+        Sprite temp;
 
-        temp.setTexture(tex);
+        temp.SetTexture(&tex);
         texRect.left = (d - 48) * NUM_TEX_WIDTH;
-        temp.setTextureRect(texRect);
+        temp.SetTextureBounds(texRect);
 
-        temp.setOrigin(CENTRED_ORIGIN);
-        temp.setPosition(spritePos);
-        temp.setScale(0.5f * DEFAULT_SCALE);
+        temp.SetOrigin(CENTRED_ORIGIN);
+        temp.SetTranslation(spritePos);
+        temp.SetScale(DEFAULT_SCALE * 0.5f);
 
         sprites.push_back(temp);
 
@@ -51,7 +51,7 @@ Point::Point(int value, sf::Vector2f pos, sf::Vector2f vel)
     }
 }
 
-Point::Point(int value, sf::Vector2f pos, sf::Int32 waitToRender, sf::Int32 dur)
+Point::Point(int value, fVec2 pos, double waitToRender, double dur)
     :
     Point(value, pos, ZERO_VECTOR)
 {
@@ -132,11 +132,11 @@ void Point::UpdatePoints(Point*& points)
     }
 }
 
-void Point::RenderPoints(Point* points, sf::RenderWindow* win)
+void Point::RenderPoints(Point* points)
 {
     if (points != nullptr)
     {
-        points->Render(win);
+        points->Render();
     }
 }
 
@@ -152,24 +152,24 @@ unsigned int Point::GetTotalScore(Point* points)
     return total;
 }
 
-sf::Vector2f Point::GetAveragePosition(Point* points)
+fVec2 Point::GetAveragePosition(Point* points)
 {
     if (points == nullptr)
     {
         return {0.0f, 0.0f};
     }
 
-    sf::Vector2f accumulatedPosition = ZERO_VECTOR;
+    fVec2 accumulatedPosition = ZERO_VECTOR;
     int numPoints = 0;
 
     points->AddPosition(&accumulatedPosition, &numPoints);
 
-    sf::Vector2f averagePos = (1.0f / (float)numPoints) * accumulatedPosition;
+    fVec2 averagePos = accumulatedPosition * (1.0f / (float)numPoints);
 
     return averagePos;
 }
 
-void Point::SetPointsDestination(Point* points, sf::Vector2f dest, sf::Int32 dur)
+void Point::SetPointsDestination(Point* points, fVec2 dest, double dur)
 {
     if (points == nullptr)
     {
@@ -210,7 +210,7 @@ void Point::Update()
 
     for (auto& s : sprites)
     {
-        s.move(vel);
+        s.Translate(vel);
     }
 
     pos += vel;
@@ -221,19 +221,19 @@ void Point::Update()
     }
 }
 
-void Point::Render(sf::RenderWindow* win) const
+void Point::Render() const
 {
     if (waitToRender < CUR_TIME)
     {
         for (auto& s : sprites)
         {
-            win->draw(s);
+            s.Render();
         }
     }
 
     if (nextPoint != nullptr)
     {
-        nextPoint->Render(win);
+        nextPoint->Render();
     }
 }
 
@@ -250,7 +250,7 @@ void Point::AddValue(unsigned int* total) const
     }
 }
 
-void Point::AddPosition(sf::Vector2f* pos, int* count) const
+void Point::AddPosition(fVec2* pos, int* count) const
 {
     if (!isMovingToDestination)
     {
@@ -264,7 +264,7 @@ void Point::AddPosition(sf::Vector2f* pos, int* count) const
     }
 }
 
-void Point::SetDestination(sf::Vector2f& dest, sf::Int32& dur)
+void Point::SetDestination(fVec2& dest, double& dur)
 {
     if (nextPoint != nullptr)
     {
@@ -278,8 +278,8 @@ void Point::SetDestination(sf::Vector2f& dest, sf::Int32& dur)
 
     waitTime = 500 + CUR_TIME;
 
-    sf::Vector2f difference = dest - pos;
-    vel = (1.0f / (float)dur) * 17 * difference;
+    fVec2 difference = dest - pos;
+    vel = difference * (1.0f / (float)dur) * 17;
     EndOfLifespan = dur + 500 + CUR_TIME;
     isMovingToDestination = true;
 }

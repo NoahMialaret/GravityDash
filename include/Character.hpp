@@ -1,12 +1,15 @@
-#ifndef CHARACTER_H
-#define CHARACTER_H
+#ifndef CHARACTER_HPP
+#define CHARACTER_HPP
 
-#include "Animation.h"
-#include "Controls.h"
-#include "Particle.h"
-#include "Point.h"
-#include "Utility.h"
+#include "Animation.hpp"
+#include "Controls.hpp"
+#include "Particle.hpp"
+#include "Point.hpp"
+#include "Sprite.hpp"
+#include "Texture.hpp"
+#include "Utility.hpp"
 
+#include <algorithm>
 #include <iostream>
 #include <memory>
 #include <string>
@@ -27,13 +30,13 @@ public:
 
 public:
   // The player contructors, takes the relative filepath to its texture and the controls that will be used to move it
-  Character(const char *spritePath);
+  Character(Texture* tex);
   virtual ~Character();
 
   // Updates the player's state, animation, and position based on player inputs
   virtual void Update();
   // Renders the player's sprite
-  void Render(sf::RenderWindow *win) const;
+  void Render() const;
 
   // Updates the player's horizontal velocity based on which direction is being held
   void UpdateVelocity(int dir);
@@ -49,28 +52,28 @@ public:
   // Returns whether it is the player's last stand
   bool IsLastStand() const;
   // Returns the player's current sprite position
-  sf::Vector2f GetPosition() const;
+  fVec2 GetPosition() const;
   // Sets the player's sprite position
-  virtual void SetPosition(sf::Vector2f &newPos);
+  virtual void SetPosition(fVec2& newPos);
   // Returns the player's sprite hitbox
-  sf::FloatRect GetHitBox() const;
+  FRect GetHitBox() const;
   // Returns a line segment hitbox represented by the player's previous and current position, used for when
   // the player is airborne and is therefore likely travelling faster than the width of its regular hitbox
-  std::pair<sf::Vector2f, sf::Vector2f> GetLineHitBox() const;
+  std::pair<fVec2, fVec2> GetLineHitBox() const;
 
   // Adds a point to the points linked list
-  void AddNewPoint(sf::Vector2f pos, sf::Vector2f vel);
-  void AddNewPoint(int value, sf::Vector2f pos, sf::Vector2f vel);
+  void AddNewPoint(fVec2 pos, fVec2 vel);
+  void AddNewPoint(int value, fVec2 pos, fVec2 vel);
   // Increments the combo counter by one
   void IncrementComboCount();
 
 protected:
-  sf::Texture tex;   // The player's spritesheet
-  sf::Sprite sprite; // The player's sprite used for rendering
+  //Texture tex;   // The player's spritesheet
+  Sprite sprite; // The player's sprite used for rendering
   Animation anim;    // The player's animation handler
 
-  sf::Vector2f prevPos = ZERO_VECTOR; // The player's position on the previous frame, used in hitbox calculations
-  sf::Vector2f vel = ZERO_VECTOR;     // The player's velocity
+  fVec2 prevPos = ZERO_VECTOR; // The player's position on the previous frame, used in hitbox calculations
+  fVec2 vel = ZERO_VECTOR;     // The player's velocity
   int move = 0;
   float acceleration = 0; // A modifier that determines how much the player's velocity changes each frame
 
@@ -79,11 +82,11 @@ protected:
   State curState = State::idle; // The current state of the player
   bool isLastStand = false;     // Whether this is the player's last jump due to getting hit
 
-  sf::Int32 nextRunParticle = 0; // The time at which to spawn a run particle
+  double nextRunParticle = 0; // The time at which to spawn a run particle
 
-  sf::Int32 waitToJump = 0; // The time at which it is okay to jump again
+  double waitToJump = 0; // The time at which it is okay to jump again
 
-  Point *points = nullptr; // The points a player accumulates from hitting targets during a jump
+  Point* points = nullptr; // The points a player accumulates from hitting targets during a jump
   int comboCount = 0;      // The number of consecutive targets destroyed in a jump
 
   int invincibleEnd = 0;
@@ -92,7 +95,7 @@ protected:
 class PlayableCharacter : public Character
 {
 public:
-  PlayableCharacter(const char *spritePath, std::unique_ptr<Controls> &controls);
+  PlayableCharacter(Texture* tex, std::unique_ptr<Controls>& controls);
 
   void Update() override;
 
@@ -103,7 +106,7 @@ private:
 class ComputerCharacter : public Character
 {
 public:
-  ComputerCharacter(const char *spritePath);
+  ComputerCharacter(Texture* tex);
 
   void Update() override;
 };

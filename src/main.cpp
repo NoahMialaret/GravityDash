@@ -2,8 +2,8 @@
 
 #include "Texture.hpp"
 
-#include "Program.h"
-#include "Utility.h"
+#include "Program.hpp"
+#include "Utility.hpp"
 
 int main()
 {

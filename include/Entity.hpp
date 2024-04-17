@@ -1,10 +1,14 @@
-#ifndef ENTITY_H
-#define ENTITY_H
+#ifndef ENTITY_HPP
+#define ENTITY_HPP
 
-#include "Animation.h"
-#include "Character.h"
-#include "Particle.h"
-#include "Utility.h"
+#include "Animation.hpp"
+#include "Character.hpp"
+#include "Particle.hpp"
+#include "Rect.hpp"
+#include "Sprite.hpp"
+#include "Texture.hpp"
+#include "Utility.hpp"
+#include "Vec2.hpp"
 
 #include <iostream>
 
@@ -12,13 +16,13 @@
 class Entity
 {
 public:
-  Entity(sf::Texture* tex);
+  Entity(Texture* tex);
   virtual ~Entity() = default;
 
   // Virtual function for updating entity logic
-  void virtual Update(std::vector<Character *> players) = 0;
+  void virtual Update(std::vector<Character*> players) = 0;
   // Renders the entity
-  void Render(sf::RenderWindow *win) const;
+  void Render() const;
 
   // Stops the entity from moving
   void Freeze();
@@ -38,13 +42,10 @@ public:
   bool operator>=(float rhs); 
   bool operator>(float rhs); 
 
-  sf::Vector2f GetPosition()
-  {
-    return sprite.getPosition();
-  }
+  fVec2 GetPosition();
 
 protected:
-  sf::Sprite sprite; // The sprite used by the entity
+  Sprite sprite; // The sprite used by the entity
   Animation anim;    // The entity's animation handler
 
   float vel = 0.0f;  // The entity's horizontal velocity
@@ -60,9 +61,9 @@ class Saw : public Entity
 public:
   Saw() = delete;
   // Constructor uses the world border to determine spawn positions and cutoff points
-  Saw(sf::Texture* tex, sf::IntRect &worldBorder);
+  Saw(Texture* tex, IRect& worldBorder);
   // Updates the spike's position and checks for player collisions
-  void Update(std::vector<Character *> players) override;
+  void Update(std::vector<Character*> players) override;
 
 private:
   float cutOffPoint = 0.0f; // The pixel position of the screen at which the entity should be culled
@@ -75,9 +76,9 @@ class MovingTarget : public Entity
 public:
   MovingTarget() = delete;
   // Constructor uses the world border to determine spawn positions and cutoff points
-  MovingTarget(sf::Texture* tex, sf::IntRect &worldBorder);
+  MovingTarget(Texture* tex, IRect& worldBorder);
   // Updates the spike's position and checks for player collisions
-  void Update(std::vector<Character *> players) override;
+  void Update(std::vector<Character*> players) override;
 
 private:
   float cutOffPoint = 0.0f; // The pixel position of the screen at which the entity should be culled
@@ -89,7 +90,7 @@ private:
 //   // Constructor uses the world border to determine spawn positions and cutoff points
 //   StationaryTarget(sf::Texture* tex, sf::IntRect &worldBorder, int lifespan);
 //   // Spawns a stationary target at the desired position
-//   StationaryTarget(sf::Vector2f pos);
+//   StationaryTarget(fVec2 pos);
 //   // Updates the spike's position and checks for player collisions
 //   void Update(std::vector<Character *> players) override;
 

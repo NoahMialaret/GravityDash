@@ -1,22 +1,19 @@
-#include "Score.h"
+#include "Score.hpp"
 
-Score::Score(const char* spritePath, sf::Vector2f topRightOrigin)
-    :
-    topRightOrigin(topRightOrigin)
+Score::Score(const char* spritePath, fVec2 topRightOrigin)
+  :
+  topRightOrigin(topRightOrigin)
 {
-    if (!tex.loadFromFile(spritePath)) 
-    {
-        std::cout << "Score texture could not be loaded!\n";
-    }
+  tex.LoadFromFile(spritePath);
 
   PushBackNumber(0);
 }
 
-void Score::Render(sf::RenderWindow* win) const
+void Score::Render() const
 {
-  for (auto &digits : scoreSprites)
+  for (auto& digits : scoreSprites)
   {
-    win->draw(digits);
+    digits.Render();
   }
 }
 
@@ -46,19 +43,19 @@ std::string Score::GetAsString() const
 
 void Score::PushBackNumber(int value)
 {
-  sf::IntRect texRect((value)*SCORE_TEX_WIDTH, 0, SCORE_TEX_WIDTH, SCORE_TEX_HEIGHT);
+  IRect texRect((value)*SCORE_TEX_WIDTH, 0, SCORE_TEX_WIDTH, SCORE_TEX_HEIGHT);
 
-  sf::Sprite temp;
+  Sprite temp;
 
-  temp.setTexture(tex);
-  temp.setTextureRect(texRect);
+  temp.SetTexture(&tex);
+  temp.SetTextureBounds(texRect);
 
-  sf::Vector2f pos = topRightOrigin;
+  fVec2 pos = topRightOrigin;
   pos.x -= scoreSprites.size() * SCORE_TEX_WIDTH * Utility::gameScale;
 
-  temp.setOrigin({SCORE_TEX_WIDTH, 0.0f});
-  temp.setPosition(pos);
-  temp.setScale(DEFAULT_SCALE);
+  temp.SetOrigin({SCORE_TEX_WIDTH, 0.0f});
+  temp.SetTranslation(pos);
+  temp.SetScale(DEFAULT_SCALE);
 
   scoreSprites.push_back(temp);
   totalScore.push_back(value);
@@ -71,7 +68,7 @@ void Score::Add(unsigned int value)
   {
     int digit = value % 10;
 
-    sf::IntRect texRect = scoreSprites[i].getTextureRect();
+    IRect texRect = scoreSprites[i].GetTextureBounds();
     texRect.left += (digit + carry) * SCORE_TEX_WIDTH;
     totalScore[i] += digit + carry;
 
@@ -83,7 +80,7 @@ void Score::Add(unsigned int value)
       totalScore[i] -= 10;
       carry = true;
     }
-    scoreSprites[i].setTextureRect(texRect);
+    scoreSprites[i].SetTextureBounds(texRect);
   }
 
   while (value != 0 || carry)
@@ -113,7 +110,7 @@ void Score::Subtract(unsigned int value)
   {
     int digit = value % 10;
 
-    sf::IntRect texRect = scoreSprites[i].getTextureRect();
+    IRect texRect = scoreSprites[i].GetTextureBounds();
     texRect.left -= (digit + carry) * SCORE_TEX_WIDTH;
     totalScore[i] -= digit + carry;
 
@@ -132,7 +129,7 @@ void Score::Subtract(unsigned int value)
       totalScore[i] += 10;
       carry = true;
     }
-    scoreSprites[i].setTextureRect(texRect);
+    scoreSprites[i].SetTextureBounds(texRect);
   }
 
   if (value != 0)
@@ -163,7 +160,7 @@ void Score::Subtract(unsigned int value)
   //   temp.setTexture(tex);
   //   temp.setTextureRect(texRect);
 
-  //   sf::Vector2f pos = topRightOrigin;
+  //   fVec2 pos = topRightOrigin;
   //   pos.x -= scoreSprites.size() * SCORE_TEX_WIDTH * Utility::gameScale;
 
   //   temp.setOrigin({SCORE_TEX_WIDTH, 0.0f});

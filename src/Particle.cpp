@@ -1,35 +1,35 @@
-#include "Particle.h"
+#include "Particle.hpp"
 Particle* Particle::particles = nullptr;
-sf::Texture Particle::tex;
+Texture Particle::tex;
 
 
-Particle::Particle(Particle::Type type, sf::Vector2f vel, sf::Vector2f pos, sf::Vector2f scale)
+Particle::Particle(Particle::Type type, fVec2 vel, fVec2 pos, fVec2 scale)
     :
     vel(vel)
 {
-    sprite.setTexture(tex);
+    sprite.SetTexture(&tex);
 
-    sprite.setOrigin(CENTRED_ORIGIN);
-    sprite.setPosition(pos);
-    sprite.setScale(scale);
+    sprite.SetOrigin(CENTRED_ORIGIN);
+    sprite.SetTranslation(pos);
+    sprite.SetScale(scale);
 
     anim = Animation(&sprite);
 
     switch (type)
     {
         case Type::walkDust:
-            anim.ChangeAnimation((int)type, 100);
-            EndOfLifespan = 300 + CUR_TIME;
+            anim.ChangeAnimation((int)type, 0.100);
+            EndOfLifespan = 0.300 + CUR_TIME;
             break;
 
         case Type::landingImpact:
-            anim.ChangeAnimation((int)type, 50);
-            EndOfLifespan = 200 + CUR_TIME;
+            anim.ChangeAnimation((int)type, 0.050);
+            EndOfLifespan = 0.200 + CUR_TIME;
             break;
             
         case Type::targetExplosion:
-            anim.ChangeAnimation((int)type, 25);
-            EndOfLifespan = 100 + CUR_TIME;
+            anim.ChangeAnimation((int)type, 0.025);
+            EndOfLifespan = 0.100 + CUR_TIME;
             break;
         
         default:
@@ -111,11 +111,11 @@ void Particle::UpdateParticles()
     }
 }
 
-void Particle::RenderParticles(sf::RenderWindow* win)
+void Particle::RenderParticles()
 {
     if (particles != nullptr)
     {
-        particles->Render(win);
+        particles->Render();
     }
 }
 
@@ -143,16 +143,16 @@ void Particle::Update()
         return;
     }
 
-    sprite.move(vel);
+    sprite.Translate(vel);
     anim.Update();
 }
 
-void Particle::Render(sf::RenderWindow* win) const
+void Particle::Render() const
 {
-    win->draw(sprite);
+    sprite.Render();
 
     if (nextParticle != nullptr)
     {
-        nextParticle->Render(win);
+        nextParticle->Render();
     }
 }

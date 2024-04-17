@@ -1,20 +1,19 @@
-#include "MainMenu.h"
+#include "MainMenu.hpp"
 
 MainMenu::MainMenu(bool showIntro)
 {
+  buttonTex.LoadFromFile("assets/Buttons.png");
+  charTex.LoadFromFile("assets/GravTestChar.png");
+  entityTex.LoadFromFile("assets/GravWEs.png");
+
   for (int i = 0; i < 4; i++)
   {
-    cpus.push_back(std::make_unique<ComputerCharacter>("assets/GravTestChar.png"));
+    cpus.push_back(std::make_unique<ComputerCharacter>(&charTex));
     cpus[i].get()->StartJump();
   }
 
-  if (!entityTex.loadFromFile("assets/GravWEs.png")) 
-  {
-    std::cout << "\tEntity textures could not be loaded!\n";
-  }
-
-  sf::Vector2i worldSize = int(SCALED_DIM) * sf::Vector2i(16, 8);
-  sf::IntRect worldRect(-worldSize / 2, worldSize);
+  iVec2 worldSize = iVec2(16, 8) * int(SCALED_DIM);
+  IRect worldRect(worldSize / -2, worldSize);
   world = std::make_unique<World>(worldRect);
 
   SubMenu::SetBottomLeftTitlePosition({(float)worldRect.left, (float)worldRect.top - 2.0f * Utility::gameScale});
@@ -50,12 +49,12 @@ void MainMenu::Update()
     CorrectCharacterPos(cpu.get());
   }
 
-  std::uniform_int_distribution spawnChance(0, 99);
+  std::uniform_int_distribution<> spawnChance(0, 99);
   int randomInt = spawnChance(Utility::rng);
 
   if (randomInt > 90)
   {
-    sf::IntRect playableRegion = world.get()->GetRegion();
+    IRect playableRegion = world.get()->GetRegion();
     Entity* temp = new MovingTarget(&entityTex, playableRegion);
     auto searchFrom = entities.Start();
     if (*temp > 0)
@@ -65,7 +64,7 @@ void MainMenu::Update()
 
   curSubMenu.get()->Update();
 
-  if (Utility::CheckInitialPress(sf::Keyboard::Space))
+  if (Utility::CheckInitialPress(GLFW_KEY_SPACE))
   {
     std::unique_ptr<SubMenu> temp = curSubMenu.get()->ClickButton();
 
@@ -86,33 +85,33 @@ void MainMenu::Return()
   }
 }
 
-void MainMenu::Render(sf::RenderWindow* win) const
+void MainMenu::Render() const
 {
-  world.get()->Render(win);
+  world.get()->Render();
 
   auto node = entities.Start();
   while(node != nullptr)
   {
-    node->GetData()->Render(win);
+    node->GetData()->Render();
     node = node->GetNextNode();
   }
 
-  Particle::RenderParticles(win);
+  Particle::RenderParticles();
 
   for (auto& cpu : cpus)
   {
-    cpu.get()->Render(win);
+    cpu.get()->Render();
   }
 
-  curSubMenu.get()->Render(win);
+  curSubMenu.get()->Render();
 }
 
 void MainMenu::CorrectCharacterPos(Character* cpu)
 {
-  sf::Vector2f CharacterPos = cpu->GetPosition();
+  fVec2 CharacterPos = cpu->GetPosition();
   float posBuffer = 0.5f * SCALED_DIM;
 
-  sf::IntRect playableRegion = world.get()->GetRegion();
+  IRect playableRegion = world.get()->GetRegion();
 
   if (CharacterPos.x - posBuffer < playableRegion.left)
   {

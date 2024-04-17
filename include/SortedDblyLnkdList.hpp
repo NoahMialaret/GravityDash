@@ -1,5 +1,5 @@
-#ifndef SORTEDDBLYLINKLIST_H
-#define SORTEDDBLYLINKLIST_H
+#ifndef SORTEDDBLYLINKLIST_HPP
+#define SORTEDDBLYLINKLIST_HPP
 
 template <typename T>
 class SortedDblyLnkdList
