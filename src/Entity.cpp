@@ -113,19 +113,30 @@ void Saw::Update(std::vector<Character*> players)
     sprite.move({vel, 0.0f});
   }
 
+  float distanceSquaredThresh = SCALED_DIM * SCALED_DIM;
+
   for (auto& p : players)
   {
-    if (sprite.getGlobalBounds().intersects(p->GetHitBox()))
-    // Change to radial distance chenck (is spritedim * gamescale < distance between the two)
-    {
-      p->Hit();
-      // if (p->Hit())
-      // {
-      //   sf::Vector2f middlePos = 0.5f * (p->GetLineHitBox().second + p->GetLineHitBox().first);
+    // if (sprite.getGlobalBounds().intersects(p->GetHitBox()))
+    // // Change to radial distance chenck (is spritedim * gamescale < distance between the two)
+    // {
+    //   p->Hit();
+    //   // if (p->Hit())
+    //   // {
+    //   //   sf::Vector2f middlePos = 0.5f * (p->GetLineHitBox().second + p->GetLineHitBox().first);
 
-      //   sf::Vector2f pointVel = 0.2f * (sprite.getPosition() - middlePos);
-      //   p->AddNewPoint(-1000, sprite.getPosition(), pointVel);
-      // }
+    //   //   sf::Vector2f pointVel = 0.2f * (sprite.getPosition() - middlePos);
+    //   //   p->AddNewPoint(-1000, sprite.getPosition(), pointVel);
+    //   // }
+    // }
+
+    // needs to loop through all line segments if there are multiple
+    // maybe try to optimise by doing a broad check of proximity before doing line segment calculations
+    float squaredDistance = Utility::GetSquaredDistanceToLineSegment(sprite.getPosition(), p->GetLineHitBox());
+    // std::cout << "Distance: " << squaredDistance << '\n';
+    if (squaredDistance < distanceSquaredThresh)
+    {
+      p->Hit(sprite.getPosition());
     }
   }
 
@@ -177,7 +188,7 @@ void MovingTarget::Update(std::vector<Character*> players)
     sprite.move({vel, 0.0f});
   }
 
-  float distanceSquaredThresh = SCALED_DIM * SCALED_DIM;
+  // float distanceSquaredThresh = SCALED_DIM * SCALED_DIM;
   // change to pointer to use range based for loop
   int closestIndex = -1;
   float closestDistance = SCALED_DIM * SCALED_DIM;

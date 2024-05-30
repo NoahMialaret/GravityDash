@@ -199,29 +199,36 @@ void Game::CorrectCharacterPos(Character* player)
 	{
 		playerPos.x = playableRegion.left + posBuffer;
 		player->SetPosition(playerPos);
+    player->SetXVelocity(0.0f);
 	}
 	else if (playerPos.x + posBuffer > playableRegion.left + playableRegion.width)
 	{
 		playerPos.x = playableRegion.left + playableRegion.width - posBuffer;
 		player->SetPosition(playerPos);
+    player->SetXVelocity(0.0f);
 	}
 
-	if (player->GetCurState() == Character::State::airborne)
-	{
-		if (playerPos.y - posBuffer < playableRegion.top)
-		{
-			playerPos.y = playableRegion.top + posBuffer;
-			player->SetPosition(playerPos);
+  if (playerPos.y - posBuffer < playableRegion.top)
+  {
+    playerPos.y = playableRegion.top + posBuffer;
+    player->SetPosition(playerPos);
+    player->SetYVelocity(0.0f);
 
-			HandleLandingSequence(player);
-		}
-		else if (playerPos.y + posBuffer > playableRegion.top + playableRegion.height)
-		{
-			playerPos.y = playableRegion.top + playableRegion.height - posBuffer;
-			player->SetPosition(playerPos);
-			
-			HandleLandingSequence(player);
-		}
+    if (player->GetCurState() == Character::State::airborne)
+    {
+      HandleLandingSequence(player);
+    }
+  }
+  else if (playerPos.y + posBuffer > playableRegion.top + playableRegion.height)
+  {
+    playerPos.y = playableRegion.top + playableRegion.height - posBuffer;
+    player->SetPosition(playerPos);
+    player->SetYVelocity(0.0f);
+    
+    if (player->GetCurState() == Character::State::airborne)
+    {
+      HandleLandingSequence(player);
+    }
 	}
 }
 

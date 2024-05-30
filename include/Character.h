@@ -44,7 +44,7 @@ public:
   // Reorientates the player and changes the player's state when the player has landed after jumping
   virtual int Land();
   // Attempts to damage the player if it is not invincible
-  bool Hit();
+  bool Hit(sf::Vector2f entPos);
 
   // Returns the players current state
   State GetCurState() const;
@@ -53,7 +53,10 @@ public:
   // Returns the player's current sprite position
   sf::Vector2f GetPosition() const;
   // Sets the player's sprite position
-  virtual void SetPosition(sf::Vector2f &newPos);
+  void SetPosition(sf::Vector2f& newPos);
+  // Sets the player's velocity
+  void SetXVelocity(float xVel);
+  void SetYVelocity(float yVel);
   // Returns the player's sprite hitbox
   sf::FloatRect GetHitBox() const;
   // Returns a line segment hitbox represented by the player's previous and current position, used for when
@@ -75,6 +78,7 @@ protected:
 
   sf::Vector2f prevPos = ZERO_VECTOR; // The player's position on the previous frame, used in hitbox calculations
   sf::Vector2f vel = ZERO_VECTOR;     // The player's velocity
+  // Use queue to store multiple "lines"
   int move = 0;
   float acceleration = 0; // A modifier that determines how much the player's velocity changes each frame
 
