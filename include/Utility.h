@@ -72,7 +72,8 @@ public:
   static std::vector<Event> events;   // Accumulated game events
 
 
-  static sf::Shader shaderTest;
+  static sf::Shader entShad;
+  static sf::Shader worldShad;
 };
 
 #endif

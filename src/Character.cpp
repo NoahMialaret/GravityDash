@@ -1,8 +1,9 @@
 #include "Character.h"
 
-Character::Character(const char* spritePath)
+Character::Character(const char* spritePath, int charID)
   : 
-  acceleration(0.2f * Utility::gameScale)
+  acceleration(0.2f * Utility::gameScale),
+  charID(charID)
 {
   if (!tex.loadFromFile(spritePath)) 
   {
@@ -87,7 +88,8 @@ void Character::Update()
 
 void Character::Render(sf::RenderWindow *win) const
 {
-  win->draw(sprite, &Utility::shaderTest);
+  Utility::entShad.setUniform("colorID", charID);
+  win->draw(sprite, &Utility::entShad);
 
   Point::RenderPoints(points, win);
 }
@@ -252,9 +254,9 @@ void Character::AddNewPoint(int value, sf::Vector2f pos, sf::Vector2f vel)
 // Playable Character
 // ------------------
 
-PlayableCharacter::PlayableCharacter(const char* spritePath, std::unique_ptr<Controls>& controls)
+PlayableCharacter::PlayableCharacter(const char* spritePath, int charID, std::unique_ptr<Controls>& controls)
     : 
-    Character(spritePath)
+    Character(spritePath, charID)
 {
   this->controls = std::move(controls);
 }
@@ -285,9 +287,9 @@ void PlayableCharacter::Update()
 // Computer Character
 // ------------------
 
-ComputerCharacter::ComputerCharacter(const char* spritePath)
+ComputerCharacter::ComputerCharacter(const char* spritePath, int charID)
   :
-  Character(spritePath)
+  Character(spritePath, charID)
 {}
 
 void ComputerCharacter::Update()

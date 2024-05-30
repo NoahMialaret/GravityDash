@@ -266,7 +266,7 @@ void GridMenu::Button::Render(sf::RenderWindow* win) const
 {
     for (auto& s : sprites)
     {
-        win->draw(s);
+        win->draw(s, &Utility::worldShad);
     }
 
     win->draw(name);

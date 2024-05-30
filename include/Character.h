@@ -29,7 +29,7 @@ public:
 
 public:
   // The player contructors, takes the relative filepath to its texture and the controls that will be used to move it
-  Character(const char *spritePath);
+  Character(const char *spritePath, int charID);
   virtual ~Character();
 
   // Updates the player's state, animation, and position based on player inputs
@@ -67,6 +67,8 @@ public:
   void IncrementComboCount();
 
 protected:
+  int charID = 0;
+
   sf::Texture tex;   // The player's spritesheet
   sf::Sprite sprite; // The player's sprite used for rendering
   Animation anim;    // The player's animation handler
@@ -94,7 +96,7 @@ protected:
 class PlayableCharacter : public Character
 {
 public:
-  PlayableCharacter(const char *spritePath, std::unique_ptr<Controls> &controls);
+  PlayableCharacter(const char *spritePath, int charID, std::unique_ptr<Controls> &controls);
 
   void Update() override;
 
@@ -105,7 +107,7 @@ private:
 class ComputerCharacter : public Character
 {
 public:
-  ComputerCharacter(const char *spritePath);
+  ComputerCharacter(const char *spritePath, int charID);
 
   void Update() override;
 };

@@ -7,7 +7,7 @@ Game::Game(GameConfig& config)
 	for (int i = 0; i < config.numCharacters; i++)
 	{
     std::unique_ptr<Controls> control = std::make_unique<Keyboard>(i);
-		players.push_back(std::make_unique<PlayableCharacter>("assets/GravTestChar.png", control));
+		players.push_back(std::make_unique<PlayableCharacter>("assets/charBW.png", i, control));
 		players[i].get()->StartJump();
 	}
 
@@ -146,7 +146,7 @@ void Game::Update()
   if (nextSpikeSpawnTimeMin < Utility::clock.getElapsedTime().asMilliseconds())
   {
     //std::cout << "Spawning obastacle! Last one spawned " << CUR_TIME - nextSpikeSpawnTimeMin + 1000 << " ms ago.\n";
-    Entity* temp = new Saw(&entityTex, playableRegion);
+    Entity* temp = new Saw(&entityTex, playableRegion, players.size());
     auto searchFrom = entities.Start();
     if (*temp > 0)
       searchFrom = entities.End();
@@ -157,7 +157,7 @@ void Game::Update()
 
   if (randomInt > config.targetSpawnChance)
   {           
-    Entity* temp = new MovingTarget(&entityTex, playableRegion);
+    Entity* temp = new MovingTarget(&entityTex, playableRegion, players.size());
     auto searchFrom = entities.Start();
     if (*temp > 0)
       searchFrom = entities.End();

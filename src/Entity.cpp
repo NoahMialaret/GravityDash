@@ -1,9 +1,12 @@
 #include "Entity.h"
 
-Entity::Entity(sf::Texture *tex)
+Entity::Entity(sf::Texture *tex, int maxID)
 {
   sprite.setTexture(*tex);
   sprite.setOrigin(CENTRED_ORIGIN);
+  std::uniform_int_distribution id(0, maxID - 1);
+  entID = id(Utility::rng);
+  // std::cout << "ID is: " << entID << '\n';
 }
 
 bool Entity::EndOfLife() const
@@ -24,7 +27,8 @@ void Entity::Unfreeze()
 void Entity::Render(sf::RenderWindow *win) const
 {
   //Utility::shaderTest.setUniform("texture", sprite.getTexture());
-  win->draw(sprite, &Utility::shaderTest);
+  Utility::entShad.setUniform("colorID", entID);
+  win->draw(sprite, &Utility::entShad);
 }
 
 bool Entity::operator<=(Entity& rhs)
@@ -71,9 +75,9 @@ bool Entity::operator>(float rhs)
 // = Saw Class =
 // = --------- =
 
-Saw::Saw(sf::Texture* tex, sf::IntRect &worldBorder)
+Saw::Saw(sf::Texture* tex, sf::IntRect &worldBorder, int maxID)
   :
-  Entity(tex)
+  Entity(tex, maxID)
 {
 	int posBuffer = SCALED_DIM / 2;
 
@@ -132,9 +136,9 @@ void Saw::Update(std::vector<Character*> players)
 // = Target Class =
 // = ------------ =
 
-MovingTarget::MovingTarget(sf::Texture* tex, sf::IntRect &worldBorder)
+MovingTarget::MovingTarget(sf::Texture* tex, sf::IntRect &worldBorder, int maxID)
   :
-  Entity(tex)
+  Entity(tex, maxID)
 {
 	int posBuffer = SCALED_DIM / 2;
 

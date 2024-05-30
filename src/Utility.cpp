@@ -18,7 +18,8 @@ sf::Font Utility::programFont;
 
 std::vector<Event> Utility::events;
 
-sf::Shader Utility::shaderTest;
+sf::Shader Utility::entShad;
+sf::Shader Utility::worldShad;
 
 std::string Utility::IntToString(int number, int minDigits)
 {

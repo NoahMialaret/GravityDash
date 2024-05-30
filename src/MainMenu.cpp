@@ -4,7 +4,7 @@ MainMenu::MainMenu(bool showIntro)
 {
   for (int i = 0; i < 4; i++)
   {
-    cpus.push_back(std::make_unique<ComputerCharacter>("assets/GravTestChar.png"));
+    cpus.push_back(std::make_unique<ComputerCharacter>("assets/charBW.png", i));
     cpus[i].get()->StartJump();
   }
 
@@ -56,7 +56,7 @@ void MainMenu::Update()
   if (randomInt > 90)
   {
     sf::IntRect playableRegion = world.get()->GetRegion();
-    Entity* temp = new MovingTarget(&entityTex, playableRegion);
+    Entity* temp = new MovingTarget(&entityTex, playableRegion, cpus.size());
     auto searchFrom = entities.Start();
     if (*temp > 0)
       searchFrom = entities.End();
