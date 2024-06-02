@@ -44,6 +44,12 @@ void Animation::ChangeAnimation(int index, sf::Int32 frameDur, sf::Int32 animati
     frameIndex = 0;
     frameDuration = frameDur;
     loops = ALWAYS;
+    
+  if (frameDur <= 0)
+  {
+    std::cout << "Frame duration was set to 0! Changing to 1...";
+    frameDuration = 1;
+  }
 
     if (curAnimationIndex < 0 || curAnimationIndex >= numAnimations)
     {
