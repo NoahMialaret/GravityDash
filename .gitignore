@@ -33,7 +33,6 @@
 
 # Build Files
 backups
-bin
 build
 CMakeFiles/
 .cache/
