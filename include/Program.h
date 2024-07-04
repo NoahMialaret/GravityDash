@@ -50,8 +50,10 @@ private:
 
 private:
 	//SFML Objects --------------------------------------------------------
-    sf::RenderWindow window;	// The window of the program 
+  sf::RenderWindow window;	// The window of the program 
 	sf::View mainView; 			// Represents the region of the gameworld that should be displayed onto the window
+
+  sf::RectangleShape renderRect;  // The background rectangle of the program
 
 	//Program Variables ---------------------------------------------------
 	State curState = State::notRunning; // The current state of the game

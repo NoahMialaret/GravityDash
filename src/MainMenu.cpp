@@ -4,7 +4,7 @@ MainMenu::MainMenu(bool showIntro)
 {
   for (int i = 0; i < 4; i++)
   {
-    cpus.push_back(std::make_unique<ComputerCharacter>("assets/GravTestChar.png"));
+    cpus.push_back(std::make_unique<ComputerCharacter>("assets/charBW.png", i));
     cpus[i].get()->StartJump();
   }
 
@@ -56,7 +56,7 @@ void MainMenu::Update()
   if (randomInt > 90)
   {
     sf::IntRect playableRegion = world.get()->GetRegion();
-    Entity* temp = new MovingTarget(&entityTex, playableRegion);
+    Entity* temp = new MovingTarget(&entityTex, playableRegion, cpus.size());
     auto searchFrom = entities.Start();
     if (*temp > 0)
       searchFrom = entities.End();
@@ -109,6 +109,7 @@ void MainMenu::Render(sf::RenderWindow* win) const
 
 void MainMenu::CorrectCharacterPos(Character* cpu)
 {
+  // Clean up when adding rebound feature
   sf::Vector2f CharacterPos = cpu->GetPosition();
   float posBuffer = 0.5f * SCALED_DIM;
 
@@ -118,30 +119,37 @@ void MainMenu::CorrectCharacterPos(Character* cpu)
   {
     CharacterPos.x = playableRegion.left + posBuffer;
     cpu->SetPosition(CharacterPos);
+    cpu->SetXVelocity(0.0f);
   }
   else if (CharacterPos.x + posBuffer > playableRegion.left + playableRegion.width)
   {
     CharacterPos.x = playableRegion.left + playableRegion.width - posBuffer;
     cpu->SetPosition(CharacterPos);
+    cpu->SetXVelocity(0.0f);
   }
 
-  if (cpu->GetCurState() == Character::State::airborne)
+  if (CharacterPos.y - posBuffer < playableRegion.top)
   {
-    if (CharacterPos.y - posBuffer < playableRegion.top)
-    {
-      CharacterPos.y = playableRegion.top + posBuffer;
-      cpu->SetPosition(CharacterPos);
+    CharacterPos.y = playableRegion.top + posBuffer;
+    cpu->SetPosition(CharacterPos);
+    cpu->SetYVelocity(0.0f);
 
-      cpu->Land();
-    }
-    else if (CharacterPos.y + posBuffer > playableRegion.top + playableRegion.height)
+    if (cpu->GetCurState() == Character::State::airborne)
     {
-      CharacterPos.y = playableRegion.top + playableRegion.height - posBuffer;
-      cpu->SetPosition(CharacterPos);
-
       cpu->Land();
     }
   }
+  else if (CharacterPos.y + posBuffer > playableRegion.top + playableRegion.height)
+  {
+    CharacterPos.y = playableRegion.top + playableRegion.height - posBuffer;
+    cpu->SetPosition(CharacterPos);
+    cpu->SetYVelocity(0.0f);
+    
+    if (cpu->GetCurState() == Character::State::airborne)
+    {
+      cpu->Land();
+    }
+	}
 }
 
 GameConfig MainMenu::GetGameConfig() const

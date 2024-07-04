@@ -14,7 +14,7 @@
 class Entity
 {
 public:
-  Entity(sf::Texture* tex);
+  Entity(sf::Texture* tex, int maxID);
   virtual ~Entity() = default;
 
   // Virtual function for updating entity logic
@@ -46,6 +46,7 @@ public:
   }
 
 protected:
+  int entID = 0;
   sf::Sprite sprite; // The sprite used by the entity
   Animation anim;    // The entity's animation handler
 
@@ -62,7 +63,7 @@ class Saw : public Entity
 public:
   Saw() = delete;
   // Constructor uses the world border to determine spawn positions and cutoff points
-  Saw(sf::Texture* tex, sf::IntRect &worldBorder);
+  Saw(sf::Texture* tex, sf::IntRect &worldBorder, int maxID);
   // Updates the spike's position and checks for player collisions
   void Update(std::vector<Character *> players) override;
 
@@ -77,7 +78,7 @@ class MovingTarget : public Entity
 public:
   MovingTarget() = delete;
   // Constructor uses the world border to determine spawn positions and cutoff points
-  MovingTarget(sf::Texture* tex, sf::IntRect &worldBorder);
+  MovingTarget(sf::Texture* tex, sf::IntRect &worldBorder, int maxID);
   // Updates the spike's position and checks for player collisions
   void Update(std::vector<Character *> players) override;
 

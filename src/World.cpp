@@ -4,12 +4,6 @@ World::World(sf::IntRect playableRegion)
     :
     playableRegion(playableRegion)
 {
-    renderRect = sf::RectangleShape({(float)playableRegion.width, (float)playableRegion.height});
-    renderRect.setPosition((float)playableRegion.left, (float)playableRegion.top);
-    renderRect.setFillColor(sf::Color(255, 229, 181));
-    renderRect.setOutlineThickness(Utility::gameScale);
-    renderRect.setOutlineColor(sf::Color(173, 103, 78));
-
     targetLeft = playableRegion.left;
 }
 
@@ -29,8 +23,8 @@ void World::Update()
     playableRegion.left += deltaLeft;
     playableRegion.width = - playableRegion.left * 2;
 
-    renderRect.setPosition((float)playableRegion.left, (float)playableRegion.top);
-    renderRect.setSize({(float)playableRegion.width, (float)playableRegion.height});
+    // renderRect.setPosition((float)playableRegion.left, (float)playableRegion.top);
+    // renderRect.setSize({(float)playableRegion.width, (float)playableRegion.height});
 
     if (playableRegion.left == -targetLeft)
     {
@@ -41,7 +35,7 @@ void World::Update()
 
 void World::Render(sf::RenderWindow* win) const
 {
-    win->draw(renderRect);
+  // win->draw(renderRect, &Utility::worldShad);
 }
 
 sf::IntRect World::GetRegion() const

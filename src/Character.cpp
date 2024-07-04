@@ -1,12 +1,13 @@
 #include "Character.h"
 
-Character::Character(const char* spritePath)
+Character::Character(const char* spritePath, int charID)
   : 
-  acceleration(0.2f * Utility::gameScale)
+  acceleration(0.2f * Utility::gameScale),
+  charID(charID)
 {
   if (!tex.loadFromFile(spritePath)) 
   {
-      std::cout << "Character texture could not be loaded!\n";
+    std::cout << "Character texture could not be loaded!\n";
   }
 
   sprite.setTexture(tex);    
@@ -25,8 +26,6 @@ Character::~Character()
 
 void Character::Update()
 {
-  //invincibility -= Utility::clock;
-  //std::cout << "Move: " << move << " - State: " << (int)curState << '\n';
   if (curState <= State::moving)
   {
     UpdateVelocity(move);
@@ -81,13 +80,19 @@ void Character::Update()
     break;
   }
 
+  if (curState != State::airborne)
+  {
+    vel.y += (isUpright ? 1.0f : -1.0f) * 0.5f;
+  }
+
   sprite.move((isLastStand ? 0.5f : 1.0f) * vel);
   anim.Update();
 }
 
 void Character::Render(sf::RenderWindow *win) const
 {
-  win->draw(sprite, &Utility::shaderTest);
+  Utility::entShad.setUniform("colorID", charID);
+  win->draw(sprite, &Utility::entShad);
 
   Point::RenderPoints(points, win);
 }
@@ -118,16 +123,16 @@ void Character::UpdateVelocity(int dir)
 
 void Character::StartJump()
 {
-    if (curState >= State::airborne)
-    {
-        return;
-    }
-    
-    curState = State::airborne;
-    vel.x = 0.0f;
-    vel.y = acceleration * 80.0f * (isUpright ? -1.0f : 1.0f);
-    isUpright = !isUpright;
-    anim.ChangeAnimation((int)curState, 100);
+  if (curState >= State::airborne)
+  {
+      return;
+  }
+  
+  curState = State::airborne;
+  vel.x = 0.0f;
+  vel.y = acceleration * 80.0f * (isUpright ? -1.0f : 1.0f);
+  isUpright = !isUpright;
+  anim.ChangeAnimation((int)curState, 100);
 }
 
 int Character::Land()
@@ -170,14 +175,37 @@ int Character::Land()
   return accumulatedPoints;
 }
 
-bool Character::Hit()
+bool Character::Hit(sf::Vector2f entPos)
 {
   if (invincibleEnd > CUR_TIME)
   {
     return false;
   }
+  std::cout << "Player has been hit!\n";
+
+  if (curState == State::airborne)
+  {
+    sprite.scale({1.0f, -1.0f});
+
+    sf::Vector2f avPos = Point::GetAveragePosition(points);
+
+    Point::SetPointsDestination(points, avPos, 200);
+  }
+
   invincibleEnd = CUR_TIME + 2000;
+
+  // y = ent.y +- sqrt(64*scale-(this.x-ent.x)^2) + for saws on top
+  sf::Vector2f pos(sprite.getPosition().x, 0.0f);
+  pos.y = entPos.y + (isUpright ? -1.0f : 1.0f) * std::sqrt(64*Utility::gameScale*Utility::gameScale - (pos.x - entPos.x) * (pos.x - entPos.x));
+  sprite.setPosition(pos);
+
+  vel.y = (isUpright ? -3.0f : 3.0f);
+  vel.x = (pos.x - entPos.x < 0.0f ? -15.0f : 15.0f);
+
+  curState = State::idle;
+
   return true;
+
   if (isLastStand)
   {
       return false;
@@ -206,9 +234,17 @@ sf::Vector2f Character::GetPosition() const
 
 void Character::SetPosition(sf::Vector2f& newPos)
 {
-    vel.x = 0.0f;
-    move = 0;
-    sprite.setPosition(newPos);
+  sprite.setPosition(newPos);
+}
+
+void Character::SetXVelocity(float xVel)
+{
+  vel.x = xVel;
+}
+
+void Character::SetYVelocity(float yVel)
+{
+  vel.y = yVel;
 }
 
 sf::FloatRect Character::GetHitBox() const
@@ -252,9 +288,9 @@ void Character::AddNewPoint(int value, sf::Vector2f pos, sf::Vector2f vel)
 // Playable Character
 // ------------------
 
-PlayableCharacter::PlayableCharacter(const char* spritePath, std::unique_ptr<Controls>& controls)
+PlayableCharacter::PlayableCharacter(const char* spritePath, int charID, std::unique_ptr<Controls>& controls)
     : 
-    Character(spritePath)
+    Character(spritePath, charID)
 {
   this->controls = std::move(controls);
 }
@@ -285,9 +321,9 @@ void PlayableCharacter::Update()
 // Computer Character
 // ------------------
 
-ComputerCharacter::ComputerCharacter(const char* spritePath)
+ComputerCharacter::ComputerCharacter(const char* spritePath, int charID)
   :
-  Character(spritePath)
+  Character(spritePath, charID)
 {}
 
 void ComputerCharacter::Update()

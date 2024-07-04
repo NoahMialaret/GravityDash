@@ -1,9 +1,12 @@
 #include "Entity.h"
 
-Entity::Entity(sf::Texture *tex)
+Entity::Entity(sf::Texture *tex, int maxID)
 {
   sprite.setTexture(*tex);
   sprite.setOrigin(CENTRED_ORIGIN);
+  std::uniform_int_distribution id(0, maxID - 1);
+  entID = id(Utility::rng);
+  // std::cout << "ID is: " << entID << '\n';
 }
 
 bool Entity::EndOfLife() const
@@ -24,7 +27,8 @@ void Entity::Unfreeze()
 void Entity::Render(sf::RenderWindow *win) const
 {
   //Utility::shaderTest.setUniform("texture", sprite.getTexture());
-  win->draw(sprite, &Utility::shaderTest);
+  Utility::entShad.setUniform("colorID", entID);
+  win->draw(sprite, &Utility::entShad);
 }
 
 bool Entity::operator<=(Entity& rhs)
@@ -71,9 +75,9 @@ bool Entity::operator>(float rhs)
 // = Saw Class =
 // = --------- =
 
-Saw::Saw(sf::Texture* tex, sf::IntRect &worldBorder)
+Saw::Saw(sf::Texture* tex, sf::IntRect &worldBorder, int maxID)
   :
-  Entity(tex)
+  Entity(tex, maxID)
 {
 	int posBuffer = SCALED_DIM / 2;
 
@@ -109,19 +113,30 @@ void Saw::Update(std::vector<Character*> players)
     sprite.move({vel, 0.0f});
   }
 
+  float distanceSquaredThresh = SCALED_DIM * SCALED_DIM;
+
   for (auto& p : players)
   {
-    if (sprite.getGlobalBounds().intersects(p->GetHitBox()))
-    // Change to radial distance chenck (is spritedim * gamescale < distance between the two)
-    {
-      p->Hit();
-      // if (p->Hit())
-      // {
-      //   sf::Vector2f middlePos = 0.5f * (p->GetLineHitBox().second + p->GetLineHitBox().first);
+    // if (sprite.getGlobalBounds().intersects(p->GetHitBox()))
+    // // Change to radial distance chenck (is spritedim * gamescale < distance between the two)
+    // {
+    //   p->Hit();
+    //   // if (p->Hit())
+    //   // {
+    //   //   sf::Vector2f middlePos = 0.5f * (p->GetLineHitBox().second + p->GetLineHitBox().first);
 
-      //   sf::Vector2f pointVel = 0.2f * (sprite.getPosition() - middlePos);
-      //   p->AddNewPoint(-1000, sprite.getPosition(), pointVel);
-      // }
+    //   //   sf::Vector2f pointVel = 0.2f * (sprite.getPosition() - middlePos);
+    //   //   p->AddNewPoint(-1000, sprite.getPosition(), pointVel);
+    //   // }
+    // }
+
+    // needs to loop through all line segments if there are multiple
+    // maybe try to optimise by doing a broad check of proximity before doing line segment calculations
+    float squaredDistance = Utility::GetSquaredDistanceToLineSegment(sprite.getPosition(), p->GetLineHitBox());
+    // std::cout << "Distance: " << squaredDistance << '\n';
+    if (squaredDistance < distanceSquaredThresh)
+    {
+      p->Hit(sprite.getPosition());
     }
   }
 
@@ -132,9 +147,9 @@ void Saw::Update(std::vector<Character*> players)
 // = Target Class =
 // = ------------ =
 
-MovingTarget::MovingTarget(sf::Texture* tex, sf::IntRect &worldBorder)
+MovingTarget::MovingTarget(sf::Texture* tex, sf::IntRect &worldBorder, int maxID)
   :
-  Entity(tex)
+  Entity(tex, maxID)
 {
 	int posBuffer = SCALED_DIM / 2;
 
@@ -173,7 +188,7 @@ void MovingTarget::Update(std::vector<Character*> players)
     sprite.move({vel, 0.0f});
   }
 
-  float distanceSquaredThresh = SCALED_DIM * SCALED_DIM;
+  // float distanceSquaredThresh = SCALED_DIM * SCALED_DIM;
   // change to pointer to use range based for loop
   int closestIndex = -1;
   float closestDistance = SCALED_DIM * SCALED_DIM;

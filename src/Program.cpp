@@ -37,17 +37,25 @@ Program::Program(const char* name)
 
 		window.setVerticalSyncEnabled(true);
 
+    renderRect = sf::RectangleShape({windowSize.x, windowSize.y});
+    renderRect.setPosition(- windowSize.x / 2, - windowSize.y / 2);
+
 	std::cout << "Loading necessary textures..." << std::endl;
 
     if (!sf::Shader::isAvailable())
     {
       std::cout << "\tShaders are not available on this hardware!\n";
     }
-    if (!Utility::shaderTest.loadFromFile("assets/test.vs", "assets/test.fs"))
+    if (!Utility::entShad.loadFromFile("assets/vert.vs", "assets/frag.fs"))
     {
       std::cout << "ERROR\n";
     }
-    Utility::shaderTest.setUniform("texture", sf::Shader::CurrentTexture);
+    Utility::entShad.setUniform("texture", sf::Shader::CurrentTexture);
+    if (!Utility::worldShad.loadFromFile("assets/vert.vs", "assets/bg.fs"))
+    {
+      std::cout << "ERROR\n";
+    }
+    Utility::worldShad.setUniform("texture", sf::Shader::CurrentTexture);
 
 		if (!Particle::tex.loadFromFile("assets/GravParticles.png")) 
 		{
@@ -208,6 +216,7 @@ void Program::Render()
 {
 	window.clear(sf::Color(230, 176, 138));
 	//window.clear(sf::Color(255, 229, 181));
+  window.draw(renderRect, &Utility::worldShad);
 
 	if (curState == State::notRunning) 
 	{

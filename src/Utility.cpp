@@ -18,7 +18,8 @@ sf::Font Utility::programFont;
 
 std::vector<Event> Utility::events;
 
-sf::Shader Utility::shaderTest;
+sf::Shader Utility::entShad;
+sf::Shader Utility::worldShad;
 
 std::string Utility::IntToString(int number, int minDigits)
 {
@@ -68,6 +69,12 @@ int Utility::GetSign(float num)
 
 float Utility::GetSquaredDistanceToLineSegment(sf::Vector2f centrePos, std::pair<sf::Vector2f, sf::Vector2f> lineSegPoints)
 {
+  // If the both points in the line segment are bascially identical, treat them as the same point
+  if (abs(lineSegPoints.first.x - lineSegPoints.second.x) < 1.0f && abs(lineSegPoints.first.y - lineSegPoints.second.y) < 1.0f)
+  {
+    return std::pow(lineSegPoints.first.x - centrePos.x, 2.0f) + std::pow(lineSegPoints.first.y - centrePos.y, 2.0f);
+  }
+
 	sf::Vector2f lineSeg = lineSegPoints.second - lineSegPoints.first;
 	sf::Vector2f firstToCentre = centrePos - lineSegPoints.first;
 	sf::Vector2f secondToCentre = centrePos - lineSegPoints.second;
