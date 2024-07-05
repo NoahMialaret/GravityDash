@@ -23,6 +23,7 @@ public:
     idle,
     moving,
     airborne,
+    hit,
     stunned,
     dead
   };
@@ -95,6 +96,7 @@ protected:
   int comboCount = 0;      // The number of consecutive targets destroyed in a jump
 
   int invincibleEnd = 0;
+  int stunTimer = 0;
 };
 
 class PlayableCharacter : public Character

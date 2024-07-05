@@ -73,6 +73,19 @@ void Character::Update()
 
   case State::airborne:
     break;
+
+  case State::hit:
+    break;
+
+  case State::stunned:
+    if (stunTimer < CUR_TIME)
+    {
+      curState = State::idle;
+      invincibleEnd = CUR_TIME + 3000;
+      anim.ChangeAnimation((int)curState, (isLastStand ? 2.0f : 1.0f) * 150);
+    }
+    break;
+
   
   default:
     std::cout << "Could not determine Character state (" << (int)curState << ")\n";
@@ -91,7 +104,10 @@ void Character::Update()
 void Character::Render(sf::RenderWindow *win) const
 {
   Utility::entShad.setUniform("colorID", charID);
-  win->draw(sprite, &Utility::entShad);
+  if (invincibleEnd < CUR_TIME || (CUR_TIME / 64) % 2 == 1)
+  {
+    win->draw(sprite, &Utility::entShad);
+  }
 
   Point::RenderPoints(points, win);
 }
@@ -139,7 +155,7 @@ int Character::Land()
   vel.y = 0.0f;
   curState = State::idle;
 
-  anim.ChangeAnimation((int)State::airborne + 1, 100, 0, (int)curState, 150, 300);
+  anim.ChangeAnimation((int)State::airborne + 2, 100, 0, (int)curState, 150, 300);
   sprite.scale({1.0f, -1.0f});
 
   sf::Vector2f partVel = {Utility::gameScale * 0.3f, 0.0f};
@@ -174,7 +190,7 @@ int Character::Land()
 
 bool Character::Hit(sf::Vector2f entPos)
 {
-  if (invincibleEnd > CUR_TIME)
+  if (invincibleEnd > CUR_TIME || curState >= State::hit)
   {
     return false;
   }
@@ -189,7 +205,7 @@ bool Character::Hit(sf::Vector2f entPos)
     Point::SetPointsDestination(points, avPos, 200);
   }
 
-  invincibleEnd = CUR_TIME + 2000;
+  // invincibleEnd = CUR_TIME + 2000;
 
   // y = ent.y +- sqrt(64*scale-(this.x-ent.x)^2) + for saws on top
   sf::Vector2f pos(sprite.getPosition().x, 0.0f);
@@ -197,9 +213,10 @@ bool Character::Hit(sf::Vector2f entPos)
   sprite.setPosition(pos);
 
   vel.y = (isUpright ? -3.0f : 3.0f);
-  vel.x = (pos.x - entPos.x < 0.0f ? -15.0f : 15.0f);
+  vel.x = (pos.x - entPos.x < 0.0f ? -10.0f : 10.0f);
 
-  curState = State::idle;
+  curState = State::hit;
+  anim.ChangeAnimation((int)curState, 100);
 
   return true;
 
@@ -242,6 +259,13 @@ void Character::SetXVelocity(float xVel)
 void Character::SetYVelocity(float yVel)
 {
   vel.y = yVel;
+
+  if (curState == State::hit)
+  {
+    curState = State::stunned;
+    stunTimer = CUR_TIME + 1000;
+    vel.x = 0;
+  }
 }
 
 sf::FloatRect Character::GetHitBox() const
