@@ -65,9 +65,8 @@ void Character::Update()
     if (nextRunParticle < CUR_TIME)
     {
       sf::Vector2f partVel(-move * 0.2f * Utility::gameScale, (isUpright ? -0.1f : 0.1f) * Utility::gameScale);
-      Particle* temp = new Particle(Particle::Type::walkDust, partVel, sprite.getPosition() - 
-        sf::Vector2f(move * 0.5f * SCALED_DIM, 0.0f));
-      Particle::CreateNewParticle(temp);
+      Utility::particles.push_front(Particle(Particle::Type::walkDust, partVel, sprite.getPosition() - 
+        sf::Vector2f(move * 0.5f * SCALED_DIM, 0.0f), sprite.getScale()));
       nextRunParticle += (isLastStand ? 4.0f : 1.0f) * 150;
     }
     break;
@@ -146,10 +145,8 @@ int Character::Land()
   sf::Vector2f partVel = {Utility::gameScale * 0.3f, 0.0f};
   sf::Vector2f offset = {0.5f * SCALED_DIM, 0.0f};
 
-  Particle* temp = new Particle(Particle::Type::landingImpact, partVel, sprite.getPosition() + offset, {fabsf(sprite.getScale().x), sprite.getScale().y});
-  Particle::CreateNewParticle(temp);
-  temp = new Particle(Particle::Type::landingImpact, -partVel, sprite.getPosition() - offset, {-fabsf(sprite.getScale().x), sprite.getScale().y});
-  Particle::CreateNewParticle(temp);
+  Utility::particles.push_front(Particle(Particle::Type::landingImpact, partVel, sprite.getPosition() + offset, {fabsf(sprite.getScale().x), sprite.getScale().y}));
+  Utility::particles.push_front(Particle(Particle::Type::landingImpact, -partVel, sprite.getPosition() - offset, {-fabsf(sprite.getScale().x), sprite.getScale().y}));
 
   if (isLastStand)
   {

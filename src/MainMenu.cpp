@@ -97,8 +97,6 @@ void MainMenu::Render(sf::RenderWindow* win) const
     node = node->GetNextNode();
   }
 
-  Particle::RenderParticles(win);
-
   for (auto& cpu : cpus)
   {
     cpu.get()->Render(win);

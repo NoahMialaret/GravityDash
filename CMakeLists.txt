@@ -4,6 +4,8 @@ project(gravDash.app VERSION 0.1.0 LANGUAGES C CXX)
 include(CTest)
 enable_testing()
 
+SET(CMAKE_CXX_STANDARD 20)
+
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ../bin/)
 include_directories(include)
 file(GLOB SOURCES "src/*.cpp")

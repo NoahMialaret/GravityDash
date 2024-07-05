@@ -96,7 +96,7 @@ Program::~Program()
 {
 	window.close();
 
-	Particle::DeleteParticles();
+  Utility::particles.clear();
 
 	std::cout << "Program successfully cleaned!\n";
 }
@@ -120,7 +120,7 @@ void Program::HandleEvents()
 			std::cout << "Create new game event called\n";
       GameConfig config = mainMenu.get()->GetGameConfig();
 			mainMenu = nullptr;
-			Particle::DeleteParticles();
+      Utility::particles.clear();
 			game = std::make_unique<Game>(config);
 			curState = State::gameplay;
 			break;
@@ -207,7 +207,7 @@ void Program::Update()
 		break;
 	}
 
-	Particle::UpdateParticles();
+  Utility::UpdateParticles();
 
 	Utility::initialKeyPresses.clear();
 }
@@ -231,12 +231,13 @@ void Program::Render()
 
 	case State::gameplay:
 		game.get()->Render(&window);
-		Particle::RenderParticles(&window);
 		break;
 	
 	default:
 		break;
 	}
+
+  Utility::RenderParticles(&window);
 
 	Utility::Render(&window);
 

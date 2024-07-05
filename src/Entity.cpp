@@ -214,8 +214,7 @@ void MovingTarget::Update(std::vector<Character*> players)
     return;
   }
 
-  Particle *temp = new Particle(Particle::Type::targetExplosion, ZERO_VECTOR, sprite.getPosition(), sprite.getScale());
-  Particle::CreateNewParticle(temp);
+  Utility::particles.push_front(Particle(Particle::Type::targetExplosion, ZERO_VECTOR, sprite.getPosition(), sprite.getScale()));
 
   //players[closestIndex].TargetHit(sprite.getPosition());
 

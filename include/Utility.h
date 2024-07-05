@@ -16,8 +16,12 @@
 
 #include "Event.h"
 
+
 #include <iostream>
 #include <random>
+#include <forward_list>
+
+class Particle;
 
 union Utility
 {
@@ -46,6 +50,9 @@ public:
   // Gets the next event off of the stack
   static bool PollEvent(Event& event);
 
+  static void UpdateParticles();
+  static void RenderParticles(sf::RenderWindow* win);
+
 public:
   static sf::Clock clock; // The internal game clock
 
@@ -71,9 +78,10 @@ public:
   // Events
   static std::vector<Event> events;   // Accumulated game events
 
-
   static sf::Shader entShad;
   static sf::Shader worldShad;
+
+  static std::forward_list<Particle> particles;
 };
 
 #endif

@@ -1,4 +1,5 @@
 #include "Utility.h"
+#include "Particle.h"
 
 sf::Clock Utility::clock;
 
@@ -20,6 +21,8 @@ std::vector<Event> Utility::events;
 
 sf::Shader Utility::entShad;
 sf::Shader Utility::worldShad;
+
+std::forward_list<Particle> Utility::particles;
 
 std::string Utility::IntToString(int number, int minDigits)
 {
@@ -147,4 +150,34 @@ bool Utility::PollEvent(Event &event)
 	event = events[events.size() - 1];
 	events.pop_back();
 	return true;
+}
+
+void Utility::UpdateParticles()
+{
+  for (auto prev = particles.before_begin(), cur = particles.begin(); cur != particles.end();)
+  {
+    cur->Update();
+    if (cur->HasFinished())
+    {
+      while (cur != particles.end() && cur->HasFinished())
+      {
+        cur = particles.erase_after(prev);
+      }
+    }
+    else
+    {
+      prev++;
+      cur++;
+    }
+  }
+  
+}
+
+void Utility::RenderParticles(sf::RenderWindow* win)
+{
+
+  for (auto cur = particles.begin(); cur != particles.end(); cur++)
+  {
+    cur->Render(win);
+  }
 }
