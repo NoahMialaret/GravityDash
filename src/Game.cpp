@@ -4,12 +4,25 @@ Game::Game(GameConfig& config)
   :
   config(config)
 {
-	for (int i = 0; i < config.numCharacters; i++)
+	for (int i = 0; i < config.numPlayers; i++)
 	{
     std::unique_ptr<Controls> control = std::make_unique<Keyboard>(i);
-		players.push_back(std::make_unique<PlayableCharacter>("assets/charBW.png", i, control));
-		players[i].get()->StartJump();
+		characters.push_back(std::make_unique<PlayableCharacter>("assets/charBW.png", i, control));
+		characters[i].get()->StartJump();
 	}
+  
+  for (int i = 0; i < config.numComputers; i++)
+  {
+    characters.push_back(std::make_unique<ComputerCharacter>("assets/charBW.png", characters.size()));
+    characters[characters.size() - 1].get()->StartJump();
+  }
+
+  if (characters.size() <= 0)
+  {    
+    std::cout << "WARNING! Game was started with no characters!\n";
+    characters.push_back(std::make_unique<ComputerCharacter>("assets/charBW.png", 0));
+    characters[0].get()->StartJump();
+  }
 
   if (!entityTex.loadFromFile("assets/GravWEs.png")) 
   {
@@ -19,6 +32,11 @@ Game::Game(GameConfig& config)
   sf::Vector2i worldSize = int(SCALED_DIM) * sf::Vector2i(16, 8);
 	sf::IntRect worldRect(- worldSize / 2, worldSize);
   world = std::make_unique<World>(worldRect);
+
+  if (config.mode == Mode::title)
+  {
+    return;
+  }
 
 	sf::Vector2f topRightPos(worldRect.left + worldRect.width, worldRect.top - (SCORE_TEX_HEIGHT + 1) * Utility::gameScale);
 	score = std::make_unique<Score>("assets/BigNums.png", topRightPos);
@@ -39,17 +57,17 @@ Game::~Game()
   entities.DeleteAll();
 }
 
-void Game::Update()
+void Game::Update() // Should have different update and render functions based on the mode
 {
 
   if (Utility::CheckInitialPress(sf::Keyboard::H))
   {
-  auto node = entities.Start();
-  while(node != nullptr)
-  {
-    std::cout << node->GetData()->GetPosition().y << '\n';
-    node = node->GetNextNode();
-  }
+    auto node = entities.Start();
+    while(node != nullptr)
+    {
+      std::cout << node->GetData()->GetPosition().y << '\n';
+      node = node->GetNextNode();
+    }
   }
 
 	if (gameOver)
@@ -57,14 +75,17 @@ void Game::Update()
 		return;
 	}
 
-	for (auto& p : players)
+	for (auto& p : characters)
 	{
 		p.get()->Update();
 	}
 
-  timerRect.setSize(sf::Vector2f(((float)timer - CUR_TIME) * 400.0f / 60000.0f, 32.0f));
+  if (config.mode == Mode::time)
+  {
+    timerRect.setSize(sf::Vector2f(((float)timer - CUR_TIME) * 400.0f / 60000.0f, 32.0f));
+  }
 
-	if ((players.size() == 1 && players[0].get()->GetCurState() == Character::State::dead) || (timer < CUR_TIME))
+	if ((characters.size() == 1 && characters[0].get()->GetCurState() == Character::State::dead) || (timer < CUR_TIME && config.mode == Mode::time))
 	{
 		std::cout << "\nThe game is over! Well played!\n";
 		std::cout << "\tYou scored: " << score.get()->GetAsString() << " points!\n\n";
@@ -73,7 +94,7 @@ void Game::Update()
 	}
 
 	std::vector<Character*> pls;
-	for (auto& p : players)
+	for (auto& p : characters)
 	{
 		pls.push_back(p.get());
 	}
@@ -90,12 +111,12 @@ void Game::Update()
     node = node->GetNextNode();
   }
 
-	for (auto& p : players)
+	for (auto& p : characters)
 	{
     CorrectCharacterPos(p.get());
 	}
 
-	if (players.size() == 1 && players[0].get()->IsLastStand())
+	if (characters.size() == 1 && characters[0].get()->IsLastStand())
 	{
     node = entities.Start();
     while(node != nullptr)
@@ -143,10 +164,10 @@ void Game::Update()
   std::uniform_int_distribution spawnChance(0, 99);
   int randomInt = spawnChance(Utility::rng);
 
-  if (nextSpikeSpawnTimeMin < Utility::clock.getElapsedTime().asMilliseconds())
+  if (config.sawFrequency != 0 && nextSpikeSpawnTimeMin < CUR_TIME)
   {
     //std::cout << "Spawning obastacle! Last one spawned " << CUR_TIME - nextSpikeSpawnTimeMin + 1000 << " ms ago.\n";
-    Entity* temp = new Saw(&entityTex, playableRegion, players.size());
+    Entity* temp = new Saw(&entityTex, playableRegion, characters.size());
     auto searchFrom = entities.Start();
     if (*temp > 0)
       searchFrom = entities.End();
@@ -157,7 +178,7 @@ void Game::Update()
 
   if (randomInt > config.targetSpawnChance)
   {           
-    Entity* temp = new MovingTarget(&entityTex, playableRegion, players.size());
+    Entity* temp = new MovingTarget(&entityTex, playableRegion, characters.size());
     auto searchFrom = entities.Start();
     if (*temp > 0)
       searchFrom = entities.End();
@@ -169,8 +190,6 @@ void Game::Render(sf::RenderWindow* win) const
 {
 	world.get()->Render(win);
 
-	score.get()->Render(win);
-
   auto node = entities.Start();
   while(node != nullptr)
   {
@@ -178,10 +197,17 @@ void Game::Render(sf::RenderWindow* win) const
     node = node->GetNextNode();
   }
 
-	for (auto& p : players)
+	for (auto& p : characters)
 	{
 		p.get()->Render(win);
 	}
+
+  if (config.mode == Mode::title)
+  {
+    return;
+  }
+
+	score.get()->Render(win);
 
   win->draw(timerRect);
 }
@@ -214,10 +240,7 @@ void Game::CorrectCharacterPos(Character* player)
     player->SetPosition(playerPos);
     player->SetYVelocity(0.0f);
 
-    if (player->GetCurState() == Character::State::airborne)
-    {
-      HandleLandingSequence(player);
-    }
+    HandleLandingSequence(player);
   }
   else if (playerPos.y + posBuffer > playableRegion.top + playableRegion.height)
   {
@@ -225,16 +248,23 @@ void Game::CorrectCharacterPos(Character* player)
     player->SetPosition(playerPos);
     player->SetYVelocity(0.0f);
     
-    if (player->GetCurState() == Character::State::airborne)
-    {
-      HandleLandingSequence(player);
-    }
+    HandleLandingSequence(player);
 	}
 }
 
 void Game::HandleLandingSequence(Character* player)
 {
-	score.get()->AddPoints(player->Land());
+  if (player->GetCurState() != Character::State::airborne)
+  {
+    return;
+  }
+
+  int points = player->Land();
+      
+  if (config.mode != Mode::title)
+  {
+    score.get()->AddPoints(points);
+  }
 }
 
 bool Game::IsGameOver() const

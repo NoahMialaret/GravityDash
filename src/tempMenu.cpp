@@ -122,7 +122,7 @@ std::unique_ptr<SubMenu> MultiplayerMenu::ClickButton()
         newEvent.type = Event::Type::loadNewGame;
         Utility::events.push_back(newEvent);
 
-        gameConfig.numCharacters = 2;
+        gameConfig.numPlayers = 2;
     }
     if (button == "Versus")
     {

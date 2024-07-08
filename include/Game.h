@@ -13,11 +13,21 @@
 #include <iostream>
 #include <memory>
 
+enum class Mode
+{
+  title,
+  time,
+  survive
+};
+
 struct GameConfig
 {
-  float speed = 1.0f;
+  float speed = 1.0f; // should be in utility
   int targetSpawnChance = 90;
-  int numCharacters = 1;
+  int numPlayers = 1;
+  int numComputers = 0;
+  int sawFrequency = 10;
+  Mode mode = Mode::time;
   // std::vector<ids> transitionIDs
 };
 
@@ -51,7 +61,7 @@ public:
   bool IsGameOver() const;
 
 private:
-  std::vector<std::unique_ptr<Character>> players; // The player characters
+  std::vector<std::unique_ptr<Character>> characters; // The player characters
   std::unique_ptr<World> world = nullptr;          // The playable region of the game
   std::unique_ptr<Score> score = nullptr;          // The total accumulated score made during the game
 

@@ -223,6 +223,8 @@ void Program::Render()
 		return;
 	}
 
+  Utility::RenderParticles(&window);
+
 	switch (curState)
 	{
 	case State::startMenu:
@@ -236,8 +238,6 @@ void Program::Render()
 	default:
 		break;
 	}
-
-  Utility::RenderParticles(&window);
 
 	Utility::Render(&window);
 
