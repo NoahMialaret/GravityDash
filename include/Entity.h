@@ -3,7 +3,7 @@
 
 #include <SFML/Graphics.hpp>
 
-#include "Animation.h"
+#include "AnimationHandler.h"
 #include "Character.h"
 #include "Particle.h"
 #include "Utility.h"
@@ -47,8 +47,8 @@ public:
 
 protected:
   int entID = 0;
-  sf::Sprite sprite; // The sprite used by the entity
-  Animation anim;    // The entity's animation handler
+  sf::Sprite sprite;      // The sprite used by the entity
+  AnimationHandler anims; // The entity's animation handler
 
   float vel = 0.0f;  // The entity's horizontal velocity
   bool isFrozen = false; // Whether the movement of the entity has be frozen

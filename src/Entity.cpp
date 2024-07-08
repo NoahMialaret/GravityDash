@@ -95,8 +95,8 @@ Saw::Saw(sf::Texture* tex, sf::IntRect &worldBorder, int maxID)
   sprite.setScale({Utility::gameScale, (isOnTop ? 1.0f : -1.0f) * Utility::gameScale});
   cutOffPoint = worldBorder.left + (isGoingRight ? worldBorder.width : 0.0f);
 
-  anim = Animation(&sprite);
-  anim.ChangeAnimation(0, 50);
+  anims = AnimationHandler(&sprite);
+  anims.QueueAnimation(0, 50);
 }
 
 void Saw::Update(std::vector<Character*> players)
@@ -140,7 +140,7 @@ void Saw::Update(std::vector<Character*> players)
     }
   }
 
-  anim.Update();
+  anims.Update();
 }
 
 // = ------------ =
@@ -168,8 +168,8 @@ MovingTarget::MovingTarget(sf::Texture* tex, sf::IntRect &worldBorder, int maxID
   sprite.setScale(DEFAULT_SCALE);
   cutOffPoint = worldBorder.left + posBuffer + (isGoingRight ? worldBorder.width : 0.0f);
 
-  anim = Animation(&sprite);
-  anim.ChangeAnimation(1, 100);
+  anims = AnimationHandler(&sprite);
+  anims.QueueAnimation(1, 100);
 }
 
 
@@ -210,7 +210,7 @@ void MovingTarget::Update(std::vector<Character*> players)
 
   if (closestIndex == -1)
   {
-    anim.Update();
+    anims.Update();
     return;
   }
 

@@ -3,7 +3,7 @@
 
 #include <SFML/Graphics.hpp>
 
-#include "Animation.h"
+#include "AnimationHandler.h"
 #include "Controls.h"
 #include "Particle.h"
 #include "Point.h"
@@ -73,12 +73,12 @@ public:
 protected:
   int charID = 0;
 
-  sf::Texture tex;   // The player's spritesheet
-  sf::Sprite sprite; // The player's sprite used for rendering
-  Animation anim;    // The player's animation handler
+  sf::Texture tex;        // The character's spritesheet
+  sf::Sprite sprite;      // The character's sprite used for rendering
+  AnimationHandler anims; // The character's animation handler
 
-  sf::Vector2f prevPos = ZERO_VECTOR; // The player's position on the previous frame, used in hitbox calculations
-  sf::Vector2f vel = ZERO_VECTOR;     // The player's velocity
+  sf::Vector2f prevPos = ZERO_VECTOR; // The character's position on the previous frame, used in hitbox calculations
+  sf::Vector2f vel = ZERO_VECTOR;     // The character's velocity
   // Use queue to store multiple "lines"
   int move = 0;
   float acceleration = 0; // A modifier that determines how much the player's velocity changes each frame

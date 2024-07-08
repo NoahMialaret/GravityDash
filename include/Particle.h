@@ -3,7 +3,7 @@
 
 #include <SFML/Graphics.hpp>
 
-#include "Animation.h"
+#include "AnimationHandler.h"
 
 #include <iostream>
 
@@ -35,9 +35,9 @@ public:
   static sf::Texture tex;     // The texture used by all the particles
 
 private:
-  sf::Sprite sprite; // The particle's sprite to be used for rendering
-  Animation anim;    // The particle's animation handler
-  sf::Vector2f vel;  // The particle's velocity
+  sf::Sprite sprite;      // The particle's sprite to be used for rendering
+  AnimationHandler anims; // The particle's animation handler
+  sf::Vector2f vel;       // The particle's velocity
 
   bool hasFinished = false; // Whether or not the particle has reached the end of its lifespan
   sf::Int32 EndOfLifespan;  // The global time at which the particle will reach the end of its lifespan

@@ -15,8 +15,8 @@ Character::Character(const char* spritePath, int charID)
 
   sprite.setScale({Utility::gameScale, -Utility::gameScale});
 
-  anim = Animation(&sprite);
-  anim.ChangeAnimation((int)curState, 150);
+  anims = AnimationHandler(&sprite);
+  anims.QueueAnimation((int)curState, 150);
 }
 
 Character::~Character()
@@ -43,7 +43,8 @@ void Character::Update()
 
     curState = State::moving;
 
-    anim.ChangeAnimation((int)curState, (isLastStand ? 3.0f : 1.0f) * 100);
+    anims.Clear();
+    anims.QueueAnimation((int)curState, (isLastStand ? 3.0f : 1.0f) * 100);
     sprite.setScale({move * Utility::gameScale, sprite.getScale().y});
 
     nextRunParticle = (isLastStand ? 4.0f : 1.0f) * 150 + CUR_TIME;
@@ -53,7 +54,8 @@ void Character::Update()
     if (vel == ZERO_VECTOR && move == 0)
     {
       curState = State::idle;
-      anim.ChangeAnimation((int)curState, (isLastStand ? 2.0f : 1.0f) * 150);
+      anims.Clear();
+      anims.QueueAnimation((int)curState, (isLastStand ? 2.0f : 1.0f) * 150);
       break;
     }
 
@@ -82,7 +84,8 @@ void Character::Update()
     {
       curState = State::idle;
       invincibleEnd = CUR_TIME + 3000;
-      anim.ChangeAnimation((int)curState, (isLastStand ? 2.0f : 1.0f) * 150);
+      anims.Clear();
+      anims.QueueAnimation((int)curState, (isLastStand ? 2.0f : 1.0f) * 150);
     }
     break;
 
@@ -98,7 +101,7 @@ void Character::Update()
   }
 
   sprite.move((isLastStand ? 0.5f : 1.0f) * vel);
-  anim.Update();
+  anims.Update();
 }
 
 void Character::Render(sf::RenderWindow *win) const
@@ -147,7 +150,8 @@ void Character::StartJump()
   vel.x = 0.0f;
   vel.y = acceleration * 80.0f * (isUpright ? -1.0f : 1.0f);
   isUpright = !isUpright;
-  anim.ChangeAnimation((int)curState, 100);
+  anims.Clear();
+  anims.QueueAnimation((int)curState, 100);
 }
 
 int Character::Land()
@@ -155,7 +159,9 @@ int Character::Land()
   vel.y = 0.0f;
   curState = State::idle;
 
-  anim.ChangeAnimation((int)State::airborne + 2, 100, 0, (int)curState, 150, 300);
+  anims.Clear();
+  anims.QueueAnimation((int)State::airborne + 2, 100, 0, 300);
+  anims.QueueAnimation((int)curState, 150);
   sprite.scale({1.0f, -1.0f});
 
   sf::Vector2f partVel = {Utility::gameScale * 0.3f, 0.0f};
@@ -216,7 +222,8 @@ bool Character::Hit(sf::Vector2f entPos)
   vel.x = (pos.x - entPos.x < 0.0f ? -10.0f : 10.0f);
 
   curState = State::hit;
-  anim.ChangeAnimation((int)curState, 100);
+  anims.Clear();
+  anims.QueueAnimation((int)curState, 100);
 
   return true;
 
@@ -322,7 +329,7 @@ void PlayableCharacter::Update()
 
   if (curState == State::dead)
   {
-    anim.Update();
+    anims.Update();
     return;
   }
 

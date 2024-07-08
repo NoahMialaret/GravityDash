@@ -11,22 +11,22 @@ Particle::Particle(Particle::Type type, sf::Vector2f vel, sf::Vector2f pos, sf::
   sprite.setPosition(pos);
   sprite.setScale(scale);
 
-  anim = Animation(&sprite);
+  anims = AnimationHandler(&sprite);
 
   switch (type)
   {
   case Type::walkDust:
-    anim.ChangeAnimation((int)type, 100);
+    anims.QueueAnimation((int)type, 100);
     EndOfLifespan = 300 + CUR_TIME;
     break;
 
   case Type::landingImpact:
-    anim.ChangeAnimation((int)type, 50);
+    anims.QueueAnimation((int)type, 50);
     EndOfLifespan = 200 + CUR_TIME;
     break;
 
   case Type::targetExplosion:
-    anim.ChangeAnimation((int)type, 25);
+    anims.QueueAnimation((int)type, 25);
     EndOfLifespan = 100 + CUR_TIME;
     break;
 
@@ -51,7 +51,8 @@ void Particle::Update()
   }
 
   sprite.move(vel);
-  anim.Update();
+
+  anims.Update(&sprite);
 }
 
 void Particle::Render(sf::RenderWindow *win) const
