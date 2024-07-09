@@ -27,6 +27,7 @@ public:
 
 private:
     sf::IntRect playableRegion;     // The playable region of the game
+    sf::RectangleShape renderRect;  // The rectangle to represent the world region
 
     int targetLeft = 0;             // The new desired left position of the region if a transition is happening
     bool isTransitioning = false;   // Whether or not the world is currently changing sizes

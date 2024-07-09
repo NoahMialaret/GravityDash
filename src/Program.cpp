@@ -20,6 +20,7 @@ Program::Program(const char* name)
 		std::cout << "\tDesktop dimensions: " << desktop.width << "px x " << desktop.height << "px\n";
 
 		Utility::gameScale = scale;
+    Utility::windowDim = windowSize;
 
 		window.create(sf::VideoMode(windowSize.x, windowSize.y), name, sf::Style::Close);
 
@@ -36,9 +37,6 @@ Program::Program(const char* name)
 		window.setView(mainView);
 
 		window.setVerticalSyncEnabled(true);
-
-    renderRect = sf::RectangleShape({windowSize.x, windowSize.y});
-    renderRect.setPosition(- windowSize.x / 2, - windowSize.y / 2);
 
 	std::cout << "Loading necessary textures..." << std::endl;
 
@@ -83,11 +81,14 @@ Program::Program(const char* name)
 
 	std::cout << "Initialising Program objects...\n";
 
-		mainMenu = std::make_unique<MainMenu>();
+		// mainMenu = std::make_unique<MainMenu>();
+    title = std::make_unique<TitleSequence>();
+    
 
 	std::cout << "Program initialisation done! Opening main menu...\n";
 	
-		curState = State::startMenu;
+		// curState = State::startMenu;
+		curState = State::titleSequence;
 
 	std::cout << "--===+++++++++++===--\n";
 }
@@ -125,6 +126,12 @@ void Program::HandleEvents()
 			curState = State::gameplay;
 			break;
     }
+    case Event::Type::geToMainMenu:
+      game = nullptr;
+      title = nullptr;
+      mainMenu = std::make_unique<MainMenu>();
+      curState = State::startMenu;
+      break;
 		
 		default:
 			std::cout << "Event type could not be determined.\n";
@@ -151,6 +158,11 @@ void Program::HandleEvents()
 			switch (SFMLevent.key.code) 
 			{
 			case sf::Keyboard::Escape:
+        if (curState == State::titleSequence)
+        {
+          std::cout << "Quit button has been pressed, closing game...\n";
+          ProgramExit();          
+        }
 				if (curState == State::startMenu)
 				{
 					mainMenu.get()->Return();
@@ -165,8 +177,9 @@ void Program::HandleEvents()
 			case sf::Keyboard::R:
 				std::cout << "Restarting Game!\n";
 				game = nullptr;
-				mainMenu = std::make_unique<MainMenu>();
-				curState = State::startMenu;
+				mainMenu = nullptr;
+        title = std::make_unique<TitleSequence>();
+				curState = State::titleSequence;
 				break;
 			
 			default:
@@ -195,6 +208,10 @@ void Program::Update()
 
 	switch (curState)
 	{
+  case State::titleSequence:
+    title.get()->Update();
+    break;
+
 	case State::startMenu:
 		mainMenu.get()->Update();
 		break;
@@ -216,17 +233,20 @@ void Program::Render()
 {
 	window.clear(sf::Color(230, 176, 138));
 	//window.clear(sf::Color(255, 229, 181));
-  window.draw(renderRect, &Utility::worldShad);
+  // if (curState != State::titleSequence)
 
 	if (curState == State::notRunning) 
 	{
 		return;
 	}
 
-  Utility::RenderParticles(&window);
 
 	switch (curState)
 	{
+  case State::titleSequence:
+    title.get()->Render(&window);
+    break;
+
 	case State::startMenu:
 		mainMenu.get()->Render(&window);
 		break;
@@ -234,7 +254,7 @@ void Program::Render()
 	case State::gameplay:
 		game.get()->Render(&window);
 		break;
-	
+
 	default:
 		break;
 	}

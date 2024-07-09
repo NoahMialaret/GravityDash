@@ -6,6 +6,7 @@ sf::Clock Utility::clock;
 float Utility::targetFrameRate = 60.0f;
 float Utility::gameScale = 6.0f;
 float Utility::spriteDim = 8.0f;
+sf::Vector2f Utility::windowDim;
 
 std::mt19937 Utility::rng = std::mt19937(std::random_device()());
 

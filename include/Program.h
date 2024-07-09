@@ -10,6 +10,8 @@
 #include "MainMenu.h"
 #include "Utility.h"
 
+#include "TitleSequence.h"
+
 #include <algorithm>
 #include <iostream>
 
@@ -22,6 +24,7 @@ public:
 	enum class State 
 	{
 		notRunning,
+    titleSequence,
 		startMenu,
 		gameplay,
 		paused
@@ -32,7 +35,7 @@ public:
 	// Program constructor that takes the title to be displayed on the window
 	Program(const char* name);
 	// Destructor closes the window and frees up dynamic memory created from the Particle class
-    ~Program();
+  ~Program();
 
 	// Handles SFML events
 	void HandleEvents();
@@ -53,14 +56,13 @@ private:
   sf::RenderWindow window;	// The window of the program 
 	sf::View mainView; 			// Represents the region of the gameworld that should be displayed onto the window
 
-  sf::RectangleShape renderRect;  // The background rectangle of the program
-
 	//Program Variables ---------------------------------------------------
 	State curState = State::notRunning; // The current state of the game
 
 	//Program Objects ----------------------------------------------------- 
 	std::unique_ptr<Game> game = nullptr;
 	std::unique_ptr<MainMenu> mainMenu = nullptr;
+  std::unique_ptr<TitleSequence> title = nullptr;
 };
 
 #endif

@@ -5,6 +5,8 @@ World::World(sf::IntRect playableRegion)
     playableRegion(playableRegion)
 {
     targetLeft = playableRegion.left;
+    renderRect = sf::RectangleShape({Utility::windowDim.x, Utility::windowDim.y});
+    renderRect.setPosition(- Utility::windowDim.x / 2, - Utility::windowDim.y / 2);
 }
 
 void World::Update()
@@ -35,7 +37,7 @@ void World::Update()
 
 void World::Render(sf::RenderWindow* win) const
 {
-  // win->draw(renderRect, &Utility::worldShad);
+    win->draw(renderRect, &Utility::worldShad);
 }
 
 sf::IntRect World::GetRegion() const
