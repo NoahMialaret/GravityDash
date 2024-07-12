@@ -21,10 +21,16 @@ TitleSequence::TitleSequence()
   character.setScale(DEFAULT_SCALE);
   charAnim.QueueAnimation(2, 50);
 
+  if (!bgTileTex.loadFromFile("assets/background_tiles.png"))
+  {
+    std::cout << "\tBG Tiles textures could not be loaded!\n";
+  }
+
+
 
   if (!titleTex.loadFromFile("assets/title.png")) 
   {
-    std::cout << "\tCharacter textures could not be loaded!\n";
+    std::cout << "\tTitle texture could not be loaded!\n";
   }
   title.setTexture(titleTex);
   title.setScale(DEFAULT_SCALE);
@@ -34,7 +40,7 @@ TitleSequence::TitleSequence()
 
   if (!frenchieTex.loadFromFile("assets/frenchie_t_sat.png")) 
   {
-    std::cout << "\tCharacter textures could not be loaded!\n";
+    std::cout << "\tFrenchie texture could not be loaded!\n";
   }
   frenchie.setTexture(frenchieTex);
   frenchie.setScale(sf::Vector2f(Utility::gameScale / 32.0f, Utility::gameScale / 32.0f));
@@ -72,10 +78,27 @@ void TitleSequence::Update()
   sf::Int32 time = CUR_TIME - startTime;
   charAnim.Update();
 
+  std::uniform_int_distribution chance(0, 100);
+  int spawn = chance(Utility::rng);
+  if (curSeq < Sequence::spawnWorld && spawn > 40)
+  {
+    SpawnBGTile();
+    int xpos = chance(Utility::rng) * 10;
+    int ypos = chance(Utility::rng) * 10;
+    Utility::particles.push_front(Particle(Particle::Type::speedLines, sf::Vector2f(0.0f, - speed * Utility::gameScale / 2), sf::Vector2f(xpos - 500, ypos - 500) , DEFAULT_SCALE));
+  }
+
+  for (auto& tile : bgTiles)
+  {
+    tile.move(sf::Vector2f(0.0f, - speed * Utility::gameScale));
+  }
+
   if (Utility::initialKeyPresses.size() > 0)
   {
     if (curSeq < Sequence::title)
     {
+      bgTiles.clear();
+      Utility::particles.clear();
       curSeq = Sequence::title;
       charAnim.Clear();
       charAnim.QueueAnimation(4, 100, 0, 300);
@@ -139,10 +162,13 @@ void TitleSequence::Update()
 
   case Sequence::intermission:
     character.setPosition(sf::Vector2f(0.0f, - bezier.GetValue(time/1500.0f, true)));
+    speed *= 1.007;
     if (time > 3000)
     {
       curSeq = Sequence::spawnWorld;
       startTime = CUR_TIME;
+      bgTiles.clear();
+      Utility::particles.clear();
       // Event newEvent;
       // newEvent.type = Event::Type::showTitle;
       // Utility::events.push_back(newEvent);
@@ -187,6 +213,14 @@ void TitleSequence::Render(sf::RenderWindow* win) const
   {
     world.get()->Render(win);
   }
+  else
+  {
+    for (auto& s : bgTiles)
+    {
+      win->draw(s);
+    }
+  }
+
   Utility::RenderParticles(win);
   if (curSeq >= Sequence::title)
   {
@@ -205,4 +239,27 @@ void TitleSequence::Render(sf::RenderWindow* win) const
     win->draw(frenchieText);
   }
 
+}
+
+void TitleSequence::SpawnBGTile()
+{
+  sf::Sprite newTile;
+  newTile.setTexture(bgTileTex);
+  
+  std::uniform_int_distribution texDist(0, 5);
+  int tex = texDist(Utility::rng);
+  sf::IntRect texRect(tex * Utility::spriteDim, 0, Utility::spriteDim, Utility::spriteDim);
+
+  newTile.setTextureRect(texRect);
+  newTile.setScale(DEFAULT_SCALE);
+
+  
+  std::uniform_int_distribution xDist(- (((int)Utility::windowDim.x / 2) / (int)(SCALED_DIM)), 
+    ((int)Utility::windowDim.x / 2) / (int)(SCALED_DIM));
+  int xSpawn = xDist(Utility::rng);
+
+  sf::Vector2f pos(xSpawn * SCALED_DIM, Utility::windowDim.y);
+  newTile.setPosition(pos);
+
+  bgTiles.emplace_front(newTile);
 }

@@ -5,9 +5,11 @@
 
 #include "AnimationHandler.h"
 #include "Bezier.h"
+#include "Particle.h"
 #include "Utility.h"
 #include "World.h"
 
+#include <forward_list>
 #include <iostream>
 #include <memory>
 
@@ -30,11 +32,18 @@ public:
   TitleSequence();
   void Update();
   void Render(sf::RenderWindow* win) const;
+
+private:
+  void SpawnBGTile();
+
 private:
   Sequence curSeq = Sequence::start;
   Bezier bezier;
 
   std::unique_ptr<World> world;
+  std::forward_list<sf::Sprite> bgTiles;
+  sf::Texture bgTileTex;
+  float speed = 5.0f;
 
   sf::Texture charTex;
   sf::Sprite character;

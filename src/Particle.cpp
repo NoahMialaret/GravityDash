@@ -17,7 +17,7 @@ Particle::Particle(Particle::Type type, sf::Vector2f vel, sf::Vector2f pos, sf::
   {
   case Type::walkDust:
     anims.QueueAnimation((int)type, 100);
-    EndOfLifespan = 300 + CUR_TIME;
+    EndOfLifespan = 400 + CUR_TIME;
     break;
 
   case Type::landingImpact:
@@ -28,6 +28,11 @@ Particle::Particle(Particle::Type type, sf::Vector2f vel, sf::Vector2f pos, sf::
   case Type::targetExplosion:
     anims.QueueAnimation((int)type, 25);
     EndOfLifespan = 100 + CUR_TIME;
+    break;
+  
+  case Type::speedLines:
+    anims.QueueAnimation((int)type, 100);
+    EndOfLifespan = 400 + CUR_TIME;
     break;
 
   default:

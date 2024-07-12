@@ -16,7 +16,8 @@ public:
   {
     walkDust,
     landingImpact,
-    targetExplosion
+    targetExplosion,
+    speedLines
   };
 
 public:
