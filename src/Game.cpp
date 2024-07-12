@@ -44,10 +44,8 @@ Game::Game(GameConfig& config)
   nextSpikeSpawnTimeMin = 1000 + CUR_TIME;
   // BeginNextPhase = 5000 + CUR_TIME;
 
-  timer = CUR_TIME + 60000;
-
-  timerRect.setFillColor(sf::Color(173, 103, 78));
-  timerRect.setPosition((- (sf::Vector2f)worldSize / 2.0f) - sf::Vector2f(0.0f, 32.0f));
+  timer = std::make_unique<GameTimer>(60000, sf::Vector2f(worldRect.left + worldRect.width + Utility::gameScale, 
+    worldRect.top + worldRect.height - 2 * Utility::gameScale));
 }
 
 Game::~Game()
@@ -80,12 +78,8 @@ void Game::Update() // Should have different update and render functions based o
 		p.get()->Update();
 	}
 
-  if (config.mode == Mode::time)
-  {
-    timerRect.setSize(sf::Vector2f(((float)timer - CUR_TIME) * 400.0f / 60000.0f, 32.0f));
-  }
-
-	if ((characters.size() == 1 && characters[0].get()->GetCurState() == Character::State::dead) || (timer < CUR_TIME && config.mode == Mode::time))
+	if ((characters.size() == 1 && characters[0].get()->GetCurState() == Character::State::dead) 
+        || (config.mode == Mode::time && timer.get()->Update()))
 	{
 		std::cout << "\nThe game is over! Well played!\n";
 		std::cout << "\tYou scored: " << score.get()->GetAsString() << " points!\n\n";
@@ -211,7 +205,7 @@ void Game::Render(sf::RenderWindow* win) const
 
 	score.get()->Render(win);
 
-  win->draw(timerRect);
+  timer.get()->Render(win);
 }
 
 void Game::CorrectCharacterPos(Character* player)

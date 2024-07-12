@@ -80,7 +80,7 @@ void TitleSequence::Update()
 
   std::uniform_int_distribution chance(0, 100);
   int spawn = chance(Utility::rng);
-  if (curSeq < Sequence::spawnWorld && spawn > 40)
+  if (curSeq < Sequence::spawnWorld && spawn > 40 / (speed / 5.0f))
   {
     SpawnBGTile();
     int xpos = chance(Utility::rng) * 10;

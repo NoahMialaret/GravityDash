@@ -8,6 +8,7 @@
 #include "Entity.h"
 #include "Score.h"
 #include "SortedDblyLnkdList.h"
+#include "GameTimer.h"
 #include "World.h"
 
 #include <iostream>
@@ -68,6 +69,8 @@ private:
   SortedDblyLnkdList<Entity> entities; // A sorted (by vertical position) linked list of entites
   sf::Texture entityTex; // The sprite sheet used by all entities
 
+  std::unique_ptr<GameTimer> timer = nullptr; // The timer used by the game in 'time' mode
+
   Phase curPhase = Phase::standard;  // The current phase of gameplay
   Phase nextPhase = Phase::standard; // The next phase of gameplay to start after a transition has finished
   sf::Int32 BeginNextPhase;          // The time at which to begin transitioning
@@ -78,10 +81,6 @@ private:
 
   GameConfig config; // The configuration for various game variables
   // std::vector<worldTransitions>
-
-  int timer = 0;
-
-  sf::RectangleShape timerRect;
 };
 
 #endif
