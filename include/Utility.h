@@ -62,6 +62,7 @@ public:
   // settings (gamescale)
   static float gameScale; // The scale that the game is rendered at compared to the original sprites
   static float spriteDim; // The dimensions of a typical sprite (like tiles and units)
+  static sf::Vector2f windowDim;
 
   static std::mt19937 rng;    // Used for random number generation
 

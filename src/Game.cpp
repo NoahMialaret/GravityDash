@@ -190,6 +190,8 @@ void Game::Render(sf::RenderWindow* win) const
 {
 	world.get()->Render(win);
 
+  Utility::RenderParticles(win);
+
   auto node = entities.Start();
   while(node != nullptr)
   {

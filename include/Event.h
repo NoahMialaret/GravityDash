@@ -11,6 +11,7 @@ public:
         loadNewGame,
         returnCamera,
         cameraUp,
+        geToMainMenu
     };
 
 public:
