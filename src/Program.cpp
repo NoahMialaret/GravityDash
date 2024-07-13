@@ -64,7 +64,7 @@ Program::Program(const char* name)
 		{
 			std::cout << "\tDebug texture could not be loaded!\n";
 		}
-		if (!Point::tex.loadFromFile("assets/nums.png")) 
+		if (!Point::tex.loadFromFile("assets/nums_small.png")) 
 		{
 			std::cout << "\tPoints texture could not be loaded!\n";
 		}

@@ -53,6 +53,11 @@ void GameTimer::Unpause()
   lastFrameTime = CUR_TIME;
 }
 
+bool GameTimer::IsPaused() const
+{
+  return paused;
+}
+
 void GameTimer::Render(sf::RenderWindow* win) const
 {
   win->draw(timeRect);

@@ -6,7 +6,7 @@
 #include "Character.h"
 #include "Controls.h"
 #include "Entity.h"
-#include "Score.h"
+#include "Number.h"
 #include "SortedDblyLnkdList.h"
 #include "GameTimer.h"
 #include "World.h"
@@ -63,8 +63,8 @@ public:
 
 private:
   std::vector<std::unique_ptr<Character>> characters; // The player characters
-  std::unique_ptr<World> world = nullptr;          // The playable region of the game
-  std::unique_ptr<Score> score = nullptr;          // The total accumulated score made during the game
+  std::unique_ptr<World> world = nullptr;             // The playable region of the game
+  std::unique_ptr<GameScore> score = nullptr;         // The total accumulated score made during the game
 
   SortedDblyLnkdList<Entity> entities; // A sorted (by vertical position) linked list of entites
   sf::Texture entityTex; // The sprite sheet used by all entities

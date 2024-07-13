@@ -25,6 +25,8 @@ public:
   void Pause();
   // Updauses the timer so that it can resume ticking
   void Unpause();
+  // Returns whether or not the timer is paused
+  bool IsPaused() const;
 
 private:
   sf::Texture texture; // The texture for the timer gauge

@@ -38,8 +38,7 @@ Game::Game(GameConfig& config)
     return;
   }
 
-	sf::Vector2f topRightPos(worldRect.left + worldRect.width, worldRect.top - (SCORE_TEX_HEIGHT + 1) * Utility::gameScale);
-	score = std::make_unique<Score>("assets/BigNums.png", topRightPos);
+	score = std::make_unique<GameScore>(sf::Vector2f(0.0f, worldRect.top - 6 * Utility::gameScale));
 
   nextSpikeSpawnTimeMin = 1000 + CUR_TIME;
   // BeginNextPhase = 5000 + CUR_TIME;
@@ -72,6 +71,20 @@ void Game::Update() // Should have different update and render functions based o
 	{
 		return;
 	}
+
+  if (Utility::CheckInitialPress(sf::Keyboard::P))
+  {
+    if (timer.get()->IsPaused())
+    {
+      std::cout << "Resuming Timer!\n";
+      timer.get()->Unpause();
+    }
+    else
+    {
+      std::cout << "Pausing Timer!\n";
+      timer.get()->Pause();
+    }
+  }
 
 	for (auto& p : characters)
 	{

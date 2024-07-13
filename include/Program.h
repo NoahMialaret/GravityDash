@@ -6,7 +6,6 @@
 #include "Event.h"
 #include "Game.h"
 #include "Particle.h"
-#include "Score.h"
 #include "MainMenu.h"
 #include "Utility.h"
 
