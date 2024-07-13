@@ -4,26 +4,6 @@ Game::Game(GameConfig& config)
   :
   config(config)
 {
-	for (int i = 0; i < config.numPlayers; i++)
-	{
-    std::unique_ptr<Controls> control = std::make_unique<Keyboard>(i);
-		characters.push_back(std::make_unique<PlayableCharacter>("assets/charBW.png", i, control));
-		characters[i].get()->StartJump();
-	}
-  
-  for (int i = 0; i < config.numComputers; i++)
-  {
-    characters.push_back(std::make_unique<ComputerCharacter>("assets/charBW.png", characters.size()));
-    characters[characters.size() - 1].get()->StartJump();
-  }
-
-  if (characters.size() <= 0)
-  {    
-    std::cout << "WARNING! Game was started with no characters!\n";
-    characters.push_back(std::make_unique<ComputerCharacter>("assets/charBW.png", 0));
-    characters[0].get()->StartJump();
-  }
-
   if (!entityTex.loadFromFile("assets/GravWEs.png")) 
   {
     std::cout << "\tEntity textures could not be loaded!\n";
@@ -32,6 +12,27 @@ Game::Game(GameConfig& config)
   sf::Vector2i worldSize = int(SCALED_DIM) * sf::Vector2i(16, 8);
 	sf::IntRect worldRect(- worldSize / 2, worldSize);
   world = std::make_unique<World>(worldRect);
+
+  PlayerBoost boost = PlayerBoost(5, sf::Vector2f(worldRect.left - Utility::gameScale, worldRect.top + 3.0f * Utility::gameScale));
+  for (int i = 0; i < config.numPlayers; i++)
+	{
+    std::unique_ptr<Controls> control = std::make_unique<Keyboard>(i);
+		characters.push_back(std::make_unique<PlayableCharacter>(i, control, boost));
+		characters[i].get()->StartJump();
+	}
+  
+  for (int i = 0; i < config.numComputers; i++)
+  {    
+    characters.push_back(std::make_unique<ComputerCharacter>(characters.size(), boost));
+    characters[characters.size() - 1].get()->StartJump();
+  }
+
+  if (characters.size() <= 0)
+  {    
+    std::cout << "WARNING! Game was started with no characters!\n";
+    characters.push_back(std::make_unique<ComputerCharacter>(0, boost));
+    characters[0].get()->StartJump();
+  }
 
   if (config.mode == Mode::title)
   {

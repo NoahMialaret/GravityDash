@@ -6,9 +6,10 @@
 #include "Character.h"
 #include "Controls.h"
 #include "Entity.h"
-#include "Number.h"
-#include "SortedDblyLnkdList.h"
 #include "GameTimer.h"
+#include "Number.h"
+#include "PlayerBoost.h"
+#include "SortedDblyLnkdList.h"
 #include "World.h"
 
 #include <list>
@@ -70,7 +71,7 @@ private:
   SortedDblyLnkdList<Entity> entities; // A sorted (by vertical position) linked list of entites
   sf::Texture entityTex;               // The sprite sheet used by all entities
 
-  std::list<TotalPoints> totalPoints; // Holds the
+  std::list<TotalPoints> totalPoints;
 
   std::unique_ptr<GameTimer> timer = nullptr; // The timer used by the game in 'time' mode
 

@@ -1,11 +1,13 @@
 #include "Character.h"
 
-Character::Character(const char* spritePath, int charID)
+
+Character::Character(int charID, PlayerBoost boost)
   : 
   acceleration(0.2f * Utility::gameScale),
-  charID(charID)
+  charID(charID),
+  boost(boost)
 {
-  if (!tex.loadFromFile(spritePath)) 
+  if (!tex.loadFromFile("assets/charBW.png")) 
   {
     std::cout << "Character texture could not be loaded!\n";
   }
@@ -98,6 +100,8 @@ void Character::Update()
     vel.y += (isUpright ? 1.0f : -1.0f) * 0.5f;
   }
 
+  boost.Update();
+
   sprite.move((isLastStand ? 0.5f : 1.0f) * vel);
   anims.Update();
 }
@@ -114,6 +118,8 @@ void Character::Render(sf::RenderWindow *win) const
   {
     point.Render(win);
   }
+
+  boost.Render(win);
 }
 
 void Character::UpdateVelocity(int dir)
@@ -144,7 +150,13 @@ void Character::StartJump()
 {
   if (curState >= State::airborne)
   {
-      return;
+    return;
+  }
+  if (isBoosted)
+  {
+    boost.Clear();
+    isBoosted = false;
+    return;
   }
   
   curState = State::airborne;
@@ -174,6 +186,15 @@ void Character::Land()
   if (isLastStand)
   {
     curState = State::dead;
+  }
+
+  if (comboCount >= 5)
+  {
+    boost.Increment();
+    if (boost.IsFull())
+    {
+      isBoosted = true;
+    }
   }
 
   comboCount = 0;
@@ -302,9 +323,9 @@ void Character::AddNewPoint(int value, sf::Vector2f pos, sf::Vector2f vel)
 // Playable Character
 // ------------------
 
-PlayableCharacter::PlayableCharacter(const char* spritePath, int charID, std::unique_ptr<Controls>& controls)
-    : 
-    Character(spritePath, charID)
+PlayableCharacter::PlayableCharacter(int charID, std::unique_ptr<Controls>& controls, PlayerBoost boost)
+  : 
+  Character(charID, boost)
 {
   this->controls = std::move(controls);
 }
@@ -338,9 +359,9 @@ void PlayableCharacter::Update()
 // Computer Character
 // ------------------
 
-ComputerCharacter::ComputerCharacter(const char* spritePath, int charID)
+ComputerCharacter::ComputerCharacter(int charID, PlayerBoost boost)
   :
-  Character(spritePath, charID)
+  Character(charID, boost)
 {}
 
 void ComputerCharacter::Update()

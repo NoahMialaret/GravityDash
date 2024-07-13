@@ -80,6 +80,10 @@ Program::Program(const char* name)
     {
       std::cout << "\tScore texture could not be loaded!\n";
     }
+    if (!PlayerBoost::tex.loadFromFile("assets/boost_tab.png"))
+    {
+      std::cout << "\tBoost Tab texture could not be loaded!\n";
+    }
 
 		GridMenu::SetTexture("assets/Buttons.png");
 		

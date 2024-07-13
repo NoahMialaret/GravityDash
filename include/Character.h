@@ -7,6 +7,7 @@
 #include "Controls.h"
 #include "Number.h"
 #include "Particle.h"
+#include "PlayerBoost.h"
 #include "Utility.h"
 
 #include <forward_list>
@@ -30,8 +31,8 @@ public:
   };
 
 public:
-  // The player contructors, takes the relative filepath to its texture and the controls that will be used to move it
-  Character(const char *spritePath, int charID);
+  // The constructor which takes an ID and PlayerBoost
+  Character(int charID, PlayerBoost boost);
   virtual ~Character();
 
   // Updates the player's state, animation, and position based on player inputs
@@ -80,6 +81,8 @@ protected:
   sf::Sprite sprite;      // The character's sprite used for rendering
   AnimationHandler anims; // The character's animation handler
 
+  PlayerBoost boost;
+
   sf::Vector2f prevPos = ZERO_VECTOR; // The character's position on the previous frame, used in hitbox calculations
   sf::Vector2f vel = ZERO_VECTOR;     // The character's velocity
   // Use queue to store multiple "lines"
@@ -100,6 +103,8 @@ protected:
   // Point *points = nullptr; // The points a player accumulates from hitting targets during a jump
   int comboCount = 0;      // The number of consecutive targets destroyed in a jump
 
+  bool isBoosted = false;
+
   int invincibleEnd = 0;
   int stunTimer = 0;
 };
@@ -107,7 +112,7 @@ protected:
 class PlayableCharacter : public Character
 {
 public:
-  PlayableCharacter(const char *spritePath, int charID, std::unique_ptr<Controls> &controls);
+  PlayableCharacter(int charID, std::unique_ptr<Controls> &controls, PlayerBoost boost);
 
   void Update() override;
 
@@ -118,7 +123,7 @@ private:
 class ComputerCharacter : public Character
 {
 public:
-  ComputerCharacter(const char *spritePath, int charID);
+  ComputerCharacter(int charID, PlayerBoost boost);
 
   void Update() override;
 };

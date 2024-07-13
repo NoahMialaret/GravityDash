@@ -6,7 +6,6 @@ GameTimer::GameTimer(sf::Int32 time, sf::Vector2f bottomLeft)
   maxTime(time)
 {
   timeRect = sf::RectangleShape(Utility::gameScale * sf::Vector2f(4.0f, 60.0f));
-  timeRect.setScale(DEFAULT_SCALE);
   timeRect.setPosition(bottomLeft + sf::Vector2f(0.0f, - Utility::gameScale));
   timeRect.setFillColor(sf::Color(255, 229, 181));
   timeRect.setScale(sf::Vector2f(1.0f, -1.0f));
