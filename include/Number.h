@@ -6,6 +6,7 @@
 #include "Bezier.h"
 #include "Utility.h"
 
+#include <forward_list>
 #include <string>
 #include <vector>
 
@@ -14,13 +15,13 @@ class Number
 {
 public:
   // Constructs a number which is centred at the given position
-  Number(sf::Vector2f centre, sf::Vector2i digitSize);
+  Number(sf::Vector2f centre, sf::Vector2i digitSize, sf::Texture* tex);
   // Constructs a number with a specified value
-  Number(int startingValue, sf::Vector2f centre, sf::Vector2i digitSize);
+  Number(int startingValue, sf::Vector2f centre, sf::Vector2i digitSize, sf::Texture* tex);
 
   virtual void Update() = 0;
   // Renders the digits to the screen
-  void Render(sf::RenderWindow* win) const;
+  virtual void Render(sf::RenderWindow* win) const;
 
   // Add a given value to the number, uses Add() and Subtract()
   void AddPoints(int value);
@@ -28,8 +29,10 @@ public:
   int GetAsInt() const;
   // Returns the number as a string
   std::string GetAsString() const;
+  // Gets the number's centre position
+  sf::Vector2f GetCentre() const;
 
-private:
+protected:
   // Adds a digit to the number
   void PushBackNumber(int value);
   // Recentres the digits when a new one is added
@@ -40,8 +43,12 @@ private:
   // Substracts a value from the number, Number cannot go below 0
   void Subtract(unsigned int value);
 
+public:
+  static sf::Texture smallNumTex;
+  static sf::Texture bigNumTex;
+
 protected:
-  sf::Texture tex;                      // The texture used by digits
+  sf::Texture* tex;                     // The texture used by digits
   std::vector<sf::Sprite> scoreSprites; // The rendered digits of the number
   std::vector<int> totalScore;          // The digits of the number
 
@@ -63,17 +70,47 @@ private:
 };
 
 // A Number child class that represents the scores that appear when a player hits a target
-class PlayerPoints : public Number
+class TargetPoints : public Number
 {
 public:
-  PlayerPoints(sf::Vector2f centre, sf::Vector2f vel);
-  PlayerPoints(int startingValue, sf::Vector2f centre, sf::Vector2f vel);
+  TargetPoints(sf::Vector2f centre, sf::Vector2f vel);
+  TargetPoints(int startingValue, sf::Vector2f centre, sf::Vector2f vel);
 
   void Update() override;
 
+  void SetVelocity(sf::Vector2f newVel);
+
 private:
   sf::Vector2f vel;
-  Bezier curve;
+  sf::Int32 prevFrameTime;
+};
+
+// A Number child class that represents the points that appear after combining TargetPoints
+class TotalPoints : public Number
+{
+private:
+  enum class State
+  {
+    start,
+    accumulate,
+    total,
+    finish
+  };
+
+public:
+  TotalPoints(std::forward_list<TargetPoints> targetPoints);
+
+  // Updates the sprites to move up the screen
+  void Update() override;
+  void Render(sf::RenderWindow* win) const override;
+
+  bool HasFinished();
+
+private:
+  int prevIndex = 0;        // The previous sprite index which was moved
+  sf::Int32 creationTime; // How long the number remains before being deleted
+  std::forward_list<TargetPoints> targetPoints;
+  State curState = State::start;
 };
 
 #endif

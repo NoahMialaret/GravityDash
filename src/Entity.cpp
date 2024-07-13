@@ -221,7 +221,7 @@ void MovingTarget::Update(std::vector<Character*> players)
   // in player, loop through vector of points (that represent the segment), and take the average
   sf::Vector2f middlePos = 0.5f * (players[closestIndex]->GetLineHitBox().second + players[closestIndex]->GetLineHitBox().first);
 
-  sf::Vector2f pointVel = 0.2f * (sprite.getPosition() - middlePos);
+  sf::Vector2f pointVel = 0.02f * (sprite.getPosition() - middlePos);
 
   players[closestIndex]->AddNewPoint(sprite.getPosition(), pointVel);
 

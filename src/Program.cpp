@@ -64,14 +64,22 @@ Program::Program(const char* name)
 		{
 			std::cout << "\tDebug texture could not be loaded!\n";
 		}
-		if (!Point::tex.loadFromFile("assets/nums_small.png")) 
-		{
-			std::cout << "\tPoints texture could not be loaded!\n";
-		}
+		// if (!Point::tex.loadFromFile("assets/nums_small.png")) 
+		// {
+		// 	std::cout << "\tPoints texture could not be loaded!\n";
+		// }
 		if (!Utility::programFont.loadFromFile("assets/GravDash.ttf"))
 		{
 			std::cout << "\tCould not load the game font!\n";
 		}
+    if (!Number::smallNumTex.loadFromFile("assets/nums_small.png")) 
+    {
+      std::cout << "\tScore texture could not be loaded!\n";
+    }
+    if (!Number::bigNumTex.loadFromFile("assets/nums_big.png")) 
+    {
+      std::cout << "\tScore texture could not be loaded!\n";
+    }
 
 		GridMenu::SetTexture("assets/Buttons.png");
 		

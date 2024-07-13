@@ -5,10 +5,11 @@
 
 #include "AnimationHandler.h"
 #include "Controls.h"
+#include "Number.h"
 #include "Particle.h"
-#include "Point.h"
 #include "Utility.h"
 
+#include <forward_list>
 #include <iostream>
 #include <memory>
 #include <string>
@@ -43,7 +44,7 @@ public:
   // Initiates a jump if allowed
   void StartJump();
   // Reorientates the player and changes the player's state when the player has landed after jumping
-  virtual int Land();
+  void Land();
   // Attempts to damage the player if it is not invincible
   bool Hit(sf::Vector2f entPos);
 
@@ -63,6 +64,8 @@ public:
   // Returns a line segment hitbox represented by the player's previous and current position, used for when
   // the player is airborne and is therefore likely travelling faster than the width of its regular hitbox
   std::pair<sf::Vector2f, sf::Vector2f> GetLineHitBox() const;
+
+  std::forward_list<TargetPoints> GetPoints() const;
 
   // Adds a point to the points linked list
   void AddNewPoint(sf::Vector2f pos, sf::Vector2f vel);
@@ -92,7 +95,9 @@ protected:
 
   sf::Int32 waitToJump = 0; // The time at which it is okay to jump again
 
-  Point *points = nullptr; // The points a player accumulates from hitting targets during a jump
+  std::forward_list<TargetPoints> targetPoints;
+
+  // Point *points = nullptr; // The points a player accumulates from hitting targets during a jump
   int comboCount = 0;      // The number of consecutive targets destroyed in a jump
 
   int invincibleEnd = 0;

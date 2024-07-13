@@ -11,6 +11,7 @@
 #include "GameTimer.h"
 #include "World.h"
 
+#include <list>
 #include <iostream>
 #include <memory>
 
@@ -46,7 +47,7 @@ public:
   };
 
 public:
-  Game(GameConfig &config);
+  Game(GameConfig& config);
   ~Game();
 
   // Handles game states, transitioning between states, and game objects
@@ -67,11 +68,13 @@ private:
   std::unique_ptr<GameScore> score = nullptr;         // The total accumulated score made during the game
 
   SortedDblyLnkdList<Entity> entities; // A sorted (by vertical position) linked list of entites
-  sf::Texture entityTex; // The sprite sheet used by all entities
+  sf::Texture entityTex;               // The sprite sheet used by all entities
+
+  std::list<TotalPoints> totalPoints; // Holds the
 
   std::unique_ptr<GameTimer> timer = nullptr; // The timer used by the game in 'time' mode
 
-  Phase curPhase = Phase::standard;  // The current phase of gameplay
+  Phase curPhase  = Phase::standard; // The current phase of gameplay
   Phase nextPhase = Phase::standard; // The next phase of gameplay to start after a transition has finished
   sf::Int32 BeginNextPhase;          // The time at which to begin transitioning
 

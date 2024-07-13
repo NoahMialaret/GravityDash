@@ -91,6 +91,15 @@ void Game::Update() // Should have different update and render functions based o
 		p.get()->Update();
 	}
 
+  for (auto& point : totalPoints)
+  {
+    point.Update();
+  }
+  while (totalPoints.front().HasFinished())
+  {
+    totalPoints.pop_front();
+  }
+
 	if ((characters.size() == 1 && characters[0].get()->GetCurState() == Character::State::dead) 
         || (config.mode == Mode::time && timer.get()->Update()))
 	{
@@ -206,6 +215,11 @@ void Game::Render(sf::RenderWindow* win) const
     node = node->GetNextNode();
   }
 
+  for (auto& point : totalPoints)
+  {
+    point.Render(win);
+  }
+
 	for (auto& p : characters)
 	{
 		p.get()->Render(win);
@@ -268,11 +282,13 @@ void Game::HandleLandingSequence(Character* player)
     return;
   }
 
-  int points = player->Land();
+  totalPoints.emplace_back(player->GetPoints());
+
+  player->Land();
       
   if (config.mode != Mode::title)
   {
-    score.get()->AddPoints(points);
+    score.get()->AddPoints(totalPoints.back().GetAsInt());
   }
 }
 

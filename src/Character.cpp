@@ -20,9 +20,7 @@ Character::Character(const char* spritePath, int charID)
 }
 
 Character::~Character()
-{
-  Point::DeletePoints(points);
-}
+{}
 
 void Character::Update()
 {
@@ -112,7 +110,10 @@ void Character::Render(sf::RenderWindow *win) const
     win->draw(sprite, &Utility::entShad);
   }
 
-  Point::RenderPoints(points, win);
+  for (auto& point : targetPoints)
+  {
+    point.Render(win);
+  }
 }
 
 void Character::UpdateVelocity(int dir)
@@ -154,7 +155,7 @@ void Character::StartJump()
   anims.QueueAnimation((int)curState, 100);
 }
 
-int Character::Land()
+void Character::Land()
 {
   vel.y = 0.0f;
   curState = State::idle;
@@ -175,23 +176,9 @@ int Character::Land()
     curState = State::dead;
   }
 
-  if (comboCount == 0)
-  {
-    return 0;
-  }
-
   comboCount = 0;
 
-	sf::Vector2f avPos = Point::GetAveragePosition(points);
-
-	unsigned int accumulatedPoints = Point::GetTotalScore(points);
-
-	Point* total = new Point(accumulatedPoints, avPos, 700, 500);
-	Point::CreateNewPoint(points, total);
-
-	Point::SetPointsDestination(points, avPos, 200);
-
-  return accumulatedPoints;
+  targetPoints.clear();
 }
 
 bool Character::Hit(sf::Vector2f entPos)
@@ -205,11 +192,10 @@ bool Character::Hit(sf::Vector2f entPos)
   if (curState == State::airborne)
   {
     sprite.scale({1.0f, -1.0f});
-
-    sf::Vector2f avPos = Point::GetAveragePosition(points);
-
-    Point::SetPointsDestination(points, avPos, 200);
   }
+
+  targetPoints.clear();
+  comboCount = 0;
 
   // invincibleEnd = CUR_TIME + 2000;
 
@@ -285,6 +271,11 @@ std::pair<sf::Vector2f, sf::Vector2f> Character::GetLineHitBox() const
     return std::pair<sf::Vector2f, sf::Vector2f>(prevPos, sprite.getPosition());
 }
 
+std::forward_list<TargetPoints> Character::GetPoints() const
+{
+  return targetPoints;
+}
+
 void Character::IncrementComboCount()
 {
   comboCount++;
@@ -304,12 +295,7 @@ void Character::AddNewPoint(sf::Vector2f pos, sf::Vector2f vel)
 
 void Character::AddNewPoint(int value, sf::Vector2f pos, sf::Vector2f vel)
 {
-  if (value < 0) // Temp code until points and entity link lists are refactored
-  {
-    vel = ZERO_VECTOR;
-  }
-  Point* tempPoint = new Point(value, pos, vel);
-  Point::CreateNewPoint(points, tempPoint);
+  targetPoints.emplace_front(TargetPoints(value, pos, vel));
 }
 
 // ------------------
@@ -325,7 +311,10 @@ PlayableCharacter::PlayableCharacter(const char* spritePath, int charID, std::un
 
 void PlayableCharacter::Update()
 {
-  Point::UpdatePoints(points);
+  for (auto& point : targetPoints)
+  {
+    point.Update();
+  }
 
   if (curState == State::dead)
   {
@@ -356,7 +345,10 @@ ComputerCharacter::ComputerCharacter(const char* spritePath, int charID)
 
 void ComputerCharacter::Update()
 {
-  Point::UpdatePoints(points);
+  for (auto& point : targetPoints)
+  {
+    point.Update();
+  }
   
   std::uniform_int_distribution chance(0, 99);
   int randomNum = chance(Utility::rng);
