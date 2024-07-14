@@ -1,5 +1,4 @@
 #include "PlayerBoost.h"
-sf::Texture PlayerBoost::tex;
 
 PlayerBoost::PlayerBoost(int numTabs, sf::Vector2f topRight)
 {
@@ -8,7 +7,7 @@ PlayerBoost::PlayerBoost(int numTabs, sf::Vector2f topRight)
   {
     sf::Sprite temp;
 
-    temp.setTexture(tex);
+    temp.setTexture(Textures::textures.at("boost_tab"));
     temp.setScale(DEFAULT_SCALE);
     temp.setPosition(topRight + (float)i * sf::Vector2f(0.0f, (1.0f + temp.getTextureRect().height) * Utility::gameScale));
     temp.setOrigin(sf::Vector2f(temp.getTextureRect().width, 0.0f));

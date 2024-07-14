@@ -1,8 +1,5 @@
 #include "Number.h"
 
-sf::Texture Number::smallNumTex;
-sf::Texture Number::bigNumTex;
-
 Number::Number(sf::Vector2f centre, sf::Vector2i digitSize, sf::Texture* tex)
   :
   Number(0, centre, digitSize, tex)
@@ -85,9 +82,9 @@ void Number::PushBackNumber(int value)
 
   temp.setOrigin({(float)digitSize.x / 2.0f, (float)digitSize.y / 2.0f});
   temp.setScale(DEFAULT_SCALE);
-  if (tex == &smallNumTex)
+  if (tex == &Textures::textures.at("nums_small"))
   {
-    temp.setScale(0.5f * DEFAULT_SCALE);
+    temp.scale(sf::Vector2f(0.5f, 0.5f));
   }
 
   scoreSprites.push_back(temp);
@@ -98,7 +95,7 @@ void Number::PushBackNumber(int value)
 
 void Number::Recentre()
 {
-  float scale = (tex == &smallNumTex ? 0.5f : 1.0f);
+  float scale = (tex == &Textures::textures.at("nums_small") ? 0.5f : 1.0f);
   float xPos = centre.x + scale * (scoreSprites.size() - 1) * (float)digitSize.x * Utility::gameScale / 2.0f;
   for (auto& s : scoreSprites)
   {
@@ -197,7 +194,7 @@ GameScore::GameScore(sf::Vector2f centre)
 
 GameScore::GameScore(int startingValue, sf::Vector2f centre)
   :
-  Number(startingValue, centre, sf::Vector2i(7, 8), &bigNumTex)
+  Number(startingValue, centre, sf::Vector2i(7, 8), &Textures::textures.at("nums_big"))
 {}
 
 void GameScore::Update()
@@ -215,7 +212,7 @@ TargetPoints::TargetPoints(sf::Vector2f centre, sf::Vector2f vel)
 
 TargetPoints::TargetPoints(int startingValue, sf::Vector2f centre, sf::Vector2f vel)
   :
-  Number(startingValue, centre, sf::Vector2i(5, 6), &smallNumTex),
+  Number(startingValue, centre, sf::Vector2i(5, 6), &Textures::textures.at("nums_small")),
   vel(vel)
 {
   prevFrameTime = CUR_TIME;
@@ -242,7 +239,7 @@ void TargetPoints::SetVelocity(sf::Vector2f newVel)
 
 TotalPoints::TotalPoints(std::forward_list<TargetPoints> targetPoints)
   :
-  Number(0, ZERO_VECTOR, sf::Vector2i(5, 6), &smallNumTex),
+  Number(0, ZERO_VECTOR, sf::Vector2i(5, 6), &Textures::textures.at("nums_small")),
   targetPoints(targetPoints)
 {
 

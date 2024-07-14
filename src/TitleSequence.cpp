@@ -11,45 +11,26 @@ TitleSequence::TitleSequence()
   };
   bezier = Bezier(bezPoints);
 
-  if (!charTex.loadFromFile("assets/charBW.png")) 
-  {
-    std::cout << "\tCharacter textures could not be loaded!\n";
-  }
-  character.setTexture(charTex);
+  character.setTexture(Textures::textures.at("character"));
   character.setOrigin(CENTRED_ORIGIN);
   charAnim = AnimationHandler(&character);
   character.setScale(DEFAULT_SCALE);
   charAnim.QueueAnimation(2, 50);
 
-  if (!bgTileTex.loadFromFile("assets/background_tiles.png"))
-  {
-    std::cout << "\tBG Tiles textures could not be loaded!\n";
-  }
-
-
-
-  if (!titleTex.loadFromFile("assets/title.png")) 
-  {
-    std::cout << "\tTitle texture could not be loaded!\n";
-  }
-  title.setTexture(titleTex);
+  title.setTexture(Textures::textures.at("title"));
   title.setScale(DEFAULT_SCALE);
   // title.setOrigin(title.getTextureRect().width / 2, title.getTextureRect().height / 2);
   title.setPosition(sf::Vector2f(-Utility::gameScale * Utility::spriteDim * 7.0f + Utility::gameScale, 
                     -Utility::gameScale * Utility::spriteDim * 3.5));
 
-  if (!frenchieTex.loadFromFile("assets/frenchie_t_sat.png")) 
-  {
-    std::cout << "\tFrenchie texture could not be loaded!\n";
-  }
-  frenchie.setTexture(frenchieTex);
+  frenchie.setTexture(Textures::textures.at("frenchie"));
   frenchie.setScale(sf::Vector2f(Utility::gameScale / 32.0f, Utility::gameScale / 32.0f));
   frenchie.setOrigin(frenchie.getTextureRect().width / 2, frenchie.getTextureRect().height / 2);
-  frenchie.setPosition(sf::Vector2f(-Utility::gameScale * 32.0f, 0.0f));
+  frenchie.setPosition(sf::Vector2f(-Utility::windowDim.x / 4.0f, 0.0f));
 
-  start.setFont(Utility::programFont);
+  start.setFont(Textures::font);
   start.setPosition(sf::Vector2f(0.0f, 1.5f * SCALED_DIM));
-  startShadow.setFont(Utility::programFont);
+  startShadow.setFont(Textures::font);
   start.setString("Press Any Button");
   startShadow.setString(start.getString());
   start.setCharacterSize(SCALED_DIM);
@@ -60,7 +41,7 @@ TitleSequence::TitleSequence()
   start.setOrigin(sf::Vector2f(start.getGlobalBounds().width / 2, start.getGlobalBounds().height / 2));
   startShadow.setOrigin(sf::Vector2f(startShadow.getGlobalBounds().width / 2, startShadow.getGlobalBounds().height / 2));
 
-  frenchieText.setFont(Utility::programFont);
+  frenchieText.setFont(Textures::font);
   frenchieText.setString("A game by:\nFrenchie!");
   frenchieText.setCharacterSize(SCALED_DIM);
   frenchieText.setFillColor(sf::Color(255, 229, 181));
@@ -122,16 +103,16 @@ void TitleSequence::Update()
     if (time > 2000)
     {
       curSeq = Sequence::logoIn;
-    frenchie.setPosition(sf::Vector2f(-Utility::gameScale * 32.0f, bezier.GetValue(-1.0f)));
-    frenchieText.setPosition(sf::Vector2f(-Utility::gameScale * 32.0f, bezier.GetValue(-1.0f)));
+    frenchie.setPosition(sf::Vector2f(frenchie.getPosition().x, bezier.GetValue(-1.0f)));
+    frenchieText.setPosition(sf::Vector2f(frenchie.getPosition().x, bezier.GetValue(-1.0f)));
       startTime = CUR_TIME;
     }
     break;
 
   case Sequence::logoIn:
-    frenchie.setPosition(sf::Vector2f(-Utility::gameScale * 32.0f, bezier.GetValue(time/1500.0f)));
+    frenchie.setPosition(sf::Vector2f(frenchie.getPosition().x, bezier.GetValue(time/1500.0f)));
     frenchie.setRotation(8 * std::sin((float)CUR_TIME / 512.0f));
-    frenchieText.setPosition(sf::Vector2f(-Utility::gameScale * 32.0f, bezier.GetValue(time/1500.0f)));
+    frenchieText.setPosition(sf::Vector2f(frenchie.getPosition().x, bezier.GetValue(time/1500.0f)));
     frenchieText.setRotation(8 * std::sin((float)CUR_TIME / 512.0f));
     if (time > 2000)
     {
@@ -150,9 +131,9 @@ void TitleSequence::Update()
     break;
   case Sequence::logoOut:
     frenchie.setRotation(8 * std::sin((float)CUR_TIME / 512.0f));
-    frenchie.setPosition(sf::Vector2f(-Utility::gameScale * 32.0f, - bezier.GetValue(time/1500.0f, true)));
+    frenchie.setPosition(sf::Vector2f(frenchie.getPosition().x, - bezier.GetValue(time/1500.0f, true)));
     frenchieText.setRotation(8 * std::sin((float)CUR_TIME / 512.0f));
-    frenchieText.setPosition(sf::Vector2f(-Utility::gameScale * 32.0f, - bezier.GetValue(time/1500.0f, true)));
+    frenchieText.setPosition(sf::Vector2f(frenchie.getPosition().x, - bezier.GetValue(time/1500.0f, true)));
     if (time > 2000)
     {
       curSeq = Sequence::intermission;
@@ -244,7 +225,7 @@ void TitleSequence::Render(sf::RenderWindow* win) const
 void TitleSequence::SpawnBGTile()
 {
   sf::Sprite newTile;
-  newTile.setTexture(bgTileTex);
+  newTile.setTexture(Textures::textures.at("background_tiles"));
   
   std::uniform_int_distribution texDist(0, 5);
   int tex = texDist(Utility::rng);

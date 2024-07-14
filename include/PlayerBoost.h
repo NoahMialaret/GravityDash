@@ -4,6 +4,7 @@
 #include <SFML/Graphics.hpp>
 
 #include "Utility.h"
+#include "Textures.h"
 
 #include <vector>
 
@@ -22,9 +23,6 @@ public:
   void Clear();
 
   bool IsFull() const;
-
-public:
-  static sf::Texture tex;
 
 private:
   std::vector<sf::Sprite> tabs;

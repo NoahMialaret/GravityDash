@@ -1,7 +1,5 @@
 #include "GridMenu.h"
 
-sf::Texture GridMenu::buttonTex;
-
 GridMenu::GridMenu(std::string name, int numButtons)
     :
     SubMenu(name)
@@ -10,14 +8,6 @@ GridMenu::GridMenu(std::string name, int numButtons)
     // renderRect.setSize({SCALED_DIM, SCALED_DIM});
     // renderRect.setOutlineThickness(-Utility::gameScale);
     // renderRect.setOutlineColor(sf::Color(200, 0, 0));
-}
-
-void GridMenu::SetTexture(const char* filePath)
-{
-    if (!buttonTex.loadFromFile(filePath)) 
-    {
-        std::cout << "\tButton textures could not be loaded!\n";
-    }
 }
 
 void GridMenu::Update()
@@ -87,7 +77,7 @@ void GridMenu::Render(sf::RenderWindow* win) const
 
 void GridMenu::CreateButton(std::string name, sf::IntRect gridBounds)
 {
-    buttons.push_back(Button(buttonTex, name, gridBounds));
+    buttons.push_back(Button(name, gridBounds));
 
     if (curButtonIndex == -1)
     {
@@ -125,7 +115,7 @@ sf::Vector2i GridMenu::IsInBoundsAxis(sf::Vector2i gridPos)
     return {gridPos.x >= 0 && gridPos.x < GRID_WIDTH, gridPos.y >= 0 && gridPos.y < GRID_HEIGHT};
 }
 
-GridMenu::Button::Button(sf::Texture& tex, std::string buttonName, sf::IntRect gridBounds)
+GridMenu::Button::Button(std::string buttonName, sf::IntRect gridBounds)
     :
     gridBounds(gridBounds)
 {
@@ -138,7 +128,7 @@ GridMenu::Button::Button(sf::Texture& tex, std::string buttonName, sf::IntRect g
 
     temp.setPosition(menuTopLeft + relativeTopLeft);
     temp.setScale(DEFAULT_SCALE);
-    temp.setTexture(tex);
+    temp.setTexture(Textures::textures.at("buttons"));
 
     sf::IntRect texRect(0, 0, Utility::spriteDim, Utility::spriteDim * gridBounds.height);
     texRect.top = gridBounds.height == 3 ? 0 : 3 * Utility::spriteDim;
@@ -206,7 +196,7 @@ GridMenu::Button::Button(sf::Texture& tex, std::string buttonName, sf::IntRect g
         sprites.push_back(temp);
     }
 
-    name.setFont(Utility::programFont);
+    name.setFont(Textures::font);
     name.setCharacterSize(SCALED_DIM);
     name.setFillColor(sf::Color(173, 103, 78));
     name.setOrigin(name.getLocalBounds().width, name.getLocalBounds().top);
@@ -220,8 +210,6 @@ GridMenu::Button::Button(const Button& button)
     name = button.name;
     gridBounds = button.gridBounds;
     isHighlighted = button.isHighlighted;
-
-    tex = button.tex;
     
     sprites = button.sprites;
 }

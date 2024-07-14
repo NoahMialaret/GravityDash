@@ -5,8 +5,9 @@
 
 #include "Event.h"
 #include "Game.h"
-#include "Particle.h"
 #include "MainMenu.h"
+#include "Particle.h"
+#include "Textures.h"
 #include "Utility.h"
 
 #include "TitleSequence.h"

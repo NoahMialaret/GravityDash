@@ -38,71 +38,40 @@ Program::Program(const char* name)
 
 		window.setVerticalSyncEnabled(true);
 
-	std::cout << "Loading necessary textures..." << std::endl;
+  // Textures and Shaders
+
+    Textures::LoadTextures();
 
     if (!sf::Shader::isAvailable())
     {
       std::cout << "\tShaders are not available on this hardware!\n";
     }
+
     if (!Utility::entShad.loadFromFile("assets/vert.vs", "assets/frag.fs"))
     {
       std::cout << "ERROR\n";
     }
     Utility::entShad.setUniform("texture", sf::Shader::CurrentTexture);
+
     if (!Utility::worldShad.loadFromFile("assets/vert.vs", "assets/bg.fs"))
     {
       std::cout << "ERROR\n";
     }
     Utility::worldShad.setUniform("texture", sf::Shader::CurrentTexture);
-
-		if (!Particle::tex.loadFromFile("assets/GravParticles.png")) 
-		{
-			std::cout << "\tParticle textures could not be loaded!\n";
-		}
-
-		if (!Utility::debugTexture.loadFromFile("assets/DebugPos.png")) 
-		{
-			std::cout << "\tDebug texture could not be loaded!\n";
-		}
-		// if (!Point::tex.loadFromFile("assets/nums_small.png")) 
-		// {
-		// 	std::cout << "\tPoints texture could not be loaded!\n";
-		// }
-		if (!Utility::programFont.loadFromFile("assets/GravDash.ttf"))
-		{
-			std::cout << "\tCould not load the game font!\n";
-		}
-    if (!Number::smallNumTex.loadFromFile("assets/nums_small.png")) 
-    {
-      std::cout << "\tScore texture could not be loaded!\n";
-    }
-    if (!Number::bigNumTex.loadFromFile("assets/nums_big.png")) 
-    {
-      std::cout << "\tScore texture could not be loaded!\n";
-    }
-    if (!PlayerBoost::tex.loadFromFile("assets/boost_tab.png"))
-    {
-      std::cout << "\tBoost Tab texture could not be loaded!\n";
-    }
-
-		GridMenu::SetTexture("assets/Buttons.png");
 		
-		Utility::debugSprite.setTexture(Utility::debugTexture, true);    
+		Utility::debugSprite.setTexture(Textures::textures.at("debug"));    
 		Utility::debugSprite.setOrigin(0.5f * sf::Vector2f(Utility::spriteDim, Utility::spriteDim));
 		Utility::debugSprite.setScale(sf::Vector2f(Utility::gameScale, -Utility::gameScale));
 
 	std::cout << "Initialising Program objects...\n";
 
-		// mainMenu = std::make_unique<MainMenu>();
     title = std::make_unique<TitleSequence>();
     
-
-	std::cout << "Program initialisation done! Opening main menu...\n";
+	std::cout << "Program init done! Starting title sequence...\n";
 	
-		// curState = State::startMenu;
 		curState = State::titleSequence;
 
-	std::cout << "--===+++++++++++===--\n";
+	std::cout << "--===++++++++++++++===--\n";
 }
 
 Program::~Program()

@@ -8,6 +8,7 @@
 #include "Number.h"
 #include "Particle.h"
 #include "PlayerBoost.h"
+#include "Textures.h"
 #include "Utility.h"
 
 #include <forward_list>
@@ -77,7 +78,6 @@ public:
 protected:
   int charID = 0;
 
-  sf::Texture tex;        // The character's spritesheet
   sf::Sprite sprite;      // The character's sprite used for rendering
   AnimationHandler anims; // The character's animation handler
 

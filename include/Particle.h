@@ -4,6 +4,7 @@
 #include <SFML/Graphics.hpp>
 
 #include "AnimationHandler.h"
+#include "Textures.h"
 
 #include <iostream>
 
@@ -32,8 +33,6 @@ public:
   void Update();
   // Renders this and the next in line particle's current sprite
   void Render(sf::RenderWindow *win) const;
-
-  static sf::Texture tex;     // The texture used by all the particles
 
 private:
   sf::Sprite sprite;      // The particle's sprite to be used for rendering

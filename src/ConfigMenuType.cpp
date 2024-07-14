@@ -9,21 +9,7 @@ ConfigMenuType::ConfigMenuType(std::string name, std::vector<std::string> tabNam
   // TODO: Use Camera class to determine top of screen
   // TODO: Support more than 4 tabs on one screen
 
-  if (!tabTex.loadFromFile("assets/Tabs.png")) 
-  {
-    std::cout << "\tTab textures could not be loaded!\n";
-  }
-
-  if (!toggleTex.loadFromFile("assets/Toggle.png")) 
-  {
-    std::cout << "\tToggle texture could not be loaded!\n";
-  }
-  if (!arrowTex.loadFromFile("assets/Arrow.png")) 
-  {
-    std::cout << "\tArrow texture could not be loaded!\n";
-  }
-
-  tabButton.setTexture(tabTex);
+  tabButton.setTexture(Textures::textures.at("tabs"));
   tabButton.setScale(DEFAULT_SCALE);
   tabButton.setTextureRect(sf::IntRect(sf::Vector2i(0, 0), TAB_TEX_SIZE));
   tabButton.setOrigin(sf::Vector2f((float)TAB_TEX_SIZE.x / 2, float(TAB_TEX_SIZE.y - 1) / 2));
@@ -34,7 +20,7 @@ ConfigMenuType::ConfigMenuType(std::string name, std::vector<std::string> tabNam
   sf::Vector2f textPos = tabButton.getPosition();
   for (auto name : tabNames)
   {
-    sf::Text newText(name, Utility::programFont);
+    sf::Text newText(name, Textures::font);
     newText.setCharacterSize(SCALED_DIM);
     newText.setFillColor(sf::Color(173, 103, 78));
     newText.setPosition(textPos);
@@ -139,14 +125,14 @@ std::map<std::string, int> ConfigMenuType::GetConfigs() const
 void ConfigMenuType::CreateToggle(std::string name, bool isToggled, int tabIndex)
 {
   float offset = 12.0f * Utility::gameScale * elements[tabIndex].size();
-  elements[tabIndex].push_back(std::make_unique<Toggle>(name, isToggled, offset, &toggleTex));
+  elements[tabIndex].push_back(std::make_unique<Toggle>(name, isToggled, offset));
 }
 
 void ConfigMenuType::CreateRange(std::string name, int value, int tabIndex)
 {
   value = std::clamp(value, 0, 9);
   float offset = 12.0f * Utility::gameScale * elements[tabIndex].size();
-  elements[tabIndex].push_back(std::make_unique<Range>(name, value, offset, &arrowTex));
+  elements[tabIndex].push_back(std::make_unique<Range>(name, value, offset));
 }
 
 ConfigMenuType::Element::Element(std::string name, int initValue)
@@ -154,7 +140,7 @@ ConfigMenuType::Element::Element(std::string name, int initValue)
   value(initValue)
 {
   text.setString(name);
-  text.setFont(Utility::programFont);
+  text.setFont(Textures::font);
   text.setCharacterSize(SCALED_DIM);
   text.setFillColor(sf::Color(173, 103, 78));
   text.setPosition(sf::Vector2f(-50 * Utility::gameScale, 0.0f));
@@ -185,11 +171,11 @@ void ConfigMenuType::Element::Render(sf::RenderWindow* win) const
 
 
 
-ConfigMenuType::Toggle::Toggle(std::string name, bool isToggled, float offset, sf::Texture* tex)
+ConfigMenuType::Toggle::Toggle(std::string name, bool isToggled, float offset)
   :
   Element(name, (int)isToggled)
 {
-  toggleSprite.setTexture(*tex);
+  toggleSprite.setTexture(Textures::textures.at("toggle"));
   toggleSprite.setScale(DEFAULT_SCALE);
   toggleSprite.setPosition(sf::Vector2f(50 * Utility::gameScale, 0.0f));
   toggleSprite.setTextureRect(sf::IntRect(sf::Vector2i(isToggled * 8, 0), sf::Vector2i(8, 5)));
@@ -226,24 +212,24 @@ void ConfigMenuType::Toggle::Render(sf::RenderWindow* win) const
 
 
 
-ConfigMenuType::Range::Range(std::string name, int value, float offset, sf::Texture *tex)
+ConfigMenuType::Range::Range(std::string name, int value, float offset)
   :
   Element(name, value)
 {
-  arrowSpriteRight.setTexture(*tex);
+  arrowSpriteRight.setTexture(Textures::textures.at("arrow"));
   arrowSpriteRight.setScale(DEFAULT_SCALE);
   arrowSpriteRight.setPosition(sf::Vector2f(50 * Utility::gameScale, 0.0f));
   arrowSpriteRight.setTextureRect(sf::IntRect(sf::Vector2i(0, 0), sf::Vector2i(4, 5)));
   arrowSpriteRight.setOrigin(sf::Vector2f(4, 2.5));
 
-  arrowSpriteLeft.setTexture(*tex);
+  arrowSpriteLeft.setTexture(Textures::textures.at("arrow"));
   arrowSpriteLeft.setScale(sf::Vector2f(-Utility::gameScale, Utility::gameScale));
   arrowSpriteLeft.setPosition(sf::Vector2f(41 * Utility::gameScale, 0.0f));
   arrowSpriteLeft.setTextureRect(sf::IntRect(sf::Vector2i(0, 0), sf::Vector2i(4, 5)));
   arrowSpriteLeft.setOrigin(sf::Vector2f(0, 2.5));
 
   valueText.setString(Utility::IntToString(value));
-  valueText.setFont(Utility::programFont);
+  valueText.setFont(Textures::font);
   valueText.setCharacterSize(SCALED_DIM);
   valueText.setFillColor(sf::Color(173, 103, 78));
   valueText.setPosition(sf::Vector2f(45 * Utility::gameScale, 0.0f));

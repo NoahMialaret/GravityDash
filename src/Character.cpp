@@ -7,12 +7,7 @@ Character::Character(int charID, PlayerBoost boost)
   charID(charID),
   boost(boost)
 {
-  if (!tex.loadFromFile("assets/charBW.png")) 
-  {
-    std::cout << "Character texture could not be loaded!\n";
-  }
-
-  sprite.setTexture(tex);    
+  sprite.setTexture(Textures::textures.at("character"));    
   sprite.setOrigin(CENTRED_ORIGIN);
 
   sprite.setScale({Utility::gameScale, -Utility::gameScale});

@@ -1,11 +1,10 @@
 #include "Particle.h"
-sf::Texture Particle::tex;
 
 Particle::Particle(Particle::Type type, sf::Vector2f vel, sf::Vector2f pos, sf::Vector2f scale)
   : 
   vel(vel)
 {
-  sprite.setTexture(tex);
+  sprite.setTexture(Textures::textures.at("particles"));
 
   sprite.setOrigin(CENTRED_ORIGIN);
   sprite.setPosition(pos);

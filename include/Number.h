@@ -4,6 +4,7 @@
 #include <SFML/Graphics.hpp>
 
 #include "Bezier.h"
+#include "Textures.h"
 #include "Utility.h"
 
 #include <forward_list>
@@ -43,14 +44,11 @@ protected:
   // Substracts a value from the number, Number cannot go below 0
   void Subtract(unsigned int value);
 
-public:
-  static sf::Texture smallNumTex;
-  static sf::Texture bigNumTex;
-
 protected:
-  sf::Texture* tex;                     // The texture used by digits
   std::vector<sf::Sprite> scoreSprites; // The rendered digits of the number
   std::vector<int> totalScore;          // The digits of the number
+
+  sf::Texture* tex;
 
   sf::Vector2i digitSize; // The pixel dimensions of a single digit
 

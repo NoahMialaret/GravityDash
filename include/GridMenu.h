@@ -7,6 +7,7 @@
 #include <SFML/Graphics.hpp>
 
 #include "SubMenu.h"
+#include "Textures.h"
 #include "Utility.h"
 
 #include <iostream>
@@ -19,7 +20,7 @@ private:
     {
     public:
         Button() = default;
-        Button(sf::Texture& tex, std::string name, sf::IntRect gridBounds);
+        Button(std::string name, sf::IntRect gridBounds);
         Button(const Button& button);
         bool OccupiesGridPos(sf::Vector2i gridPos) const;
         void ToggleHighlight();
@@ -29,7 +30,6 @@ private:
         void Render(sf::RenderWindow* win) const;
         
     private:
-        sf::Texture tex;
         std::vector<sf::Sprite> sprites;
         sf::Text name;
 
@@ -43,7 +43,6 @@ private:
     };
 public:
     GridMenu(std::string name, int numButtons);
-    static void SetTexture(const char* filePath);
 
     void Update() override;
     void Render(sf::RenderWindow* win) const override;
@@ -54,8 +53,6 @@ public:
     static sf::Vector2i IsInBoundsAxis(sf::Vector2i gridPos);
 
 private:
-    static sf::Texture buttonTex;
-
     // An invisible indicator as to the specific grid position that is highlighted, used to determine button selection
     sf::Vector2i selectorPos;
 

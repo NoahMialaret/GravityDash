@@ -6,6 +6,7 @@
 #include "AnimationHandler.h"
 #include "Character.h"
 #include "Particle.h"
+#include "Textures.h"
 #include "Utility.h"
 
 #include <iostream>
@@ -14,7 +15,7 @@
 class Entity
 {
 public:
-  Entity(sf::Texture* tex, int maxID);
+  Entity(int maxID);
   virtual ~Entity() = default;
 
   // Virtual function for updating entity logic
@@ -63,7 +64,7 @@ class Saw : public Entity
 public:
   Saw() = delete;
   // Constructor uses the world border to determine spawn positions and cutoff points
-  Saw(sf::Texture* tex, sf::IntRect &worldBorder, int maxID);
+  Saw(sf::IntRect &worldBorder, int maxID);
   // Updates the spike's position and checks for player collisions
   void Update(std::vector<Character *> players) override;
 
@@ -78,7 +79,7 @@ class MovingTarget : public Entity
 public:
   MovingTarget() = delete;
   // Constructor uses the world border to determine spawn positions and cutoff points
-  MovingTarget(sf::Texture* tex, sf::IntRect &worldBorder, int maxID);
+  MovingTarget(sf::IntRect &worldBorder, int maxID);
   // Updates the spike's position and checks for player collisions
   void Update(std::vector<Character *> players) override;
 

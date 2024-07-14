@@ -7,6 +7,7 @@
 #include <SFML/Graphics.hpp>
 
 #include "SubMenu.h"
+#include "Textures.h"
 #include "Utility.h"
 
 #include <iostream>
@@ -43,7 +44,7 @@ protected:
   class Toggle : public Element
   {
   public:
-    Toggle(std::string name, bool isToggled, float offset, sf::Texture *tex);
+    Toggle(std::string name, bool isToggled, float offset);
 
     void Move(float moveAmount) override;
 
@@ -57,7 +58,7 @@ protected:
   class Range : public Element
   {
   public:
-    Range(std::string name, int value, float offset, sf::Texture *tex);
+    Range(std::string name, int value, float offset);
 
     void Move(float moveAmount) override;
 
@@ -99,11 +100,7 @@ private:
   int elementIndex = 0;
 
   std::vector<sf::Text> tabTexts;
-  sf::Texture tabTex;
   sf::Sprite tabButton;
-
-  sf::Texture toggleTex;
-  sf::Texture arrowTex;
 
   std::vector<std::vector<std::unique_ptr<Element>>> elements;
 };

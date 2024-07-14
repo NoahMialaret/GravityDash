@@ -1,8 +1,8 @@
 #include "Entity.h"
 
-Entity::Entity(sf::Texture *tex, int maxID)
+Entity::Entity(int maxID)
 {
-  sprite.setTexture(*tex);
+  sprite.setTexture(Textures::textures.at("entities"));
   sprite.setOrigin(CENTRED_ORIGIN);
   std::uniform_int_distribution id(0, maxID - 1);
   entID = id(Utility::rng);
@@ -75,9 +75,9 @@ bool Entity::operator>(float rhs)
 // = Saw Class =
 // = --------- =
 
-Saw::Saw(sf::Texture* tex, sf::IntRect &worldBorder, int maxID)
+Saw::Saw(sf::IntRect &worldBorder, int maxID)
   :
-  Entity(tex, maxID)
+  Entity(maxID)
 {
 	int posBuffer = SCALED_DIM / 2;
 
@@ -147,9 +147,9 @@ void Saw::Update(std::vector<Character*> players)
 // = Target Class =
 // = ------------ =
 
-MovingTarget::MovingTarget(sf::Texture* tex, sf::IntRect &worldBorder, int maxID)
+MovingTarget::MovingTarget(sf::IntRect &worldBorder, int maxID)
   :
-  Entity(tex, maxID)
+  Entity(maxID)
 {
 	int posBuffer = SCALED_DIM / 2;
 

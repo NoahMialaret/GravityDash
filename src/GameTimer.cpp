@@ -10,11 +10,7 @@ GameTimer::GameTimer(sf::Int32 time, sf::Vector2f bottomLeft)
   timeRect.setFillColor(sf::Color(255, 229, 181));
   timeRect.setScale(sf::Vector2f(1.0f, -1.0f));
 
-  if (!texture.loadFromFile("assets/timer.png"))
-  {
-    std::cout << "\tTimer texture could not be loaded!\n";
-  }
-  sprite.setTexture(texture);
+  sprite.setTexture(Textures::textures.at("timer"));
   sprite.setScale(DEFAULT_SCALE);
   sprite.setPosition(bottomLeft);
   sprite.setOrigin(sf::Vector2f(0.0f, sprite.getTextureRect().height));

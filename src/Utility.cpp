@@ -12,11 +12,8 @@ std::mt19937 Utility::rng = std::mt19937(std::random_device()());
 
 std::vector<int> Utility::initialKeyPresses;
 
-sf::Texture Utility::debugTexture;
 sf::Sprite Utility::debugSprite;
 std::vector<sf::Vector2f> Utility::debugPos;
-
-sf::Font Utility::programFont;
 
 std::vector<Event> Utility::events;
 

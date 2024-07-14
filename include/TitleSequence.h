@@ -6,6 +6,7 @@
 #include "AnimationHandler.h"
 #include "Bezier.h"
 #include "Particle.h"
+#include "Textures.h"
 #include "Utility.h"
 #include "World.h"
 
@@ -42,17 +43,13 @@ private:
 
   std::unique_ptr<World> world;
   std::forward_list<sf::Sprite> bgTiles;
-  sf::Texture bgTileTex;
   float speed = 5.0f;
 
-  sf::Texture charTex;
   sf::Sprite character;
   AnimationHandler charAnim;
 
-  sf::Texture titleTex;
   sf::Sprite title;
 
-  sf::Texture frenchieTex;
   sf::Sprite frenchie;
 
   sf::Text frenchieText;

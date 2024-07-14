@@ -3,6 +3,7 @@
 
 #include <SFML/Graphics.hpp>
 
+#include "Textures.h"
 #include "Utility.h"
 
 #include <iostream>
@@ -29,7 +30,6 @@ public:
   bool IsPaused() const;
 
 private:
-  sf::Texture texture; // The texture for the timer gauge
   sf::Sprite sprite;   // The sprite for the timer gauge
 
   bool paused = false; // Whether the timer is paused

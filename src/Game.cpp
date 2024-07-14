@@ -4,11 +4,6 @@ Game::Game(GameConfig& config)
   :
   config(config)
 {
-  if (!entityTex.loadFromFile("assets/GravWEs.png")) 
-  {
-    std::cout << "\tEntity textures could not be loaded!\n";
-  }
-
   sf::Vector2i worldSize = int(SCALED_DIM) * sf::Vector2i(16, 8);
 	sf::IntRect worldRect(- worldSize / 2, worldSize);
   world = std::make_unique<World>(worldRect);
@@ -184,7 +179,7 @@ void Game::Update() // Should have different update and render functions based o
   if (config.sawFrequency != 0 && nextSpikeSpawnTimeMin < CUR_TIME)
   {
     //std::cout << "Spawning obastacle! Last one spawned " << CUR_TIME - nextSpikeSpawnTimeMin + 1000 << " ms ago.\n";
-    Entity* temp = new Saw(&entityTex, playableRegion, characters.size());
+    Entity* temp = new Saw(playableRegion, characters.size());
     auto searchFrom = entities.Start();
     if (*temp > 0)
       searchFrom = entities.End();
@@ -195,7 +190,7 @@ void Game::Update() // Should have different update and render functions based o
 
   if (randomInt > config.targetSpawnChance)
   {           
-    Entity* temp = new MovingTarget(&entityTex, playableRegion, characters.size());
+    Entity* temp = new MovingTarget(playableRegion, characters.size());
     auto searchFrom = entities.Start();
     if (*temp > 0)
       searchFrom = entities.End();

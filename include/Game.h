@@ -10,6 +10,7 @@
 #include "Number.h"
 #include "PlayerBoost.h"
 #include "SortedDblyLnkdList.h"
+#include "Textures.h"
 #include "World.h"
 
 #include <list>
@@ -69,7 +70,6 @@ private:
   std::unique_ptr<GameScore> score = nullptr;         // The total accumulated score made during the game
 
   SortedDblyLnkdList<Entity> entities; // A sorted (by vertical position) linked list of entites
-  sf::Texture entityTex;               // The sprite sheet used by all entities
 
   std::list<TotalPoints> totalPoints;
 

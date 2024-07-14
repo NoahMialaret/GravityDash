@@ -15,7 +15,7 @@
 #include <SFML/Graphics.hpp>
 
 #include "Event.h"
-
+#include "Textures.h"
 
 #include <iostream>
 #include <random>
@@ -70,11 +70,8 @@ public:
   static std::vector<int> initialKeyPresses;  // A vector of keys which were initially pressed in the current frame
 
   // Debug
-  static sf::Texture debugTexture;            // The texture used for debug sprites
   static sf::Sprite debugSprite;              // The sprite used for rendering debug positions on the screen
   static std::vector<sf::Vector2f> debugPos;  // Holds all the saved debug sprite positions
-
-  static sf::Font programFont;    // The font used throughout the program
 
   // Events
   static std::vector<Event> events;   // Accumulated game events
