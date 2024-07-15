@@ -14,8 +14,11 @@ TitleSequence::TitleSequence()
   character.setTexture(Textures::textures.at("character"));
   character.setOrigin(CENTRED_ORIGIN);
   charAnim = AnimationHandler(&character);
+  charMotion = MotionHandler(&character);
   character.setScale(DEFAULT_SCALE);
   charAnim.QueueAnimation(2, 50);
+
+  charMotion.QueueMotion(MotionHandler::Type::easeIn, 2000, sf::Vector2f(0.0f, Utility::gameScale * 100.0f), ZERO_VECTOR);
 
   title.setTexture(Textures::textures.at("title"));
   title.setScale(DEFAULT_SCALE);
@@ -58,6 +61,7 @@ void TitleSequence::Update()
 {
   timer -= Clock::Delta();
   charAnim.Update();
+  charMotion.Update();
 
   std::uniform_int_distribution chance(0, 100);
   int spawn = chance(Utility::rng);
@@ -99,7 +103,6 @@ void TitleSequence::Update()
   switch (curSeq)
   {
   case Sequence::start:
-    character.setPosition(sf::Vector2f(0.0f, bezier.GetValue(timer/1500.0f, true)));
     if (timer <= 0)
     {
       curSeq = Sequence::logoIn;
@@ -139,11 +142,11 @@ void TitleSequence::Update()
     {
       curSeq = Sequence::intermission;
       timer = 3000;
+      charMotion.QueueMotion(MotionHandler::Type::easeOut, 2000, ZERO_VECTOR, sf::Vector2f(0.0f, - Utility::gameScale * 100.0f));
     }
     break;
 
   case Sequence::intermission:
-    character.setPosition(sf::Vector2f(0.0f, - bezier.GetValue(timer/1500.0f)));
     speed *= 1.007;
     if (timer <= 0)
     {

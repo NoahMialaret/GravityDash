@@ -6,6 +6,7 @@
 #include "AnimationHandler.h"
 #include "Bezier.h"
 #include "Clock.h"
+#include "MotionHandler.h"
 #include "Particle.h"
 #include "Textures.h"
 #include "Utility.h"
@@ -48,6 +49,7 @@ private:
 
   sf::Sprite character;
   AnimationHandler charAnim;
+  MotionHandler charMotion;
 
   sf::Sprite title;
 
