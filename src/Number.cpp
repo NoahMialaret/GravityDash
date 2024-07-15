@@ -214,18 +214,15 @@ TargetPoints::TargetPoints(int startingValue, sf::Vector2f centre, sf::Vector2f 
   :
   Number(startingValue, centre, sf::Vector2i(5, 6), &Textures::textures.at("nums_small")),
   vel(vel)
-{
-  prevFrameTime = CUR_TIME;
-}
+{}
 
 void TargetPoints::Update()
 {
   for (auto& s : scoreSprites)
   {
-    s.move(float(CUR_TIME - prevFrameTime) * vel);
+    s.move(float(Clock::Delta()) * vel);
   }
-  centre += float(CUR_TIME - prevFrameTime) * vel;
-  prevFrameTime = CUR_TIME;
+  centre += float(Clock::Delta()) * vel;
 }
 
 void TargetPoints::SetVelocity(sf::Vector2f newVel)
@@ -260,14 +257,15 @@ TotalPoints::TotalPoints(std::forward_list<TargetPoints> targetPoints)
   Recentre();
   AddPoints(accumulatedPoints);
 
-  prevIndex = CUR_TIME / 150 % scoreSprites.size();
+  prevIndex = Clock::Elapsed() / 150 % scoreSprites.size();
   scoreSprites[prevIndex].move(sf::Vector2f(0.0f, -0.5f * Utility::gameScale));
 
-  creationTime = CUR_TIME;
+  timer = 500;
 }
 
 void TotalPoints::Update()
 {
+  timer -= Clock::Delta();
   switch (curState)
   {
   case State::start:
@@ -275,12 +273,13 @@ void TotalPoints::Update()
     {
       point.Update();
     }
-    if (creationTime + 500 < CUR_TIME)
+    if (timer <= 0)
     {
       for (auto& point : targetPoints)
       {
         point.SetVelocity(1.0f / 500.0f * (centre - point.GetCentre()));
       }
+      timer = 500;
       curState = State::accumulate;
     }
     break;
@@ -290,8 +289,9 @@ void TotalPoints::Update()
     {
       point.Update();
     }
-    if (creationTime + 1000 < CUR_TIME)
+    if (timer <= 0)
     {
+      timer = 1000;
       curState = State::total;
     }
     break;
@@ -299,9 +299,9 @@ void TotalPoints::Update()
   case State::total:
     for (auto& s : scoreSprites)
     {
-      s.move(sf::Vector2f(0.0f, -Utility::gameScale / 10));
+      s.move((Clock::Delta() / 16.0f) * sf::Vector2f(0.0f, -Utility::gameScale / 10));
     }
-    if (creationTime + 2000 < CUR_TIME)
+    if (timer <= 0)
     {
       curState = State::finish;
     }
@@ -311,7 +311,7 @@ void TotalPoints::Update()
     break;
   }
 
-  int index = CUR_TIME / 150 % scoreSprites.size();
+  int index = Clock::Elapsed() / 150 % scoreSprites.size();
 
   if (index == prevIndex)
   {

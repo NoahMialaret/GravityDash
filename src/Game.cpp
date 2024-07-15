@@ -36,7 +36,7 @@ Game::Game(GameConfig& config)
 
 	score = std::make_unique<GameScore>(sf::Vector2f(0.0f, worldRect.top - 6 * Utility::gameScale));
 
-  nextSpikeSpawnTimeMin = 1000 + CUR_TIME;
+  spikeSpawnTimer = 1000;
   // BeginNextPhase = 5000 + CUR_TIME;
 
   timer = std::make_unique<GameTimer>(60000, sf::Vector2f(worldRect.left + worldRect.width + Utility::gameScale, 
@@ -173,29 +173,37 @@ void Game::Update() // Should have different update and render functions based o
     // }
 
 	sf::IntRect playableRegion = world.get()->GetRegion();
-  std::uniform_int_distribution spawnChance(0, 99);
-  int randomInt = spawnChance(Utility::rng);
+  spikeSpawnTimer -= Clock::Delta();
+  spawnTimer -= Clock::Delta();
 
-  if (config.sawFrequency != 0 && nextSpikeSpawnTimeMin < CUR_TIME)
+  while (spawnTimer <= 0)
   {
-    //std::cout << "Spawning obastacle! Last one spawned " << CUR_TIME - nextSpikeSpawnTimeMin + 1000 << " ms ago.\n";
-    Entity* temp = new Saw(playableRegion, characters.size());
-    auto searchFrom = entities.Start();
-    if (*temp > 0)
-      searchFrom = entities.End();
+    spawnTimer += 16;
+    std::uniform_int_distribution spawnChance(0, 99);
+    int randomInt = spawnChance(Utility::rng);
 
-    entities.InsertData(temp, searchFrom);
-    nextSpikeSpawnTimeMin = 500 + randomInt * 10 + CUR_TIME; // Spawns every 1000 +- 500 ms
+
+    if (config.sawFrequency != 0 && spikeSpawnTimer <= 0)
+    {
+      //std::cout << "Spawning obastacle! Last one spawned " << CUR_TIME - nextSpikeSpawnTimeMin + 1000 << " ms ago.\n";
+      Entity* temp = new Saw(playableRegion, characters.size());
+      auto searchFrom = entities.Start();
+      if (*temp > 0)
+        searchFrom = entities.End();
+
+      entities.InsertData(temp, searchFrom);
+      spikeSpawnTimer = 500 + randomInt * 10; // Spawns every 1000 +- 500 ms
+    }
+
+    if (randomInt > config.targetSpawnChance)
+    {           
+      Entity* temp = new MovingTarget(playableRegion, characters.size());
+      auto searchFrom = entities.Start();
+      if (*temp > 0)
+        searchFrom = entities.End();
+      entities.InsertData(temp, searchFrom);
+    }  
   }
-
-  if (randomInt > config.targetSpawnChance)
-  {           
-    Entity* temp = new MovingTarget(playableRegion, characters.size());
-    auto searchFrom = entities.Start();
-    if (*temp > 0)
-      searchFrom = entities.End();
-    entities.InsertData(temp, searchFrom);
-  }  
 }
 
 void Game::Render(sf::RenderWindow* win) const

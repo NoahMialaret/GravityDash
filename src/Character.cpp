@@ -21,12 +21,17 @@ Character::~Character()
 
 void Character::Update()
 {
-  if (curState <= State::moving)
+  particleTimer -= Clock::Delta();
+  invincibilityTimer -= Clock::Delta();
+  velTimer -= Clock::Delta();
+
+  while (curState <= State::moving && velTimer <= 0)
   {
     UpdateVelocity(move);
   }
   
   prevPos = sprite.getPosition();
+
 
   switch (curState)
   {
@@ -39,10 +44,10 @@ void Character::Update()
     curState = State::moving;
 
     anims.Clear();
-    anims.QueueAnimation((int)curState, (isLastStand ? 3.0f : 1.0f) * 100);
+    anims.QueueAnimation((int)curState, (isLastStand ? 3 : 1) * 100);
     sprite.setScale({move * Utility::gameScale, sprite.getScale().y});
 
-    nextRunParticle = (isLastStand ? 4.0f : 1.0f) * 150 + CUR_TIME;
+    particleTimer = (isLastStand ? 4 : 1) * 150;
     break;
 
   case State::moving:
@@ -50,7 +55,7 @@ void Character::Update()
     {
       curState = State::idle;
       anims.Clear();
-      anims.QueueAnimation((int)curState, (isLastStand ? 2.0f : 1.0f) * 150);
+      anims.QueueAnimation((int)curState, (isLastStand ? 2 : 1) * 150);
       break;
     }
 
@@ -59,12 +64,12 @@ void Character::Update()
       sprite.scale({-1.0f, 1.0f});
     }
 
-    if (nextRunParticle < CUR_TIME)
+    if (particleTimer <= 0)
     {
       sf::Vector2f partVel(-move * 0.2f * Utility::gameScale, (isUpright ? -0.1f : 0.1f) * Utility::gameScale);
       Utility::particles.push_front(Particle(Particle::Type::walkDust, partVel, sprite.getPosition() - 
         sf::Vector2f(move * 0.5f * SCALED_DIM, 0.0f), sprite.getScale()));
-      nextRunParticle += (isLastStand ? 4.0f : 1.0f) * 150;
+      particleTimer = (isLastStand ? 4 : 1) * 150;
     }
     break;
 
@@ -75,12 +80,13 @@ void Character::Update()
     break;
 
   case State::stunned:
-    if (stunTimer < CUR_TIME)
+    stunTimer -= Clock::Delta();
+    if (stunTimer <= 0)
     {
       curState = State::idle;
-      invincibleEnd = CUR_TIME + 3000;
+      invincibilityTimer = 3000;
       anims.Clear();
-      anims.QueueAnimation((int)curState, (isLastStand ? 2.0f : 1.0f) * 150);
+      anims.QueueAnimation((int)curState, (isLastStand ? 2 : 1) * 150);
     }
     break;
 
@@ -92,19 +98,19 @@ void Character::Update()
 
   if (curState != State::airborne)
   {
-    vel.y += (isUpright ? 1.0f : -1.0f) * 0.5f;
+    vel.y += (isUpright ? 1.0f : -1.0f) * 0.05f * Clock::Delta();
   }
 
   boost.Update();
 
-  sprite.move((isLastStand ? 0.5f : 1.0f) * vel);
+  sprite.move((isLastStand ? 0.5f : 1.0f) * (Clock::Delta() / 16.0f) * vel);
   anims.Update();
 }
 
 void Character::Render(sf::RenderWindow *win) const
 {
   Utility::entShad.setUniform("colorID", charID);
-  if (invincibleEnd < CUR_TIME || (CUR_TIME / 64) % 2 == 1)
+  if (invincibilityTimer <= 0 || (Clock::Elapsed() / 64) % 2)
   {
     win->draw(sprite, &Utility::entShad);
   }
@@ -119,6 +125,8 @@ void Character::Render(sf::RenderWindow *win) const
 
 void Character::UpdateVelocity(int dir)
 {
+  velTimer += 16;
+
   if (dir != 0 && curState != State::airborne)
   {
     vel.x += acceleration * dir;
@@ -159,7 +167,7 @@ void Character::StartJump()
   vel.y = acceleration * 80.0f * (isUpright ? -1.0f : 1.0f);
   isUpright = !isUpright;
   anims.Clear();
-  anims.QueueAnimation((int)curState, 100);
+  anims.QueueAnimation((int)curState, 20);
 }
 
 void Character::Land()
@@ -199,10 +207,11 @@ void Character::Land()
 
 bool Character::Hit(sf::Vector2f entPos)
 {
-  if (invincibleEnd > CUR_TIME || curState >= State::hit)
+  if (invincibilityTimer > 0 || curState >= State::hit)
   {
     return false;
   }
+
   std::cout << "Player has been hit!\n";
 
   if (curState == State::airborne)
@@ -231,12 +240,11 @@ bool Character::Hit(sf::Vector2f entPos)
 
   if (isLastStand)
   {
-      return false;
+    return false;
   }
   isLastStand = true;
   std::cout << "Character has been hit, this is their final jump!\n";
 
-  waitToJump = 1000 + CUR_TIME;
   return true;
 }
 
@@ -272,7 +280,7 @@ void Character::SetYVelocity(float yVel)
   if (curState == State::hit)
   {
     curState = State::stunned;
-    stunTimer = CUR_TIME + 1000;
+    stunTimer = 1000;
     vel.x = 0;
   }
 }
@@ -294,7 +302,10 @@ std::forward_list<TargetPoints> Character::GetPoints() const
 
 void Character::IncrementComboCount()
 {
-  comboCount++;
+  if (comboCount < 7)
+  {
+    comboCount++;
+  }
 }
 
 void Character::AddNewPoint(sf::Vector2f pos, sf::Vector2f vel)
@@ -340,7 +351,7 @@ void PlayableCharacter::Update()
 
   controls.get()->Update();
 
-  if (controls.get()->JumpPressed() && waitToJump < CUR_TIME)
+  if (controls.get()->JumpPressed())
   {
     StartJump();
   }

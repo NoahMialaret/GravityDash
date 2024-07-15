@@ -51,12 +51,12 @@ TitleSequence::TitleSequence()
   sf::IntRect worldRect(- worldSize / 2, worldSize);
   world = std::make_unique<World>(worldRect);
 
-  startTime = CUR_TIME;
+  timer = 2000;
 }
 
 void TitleSequence::Update()
 {
-  sf::Int32 time = CUR_TIME - startTime;
+  timer -= Clock::Delta();
   charAnim.Update();
 
   std::uniform_int_distribution chance(0, 100);
@@ -71,7 +71,7 @@ void TitleSequence::Update()
 
   for (auto& tile : bgTiles)
   {
-    tile.move(sf::Vector2f(0.0f, - speed * Utility::gameScale));
+    tile.move((Clock::Delta() / 16.0f) * sf::Vector2f(0.0f, - speed * Utility::gameScale));
   }
 
   if (Utility::initialKeyPresses.size() > 0)
@@ -99,55 +99,56 @@ void TitleSequence::Update()
   switch (curSeq)
   {
   case Sequence::start:
-    character.setPosition(sf::Vector2f(0.0f, bezier.GetValue(time/1500.0f)));
-    if (time > 2000)
+    character.setPosition(sf::Vector2f(0.0f, bezier.GetValue(timer/1500.0f, true)));
+    if (timer <= 0)
     {
       curSeq = Sequence::logoIn;
-    frenchie.setPosition(sf::Vector2f(frenchie.getPosition().x, bezier.GetValue(-1.0f)));
-    frenchieText.setPosition(sf::Vector2f(frenchie.getPosition().x, bezier.GetValue(-1.0f)));
-      startTime = CUR_TIME;
+      frenchie.setPosition(sf::Vector2f(frenchie.getPosition().x, bezier.GetValue(-1.0f)));
+      frenchieText.setPosition(sf::Vector2f(frenchie.getPosition().x, bezier.GetValue(-1.0f)));
+      timer = 2000;
     }
     break;
 
   case Sequence::logoIn:
-    frenchie.setPosition(sf::Vector2f(frenchie.getPosition().x, bezier.GetValue(time/1500.0f)));
-    frenchie.setRotation(8 * std::sin((float)CUR_TIME / 512.0f));
-    frenchieText.setPosition(sf::Vector2f(frenchie.getPosition().x, bezier.GetValue(time/1500.0f)));
-    frenchieText.setRotation(8 * std::sin((float)CUR_TIME / 512.0f));
-    if (time > 2000)
+    frenchie.setPosition(sf::Vector2f(frenchie.getPosition().x, bezier.GetValue(timer/1500.0f, true)));
+    frenchie.setRotation(8 * std::sin((float)Clock::Elapsed() / 512.0f));
+    frenchieText.setPosition(sf::Vector2f(frenchie.getPosition().x, bezier.GetValue(timer/1500.0f, true)));
+    frenchieText.setRotation(8 * std::sin((float)Clock::Elapsed() / 512.0f));
+    if (timer <= 0)
     {
       curSeq = Sequence::logo;
-      startTime = CUR_TIME;
+      timer = 3000;
     }
     break;
   case Sequence::logo:
-    frenchie.setRotation(8 * std::sin((float)CUR_TIME / 512.0f));
-    frenchieText.setRotation(8 * std::sin((float)CUR_TIME / 512.0f));
-    if (time > 3000)
+    frenchie.setRotation(8 * std::sin((float)Clock::Elapsed() / 512.0f));
+    frenchieText.setRotation(8 * std::sin((float)Clock::Elapsed() / 512.0f));
+    if (timer <= 0)
     {
       curSeq = Sequence::logoOut;
-      startTime = CUR_TIME;
+      timer = 2000;
     }
     break;
+
   case Sequence::logoOut:
-    frenchie.setRotation(8 * std::sin((float)CUR_TIME / 512.0f));
-    frenchie.setPosition(sf::Vector2f(frenchie.getPosition().x, - bezier.GetValue(time/1500.0f, true)));
-    frenchieText.setRotation(8 * std::sin((float)CUR_TIME / 512.0f));
-    frenchieText.setPosition(sf::Vector2f(frenchie.getPosition().x, - bezier.GetValue(time/1500.0f, true)));
-    if (time > 2000)
+    frenchie.setRotation(8 * std::sin((float)Clock::Elapsed() / 512.0f));
+    frenchie.setPosition(sf::Vector2f(frenchie.getPosition().x, - bezier.GetValue(timer/1500.0f)));
+    frenchieText.setRotation(8 * std::sin((float)Clock::Elapsed() / 512.0f));
+    frenchieText.setPosition(sf::Vector2f(frenchie.getPosition().x, - bezier.GetValue(timer/1500.0f)));
+    if (timer <= 0)
     {
       curSeq = Sequence::intermission;
-      startTime = CUR_TIME;
+      timer = 3000;
     }
     break;
 
   case Sequence::intermission:
-    character.setPosition(sf::Vector2f(0.0f, - bezier.GetValue(time/1500.0f, true)));
+    character.setPosition(sf::Vector2f(0.0f, - bezier.GetValue(timer/1500.0f)));
     speed *= 1.007;
-    if (time > 3000)
+    if (timer <= 0)
     {
       curSeq = Sequence::spawnWorld;
-      startTime = CUR_TIME;
+      timer = 2000;
       bgTiles.clear();
       Utility::particles.clear();
       // Event newEvent;
@@ -157,10 +158,9 @@ void TitleSequence::Update()
     break;
 
   case Sequence::spawnWorld:
-    if (time > 2000)
+    if (timer <= 0)
     {
       curSeq = Sequence::spawnTitle;
-      startTime = CUR_TIME;
     }
     break;
 
@@ -207,7 +207,7 @@ void TitleSequence::Render(sf::RenderWindow* win) const
   {
     win->draw(title, &Utility::entShad);
 
-    if ((CUR_TIME / 512) % 2 == 1)
+    if ((Clock::Elapsed() / 512) % 2 == 1)
     {
       win->draw(startShadow);
       win->draw(start);

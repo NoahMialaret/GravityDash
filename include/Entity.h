@@ -5,6 +5,7 @@
 
 #include "AnimationHandler.h"
 #include "Character.h"
+#include "Clock.h"
 #include "Particle.h"
 #include "Textures.h"
 #include "Utility.h"

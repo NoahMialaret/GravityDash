@@ -9,8 +9,6 @@
 #define DEFAULT_SCALE sf::Vector2f(Utility::gameScale, Utility::gameScale)
 // Used to set the origin of a sprite to its centre
 #define CENTRED_ORIGIN 0.5f * sf::Vector2f(Utility::spriteDim, Utility::spriteDim)
-// The current global time in milliseconds
-#define CUR_TIME Utility::clock.getElapsedTime().asMilliseconds()
 
 #include <SFML/Graphics.hpp>
 
@@ -54,8 +52,6 @@ public:
   static void RenderParticles(sf::RenderWindow* win);
 
 public:
-  static sf::Clock clock; // The internal game clock
-
   //settings
   static float targetFrameRate;   // The max framerate that the game runs at
 

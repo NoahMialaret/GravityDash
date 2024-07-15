@@ -14,8 +14,6 @@ GameTimer::GameTimer(sf::Int32 time, sf::Vector2f bottomLeft)
   sprite.setScale(DEFAULT_SCALE);
   sprite.setPosition(bottomLeft);
   sprite.setOrigin(sf::Vector2f(0.0f, sprite.getTextureRect().height));
-
-  lastFrameTime = CUR_TIME;
 }
 
 bool GameTimer::Update()
@@ -24,9 +22,8 @@ bool GameTimer::Update()
   {
     return false;
   }
-  sf::Int32 delta = CUR_TIME - lastFrameTime;
-  lastFrameTime = CUR_TIME;
-  timeRemaining -= delta;
+  
+  timeRemaining -= Clock::Delta();
   timeRect.setSize(Utility::gameScale * sf::Vector2f(4.0f, (int)(60.0f * timeRemaining / maxTime)));
 
   if (timeRemaining <= 0)
@@ -45,7 +42,6 @@ void GameTimer::Pause()
 void GameTimer::Unpause()
 {
   paused = false;
-  lastFrameTime = CUR_TIME;
 }
 
 bool GameTimer::IsPaused() const

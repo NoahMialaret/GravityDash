@@ -25,7 +25,8 @@ void AnimationHandler::Update()
     return;
   }
 
-  while (nextFrameStart < CUR_TIME)
+  frameTimer -= Clock::Delta();
+  while (frameTimer <= 0 && !animations.empty())
   {
     AdvanceFrame();
   }
@@ -61,7 +62,7 @@ void AnimationHandler::AdvanceFrame()
         {
           return;
         }
-        nextFrameStart += animations.front().frameDuration + animations.front().hold;
+        frameTimer += animations.front().frameDuration + animations.front().hold;
         SetSpriteRegion();
         return;
       }
@@ -70,7 +71,7 @@ void AnimationHandler::AdvanceFrame()
     }
   }
 
-  nextFrameStart += animations.front().frameDuration;
+  frameTimer += animations.front().frameDuration;
 
   SetSpriteRegion();
 }
@@ -88,13 +89,13 @@ void AnimationHandler::QueueAnimation(Animation& anim)
 
   if (animations.size() == 1) // This animation was pushed to an empty queue
   {
-    nextFrameStart = anim.frameDuration + anim.hold + CUR_TIME;
+    frameTimer = anim.frameDuration + anim.hold;
     frameIndex = 0;
     SetSpriteRegion();
   }
 }
 
-void AnimationHandler::QueueAnimation(int index, sf::Int32 dur, int loops, sf::Int32 hold)
+void AnimationHandler::QueueAnimation(int index, int dur, int loops, int hold)
 {
   Animation anim;
   anim.index = index;

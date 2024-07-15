@@ -66,6 +66,8 @@ Program::Program(const char* name)
 	std::cout << "Initialising Program objects...\n";
 
     title = std::make_unique<TitleSequence>();
+
+    Clock::Init();
     
 	std::cout << "Program init done! Starting title sequence...\n";
 	
@@ -182,6 +184,8 @@ void Program::Update()
 	{
 		return;
 	}
+
+  Clock::Update();
 
 	// float cameraDistance = std::max(abs(mainView.getCenter().y - targetPos.y), abs(targetPos.y - mainView.getCenter().y));
 	// mainView.move(sf::Vector2f(0.0f, - cameraDistance / 10));

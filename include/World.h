@@ -3,6 +3,7 @@
 
 #include <SFML/Graphics.hpp>
 
+#include "Clock.h"
 #include "Utility.h"
 
 #include <iostream>

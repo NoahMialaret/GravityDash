@@ -4,6 +4,7 @@
 #include <SFML/Graphics.hpp>
 
 #include "AnimationHandler.h"
+#include "Clock.h"
 #include "Controls.h"
 #include "Number.h"
 #include "Particle.h"
@@ -94,10 +95,6 @@ protected:
   State curState = State::idle; // The current state of the player
   bool isLastStand = false;     // Whether this is the player's last jump due to getting hit
 
-  sf::Int32 nextRunParticle = 0; // The time at which to spawn a run particle
-
-  sf::Int32 waitToJump = 0; // The time at which it is okay to jump again
-
   std::forward_list<TargetPoints> targetPoints;
 
   // Point *points = nullptr; // The points a player accumulates from hitting targets during a jump
@@ -105,8 +102,12 @@ protected:
 
   bool isBoosted = false;
 
-  int invincibleEnd = 0;
-  int stunTimer = 0;
+  int velTimer = 16; // The timer for when the characters velocity can be updated
+
+  int particleTimer = 0; // The timer for how long until the next run particle is spawned
+
+  int invincibilityTimer = 0; // The timer for how long the player is invincible for
+  int stunTimer = 0; // The timer for how long the player is stunned for
 };
 
 class PlayableCharacter : public Character

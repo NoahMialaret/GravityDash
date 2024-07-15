@@ -15,23 +15,23 @@ Particle::Particle(Particle::Type type, sf::Vector2f vel, sf::Vector2f pos, sf::
   switch (type)
   {
   case Type::walkDust:
-    anims.QueueAnimation((int)type, 100);
-    EndOfLifespan = 400 + CUR_TIME;
+    anims.QueueAnimation((int)type, 100, 0);
+    timer = 400;
     break;
 
   case Type::landingImpact:
-    anims.QueueAnimation((int)type, 50);
-    EndOfLifespan = 200 + CUR_TIME;
+    anims.QueueAnimation((int)type, 50, 0);
+    timer = 200;
     break;
 
   case Type::targetExplosion:
-    anims.QueueAnimation((int)type, 25);
-    EndOfLifespan = 100 + CUR_TIME;
+    anims.QueueAnimation((int)type, 25, 0);
+    timer = 100;
     break;
   
   case Type::speedLines:
-    anims.QueueAnimation((int)type, 100);
-    EndOfLifespan = 400 + CUR_TIME;
+    anims.QueueAnimation((int)type, 100, 0);
+    timer = 400;
     break;
 
   default:
@@ -48,13 +48,15 @@ bool Particle::HasFinished() const
 
 void Particle::Update()
 {
-  if (EndOfLifespan < CUR_TIME)
+  if (timer <= 0)
   {
     hasFinished = true;
     return;
   }
 
-  sprite.move(vel);
+  timer -= Clock::Delta();
+
+  sprite.move((Clock::Delta() / 16.0f) * vel);
 
   anims.Update(&sprite);
 }

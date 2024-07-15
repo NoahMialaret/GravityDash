@@ -5,6 +5,7 @@
 
 #include <SFML/Graphics.hpp>
 
+#include "Clock.h"
 #include "Utility.h"
 
 #include <iostream>
@@ -13,9 +14,9 @@
 struct Animation
 {
   int index = 0;
-  sf::Int32 frameDuration = 0; // How long an individual frame of animation lasts (in milliseconds)
-  int loops = ALWAYS; // How many times the animation should loop, -1 for always loop
-  sf::Int32 hold = 0; // How long an animation waits before starting
+  int frameDuration = 0; // How long an individual frame of animation lasts (in milliseconds)
+  int loops = ALWAYS;    // How many times the animation should loop, -1 for always loop
+  int hold = 0;          // How long an animation waits before starting
 };
 
 // Animation class handles the textureRects of sprites in a parent class to display animations
@@ -37,7 +38,7 @@ public:
   void Clear();
   // Pushes an animations to the current animation queue
   void QueueAnimation(Animation& anim);
-  void QueueAnimation(int index, sf::Int32 dur, int loops = ALWAYS, sf::Int32 hold = 0);
+  void QueueAnimation(int index, int dur, int loops = ALWAYS, int hold = 0);
 
 private:
   // Advances the animation to the next frame
@@ -53,8 +54,8 @@ private:
   int numAnimations = 0;  // The maximum number of animations a sprite has
   int numFrames = 0;      // The maximum number of frames in an animation
 
-  int frameIndex = 0;           // The current frame of animation
-  sf::Int32 nextFrameStart = 0; // The time at which to advance the animation frame
+  int frameIndex = 0; // The current frame of animation
+  int frameTimer = 0; // The amount of time before advancing the frame
 };
 
 #endif

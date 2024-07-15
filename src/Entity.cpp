@@ -110,7 +110,7 @@ void Saw::Update(std::vector<Character*> players)
 
   if (!isFrozen)
   {
-    sprite.move({vel, 0.0f});
+    sprite.move((Clock::Delta() / 16.0f) * sf::Vector2f(vel, 0.0f));
   }
 
   float distanceSquaredThresh = SCALED_DIM * SCALED_DIM;
@@ -185,7 +185,7 @@ void MovingTarget::Update(std::vector<Character*> players)
   
   if (!isFrozen)
   {
-    sprite.move({vel, 0.0f});
+    sprite.move((Clock::Delta() / 16.0f) * sf::Vector2f(vel, 0.0f));
   }
 
   // float distanceSquaredThresh = SCALED_DIM * SCALED_DIM;

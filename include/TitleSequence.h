@@ -5,6 +5,7 @@
 
 #include "AnimationHandler.h"
 #include "Bezier.h"
+#include "Clock.h"
 #include "Particle.h"
 #include "Textures.h"
 #include "Utility.h"
@@ -57,7 +58,7 @@ private:
   sf::Text start;
   sf::Text startShadow;
 
-  sf::Int32 startTime = 0;
+  int timer = 0;
 };
 
 #endif

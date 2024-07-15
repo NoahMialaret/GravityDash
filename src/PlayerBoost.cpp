@@ -29,19 +29,16 @@ void PlayerBoost::Update()
 {
   if (boostAmount <= 0 || IsFull())
   {
-    lastFrameTime = CUR_TIME;
     return;
   }
 
-  timer -= CUR_TIME - lastFrameTime;
-  lastFrameTime = CUR_TIME;
+  timer -= Clock::Delta();
 
   if (timer <= 0)
   {
     Decrement();
     return;
   }
-
 
   int width = (timer / 1000) + 1;
 

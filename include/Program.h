@@ -3,6 +3,7 @@
 
 #include <SFML/Graphics.hpp>
 
+#include "Clock.h"
 #include "Event.h"
 #include "Game.h"
 #include "MainMenu.h"

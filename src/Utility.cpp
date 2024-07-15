@@ -1,8 +1,6 @@
 #include "Utility.h"
 #include "Particle.h"
 
-sf::Clock Utility::clock;
-
 float Utility::targetFrameRate = 60.0f;
 float Utility::gameScale = 6.0f;
 float Utility::spriteDim = 8.0f;

@@ -4,6 +4,7 @@
 #include <SFML/Graphics.hpp>
 
 #include "Character.h"
+#include "Clock.h"
 #include "Controls.h"
 #include "Entity.h"
 #include "GameTimer.h"
@@ -26,7 +27,6 @@ enum class Mode
 
 struct GameConfig
 {
-  float speed = 1.0f; // should be in utility
   int targetSpawnChance = 90;
   int numPlayers = 1;
   int numComputers = 0;
@@ -79,7 +79,8 @@ private:
   Phase nextPhase = Phase::standard; // The next phase of gameplay to start after a transition has finished
   sf::Int32 BeginNextPhase;          // The time at which to begin transitioning
 
-  sf::Int32 nextSpikeSpawnTimeMin = 0; // The minimum time at which the next spike should spawn
+  int spawnTimer = 16;     // Timer for when a target should be attempted to spawn
+  int spikeSpawnTimer = 0; // The time at which the next spike should spawn
 
   bool gameOver = false; // Whether the game has been finished
 

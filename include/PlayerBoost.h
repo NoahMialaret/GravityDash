@@ -3,8 +3,9 @@
 
 #include <SFML/Graphics.hpp>
 
-#include "Utility.h"
+#include "Clock.h"
 #include "Textures.h"
+#include "Utility.h"
 
 #include <vector>
 
@@ -28,8 +29,7 @@ private:
   std::vector<sf::Sprite> tabs;
   std::vector<sf::RectangleShape> tabTimer;
   
-  sf::Int32 timer;
-  sf::Int32 lastFrameTime;
+  int timer;
 
   int boostAmount = 0;
 };

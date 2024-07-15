@@ -4,6 +4,7 @@
 #include <SFML/Graphics.hpp>
 
 #include "AnimationHandler.h"
+#include "Clock.h"
 #include "Textures.h"
 
 #include <iostream>
@@ -40,7 +41,7 @@ private:
   sf::Vector2f vel;       // The particle's velocity
 
   bool hasFinished = false; // Whether or not the particle has reached the end of its lifespan
-  sf::Int32 EndOfLifespan;  // The global time at which the particle will reach the end of its lifespan
+  int timer;                // The global time at which the particle will reach the end of its lifespan
 };
 
 #endif

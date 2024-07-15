@@ -4,6 +4,7 @@
 #include <SFML/Graphics.hpp>
 
 #include "Bezier.h"
+#include "Clock.h"
 #include "Textures.h"
 #include "Utility.h"
 
@@ -80,7 +81,6 @@ public:
 
 private:
   sf::Vector2f vel;
-  sf::Int32 prevFrameTime;
 };
 
 // A Number child class that represents the points that appear after combining TargetPoints
@@ -106,7 +106,7 @@ public:
 
 private:
   int prevIndex = 0;        // The previous sprite index which was moved
-  sf::Int32 creationTime; // How long the number remains before being deleted
+  int timer; // How long the number remains before being deleted
   std::forward_list<TargetPoints> targetPoints;
   State curState = State::start;
 };
