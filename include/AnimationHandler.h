@@ -26,9 +26,9 @@ public:
   AnimationHandler() = default;
   // Constructor that takes a sprite to determine
   // the number of animations and frames based on the sprite's texture
-  AnimationHandler(sf::Sprite* sprite);
+  AnimationHandler(sf::Sprite* sprite, sf::Vector2i frameSize = {Utility::spriteDim, Utility::spriteDim});
   // Constructor that explicitly sets how many animations it has and the number of frames in each animation
-  AnimationHandler(sf::Sprite* sprite, int numAnimations, int numFrames);
+  AnimationHandler(sf::Sprite* sprite, int numAnimations, int numFrames, sf::Vector2i frameSize = {Utility::spriteDim, Utility::spriteDim});
 
   // Handles animation changes if enough time has passed
   void Update();

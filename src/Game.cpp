@@ -45,9 +45,9 @@ Game::Game(GameConfig& config)
 
 Game::~Game()
 {
-  std::cout << "Deleting the game and it's entities...\n";
+  std::cout << "Deleting the game and it's objects...\n";
 
-  entities.DeleteAll();
+  objects.DeleteAll();
 }
 
 void Game::Update() // Should have different update and render functions based on the mode
@@ -55,7 +55,7 @@ void Game::Update() // Should have different update and render functions based o
 
   if (Utility::CheckInitialPress(sf::Keyboard::H))
   {
-    auto node = entities.Start();
+    auto node = objects.Start();
     while(node != nullptr)
     {
       std::cout << node->GetData()->GetPosition().y << '\n';
@@ -111,13 +111,13 @@ void Game::Update() // Should have different update and render functions based o
 		pls.push_back(p.get());
 	}
 
-  auto node = entities.Start();
+  auto node = objects.Start();
   while(node != nullptr)
   {
     node->GetData()->Update(pls);
     if (node->GetData()->EndOfLife())
     {
-      node = entities.Delete(node);
+      node = objects.Delete(node);
       continue;
     }
     node = node->GetNextNode();
@@ -130,7 +130,7 @@ void Game::Update() // Should have different update and render functions based o
 
 	if (characters.size() == 1 && characters[0].get()->IsLastStand())
 	{
-    node = entities.Start();
+    node = objects.Start();
     while(node != nullptr)
     {
       node->GetData()->Update(pls);
@@ -158,7 +158,7 @@ void Game::Update() // Should have different update and render functions based o
 
     // if (curPhase == Phase::transition)
     // {
-	// 	if (Entity::entities == nullptr)
+	// 	if (Entity::objects == nullptr)
 	// 	{
 	// 		world.get()->Update();
 
@@ -186,22 +186,22 @@ void Game::Update() // Should have different update and render functions based o
     if (config.sawFrequency != 0 && spikeSpawnTimer <= 0)
     {
       //std::cout << "Spawning obastacle! Last one spawned " << CUR_TIME - nextSpikeSpawnTimeMin + 1000 << " ms ago.\n";
-      Entity* temp = new Saw(playableRegion, characters.size());
-      auto searchFrom = entities.Start();
+      GameObject* temp = new Saw(playableRegion, characters.size());
+      auto searchFrom = objects.Start();
       if (*temp > 0)
-        searchFrom = entities.End();
+        searchFrom = objects.End();
 
-      entities.InsertData(temp, searchFrom);
+      objects.InsertData(temp, searchFrom);
       spikeSpawnTimer = 500 + randomInt * 10; // Spawns every 1000 +- 500 ms
     }
 
     if (randomInt > config.targetSpawnChance)
     {           
-      Entity* temp = new MovingTarget(playableRegion, characters.size());
-      auto searchFrom = entities.Start();
+      GameObject* temp = new MovingTarget(playableRegion, characters.size());
+      auto searchFrom = objects.Start();
       if (*temp > 0)
-        searchFrom = entities.End();
-      entities.InsertData(temp, searchFrom);
+        searchFrom = objects.End();
+      objects.InsertData(temp, searchFrom);
     }  
   }
 }
@@ -212,7 +212,7 @@ void Game::Render(sf::RenderWindow* win) const
 
   Utility::RenderParticles(win);
 
-  auto node = entities.Start();
+  auto node = objects.Start();
   while(node != nullptr)
   {
     node->GetData()->Render(win);

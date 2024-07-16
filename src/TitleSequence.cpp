@@ -2,34 +2,23 @@
 
 TitleSequence::TitleSequence()
 {
-  std::vector<sf::Vector2f> bezPoints = 
-  {
-    sf::Vector2f(0.0f, Utility::gameScale * 100.0f),
-    sf::Vector2f(Utility::gameScale * 100.0f / 6.0f, 200.0f),
-    sf::Vector2f(Utility::gameScale * 100.0f / 3.0f, 0.0f),
-    sf::Vector2f(1500.0f, 0.0f)
-  };
-  bezier = Bezier(bezPoints);
+  Entity::Params params;
+  params.shader = &Utility::worldShad;
+  character = Entity("character", params);
+  character.QueueAnimation(2, 50);
+  character.QueueMotion(MotionHandler::Type::easeIn, 2000, sf::Vector2f(0.0f, Utility::gameScale * 100.0f), ZERO_VECTOR);
 
-  character.setTexture(Textures::textures.at("character"));
-  character.setOrigin(CENTRED_ORIGIN);
-  charAnim = AnimationHandler(&character);
-  charMotion = MotionHandler(&character);
-  character.setScale(DEFAULT_SCALE);
-  charAnim.QueueAnimation(2, 50);
+  params.shader = &Utility::entShad;
+  params.frameSize = (sf::Vector2i)Textures::textures.at("title").getSize();
+  title = Entity("title", params);
+  title.QueueMotion(MotionHandler::Type::linear, 0, ZERO_VECTOR, 
+    sf::Vector2f(0.0f, - 1.25f * Utility::gameScale * Utility::spriteDim));
 
-  charMotion.QueueMotion(MotionHandler::Type::easeIn, 2000, sf::Vector2f(0.0f, Utility::gameScale * 100.0f), ZERO_VECTOR);
+  params.shader = nullptr;
+  params.frameSize = (sf::Vector2i)Textures::textures.at("frenchie").getSize();
+  params.scaleModifier = 0.035;
+  frenchie = Entity("frenchie", params);
 
-  title.setTexture(Textures::textures.at("title"));
-  title.setScale(DEFAULT_SCALE);
-  // title.setOrigin(title.getTextureRect().width / 2, title.getTextureRect().height / 2);
-  title.setPosition(sf::Vector2f(-Utility::gameScale * Utility::spriteDim * 7.0f + Utility::gameScale, 
-                    -Utility::gameScale * Utility::spriteDim * 3.5));
-
-  frenchie.setTexture(Textures::textures.at("frenchie"));
-  frenchie.setScale(sf::Vector2f(Utility::gameScale / 32.0f, Utility::gameScale / 32.0f));
-  frenchie.setOrigin(frenchie.getTextureRect().width / 2, frenchie.getTextureRect().height / 2);
-  frenchie.setPosition(sf::Vector2f(-Utility::windowDim.x / 4.0f, 0.0f));
 
   start.setFont(Textures::font);
   start.setPosition(sf::Vector2f(0.0f, 1.5f * SCALED_DIM));
@@ -48,7 +37,7 @@ TitleSequence::TitleSequence()
   frenchieText.setString("A game by:\nFrenchie!");
   frenchieText.setCharacterSize(SCALED_DIM);
   frenchieText.setFillColor(sf::Color(255, 229, 181));
-  frenchieText.setOrigin(sf::Vector2f(frenchieText.getGlobalBounds().width / 2, - frenchie.getGlobalBounds().height / 4.0f));
+  frenchieText.setOrigin(sf::Vector2f(frenchieText.getGlobalBounds().width / 2, - frenchie.HitBox().height / 4.0f));
 
   sf::Vector2i worldSize = int(SCALED_DIM) * sf::Vector2i(16, 8);
   sf::IntRect worldRect(- worldSize / 2, worldSize);
@@ -60,8 +49,11 @@ TitleSequence::TitleSequence()
 void TitleSequence::Update()
 {
   timer -= Clock::Delta();
-  charAnim.Update();
-  charMotion.Update();
+  
+  character.Update();
+  title.Update();
+  frenchie.Update();
+  frenchie.SetRotation(8 * std::sin((float)Clock::Elapsed() / 512.0f));
 
   std::uniform_int_distribution chance(0, 100);
   int spawn = chance(Utility::rng);
@@ -85,11 +77,12 @@ void TitleSequence::Update()
       bgTiles.clear();
       Utility::particles.clear();
       curSeq = Sequence::title;
-      charAnim.Clear();
-      charAnim.QueueAnimation(4, 100, 0, 300);
-      charAnim.QueueAnimation(0, 150);
+      character.ClearHandlers();
+      character.QueueAnimation(4, 100, 0, 300);
+      character.QueueAnimation(0, 150);
       int worldBottom = world.get()->GetRegion().top + world.get()->GetRegion().height;
-      character.setPosition(sf::Vector2f(character.getPosition().x, (float)worldBottom - character.getGlobalBounds().height / 2));
+      sf::Vector2f pos(0.0f, (float)worldBottom - character.HitBox().height / 2);
+      character.QueueMotion(MotionHandler::Type::linear, 0, pos, pos);
     }
     else
     {
@@ -105,17 +98,18 @@ void TitleSequence::Update()
   case Sequence::start:
     if (timer <= 0)
     {
+      sf::Vector2f logoTarget(- Utility::windowDim.x / 4.0f, 0.0f);
       curSeq = Sequence::logoIn;
-      frenchie.setPosition(sf::Vector2f(frenchie.getPosition().x, bezier.GetValue(-1.0f)));
-      frenchieText.setPosition(sf::Vector2f(frenchie.getPosition().x, bezier.GetValue(-1.0f)));
+      frenchie.QueueMotion(MotionHandler::Type::easeIn, 2000, sf::Vector2f(logoTarget.x, Utility::gameScale * 100.0f), logoTarget);
+      frenchie.QueueMotion(MotionHandler::Type::linear, 3000, logoTarget, logoTarget);
+      frenchie.QueueMotion(MotionHandler::Type::easeOut, 2000, logoTarget, sf::Vector2f(logoTarget.x, - Utility::gameScale * 100.0f));
+      frenchieText.setPosition(frenchie.GetPosition());
       timer = 2000;
     }
     break;
 
   case Sequence::logoIn:
-    frenchie.setPosition(sf::Vector2f(frenchie.getPosition().x, bezier.GetValue(timer/1500.0f, true)));
-    frenchie.setRotation(8 * std::sin((float)Clock::Elapsed() / 512.0f));
-    frenchieText.setPosition(sf::Vector2f(frenchie.getPosition().x, bezier.GetValue(timer/1500.0f, true)));
+    frenchieText.setPosition(frenchie.GetPosition());
     frenchieText.setRotation(8 * std::sin((float)Clock::Elapsed() / 512.0f));
     if (timer <= 0)
     {
@@ -124,7 +118,6 @@ void TitleSequence::Update()
     }
     break;
   case Sequence::logo:
-    frenchie.setRotation(8 * std::sin((float)Clock::Elapsed() / 512.0f));
     frenchieText.setRotation(8 * std::sin((float)Clock::Elapsed() / 512.0f));
     if (timer <= 0)
     {
@@ -134,15 +127,13 @@ void TitleSequence::Update()
     break;
 
   case Sequence::logoOut:
-    frenchie.setRotation(8 * std::sin((float)Clock::Elapsed() / 512.0f));
-    frenchie.setPosition(sf::Vector2f(frenchie.getPosition().x, - bezier.GetValue(timer/1500.0f)));
     frenchieText.setRotation(8 * std::sin((float)Clock::Elapsed() / 512.0f));
-    frenchieText.setPosition(sf::Vector2f(frenchie.getPosition().x, - bezier.GetValue(timer/1500.0f)));
+    frenchieText.setPosition(frenchie.GetPosition());
     if (timer <= 0)
     {
       curSeq = Sequence::intermission;
       timer = 3000;
-      charMotion.QueueMotion(MotionHandler::Type::easeOut, 2000, ZERO_VECTOR, sf::Vector2f(0.0f, - Utility::gameScale * 100.0f));
+      character.QueueMotion(MotionHandler::Type::easeOut, 2000, ZERO_VECTOR, sf::Vector2f(0.0f, - Utility::gameScale * 100.0f));
     }
     break;
 
@@ -163,24 +154,14 @@ void TitleSequence::Update()
   case Sequence::spawnWorld:
     if (timer <= 0)
     {
-      curSeq = Sequence::spawnTitle;
-    }
-    break;
-
-  case Sequence::spawnTitle:
-  {
-    character.move(sf::Vector2f(0.0f, 100.0f));
-    int worldBottom = world.get()->GetRegion().top + world.get()->GetRegion().height;
-    if (character.getGlobalBounds().top + character.getGlobalBounds().height > worldBottom)
-    {
-      charAnim.Clear();
-      charAnim.QueueAnimation(4, 100, 0, 300);
-      charAnim.QueueAnimation(0, 150);
-      character.setPosition(sf::Vector2f(character.getPosition().x, (float)worldBottom - character.getGlobalBounds().height / 2));
+      int worldBottom = world.get()->GetRegion().top + world.get()->GetRegion().height;
+      character.QueueMotion(MotionHandler::Type::linear, 200, character.GetPosition(), {0.0f, (float)worldBottom - character.HitBox().height / 2});
+      character.SetAnimation(2, 50, 0);
+      character.QueueAnimation(4, 100, 0, 300);
+      character.QueueAnimation(0, 150);
       curSeq = Sequence::title;
     }
     break;
-  }
 
   case Sequence::title:
     break;
@@ -208,7 +189,7 @@ void TitleSequence::Render(sf::RenderWindow* win) const
   Utility::RenderParticles(win);
   if (curSeq >= Sequence::title)
   {
-    win->draw(title, &Utility::entShad);
+    title.Render(win);
 
     if ((Clock::Elapsed() / 512) % 2 == 1)
     {
@@ -216,10 +197,10 @@ void TitleSequence::Render(sf::RenderWindow* win) const
       win->draw(start);
     }
   }
-  win->draw(character, &Utility::worldShad);
+  character.Render(win);
   if (curSeq >= Sequence::logoIn && curSeq <= Sequence::logoOut)
   {
-    win->draw(frenchie);
+    frenchie.Render(win);
     win->draw(frenchieText);
   }
 

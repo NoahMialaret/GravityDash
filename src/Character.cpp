@@ -3,17 +3,16 @@
 
 Character::Character(int charID, PlayerBoost boost)
   : 
-  acceleration(0.2f * Utility::gameScale),
   charID(charID),
+  acceleration(0.2f * Utility::gameScale),
   boost(boost)
 {
-  sprite.setTexture(Textures::textures.at("character"));    
-  sprite.setOrigin(CENTRED_ORIGIN);
+  entity = Entity("character", Entity::Params());
 
-  sprite.setScale({Utility::gameScale, -Utility::gameScale});
+  entity.CouplePosition(&pos);
 
-  anims = AnimationHandler(&sprite);
-  anims.QueueAnimation((int)curState, 150);
+  entity.FlipY();
+  entity.QueueAnimation((int)curState, 150);
 }
 
 Character::~Character()
@@ -30,8 +29,7 @@ void Character::Update()
     UpdateVelocity(move);
   }
   
-  prevPos = sprite.getPosition();
-
+  prevPos = pos;
 
   switch (curState)
   {
@@ -43,9 +41,8 @@ void Character::Update()
 
     curState = State::moving;
 
-    anims.Clear();
-    anims.QueueAnimation((int)curState, (isLastStand ? 3 : 1) * 100);
-    sprite.setScale({move * Utility::gameScale, sprite.getScale().y});
+    entity.SetAnimation((int)curState, (isLastStand ? 3 : 1) * 100);
+    entity.SetXDir(move == 1);
 
     particleTimer = (isLastStand ? 4 : 1) * 150;
     break;
@@ -54,21 +51,21 @@ void Character::Update()
     if (vel == ZERO_VECTOR && move == 0)
     {
       curState = State::idle;
-      anims.Clear();
-      anims.QueueAnimation((int)curState, (isLastStand ? 2 : 1) * 150);
+      entity.SetAnimation((int)curState, (isLastStand ? 2 : 1) * 150);
       break;
     }
 
-    if (move != 0 && move != Utility::GetSign(sprite.getScale().x))
+    if (move != 0)
     {
-      sprite.scale({-1.0f, 1.0f});
+      entity.SetXDir(move == 1);
     }
 
     if (particleTimer <= 0)
     {
       sf::Vector2f partVel(-move * 0.2f * Utility::gameScale, (isUpright ? -0.1f : 0.1f) * Utility::gameScale);
-      Utility::particles.push_front(Particle(Particle::Type::walkDust, partVel, sprite.getPosition() - 
-        sf::Vector2f(move * 0.5f * SCALED_DIM, 0.0f), sprite.getScale()));
+      // Will be reimplemented when Particle is refactored
+      // Utility::particles.push_front(Particle(Particle::Type::walkDust, partVel, sprite.getPosition() - 
+      //   sf::Vector2f(move * 0.5f * SCALED_DIM, 0.0f), sprite.getScale()));
       particleTimer = (isLastStand ? 4 : 1) * 150;
     }
     break;
@@ -85,8 +82,7 @@ void Character::Update()
     {
       curState = State::idle;
       invincibilityTimer = 3000;
-      anims.Clear();
-      anims.QueueAnimation((int)curState, (isLastStand ? 2 : 1) * 150);
+      entity.SetAnimation((int)curState, (isLastStand ? 2 : 1) * 150);
     }
     break;
 
@@ -103,8 +99,8 @@ void Character::Update()
 
   boost.Update();
 
-  sprite.move((isLastStand ? 0.5f : 1.0f) * (Clock::Delta() / 16.0f) * vel);
-  anims.Update();
+  pos += (isLastStand ? 0.5f : 1.0f) * (Clock::Delta() / 16.0f) * vel;
+  entity.Update();
 }
 
 void Character::Render(sf::RenderWindow *win) const
@@ -112,7 +108,7 @@ void Character::Render(sf::RenderWindow *win) const
   Utility::entShad.setUniform("colorID", charID);
   if (invincibilityTimer <= 0 || (Clock::Elapsed() / 64) % 2)
   {
-    win->draw(sprite, &Utility::entShad);
+    entity.Render(win);
   }
 
   for (auto& point : targetPoints)
@@ -166,8 +162,7 @@ void Character::StartJump()
   vel.x = 0.0f;
   vel.y = acceleration * 80.0f * (isUpright ? -1.0f : 1.0f);
   isUpright = !isUpright;
-  anims.Clear();
-  anims.QueueAnimation((int)curState, 20);
+  entity.SetAnimation((int)curState, 20);
 }
 
 void Character::Land()
@@ -175,16 +170,16 @@ void Character::Land()
   vel.y = 0.0f;
   curState = State::idle;
 
-  anims.Clear();
-  anims.QueueAnimation((int)State::airborne + 2, 100, 0, 300);
-  anims.QueueAnimation((int)curState, 150);
-  sprite.scale({1.0f, -1.0f});
+  entity.SetAnimation((int)State::airborne + 2, 100, 0, 300);
+  entity.QueueAnimation((int)curState, 150);
+  entity.FlipY();
 
   sf::Vector2f partVel = {Utility::gameScale * 0.3f, 0.0f};
   sf::Vector2f offset = {0.5f * SCALED_DIM, 0.0f};
 
-  Utility::particles.push_front(Particle(Particle::Type::landingImpact, partVel, sprite.getPosition() + offset, {fabsf(sprite.getScale().x), sprite.getScale().y}));
-  Utility::particles.push_front(Particle(Particle::Type::landingImpact, -partVel, sprite.getPosition() - offset, {-fabsf(sprite.getScale().x), sprite.getScale().y}));
+  // Will be reimplemented when Particle is refactored
+  // Utility::particles.push_front(Particle(Particle::Type::landingImpact, partVel, pos + offset, {fabsf(sprite.getScale().x), sprite.getScale().y}));
+  // Utility::particles.push_front(Particle(Particle::Type::landingImpact, -partVel, pos - offset, {-fabsf(sprite.getScale().x), sprite.getScale().y}));
 
   if (isLastStand)
   {
@@ -216,7 +211,7 @@ bool Character::Hit(sf::Vector2f entPos)
 
   if (curState == State::airborne)
   {
-    sprite.scale({1.0f, -1.0f});
+    entity.FlipY();
   }
 
   targetPoints.clear();
@@ -225,16 +220,13 @@ bool Character::Hit(sf::Vector2f entPos)
   // invincibleEnd = CUR_TIME + 2000;
 
   // y = ent.y +- sqrt(64*scale-(this.x-ent.x)^2) + for saws on top
-  sf::Vector2f pos(sprite.getPosition().x, 0.0f);
   pos.y = entPos.y + (isUpright ? -1.0f : 1.0f) * std::sqrt(64*Utility::gameScale*Utility::gameScale - (pos.x - entPos.x) * (pos.x - entPos.x));
-  sprite.setPosition(pos);
 
   vel.y = (isUpright ? -3.0f : 3.0f);
   vel.x = (pos.x - entPos.x < 0.0f ? -10.0f : 10.0f);
 
   curState = State::hit;
-  anims.Clear();
-  anims.QueueAnimation((int)curState, 100);
+  entity.SetAnimation((int)curState, 100);
 
   return true;
 
@@ -260,12 +252,12 @@ bool Character::IsLastStand() const
 
 sf::Vector2f Character::GetPosition() const
 {
-    return sprite.getPosition();
+    return pos;
 }
 
 void Character::SetPosition(sf::Vector2f& newPos)
 {
-  sprite.setPosition(newPos);
+  pos = newPos;
 }
 
 void Character::SetXVelocity(float xVel)
@@ -287,12 +279,12 @@ void Character::SetYVelocity(float yVel)
 
 sf::FloatRect Character::GetHitBox() const
 {
-    return sprite.getGlobalBounds();
+    return entity.HitBox();
 }
 
 std::pair<sf::Vector2f, sf::Vector2f> Character::GetLineHitBox() const
 {
-    return std::pair<sf::Vector2f, sf::Vector2f>(prevPos, sprite.getPosition());
+    return std::pair<sf::Vector2f, sf::Vector2f>(prevPos, pos);
 }
 
 std::forward_list<TargetPoints> Character::GetPoints() const
@@ -345,7 +337,6 @@ void PlayableCharacter::Update()
 
   if (curState == State::dead)
   {
-    anims.Update();
     return;
   }
 

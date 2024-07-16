@@ -1,17 +1,18 @@
 #include "AnimationHandler.h"
 
-AnimationHandler::AnimationHandler(sf::Sprite* sprite)
+AnimationHandler::AnimationHandler(sf::Sprite* sprite, sf::Vector2i frameSize)
   : 
   AnimationHandler(
     sprite,
-    (int)(sprite->getTexture()->getSize().y / Utility::spriteDim),
-    (int)(sprite->getTexture()->getSize().x / Utility::spriteDim))
+    (int)(sprite->getTexture()->getSize().y / frameSize.y),
+    (int)(sprite->getTexture()->getSize().x / frameSize.x),
+    frameSize)
 {}
 
-AnimationHandler::AnimationHandler(sf::Sprite* sprite, int numAnimations, int numFrames)
+AnimationHandler::AnimationHandler(sf::Sprite* sprite, int numAnimations, int numFrames, sf::Vector2i frameSize)
   : 
   sprite(sprite),
-  frameRect(sf::IntRect(0, 0, (int)Utility::spriteDim, (int)Utility::spriteDim)),
+  frameRect(sf::IntRect((sf::Vector2i)ZERO_VECTOR, frameSize)),
   numAnimations(numAnimations),
   numFrames(numFrames)
 {

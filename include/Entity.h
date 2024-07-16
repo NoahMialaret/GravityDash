@@ -4,100 +4,84 @@
 #include <SFML/Graphics.hpp>
 
 #include "AnimationHandler.h"
-#include "Character.h"
-#include "Clock.h"
-#include "Particle.h"
+#include "MotionHandler.h"
 #include "Textures.h"
 #include "Utility.h"
 
-#include <iostream>
+#include <memory>
 
-// A class of non-player entities that can appear during gameplay
+// An Entity class used to encapsulate the various functions a typical
+// game entity might have, such as sprites, animations, and motions
 class Entity
 {
 public:
-  Entity(int maxID);
-  virtual ~Entity() = default;
-
-  // Virtual function for updating entity logic
-  void virtual Update(std::vector<Character *> players) = 0;
-  // Renders the entity
-  void Render(sf::RenderWindow *win) const;
-
-  // Stops the entity from moving
-  void Freeze();
-  // Allows the entity to move
-  void Unfreeze();
-
-  // Whether the entity has reached the end of its life
-  bool EndOfLife() const;
-
-  // Operator overloads for comparing the vertical position of the enities
-  bool operator<=(Entity& rhs); 
-  bool operator<(Entity& rhs); 
-  bool operator>=(Entity& rhs); 
-  bool operator>(Entity& rhs); 
-  bool operator<=(float rhs); 
-  bool operator<(float rhs); 
-  bool operator>=(float rhs); 
-  bool operator>(float rhs); 
-
-  sf::Vector2f GetPosition()
+  // The paramaters used during the initialisation of an entity
+  struct Params
   {
-    return sprite.getPosition();
-  }
-
-protected:
-  int entID = 0;
-  sf::Sprite sprite;      // The sprite used by the entity
-  AnimationHandler anims; // The entity's animation handler
-
-  float vel = 0.0f;  // The entity's horizontal velocity
-  bool isFrozen = false; // Whether the movement of the entity has be frozen
-
-  bool endOfLife = false; // Whether the entity has reached the end of its lifespan
-};
-
-// The saw is an entity that deals damage to the player on contact, 
-// moves along the upper or lower border of the world
-class Saw : public Entity
-{
+    // A modifier for the entities scale, multiplied with the gamescale
+    float scaleModifier = 1.0f;
+    // The shader that may be used during redering if given
+    sf::Shader* shader = &Utility::entShad;
+    // The size of the sprite's animation frame
+    sf::Vector2i frameSize = sf::Vector2i(Utility::spriteDim, Utility::spriteDim);
+  };
 public:
-  Saw() = delete;
-  // Constructor uses the world border to determine spawn positions and cutoff points
-  Saw(sf::IntRect &worldBorder, int maxID);
-  // Updates the spike's position and checks for player collisions
-  void Update(std::vector<Character *> players) override;
+  Entity() = default;
+  // Constructs an entity with the given parameter
+  Entity(const char* textureName, Params params);
+
+  // Couples the position of the sprite to some external position vector
+  void CouplePosition(sf::Vector2f* pos);
+  // Decouples the sprite's position with the external position
+  void DecouplePosition();
+
+  // Updates the entity's animation, as well as its position with either the vector pointer or motion
+  void Update();
+  // Renders the sprite to the screen, using a shader if given
+  void Render(sf::RenderWindow* win) const;
+
+  // Flips the entity's X directon (i.e. left <-> right)
+  void FlipX();
+  // Flips the entity's Y directon (i.e. up <-> down)
+  void FlipY();
+  // Sets the entity's X direction to right if bool is true, left otherwise
+  void SetXDir(bool right);
+  // Sets the entity's X direction to upright if bool is true, upsidedown otherwise
+  void SetYDir(bool up);
+
+  // Gets the sprite's position
+  sf::Vector2f GetPosition() const;
+  // Sets the sprite's rotation
+  void SetRotation(float angle);
+
+  // Clears the entity's animation and motion handlers
+  void ClearHandlers();
+
+  // Gets the entity's hitbox based on it's rendering region on the screen
+  sf::FloatRect HitBox() const;
+
+  // Queues an animation for the entity
+  void QueueAnimation(int index, int dur, int loops = ALWAYS, int hold = 0);
+  // Clears the animation queue and replaces it with a new animation
+  void SetAnimation(int index, int dur, int loops = ALWAYS, int hold = 0);
+
+  // Queues a motion from the entity's current position to some desired offset
+  void QueueMotion(MotionHandler::Type type, float duration, sf::Vector2f offSet);
+  void QueueMotion(MotionHandler::Type type, float duration, sf::Vector2f start, sf::Vector2f end);
 
 private:
-  float cutOffPoint = 0.0f; // The pixel position of the screen at which the entity should be culled
+  // The sprite used by the entity for rendering
+  std::unique_ptr<sf::Sprite> sprite;
+  Params params;
+
+  // A pointer to an external position vector if the sprite's position has been coupled
+  sf::Vector2f* position = nullptr;
+
+  // The entity's animation handler
+  AnimationHandler anim;
+  // The entity's motion handler, only gets used if the position isn't coupled
+  MotionHandler motion;
+  // May do rotations and scale handlers in the future
 };
-
-// The targets are the entities that the player is trying to hit to score points,
-// they normally spawn randomly in the middle of the world
-class MovingTarget : public Entity
-{
-public:
-  MovingTarget() = delete;
-  // Constructor uses the world border to determine spawn positions and cutoff points
-  MovingTarget(sf::IntRect &worldBorder, int maxID);
-  // Updates the spike's position and checks for player collisions
-  void Update(std::vector<Character *> players) override;
-
-private:
-  float cutOffPoint = 0.0f; // The pixel position of the screen at which the entity should be culled
-};
-
-// class StationaryTarget : public Entity
-// {
-//   StationaryTarget() = delete;
-//   // Constructor uses the world border to determine spawn positions and cutoff points
-//   StationaryTarget(sf::Texture* tex, sf::IntRect &worldBorder, int lifespan);
-//   // Spawns a stationary target at the desired position
-//   StationaryTarget(sf::Vector2f pos);
-//   // Updates the spike's position and checks for player collisions
-//   void Update(std::vector<Character *> players) override;
-
-// }
 
 #endif

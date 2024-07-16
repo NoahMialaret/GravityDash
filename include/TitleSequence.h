@@ -4,8 +4,8 @@
 #include <SFML/Graphics.hpp>
 
 #include "AnimationHandler.h"
-#include "Bezier.h"
 #include "Clock.h"
+#include "Entity.h"
 #include "MotionHandler.h"
 #include "Particle.h"
 #include "Textures.h"
@@ -41,19 +41,16 @@ private:
 
 private:
   Sequence curSeq = Sequence::start;
-  Bezier bezier;
 
   std::unique_ptr<World> world;
   std::forward_list<sf::Sprite> bgTiles;
   float speed = 5.0f;
 
-  sf::Sprite character;
-  AnimationHandler charAnim;
-  MotionHandler charMotion;
+  Entity character;
 
-  sf::Sprite title;
+  Entity title;
 
-  sf::Sprite frenchie;
+  Entity frenchie;
 
   sf::Text frenchieText;
 

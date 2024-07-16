@@ -6,6 +6,7 @@
 #include "AnimationHandler.h"
 #include "Clock.h"
 #include "Controls.h"
+#include "Entity.h"
 #include "Number.h"
 #include "Particle.h"
 #include "PlayerBoost.h"
@@ -79,15 +80,14 @@ public:
 protected:
   int charID = 0;
 
-  sf::Sprite sprite;      // The character's sprite used for rendering
-  AnimationHandler anims; // The character's animation handler
+  // THe character's entity used for animations and rendering
+  Entity entity;
 
-  PlayerBoost boost;
-
+  sf::Vector2f pos = ZERO_VECTOR;     // The character's position in the game world
   sf::Vector2f prevPos = ZERO_VECTOR; // The character's position on the previous frame, used in hitbox calculations
   sf::Vector2f vel = ZERO_VECTOR;     // The character's velocity
-  // Use queue to store multiple "lines"
-  int move = 0;
+
+  int move = 0; // The direction that the character wants to move (i.e. the button a player is pressing)
   float acceleration = 0; // A modifier that determines how much the player's velocity changes each frame
 
   bool isUpright = false; // Whether the player is standing upright (i.e. at the bottom of the world) or is upside down
@@ -108,6 +108,8 @@ protected:
 
   int invincibilityTimer = 0; // The timer for how long the player is invincible for
   int stunTimer = 0; // The timer for how long the player is stunned for
+
+  PlayerBoost boost;
 };
 
 class PlayableCharacter : public Character

@@ -277,9 +277,9 @@ void TotalPoints::Update()
     {
       for (auto& point : targetPoints)
       {
-        point.SetVelocity(1.0f / 500.0f * (centre - point.GetCentre()));
+        point.SetVelocity(1.0f / 250.0f * (centre - point.GetCentre()));
       }
-      timer = 500;
+      timer = 250;
       curState = State::accumulate;
     }
     break;

@@ -6,7 +6,7 @@
 #include "Character.h"
 #include "Clock.h"
 #include "Controls.h"
-#include "Entity.h"
+#include "GameObject.h"
 #include "GameTimer.h"
 #include "Number.h"
 #include "PlayerBoost.h"
@@ -69,7 +69,7 @@ private:
   std::unique_ptr<World> world = nullptr;             // The playable region of the game
   std::unique_ptr<GameScore> score = nullptr;         // The total accumulated score made during the game
 
-  SortedDblyLnkdList<Entity> entities; // A sorted (by vertical position) linked list of entites
+  SortedDblyLnkdList<GameObject> objects; // A sorted (by vertical position) linked list of entites
 
   std::list<TotalPoints> totalPoints;
 
