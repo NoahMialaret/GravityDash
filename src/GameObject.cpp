@@ -218,7 +218,7 @@ void MovingTarget::Update(std::vector<Character*> players)
     return;
   }
 
-  // Utility::particles.push_front(Particle(Particle::Type::targetExplosion, ZERO_VECTOR, pos, sprite.getScale()));
+  Utility::particles.push_front(std::make_unique<Explosion>(pos));
 
   //players[closestIndex].TargetHit(pos);
 

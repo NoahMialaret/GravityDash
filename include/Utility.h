@@ -15,9 +15,10 @@
 #include "Event.h"
 #include "Textures.h"
 
-#include <iostream>
-#include <random>
 #include <forward_list>
+#include <iostream>
+#include <memory>
+#include <random>
 
 class Particle;
 
@@ -75,7 +76,7 @@ public:
   static sf::Shader entShad;
   static sf::Shader worldShad;
 
-  static std::forward_list<Particle> particles;
+  static std::forward_list<std::unique_ptr<Particle>> particles;
 };
 
 #endif

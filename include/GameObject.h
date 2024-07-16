@@ -12,6 +12,7 @@
 #include "Utility.h"
 
 #include <iostream>
+#include <memory>
 
 // A class representing the non-player interactable objects that can appear during gameplay
 class GameObject

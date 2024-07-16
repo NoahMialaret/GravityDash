@@ -45,10 +45,10 @@ private:
   sf::Sprite* sprite;
 
   Motion* cur = nullptr;
-  std::queue<Motion> motions; // A queue of animations, an animation is dequeued if it runs out of loops
+  std::queue<Motion> motions; // A queue of motions, a motion is dequed when the timer has reached 0
   static std::vector<Bezier> curves; // The bezier curves used to determine the timing of the motion
 
-  float timer = 0.0f; // The amount of time before advancing the frame  
+  float timer = 0.0f; // The amount of time left in the current motion
 };
 
 struct Motion

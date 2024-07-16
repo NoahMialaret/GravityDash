@@ -63,9 +63,7 @@ void Character::Update()
     if (particleTimer <= 0)
     {
       sf::Vector2f partVel(-move * 0.2f * Utility::gameScale, (isUpright ? -0.1f : 0.1f) * Utility::gameScale);
-      // Will be reimplemented when Particle is refactored
-      // Utility::particles.push_front(Particle(Particle::Type::walkDust, partVel, sprite.getPosition() - 
-      //   sf::Vector2f(move * 0.5f * SCALED_DIM, 0.0f), sprite.getScale()));
+      Utility::particles.push_front(std::make_unique<Puff>(pos, sf::Vector2f(- (float)move, (isUpright ? -1.0f : 1.0f))));
       particleTimer = (isLastStand ? 4 : 1) * 150;
     }
     break;
@@ -177,9 +175,7 @@ void Character::Land()
   sf::Vector2f partVel = {Utility::gameScale * 0.3f, 0.0f};
   sf::Vector2f offset = {0.5f * SCALED_DIM, 0.0f};
 
-  // Will be reimplemented when Particle is refactored
-  // Utility::particles.push_front(Particle(Particle::Type::landingImpact, partVel, pos + offset, {fabsf(sprite.getScale().x), sprite.getScale().y}));
-  // Utility::particles.push_front(Particle(Particle::Type::landingImpact, -partVel, pos - offset, {-fabsf(sprite.getScale().x), sprite.getScale().y}));
+  Utility::particles.push_front(std::make_unique<Dust>(pos, !isUpright));
 
   if (isLastStand)
   {

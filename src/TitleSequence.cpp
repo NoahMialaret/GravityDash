@@ -60,9 +60,9 @@ void TitleSequence::Update()
   if (curSeq < Sequence::spawnWorld && spawn > 40 / (speed / 5.0f))
   {
     SpawnBGTile();
-    int xpos = chance(Utility::rng) * 10;
-    int ypos = chance(Utility::rng) * 10;
-    Utility::particles.push_front(Particle(Particle::Type::speedLines, sf::Vector2f(0.0f, - speed * Utility::gameScale / 2), sf::Vector2f(xpos - 500, ypos - 500) , DEFAULT_SCALE));
+    float xpos = (float)chance(Utility::rng) * 10.0f;
+    float ypos = (float)chance(Utility::rng) * 10.0f;
+    Utility::particles.push_front(std::make_unique<SpeedLine>(sf::Vector2f(xpos - 500, ypos - 500), - speed * 10.0f));
   }
 
   for (auto& tile : bgTiles)

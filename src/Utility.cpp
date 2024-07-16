@@ -18,7 +18,7 @@ std::vector<Event> Utility::events;
 sf::Shader Utility::entShad;
 sf::Shader Utility::worldShad;
 
-std::forward_list<Particle> Utility::particles;
+std::forward_list<std::unique_ptr<Particle>> Utility::particles;
 
 std::string Utility::IntToString(int number, int minDigits)
 {
@@ -152,10 +152,10 @@ void Utility::UpdateParticles()
 {
   for (auto prev = particles.before_begin(), cur = particles.begin(); cur != particles.end();)
   {
-    cur->Update();
-    if (cur->HasFinished())
+    cur->get()->Update();
+    if (cur->get()->HasFinished())
     {
-      while (cur != particles.end() && cur->HasFinished())
+      while (cur != particles.end() && cur->get()->HasFinished())
       {
         cur = particles.erase_after(prev);
       }
@@ -174,6 +174,6 @@ void Utility::RenderParticles(sf::RenderWindow* win)
 
   for (auto cur = particles.begin(); cur != particles.end(); cur++)
   {
-    cur->Render(win);
+    cur->get()->Render(win);
   }
 }
