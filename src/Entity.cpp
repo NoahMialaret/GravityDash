@@ -152,14 +152,24 @@ void Entity::QueueMotion(Curve curve, float duration, sf::Vector2f offSet)
   QueueMotion(curve, duration, motion.GetEndPoint(), motion.GetEndPoint() + offSet);
 }
 
-void Entity::QueueMotion(Curve type, float duration, sf::Vector2f start, sf::Vector2f end)
+void Entity::QueueMotion(Curve curve, float duration, sf::Vector2f start, sf::Vector2f end)
 {
-  motion.Queue(type, duration, start, end);
+  QueueMotion(curve, duration, Bezier({start, end}));
+}
+
+void Entity::QueueMotion(Curve curve, float duration, Bezier points)
+{
+  motion.Queue(curve, duration, points);
 }
 
 void Entity::QueueScale(Curve curve, float duration, sf::Vector2f start, sf::Vector2f end)
 {
-  scaleHand.Queue(curve, duration, start, end);
+  QueueScale(curve, duration, Bezier({start, end}));
+}
+
+void Entity::QueueScale(Curve curve, float duration, Bezier scales)
+{
+  scaleHand.Queue(curve, duration, scales);
 }
 
 void Entity::QueueRotation(Curve curve, float duration, float start, float end)

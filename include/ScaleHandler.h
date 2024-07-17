@@ -13,9 +13,7 @@ struct Scale
 {
   Curve curve = Curve::linear;
   float duration = 0;
-  // Could be a bezier curve itself
-  sf::Vector2f start = DEFAULT_SCALE;
-  sf::Vector2f end = DEFAULT_SCALE;
+  Bezier scales;
 };
 
 // Handles a sprite's scale changes
@@ -32,8 +30,9 @@ public:
   // Clears the queue of all scales
   void Clear();
   // Pushes a scale to the current scale queue
-  void Queue(Scale& scale);
   void Queue(Curve curve, float duration, sf::Vector2f start, sf::Vector2f end);
+  void Queue(Curve curve, float duration, Bezier scales);
+  void Queue(Scale& scale);
 
   // Returns the scale the sprite will be at after all current scale changes have finished
   sf::Vector2f GetEndScale() const;

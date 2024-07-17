@@ -23,14 +23,8 @@ void MotionHandler::Update()
     }
   }
 
-  sprite->setPosition(cur->startPoint + Utility::curves[(int)cur->curve].GetValue(timer / cur->duration) * (cur->endPoint - cur->startPoint));
+  sprite->setPosition(cur->points.GetPoint(Utility::curves[(int)cur->curve].GetValue(timer / cur->duration)));
 }
-
-// void MotionHandler::Update(sf::Sprite* sprite)
-// {
-//   this->sprite = sprite;
-//   Update();
-// }
 
 void MotionHandler::Clear()
 {
@@ -43,7 +37,7 @@ void MotionHandler::Clear()
 void MotionHandler::NextMotion()
 {
   timer -= cur->duration;
-  sprite->setPosition(cur->endPoint);
+  sprite->setPosition(cur->points.GetPoint(1.0f));
 
   motions.pop();
   if (motions.empty())
@@ -56,6 +50,21 @@ void MotionHandler::NextMotion()
 }
 
 
+
+void MotionHandler::Queue(Curve curve, float duration, sf::Vector2f start, sf::Vector2f end)
+{
+  Queue(curve, duration, Bezier({start, end}));
+}
+
+void MotionHandler::Queue(Curve curve, float duration, Bezier points)
+{
+  Motion motion;
+  motion.curve = curve;
+  motion.duration = duration;
+  motion.points = points;
+  Queue(motion);
+}
+
 void MotionHandler::Queue(Motion& motion)
 {
   motions.push(motion);
@@ -64,18 +73,8 @@ void MotionHandler::Queue(Motion& motion)
   {
     timer = 0.0f;
     cur = &motions.front();
-    sprite->setPosition(cur->startPoint);
+    sprite->setPosition(cur->points.GetPoint(0.0f));
   }
-}
-
-void MotionHandler::Queue(Curve curve, float duration, sf::Vector2f start, sf::Vector2f end)
-{
-  Motion motion;
-  motion.curve = curve;
-  motion.duration = duration;
-  motion.startPoint = start;
-  motion.endPoint = end;
-  Queue(motion);
 }
 
 sf::Vector2f MotionHandler::GetEndPoint() const
@@ -85,5 +84,5 @@ sf::Vector2f MotionHandler::GetEndPoint() const
     return sprite->getPosition();
   }
 
-  return motions.back().endPoint;
+  return motions.back().points.GetPoint(1.0f);
 }

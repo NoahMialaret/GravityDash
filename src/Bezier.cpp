@@ -11,15 +11,20 @@ Bezier::Bezier(std::vector<sf::Vector2f> points)
   }
 }
 
-float Bezier::GetValue(float t, bool invert)
+float Bezier::GetValue(float t, bool invert) const
+{
+  return GetPoint(t, invert).y;
+}
+
+sf::Vector2f Bezier::GetPoint(float t, bool invert) const
 {
   if (t <= 0.0f)
   {
-    return invert ? points.back().y : points.front().y;
+    return invert ? points.back() : points.front();
   }
   else if (t >= 1.0f)
   {
-    return invert ? points.front().y : points.back().y;
+    return invert ? points.front() : points.back();
   }
 
   std::queue<sf::Vector2f> subPoints;
@@ -49,5 +54,5 @@ float Bezier::GetValue(float t, bool invert)
     }
   }
 
-  return subPoints.front().y;
+  return subPoints.front();
 }

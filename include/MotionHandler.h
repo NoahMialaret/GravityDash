@@ -14,8 +14,7 @@ struct Motion
   Curve curve = Curve::linear;
   float duration = 0;
   // Could be a bezier curve itself
-  sf::Vector2f startPoint = ZERO_VECTOR;
-  sf::Vector2f endPoint = ZERO_VECTOR;
+  Bezier points;
 };
 
 // Handles a sprite's motion throughout the game world
@@ -32,8 +31,9 @@ public:
   // Clears the queue of all motions
   void Clear();
   // Pushes a motion to the current motion queue
-  void Queue(Motion& motion);
   void Queue(Curve curve, float duration, sf::Vector2f start, sf::Vector2f end);
+  void Queue(Curve curve, float duration, Bezier points);
+  void Queue(Motion& motion);
 
   // Returns the position the sprite will be after all current motions finished
   sf::Vector2f GetEndPoint() const;

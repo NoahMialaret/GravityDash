@@ -23,7 +23,7 @@ void ScaleHandler::Update()
     }
   }
 
-  sprite->setScale(cur->start + Utility::curves[(int)cur->curve].GetValue(timer / cur->duration) * (cur->end - cur->start));
+  sprite->setScale(cur->scales.GetPoint(Utility::curves[(int)cur->curve].GetValue(timer / cur->duration)));
 }
 
 void ScaleHandler::Clear()
@@ -37,7 +37,7 @@ void ScaleHandler::Clear()
 void ScaleHandler::NextScale()
 {
   timer -= cur->duration;
-  sprite->setScale(cur->end);
+  sprite->setScale(cur->scales.GetPoint(1.0f));
 
   scales.pop();
   if (scales.empty())
@@ -50,6 +50,20 @@ void ScaleHandler::NextScale()
 }
 
 
+void ScaleHandler::Queue(Curve curve, float duration, sf::Vector2f start, sf::Vector2f end)
+{
+  Queue(curve, duration, Bezier({start, end}));
+}
+
+void ScaleHandler::Queue(Curve curve, float duration, Bezier scales)
+{
+  Scale scale;
+  scale.curve = curve;
+  scale.duration = duration;
+  scale.scales = scales;
+  Queue(scale);
+}
+
 void ScaleHandler::Queue(Scale& scale)
 {
   scales.push(scale);
@@ -58,18 +72,8 @@ void ScaleHandler::Queue(Scale& scale)
   {
     timer = 0.0f;
     cur = &scales.front();
-    sprite->setScale(cur->start);
+    sprite->setScale(cur->scales.GetPoint(0.0f));
   }
-}
-
-void ScaleHandler::Queue(Curve curve, float duration, sf::Vector2f start, sf::Vector2f end)
-{
-  Scale scale;
-  scale.curve = curve;
-  scale.duration = duration;
-  scale.start = start;
-  scale.end = end;
-  Queue(scale);
 }
 
 sf::Vector2f ScaleHandler::GetEndScale() const
@@ -79,5 +83,5 @@ sf::Vector2f ScaleHandler::GetEndScale() const
     return sprite->getScale();
   }
 
-  return scales.back().end;
+  return scales.back().scales.GetPoint(1.0f);
 }

@@ -4,6 +4,7 @@
 #include <SFML/Graphics.hpp>
 
 #include "AnimationHandler.h"
+#include "Bezier.h"
 #include "MotionHandler.h"
 #include "RotationHandler.h"
 #include "ScaleHandler.h"
@@ -72,11 +73,15 @@ public:
 
   // Queues a motion with an offset from the endpoint of that last motion
   void QueueMotion(Curve curve, float duration, sf::Vector2f offSet);
-  // Queues a motion
+  // Queues a motion between two points
   void QueueMotion(Curve curve, float duration, sf::Vector2f start, sf::Vector2f end);
+  // Queues a motion between any number of points as a curve
+  void QueueMotion(Curve curve, float duration, Bezier points);
 
-  // Queues a scale change
+  // Queues a scale change between two scales
   void QueueScale(Curve curve, float duration, sf::Vector2f start, sf::Vector2f end);
+  // Queues a scale change between any number of scales
+  void QueueScale(Curve curve, float duration, Bezier scales);
 
   // Queues a rotation change
   void QueueRotation(Curve curve, float duration, float start, float end);
