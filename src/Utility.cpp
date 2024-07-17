@@ -8,6 +8,13 @@ sf::Vector2f Utility::windowDim;
 
 std::mt19937 Utility::rng = std::mt19937(std::random_device()());
 
+std::vector<Bezier> Utility::curves =
+{
+  Bezier({{0, 0},{1,1}}),
+  Bezier({{0, 0},{0,1},{1, 1}}),
+  Bezier({{0, 0},{1,0},{1, 1}})
+};
+
 std::vector<int> Utility::initialKeyPresses;
 
 sf::Sprite Utility::debugSprite;

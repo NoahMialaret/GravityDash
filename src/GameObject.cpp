@@ -2,7 +2,7 @@
 
 GameObject::GameObject(int maxID)
 {
-  entity = Entity("entities", Entity::Params());
+  entity = Entity("entities");
 
   std::uniform_int_distribution id(0, maxID - 1);
   entID = id(Utility::rng);

@@ -7,7 +7,7 @@ Character::Character(int charID, PlayerBoost boost)
   acceleration(0.2f * Utility::gameScale),
   boost(boost)
 {
-  entity = Entity("character", Entity::Params());
+  entity = Entity("character");
 
   entity.CouplePosition(&pos);
 

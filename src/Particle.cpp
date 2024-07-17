@@ -4,9 +4,7 @@ Particle::Particle(int timer)
   :
   timer(timer)
 {
-  Entity::Params params;
-  params.shader = nullptr;
-  entity = Entity("particles", params);
+  entity = Entity("particles", nullptr);
 }
 
 bool Particle::HasFinished() const
@@ -52,7 +50,7 @@ Puff::Puff(sf::Vector2f source, sf::Vector2f dir)
   sf::Vector2f end;
   end.x = source.x + dir.x * Utility::gameScale * Utility::spriteDim;
   end.y = source.y + dir.y * Utility::gameScale;
-  entity.QueueMotion(MotionHandler::Type::easeIn, 400, source, end);
+  entity.QueueMotion(Curve::easeIn, 400, source, end);
 }
 
 // ============
@@ -63,9 +61,7 @@ Dust::Dust(sf::Vector2f source, bool flip)
   :
   Particle(200)
 {
-  Entity::Params params;
-  params.shader = nullptr;
-  entityMirror = Entity("particles", params);
+  entityMirror = Entity("particles", nullptr);
 
   if (flip)
   {
@@ -74,11 +70,11 @@ Dust::Dust(sf::Vector2f source, bool flip)
   }
 
   entity.QueueAnimation(DUST, 50, 0);
-  entity.QueueMotion(MotionHandler::Type::easeIn, 200, source, source + sf::Vector2f(SCALED_DIM, 0.0f));
+  entity.QueueMotion(Curve::easeIn, 200, source, source + sf::Vector2f(SCALED_DIM, 0.0f));
 
   entityMirror.FlipX();
   entityMirror.QueueAnimation(DUST, 50, 0);
-  entityMirror.QueueMotion(MotionHandler::Type::easeIn, 200, source, source - sf::Vector2f(SCALED_DIM, 0.0f));
+  entityMirror.QueueMotion(Curve::easeIn, 200, source, source - sf::Vector2f(SCALED_DIM, 0.0f));
 }
 
 void Dust::Update()
@@ -112,7 +108,7 @@ Explosion::Explosion(sf::Vector2f source)
   Particle(100)
 {
   entity.QueueAnimation(EXPLOSION, 25, 0);
-  entity.QueueMotion(MotionHandler::Type::linear, 0, source, source);
+  entity.QueueMotion(Curve::linear, 0, source, source);
 }
 
 // =================
@@ -129,5 +125,5 @@ SpeedLine::SpeedLine(sf::Vector2f start, float speed)
   }
 
   entity.QueueAnimation(SPEEDLINE, 100, 0);
-  entity.QueueMotion(MotionHandler::Type::linear, 400, start, start + speed * sf::Vector2f(0.0f, Utility::gameScale));
+  entity.QueueMotion(Curve::linear, 400, start, start + speed * sf::Vector2f(0.0f, Utility::gameScale));
 }

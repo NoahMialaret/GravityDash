@@ -12,6 +12,7 @@
 
 #include <SFML/Graphics.hpp>
 
+#include "Bezier.h"
 #include "Event.h"
 #include "Textures.h"
 
@@ -19,8 +20,16 @@
 #include <iostream>
 #include <memory>
 #include <random>
+#include <vector>
 
 class Particle;
+
+enum class Curve
+{
+  linear,
+  easeIn,
+  easeOut
+};
 
 union Utility
 {
@@ -62,6 +71,8 @@ public:
   static sf::Vector2f windowDim;
 
   static std::mt19937 rng;    // Used for random number generation
+
+  static std::vector<Bezier> curves; // The bezier curves used by handlers for smooth transitions
 
   // keyboard
   static std::vector<int> initialKeyPresses;  // A vector of keys which were initially pressed in the current frame

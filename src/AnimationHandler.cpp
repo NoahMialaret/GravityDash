@@ -33,12 +33,6 @@ void AnimationHandler::Update()
   }
 }
 
-void AnimationHandler::Update(sf::Sprite* sprite)
-{
-  this->sprite = sprite;
-  Update();
-}
-
 void AnimationHandler::Clear()
 {
   while (!animations.empty())

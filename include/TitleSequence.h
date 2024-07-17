@@ -50,8 +50,8 @@ private:
 
   Entity title;
 
+  float frenchieRot = 0.0f;
   Entity frenchie;
-
   sf::Text frenchieText;
 
   sf::Text start;

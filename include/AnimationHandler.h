@@ -32,7 +32,6 @@ public:
 
   // Handles animation changes if enough time has passed
   void Update();
-  void Update(sf::Sprite* sprite);
 
   // Clears the queue of all animations
   void Clear();

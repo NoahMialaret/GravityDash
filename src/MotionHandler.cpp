@@ -1,12 +1,5 @@
 #include "MotionHandler.h"
 
-std::vector<Bezier> MotionHandler::curves =
-{
-  Bezier({{0, 0},{1, 1}}),
-  Bezier({{0, 0},{0,1},{1, 1}}),
-  Bezier({{0, 0},{1,0},{1, 1}})
-};
-
 MotionHandler::MotionHandler(sf::Sprite* sprite)
   : 
   sprite(sprite)
@@ -30,7 +23,7 @@ void MotionHandler::Update()
     }
   }
 
-  sprite->setPosition(cur->startPoint + curves[(int)cur->type].GetValue(timer / cur->duration) * (cur->endPoint - cur->startPoint));
+  sprite->setPosition(cur->startPoint + Utility::curves[(int)cur->curve].GetValue(timer / cur->duration) * (cur->endPoint - cur->startPoint));
 }
 
 // void MotionHandler::Update(sf::Sprite* sprite)
@@ -63,7 +56,7 @@ void MotionHandler::NextMotion()
 }
 
 
-void MotionHandler::QueueMotion(Motion& motion)
+void MotionHandler::Queue(Motion& motion)
 {
   motions.push(motion);
 
@@ -75,12 +68,22 @@ void MotionHandler::QueueMotion(Motion& motion)
   }
 }
 
-void MotionHandler::QueueMotion(Type type, float duration, sf::Vector2f start, sf::Vector2f end)
+void MotionHandler::Queue(Curve curve, float duration, sf::Vector2f start, sf::Vector2f end)
 {
   Motion motion;
-  motion.type = type;
+  motion.curve = curve;
   motion.duration = duration;
   motion.startPoint = start;
   motion.endPoint = end;
-  QueueMotion(motion);
+  Queue(motion);
+}
+
+sf::Vector2f MotionHandler::GetEndPoint() const
+{
+  if (motions.empty())
+  {
+    return sprite->getPosition();
+  }
+
+  return motions.back().endPoint;
 }

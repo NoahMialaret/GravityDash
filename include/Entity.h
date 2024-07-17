@@ -5,6 +5,8 @@
 
 #include "AnimationHandler.h"
 #include "MotionHandler.h"
+#include "RotationHandler.h"
+#include "ScaleHandler.h"
 #include "Textures.h"
 #include "Utility.h"
 
@@ -15,27 +17,28 @@
 class Entity
 {
 public:
-  // The paramaters used during the initialisation of an entity
-  struct Params
-  {
-    // A modifier for the entities scale, multiplied with the gamescale
-    float scaleModifier = 1.0f;
-    // The shader that may be used during redering if given
-    sf::Shader* shader = &Utility::entShad;
-    // The size of the sprite's animation frame
-    sf::Vector2i frameSize = sf::Vector2i(Utility::spriteDim, Utility::spriteDim);
-  };
-public:
   Entity() = default;
-  // Constructs an entity with the given parameter
-  Entity(const char* textureName, Params params);
+  // Constructs an entity with a texture, shader, and framesize if given
+  Entity(const char* textureName, sf::Shader* shader = &Utility::entShad, 
+          sf::Vector2i frameSize = sf::Vector2i(Utility::spriteDim, Utility::spriteDim));
 
   // Couples the position of the sprite to some external position vector
   void CouplePosition(sf::Vector2f* pos);
   // Decouples the sprite's position with the external position
   void DecouplePosition();
 
-  // Updates the entity's animation, as well as its position with either the vector pointer or motion
+  // Couples the scale of the sprite to some external scale vector
+  void CoupleScale(sf::Vector2f* scale);
+  // Decouples the sprite's scale with the external scale
+  void DecoupleScale();
+
+  // Couples the rotation of the sprite to some external rotation vector
+  void CoupleRotation(float* rot);
+  // Decouples the sprite's rotation with the external rotation
+  void DecoupleRotation();
+
+  // Updates the entity's animation, as well as its position, scale, and rotation
+  // with either the respective pointers or handlers 
   void Update();
   // Renders the sprite to the screen, using a shader if given
   void Render(sf::RenderWindow* win) const;
@@ -51,10 +54,12 @@ public:
 
   // Gets the sprite's position
   sf::Vector2f GetPosition() const;
-  // Sets the sprite's rotation
-  void SetRotation(float angle);
+  // Gets the sprite's scale
+  sf::Vector2f GetScale() const;
+  // Gets the sprite's rotation
+  float GetRotation() const;
 
-  // Clears the entity's animation and motion handlers
+  // Clears the entity's handlers
   void ClearHandlers();
 
   // Gets the entity's hitbox based on it's rendering region on the screen
@@ -65,23 +70,39 @@ public:
   // Clears the animation queue and replaces it with a new animation
   void SetAnimation(int index, int dur, int loops = ALWAYS, int hold = 0);
 
-  // Queues a motion from the entity's current position to some desired offset
-  void QueueMotion(MotionHandler::Type type, float duration, sf::Vector2f offSet);
-  void QueueMotion(MotionHandler::Type type, float duration, sf::Vector2f start, sf::Vector2f end);
+  // Queues a motion with an offset from the endpoint of that last motion
+  void QueueMotion(Curve curve, float duration, sf::Vector2f offSet);
+  // Queues a motion
+  void QueueMotion(Curve curve, float duration, sf::Vector2f start, sf::Vector2f end);
+
+  // Queues a scale change
+  void QueueScale(Curve curve, float duration, sf::Vector2f start, sf::Vector2f end);
+
+  // Queues a rotation change
+  void QueueRotation(Curve curve, float duration, float start, float end);
 
 private:
   // The sprite used by the entity for rendering
   std::unique_ptr<sf::Sprite> sprite;
-  Params params;
+  
+  // The shader used for rendering
+  sf::Shader* shader = nullptr;
 
   // A pointer to an external position vector if the sprite's position has been coupled
   sf::Vector2f* position = nullptr;
+  // A pointer to an external scale vector if the sprite's scale has been coupled
+  sf::Vector2f* scale = nullptr;
+  // A pointer to an external rotation value if the sprite's rotation has been coupled
+  float* rotation = nullptr;
 
   // The entity's animation handler
   AnimationHandler anim;
   // The entity's motion handler, only gets used if the position isn't coupled
   MotionHandler motion;
-  // May do rotations and scale handlers in the future
+  // The entity's scale handler, only gets used if the scale isn't coupled
+  ScaleHandler scaleHand;
+  // The entity's rotation handler, only gets used if the rotation isn't coupled
+  RotationHandler rot;
 };
 
 #endif

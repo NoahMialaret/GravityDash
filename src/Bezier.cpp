@@ -7,7 +7,7 @@ Bezier::Bezier(std::vector<sf::Vector2f> points)
   if (points.empty())
   {
     std::cout << "Warning, attempted to make a Bezier with no points!\n";
-    this->points.push_back(ZERO_VECTOR);
+    this->points.push_back({0,0});
   }
 }
 

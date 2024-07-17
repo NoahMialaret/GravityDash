@@ -2,22 +2,17 @@
 
 TitleSequence::TitleSequence()
 {
-  Entity::Params params;
-  params.shader = &Utility::worldShad;
-  character = Entity("character", params);
+  character = Entity("character", &Utility::worldShad);
   character.QueueAnimation(2, 50);
-  character.QueueMotion(MotionHandler::Type::easeIn, 2000, sf::Vector2f(0.0f, Utility::gameScale * 100.0f), ZERO_VECTOR);
+  character.QueueMotion(Curve::easeIn, 2000, sf::Vector2f(0.0f, Utility::gameScale * 100.0f), ZERO_VECTOR);
 
-  params.shader = &Utility::entShad;
-  params.frameSize = (sf::Vector2i)Textures::textures.at("title").getSize();
-  title = Entity("title", params);
-  title.QueueMotion(MotionHandler::Type::linear, 0, ZERO_VECTOR, 
-    sf::Vector2f(0.0f, - 1.25f * Utility::gameScale * Utility::spriteDim));
+  title = Entity("title", &Utility::entShad, (sf::Vector2i)Textures::textures.at("title").getSize());
+  title.QueueMotion(Curve::linear, 0, sf::Vector2f(0.0f, - 1.25f * Utility::gameScale * Utility::spriteDim));
 
-  params.shader = nullptr;
-  params.frameSize = (sf::Vector2i)Textures::textures.at("frenchie").getSize();
-  params.scaleModifier = 0.035;
-  frenchie = Entity("frenchie", params);
+  frenchie = Entity("frenchie", nullptr, (sf::Vector2i)Textures::textures.at("frenchie").getSize());
+  frenchie.QueueScale(Curve::linear, 0, DEFAULT_SCALE, 0.035f * DEFAULT_SCALE);
+  frenchie.Update();
+  frenchie.CoupleRotation(&frenchieRot);
 
 
   start.setFont(Textures::font);
@@ -53,7 +48,7 @@ void TitleSequence::Update()
   character.Update();
   title.Update();
   frenchie.Update();
-  frenchie.SetRotation(8 * std::sin((float)Clock::Elapsed() / 512.0f));
+  frenchieRot = 8 * std::sin((float)Clock::Elapsed() / 512.0f);
 
   std::uniform_int_distribution chance(0, 100);
   int spawn = chance(Utility::rng);
@@ -82,7 +77,7 @@ void TitleSequence::Update()
       character.QueueAnimation(0, 150);
       int worldBottom = world.get()->GetRegion().top + world.get()->GetRegion().height;
       sf::Vector2f pos(0.0f, (float)worldBottom - character.HitBox().height / 2);
-      character.QueueMotion(MotionHandler::Type::linear, 0, pos, pos);
+      character.QueueMotion(Curve::linear, 0, pos, pos);
     }
     else
     {
@@ -100,9 +95,9 @@ void TitleSequence::Update()
     {
       sf::Vector2f logoTarget(- Utility::windowDim.x / 4.0f, 0.0f);
       curSeq = Sequence::logoIn;
-      frenchie.QueueMotion(MotionHandler::Type::easeIn, 2000, sf::Vector2f(logoTarget.x, Utility::gameScale * 100.0f), logoTarget);
-      frenchie.QueueMotion(MotionHandler::Type::linear, 3000, logoTarget, logoTarget);
-      frenchie.QueueMotion(MotionHandler::Type::easeOut, 2000, logoTarget, sf::Vector2f(logoTarget.x, - Utility::gameScale * 100.0f));
+      frenchie.QueueMotion(Curve::easeIn, 2000, sf::Vector2f(logoTarget.x, Utility::gameScale * 100.0f), logoTarget);
+      frenchie.QueueMotion(Curve::linear, 3000, ZERO_VECTOR);
+      frenchie.QueueMotion(Curve::easeOut, 2000, sf::Vector2f(0.0f, - Utility::gameScale * 100.0f));
       frenchieText.setPosition(frenchie.GetPosition());
       timer = 2000;
     }
@@ -110,7 +105,7 @@ void TitleSequence::Update()
 
   case Sequence::logoIn:
     frenchieText.setPosition(frenchie.GetPosition());
-    frenchieText.setRotation(8 * std::sin((float)Clock::Elapsed() / 512.0f));
+    frenchieText.setRotation(frenchieRot);
     if (timer <= 0)
     {
       curSeq = Sequence::logo;
@@ -118,7 +113,7 @@ void TitleSequence::Update()
     }
     break;
   case Sequence::logo:
-    frenchieText.setRotation(8 * std::sin((float)Clock::Elapsed() / 512.0f));
+    frenchieText.setRotation(frenchieRot);
     if (timer <= 0)
     {
       curSeq = Sequence::logoOut;
@@ -127,13 +122,13 @@ void TitleSequence::Update()
     break;
 
   case Sequence::logoOut:
-    frenchieText.setRotation(8 * std::sin((float)Clock::Elapsed() / 512.0f));
+    frenchieText.setRotation(frenchieRot);
     frenchieText.setPosition(frenchie.GetPosition());
     if (timer <= 0)
     {
       curSeq = Sequence::intermission;
       timer = 3000;
-      character.QueueMotion(MotionHandler::Type::easeOut, 2000, ZERO_VECTOR, sf::Vector2f(0.0f, - Utility::gameScale * 100.0f));
+      character.QueueMotion(Curve::easeOut, 2000, ZERO_VECTOR, sf::Vector2f(0.0f, - Utility::gameScale * 100.0f));
     }
     break;
 
@@ -155,10 +150,13 @@ void TitleSequence::Update()
     if (timer <= 0)
     {
       int worldBottom = world.get()->GetRegion().top + world.get()->GetRegion().height;
-      character.QueueMotion(MotionHandler::Type::linear, 200, character.GetPosition(), {0.0f, (float)worldBottom - character.HitBox().height / 2});
+      character.QueueMotion(Curve::linear, 200, character.GetPosition(), {0.0f, (float)worldBottom - character.HitBox().height / 2});
       character.SetAnimation(2, 50, 0);
       character.QueueAnimation(4, 100, 0, 300);
       character.QueueAnimation(0, 150);
+
+      title.QueueScale(Curve::easeIn, 1000, ZERO_VECTOR, DEFAULT_SCALE);
+      title.QueueRotation(Curve::linear, 2000, 0.0f, 720.0f);
       curSeq = Sequence::title;
     }
     break;
