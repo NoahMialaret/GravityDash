@@ -1,11 +1,12 @@
 #include "Character.h"
 
 
-Character::Character(int charID, sf::Vector2f boostPos)
+Character::Character(int charID, sf::Vector2f boostPos, GameScore* score)
   : 
   charID(charID),
   acceleration(0.2f * Utility::gameScale),
-  boost(PlayerBoost(boostPos))
+  boost(PlayerBoost(boostPos)),
+  gameScore(score)
 {
   entity = Entity("character");
 
@@ -242,10 +243,15 @@ void Character::Land()
 
   comboCount = 0;
 
+  if (gameScore != nullptr)
+  {
+    gameScore->AddTargetPoints(targetPoints);
+  }
+
   targetPoints.clear();
 }
 
-bool Character::FloorCollision(float distance)
+void Character::FloorCollision(float distance)
 {
   pos.y += distance;
 
@@ -253,7 +259,8 @@ bool Character::FloorCollision(float distance)
   {
     if (boostJumpsRemaining <= 0)
     {
-      return true;
+      Land();
+      return;
     }
 
     boostJumpsRemaining--;
@@ -262,13 +269,14 @@ bool Character::FloorCollision(float distance)
     {
       invincibilityTimer = 2000;
       boost.Clear();
-      return true;
+      Land();
+      return;
     }
 
     pos.y += distance;
     vel.y = -vel.y;
 
-    return false;
+    return;
   }
   else if (curState == State::hit)
   {
@@ -278,8 +286,6 @@ bool Character::FloorCollision(float distance)
   }
 
   vel.y = 0.0f;
-
-  return false;
 }
 
 void Character::WallCollision(float distance)
@@ -310,9 +316,6 @@ bool Character::Hit(sf::Vector2f entPos)
     entity.FlipY();
   }
 
-  targetPoints.clear();
-  comboCount = 0;
-
   // y = ent.y +- sqrt(64*scale-(this.x-ent.x)^2) + for saws on top
   pos.y = entPos.y + (isUpright ? -1.0f : 1.0f) * std::sqrt(64*Utility::gameScale*Utility::gameScale - (pos.x - entPos.x) * (pos.x - entPos.x));
 
@@ -321,6 +324,18 @@ bool Character::Hit(sf::Vector2f entPos)
 
   curState = State::hit;
   entity.SetAnimation((int)curState, 100);
+
+  targetPoints.clear();
+  comboCount = 0;
+
+  AddNewPoint(-5000, pos, ZERO_VECTOR);
+
+  if (gameScore != nullptr)
+  {
+    gameScore->AddTargetPoints(targetPoints);
+  }
+
+  targetPoints.clear();
 
   return true;
 
@@ -361,12 +376,7 @@ sf::FloatRect Character::GetHitBox() const
 
 std::pair<sf::Vector2f, sf::Vector2f> Character::GetLineHitBox() const
 {
-    return std::pair<sf::Vector2f, sf::Vector2f>(prevPos, pos);
-}
-
-std::forward_list<TargetPoints> Character::GetPoints() const
-{
-  return targetPoints;
+  return std::pair<sf::Vector2f, sf::Vector2f>(prevPos, pos);
 }
 
 void Character::IncrementComboCount()
@@ -403,9 +413,9 @@ void Character::AddNewPoint(int value, sf::Vector2f pos, sf::Vector2f vel)
 // Playable Character
 // ------------------
 
-PlayableCharacter::PlayableCharacter(int charID, std::unique_ptr<Controls>& controls, sf::Vector2f boostPos)
+PlayableCharacter::PlayableCharacter(int charID, std::unique_ptr<Controls>& controls, sf::Vector2f boostPos, GameScore* score)
   : 
-  Character(charID, boostPos)
+  Character(charID, boostPos, score)
 {
   this->controls = std::move(controls);
 }
@@ -442,9 +452,9 @@ void PlayableCharacter::Update()
 // Computer Character
 // ------------------
 
-ComputerCharacter::ComputerCharacter(int charID, sf::Vector2f boostPos)
+ComputerCharacter::ComputerCharacter(int charID, sf::Vector2f boostPos, GameScore* score)
   :
-  Character(charID, boostPos)
+  Character(charID, boostPos, score)
 {}
 
 void ComputerCharacter::Update()

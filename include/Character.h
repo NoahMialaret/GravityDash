@@ -35,7 +35,7 @@ public:
 
 public:
   // The constructor which takes an ID and PlayerBoost
-  Character(int charID, sf::Vector2f boostPos);
+  Character(int charID, sf::Vector2f boostPos, GameScore* score);
   virtual ~Character();
 
   // Updates the player's state, animation, and position based on player inputs
@@ -53,7 +53,7 @@ public:
   // Reorientates the player and changes the player's state when the player has landed after jumping
   void Land();
   // Handles the players verticle collision with floors, and lands them from a jump if airborne
-  bool FloorCollision(float distance);
+  void FloorCollision(float distance);
   // Handles the players horizontal collision with walls
   void WallCollision(float distance);
 
@@ -73,8 +73,6 @@ public:
   // Returns a line segment hitbox represented by the player's previous and current position, used for when
   // the player is airborne and is therefore likely travelling faster than the width of its regular hitbox
   std::pair<sf::Vector2f, sf::Vector2f> GetLineHitBox() const;
-
-  std::forward_list<TargetPoints> GetPoints() const;
 
   // Adds a point to the points linked list
   void AddNewPoint(sf::Vector2f pos, sf::Vector2f vel);
@@ -100,10 +98,10 @@ protected:
   State curState = State::idle; // The current state of the player
   bool isLastStand = false;     // Whether this is the player's last jump due to getting hit
 
-  std::forward_list<TargetPoints> targetPoints;
+  GameScore* gameScore = nullptr; // A pointer to the total game score, so that points can be added
+  std::forward_list<TargetPoints> targetPoints; // The points that appear when a player hits a target
 
-  // Point *points = nullptr; // The points a player accumulates from hitting targets during a jump
-  int comboCount = 0;      // The number of consecutive targets destroyed in a jump
+  int comboCount = 0; // The number of consecutive targets destroyed in a jump
 
   int velTimer = 16; // The timer for when the characters velocity can be updated
 
@@ -123,7 +121,7 @@ protected:
 class PlayableCharacter : public Character
 {
 public:
-  PlayableCharacter(int charID, std::unique_ptr<Controls> &controls, sf::Vector2f boostPos);
+  PlayableCharacter(int charID, std::unique_ptr<Controls> &controls, sf::Vector2f boostPos, GameScore* score);
 
   void Update() override;
 
@@ -134,7 +132,7 @@ private:
 class ComputerCharacter : public Character
 {
 public:
-  ComputerCharacter(int charID, sf::Vector2f boostPos);
+  ComputerCharacter(int charID, sf::Vector2f boostPos, GameScore* score);
 
   void Update() override;
 };

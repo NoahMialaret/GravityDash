@@ -9,8 +9,11 @@
 #include "Utility.h"
 
 #include <forward_list>
+#include <list>
 #include <string>
 #include <vector>
+
+#define NEGATIVE_SIGN 10
 
 // A class representing the accumulated score accuired during gameplay
 class Number
@@ -27,6 +30,8 @@ public:
 
   // Add a given value to the number, uses Add() and Subtract()
   void AddPoints(int value);
+  // Returns the number to zero
+  void Zero();
   // Returns the number as an integer value
   int GetAsInt() const;
   // Returns the number as a string
@@ -54,18 +59,8 @@ protected:
   sf::Vector2i digitSize; // The pixel dimensions of a single digit
 
   sf::Vector2f centre; // The point where the number is centred on
-};
 
-// A Number child class that represents the score accumulated during a game
-class GameScore : public Number
-{
-public:
-  GameScore(sf::Vector2f centre);
-  GameScore(int startingValue, sf::Vector2f centre);
-
-  void Update() override;
-private:
-
+  bool isNegative = false; // Whether or not the number being stored is negative
 };
 
 // A Number child class that represents the scores that appear when a player hits a target
@@ -107,10 +102,26 @@ public:
   bool HasFinished();
 
 private:
-  int prevIndex = 0;        // The previous sprite index which was moved
+  int prevIndex = 0; // The previous sprite index which was moved up
   int timer; // How long the number remains before being deleted
   std::forward_list<TargetPoints> targetPoints;
   State curState = State::start;
+};
+
+// A Number child class that represents the score accumulated during a game
+class GameScore : public Number
+{
+public:
+  GameScore(sf::Vector2f centre);
+  GameScore(int startingValue, sf::Vector2f centre);
+
+  void Update() override;
+  void Render(sf::RenderWindow* win) const override;
+
+  void AddTargetPoints(std::forward_list<TargetPoints>& target); 
+
+private:
+  std::list<TotalPoints> totalPoints;
 };
 
 #endif

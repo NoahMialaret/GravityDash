@@ -17,7 +17,12 @@ Number::Number(int startingValue, sf::Vector2f centre, sf::Vector2i digitSize, s
   }
   else
   {
-    Add(startingValue);
+    Add(abs(startingValue));
+    if (startingValue < 0)
+    {
+      PushBackNumber(NEGATIVE_SIGN);
+      isNegative = true;
+    }
   }
 }
 
@@ -31,14 +36,63 @@ void Number::Render(sf::RenderWindow* win) const
 
 void Number::AddPoints(int value)
 {
+  if (value == 0)
+    return;
+
+  if (isNegative)
+    scoreSprites.pop_back();
+
+  int curVal = GetAsInt();
+
+  // If the numbers are the same magnitude but different signs
+  if (-value == curVal)
+  {
+    Zero();
+    return;
+  }
+  
   if (value > 0)
   {
+    if (isNegative)
+    {
+      if (value >= -curVal)
+      {
+        scoreSprites.clear();
+        totalScore.clear();
+        isNegative = false;
+        Add(value + curVal);
+        return;
+      }
+      Subtract(value);
+      return;
+    }
     Add(value);
   }
   else if (value < 0)
   {
-    Subtract(abs(value));
+    if (!isNegative)
+    {
+      if (-value >= curVal)
+      {
+        scoreSprites.clear();
+        totalScore.clear();
+        isNegative = true;
+        Add(- value - curVal);
+        return;
+      }
+      Subtract(-value);
+      return;
+    }
+    Add(-value);
   }
+}
+
+void Number::Zero()
+{
+  scoreSprites.clear();
+  totalScore.clear();
+  isNegative = false;
+  PushBackNumber(0);
 }
 
 int Number::GetAsInt() const
@@ -50,12 +104,17 @@ int Number::GetAsInt() const
     num += n * place;
     place *= 10;
   }
-  return num;
+  return (isNegative ? -1 : 1) * num;
 }
 
 std::string Number::GetAsString() const
 {
   std::string num;
+
+  if (isNegative)
+  {
+    num = "-";
+  }
 
   for (int i = totalScore.size() - 1; i >= 0; i--)
   {
@@ -88,7 +147,11 @@ void Number::PushBackNumber(int value)
   }
 
   scoreSprites.push_back(temp);
-  totalScore.push_back(value);
+
+  if (value != NEGATIVE_SIGN)
+  {
+    totalScore.push_back(value);
+  }
 
   Recentre();
 }
@@ -143,6 +206,9 @@ void Number::Add(unsigned int value)
 
     value /= 10;
   }
+
+  if (isNegative)
+    PushBackNumber(NEGATIVE_SIGN);
 }
 
 void Number::Subtract(unsigned int value)
@@ -180,25 +246,17 @@ void Number::Subtract(unsigned int value)
     totalScore.clear();
     scoreSprites.clear();
     PushBackNumber(0);
+    return;
   }
-}
 
-// =================
-// --- GameScore ---
-// =================
+  while (totalScore[totalScore.size() - 1] == 0)
+  {
+    totalScore.pop_back();
+    scoreSprites.pop_back();
+  }
 
-GameScore::GameScore(sf::Vector2f centre)
-  :
-  GameScore(0, centre)
-{}
-
-GameScore::GameScore(int startingValue, sf::Vector2f centre)
-  :
-  Number(startingValue, centre, sf::Vector2i(7, 8), &Textures::textures.at("nums_big"))
-{}
-
-void GameScore::Update()
-{
+  if (isNegative)
+    PushBackNumber(NEGATIVE_SIGN);
 }
 
 // ====================
@@ -355,4 +413,56 @@ void TotalPoints::Render(sf::RenderWindow *win) const
 bool TotalPoints::HasFinished()
 {
   return curState == State::finish;
+}
+
+// =================
+// --- GameScore ---
+// =================
+
+GameScore::GameScore(sf::Vector2f centre)
+  :
+  GameScore(0, centre)
+{}
+
+GameScore::GameScore(int startingValue, sf::Vector2f centre)
+  :
+  Number(startingValue, centre, sf::Vector2i(7, 8), &Textures::textures.at("nums_big"))
+{}
+
+void GameScore::Update()
+{
+  for (auto& point : totalPoints)
+  {
+    point.Update();
+  }
+  while (totalPoints.front().HasFinished())
+  {
+    totalPoints.pop_front();
+  }
+}
+
+void GameScore::Render(sf::RenderWindow *win) const
+{
+  for (auto& point : totalPoints)
+  {
+    point.Render(win);
+  }
+  Number::Render(win);
+}
+
+void GameScore::AddTargetPoints(std::forward_list<TargetPoints>& target)
+{
+  if (target.empty())
+  {
+    return;
+  }
+  
+  totalPoints.push_back(target);
+
+  AddPoints(totalPoints.back().GetAsInt());
+
+  if (GetAsInt() < 0)
+  {
+    Zero();
+  }
 }

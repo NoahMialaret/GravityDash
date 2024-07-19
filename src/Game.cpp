@@ -9,23 +9,26 @@ Game::Game(GameConfig& config)
   world = std::make_unique<World>(worldRect);
 
   sf::Vector2f boostPos(worldRect.left + 5.0f * Utility::gameScale, worldRect.top - Utility::gameScale);
+
+	score = std::make_unique<GameScore>(sf::Vector2f(0.0f, worldRect.top - 6 * Utility::gameScale));
+  
   for (int i = 0; i < config.numPlayers; i++)
 	{
     std::unique_ptr<Controls> control = std::make_unique<Keyboard>(i);
-		characters.push_back(std::make_unique<PlayableCharacter>(i, control, boostPos));
+		characters.push_back(std::make_unique<PlayableCharacter>(i, control, boostPos, score.get()));
 		characters[i].get()->Jump();
 	}
   
   for (int i = 0; i < config.numComputers; i++)
   {    
-    characters.push_back(std::make_unique<ComputerCharacter>(characters.size(), boostPos));
+    characters.push_back(std::make_unique<ComputerCharacter>(characters.size(), boostPos, score.get()));
     characters[characters.size() - 1].get()->Jump();
   }
 
   if (characters.size() <= 0)
   {    
     std::cout << "WARNING! Game was started with no characters!\n";
-    characters.push_back(std::make_unique<ComputerCharacter>(0, boostPos));
+    characters.push_back(std::make_unique<ComputerCharacter>(0, boostPos, score.get()));
     characters[0].get()->Jump();
   }
 
@@ -34,7 +37,6 @@ Game::Game(GameConfig& config)
     return;
   }
 
-	score = std::make_unique<GameScore>(sf::Vector2f(0.0f, worldRect.top - 6 * Utility::gameScale));
 
   spikeSpawnTimer = 1000;
   // BeginNextPhase = 5000 + CUR_TIME;
@@ -68,6 +70,9 @@ void Game::Update() // Should have different update and render functions based o
 		return;
 	}
 
+  if (config.mode != Mode::title)
+    score.get()->Update();
+
   if (Utility::CheckInitialPress(sf::Keyboard::P))
   {
     if (timer.get()->IsPaused())
@@ -86,15 +91,6 @@ void Game::Update() // Should have different update and render functions based o
 	{
 		p.get()->Update();
 	}
-
-  for (auto& point : totalPoints)
-  {
-    point.Update();
-  }
-  while (totalPoints.front().HasFinished())
-  {
-    totalPoints.pop_front();
-  }
 
 	if ((characters.size() == 1 && characters[0].get()->GetCurState() == Character::State::dead) 
         || (config.mode == Mode::time && timer.get()->Update()))
@@ -212,11 +208,6 @@ void Game::Render(sf::RenderWindow* win) const
 
   Utility::RenderParticles(win);
 
-  for (auto& point : totalPoints)
-  {
-    point.Render(win);
-  }
-
   if (config.mode != Mode::title)
   {
     timer.get()->Render(win);
@@ -257,39 +248,15 @@ void Game::CorrectCharacterPos(Character* player)
   if (playerPos.y - posBuffer < playableRegion.top)
   {
     float offset = playableRegion.top + posBuffer - playerPos.y;
-    if(player->FloorCollision(offset))
-    {
-      HandleLandingSequence(player);
-    }
+    player->FloorCollision(offset);
   }
   else if (playerPos.y + posBuffer > playableRegion.top + playableRegion.height)
   {
     float offset = playableRegion.top + playableRegion.height - posBuffer - playerPos.y;
-    if(player->FloorCollision(offset))
-    {
-      HandleLandingSequence(player);
-    }
+    player->FloorCollision(offset);
 	}
 }
 
-void Game::HandleLandingSequence(Character* player)
-{
-  auto p = player->GetPoints();
-  if (p.empty())
-  {
-    player->Land();
-    return;
-  }
-  
-  totalPoints.emplace_back(p);
-
-  player->Land();
-      
-  if (config.mode != Mode::title)
-  {
-    score.get()->AddPoints(totalPoints.back().GetAsInt());
-  }
-}
 
 bool Game::IsGameOver() const
 {
