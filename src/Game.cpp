@@ -241,52 +241,50 @@ void Game::Render(sf::RenderWindow* win) const
 
 void Game::CorrectCharacterPos(Character* player)
 {
-  // Clean up when adding rebound feature
-
 	sf::Vector2f playerPos = player->GetPosition();
 	float posBuffer = 0.5f * SCALED_DIM;
 
-	sf::IntRect playableRegion = world.get()->GetRegion();
+	sf::FloatRect playableRegion = (sf::FloatRect)world.get()->GetRegion();
 
-	if (playerPos.x - posBuffer < playableRegion.left)
+	if (playerPos.x <= playableRegion.left + posBuffer)
 	{
-		playerPos.x = playableRegion.left + posBuffer;
-		player->SetPosition(playerPos);
-    player->SetXVelocity(0.0f);
+    float offset = playableRegion.left + posBuffer - playerPos.x;
+    player->WallCollision(offset);
 	}
 	else if (playerPos.x + posBuffer > playableRegion.left + playableRegion.width)
 	{
-		playerPos.x = playableRegion.left + playableRegion.width - posBuffer;
-		player->SetPosition(playerPos);
-    player->SetXVelocity(0.0f);
+    float offset = playableRegion.left + playableRegion.width - posBuffer - playerPos.x;
+    player->WallCollision(offset);
 	}
 
   if (playerPos.y - posBuffer < playableRegion.top)
   {
-    playerPos.y = playableRegion.top + posBuffer;
-    player->SetPosition(playerPos);
-    player->SetYVelocity(0.0f);
-
-    HandleLandingSequence(player);
+    float offset = playableRegion.top + posBuffer - playerPos.y;
+    if(player->FloorCollision(offset))
+    {
+      HandleLandingSequence(player);
+    }
   }
   else if (playerPos.y + posBuffer > playableRegion.top + playableRegion.height)
   {
-    playerPos.y = playableRegion.top + playableRegion.height - posBuffer;
-    player->SetPosition(playerPos);
-    player->SetYVelocity(0.0f);
-    
-    HandleLandingSequence(player);
+    float offset = playableRegion.top + playableRegion.height - posBuffer - playerPos.y;
+    if(player->FloorCollision(offset))
+    {
+      HandleLandingSequence(player);
+    }
 	}
 }
 
 void Game::HandleLandingSequence(Character* player)
 {
-  if (player->GetCurState() != Character::State::airborne)
+  auto p = player->GetPoints();
+  if (p.empty())
   {
+    std::cout << "Nothing!\n";
+    player->Land();
     return;
   }
-
-  totalPoints.emplace_back(player->GetPoints());
+  totalPoints.emplace_back(p);
 
   player->Land();
       

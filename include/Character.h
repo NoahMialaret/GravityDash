@@ -40,15 +40,21 @@ public:
 
   // Updates the player's state, animation, and position based on player inputs
   virtual void Update();
+  // Updates the player's horizontal velocity based on which direction is being held
+  void UpdateVelocity(int dir);
+
   // Renders the player's sprite
   void Render(sf::RenderWindow *win) const;
 
-  // Updates the player's horizontal velocity based on which direction is being held
-  void UpdateVelocity(int dir);
   // Initiates a jump if allowed
   void StartJump();
   // Reorientates the player and changes the player's state when the player has landed after jumping
   void Land();
+  // Handles the players verticle collision with floors, and lands them from a jump if airborne
+  bool FloorCollision(float distance);
+  // Handles the players horizontal collision with walls
+  void WallCollision(float distance);
+
   // Attempts to damage the player if it is not invincible
   bool Hit(sf::Vector2f entPos);
 
@@ -60,9 +66,6 @@ public:
   sf::Vector2f GetPosition() const;
   // Sets the player's sprite position
   void SetPosition(sf::Vector2f& newPos);
-  // Sets the player's velocity
-  void SetXVelocity(float xVel);
-  void SetYVelocity(float yVel);
   // Returns the player's sprite hitbox
   sf::FloatRect GetHitBox() const;
   // Returns a line segment hitbox represented by the player's previous and current position, used for when
@@ -81,7 +84,7 @@ protected:
   int charID = 0;
 
   // THe character's entity used for animations and rendering
-  Entity entity;
+  mutable Entity entity;
 
   sf::Vector2f pos = ZERO_VECTOR;     // The character's position in the game world
   sf::Vector2f prevPos = ZERO_VECTOR; // The character's position on the previous frame, used in hitbox calculations
@@ -108,6 +111,7 @@ protected:
   int stunTimer = 0; // The timer for how long the player is stunned for
 
   PlayerBoost boost;
+  int boostJumpsRemaining = -1;
 };
 
 class PlayableCharacter : public Character

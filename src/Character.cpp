@@ -98,23 +98,6 @@ void Character::Update()
   boost.Update();
 
   pos += (isLastStand ? 0.5f : 1.0f) * (Clock::Delta() / 16.0f) * vel;
-  entity.Update();
-}
-
-void Character::Render(sf::RenderWindow *win) const
-{
-  Utility::entShad.setUniform("colorID", charID);
-  if (invincibilityTimer <= 0 || (Clock::Elapsed() / 64) % 2)
-  {
-    entity.Render(win);
-  }
-
-  for (auto& point : targetPoints)
-  {
-    point.Render(win);
-  }
-
-  boost.Render(win);
 }
 
 void Character::UpdateVelocity(int dir)
@@ -143,35 +126,54 @@ void Character::UpdateVelocity(int dir)
   }
 }
 
+void Character::Render(sf::RenderWindow *win) const
+{
+  entity.Update();
+
+  Utility::entShad.setUniform("colorID", charID);
+  if (invincibilityTimer <= 0 || (Clock::Elapsed() / 64) % 2)
+  {
+    entity.Render(win);
+  }
+
+  for (auto& point : targetPoints)
+  {
+    point.Render(win);
+  }
+
+  boost.Render(win);
+}
+
 void Character::StartJump()
 {
   if (curState >= State::airborne)
   {
     return;
   }
-  if (boost.IsFull())
-  {
-    boost.Clear();
-  }
-  
+
   curState = State::airborne;
   vel.x = 0.0f;
   vel.y = acceleration * 80.0f * (isUpright ? -1.0f : 1.0f);
   isUpright = !isUpright;
+
+  if (boost.IsFull())
+  {
+    boostJumpsRemaining = 5;
+    vel.x = vel.y;
+  }
+  
   entity.SetAnimation((int)curState, 20);
 }
 
 void Character::Land()
 {
   vel.y = 0.0f;
+  vel.x = 0.0f;
   curState = State::idle;
 
   entity.SetAnimation((int)State::airborne + 2, 100, 0, 300);
   entity.QueueAnimation((int)curState, 150);
   entity.FlipY();
-
-  sf::Vector2f partVel = {Utility::gameScale * 0.3f, 0.0f};
-  sf::Vector2f offset = {0.5f * SCALED_DIM, 0.0f};
 
   Utility::particles.push_front(std::make_unique<Dust>(pos, !isUpright));
 
@@ -180,19 +182,72 @@ void Character::Land()
     curState = State::dead;
   }
 
-  if (comboCount >= 2)
+  if (comboCount >= 2 && boostJumpsRemaining == -1)
   {
     boost.Increment(2000);
   }
+
+  boostJumpsRemaining = -1;
 
   comboCount = 0;
 
   targetPoints.clear();
 }
 
+bool Character::FloorCollision(float distance)
+{
+  pos.y += distance;
+
+  if (curState == State::airborne)
+  {
+    if (boostJumpsRemaining <= 0)
+    {
+      return true;
+    }
+
+    boostJumpsRemaining--;
+
+    if (boostJumpsRemaining == 0)
+    {
+      invincibilityTimer = 2000;
+      boost.Clear();
+      return true;
+    }
+
+    pos.y += distance;
+    vel.y = -vel.y;
+
+    return false;
+  }
+  else if (curState == State::hit)
+  {
+    curState = State::stunned;
+    stunTimer = 1000;
+    vel.x = 0;
+  }
+
+  vel.y = 0.0f;
+
+  return false;
+}
+
+void Character::WallCollision(float distance)
+{
+  pos.x += distance;
+  if (boostJumpsRemaining >= 0)
+  {
+    pos.x += distance;
+    vel.x = - vel.x;
+  }
+  else
+  {
+    vel.x = 0.0f;
+  }
+}
+
 bool Character::Hit(sf::Vector2f entPos)
 {
-  if (invincibilityTimer > 0 || curState >= State::hit)
+  if (invincibilityTimer > 0 || curState >= State::hit || boostJumpsRemaining >= 0)
   {
     return false;
   }
@@ -206,8 +261,6 @@ bool Character::Hit(sf::Vector2f entPos)
 
   targetPoints.clear();
   comboCount = 0;
-
-  // invincibleEnd = CUR_TIME + 2000;
 
   // y = ent.y +- sqrt(64*scale-(this.x-ent.x)^2) + for saws on top
   pos.y = entPos.y + (isUpright ? -1.0f : 1.0f) * std::sqrt(64*Utility::gameScale*Utility::gameScale - (pos.x - entPos.x) * (pos.x - entPos.x));
@@ -250,23 +303,6 @@ void Character::SetPosition(sf::Vector2f& newPos)
   pos = newPos;
 }
 
-void Character::SetXVelocity(float xVel)
-{
-  vel.x = xVel;
-}
-
-void Character::SetYVelocity(float yVel)
-{
-  vel.y = yVel;
-
-  if (curState == State::hit)
-  {
-    curState = State::stunned;
-    stunTimer = 1000;
-    vel.x = 0;
-  }
-}
-
 sf::FloatRect Character::GetHitBox() const
 {
     return entity.HitBox();
@@ -292,6 +328,11 @@ void Character::IncrementComboCount()
 
 void Character::AddNewPoint(sf::Vector2f pos, sf::Vector2f vel)
 {
+  if (boostJumpsRemaining >= 0)
+  {
+    AddNewPoint(1000, pos, vel);
+    return;
+  }
   int value = 50 * (int)pow(2, comboCount);
   if (value >= 25600) // The score from hitting 10th target in a row
   {
