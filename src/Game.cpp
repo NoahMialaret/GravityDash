@@ -8,24 +8,24 @@ Game::Game(GameConfig& config)
 	sf::IntRect worldRect(- worldSize / 2, worldSize);
   world = std::make_unique<World>(worldRect);
 
-  PlayerBoost boost = PlayerBoost(5, sf::Vector2f(worldRect.left - Utility::gameScale, worldRect.top + 3.0f * Utility::gameScale));
+  sf::Vector2f boostPos(worldRect.left + 5.0f * Utility::gameScale, worldRect.top - Utility::gameScale);
   for (int i = 0; i < config.numPlayers; i++)
 	{
     std::unique_ptr<Controls> control = std::make_unique<Keyboard>(i);
-		characters.push_back(std::make_unique<PlayableCharacter>(i, control, boost));
+		characters.push_back(std::make_unique<PlayableCharacter>(i, control, boostPos));
 		characters[i].get()->StartJump();
 	}
   
   for (int i = 0; i < config.numComputers; i++)
   {    
-    characters.push_back(std::make_unique<ComputerCharacter>(characters.size(), boost));
+    characters.push_back(std::make_unique<ComputerCharacter>(characters.size(), boostPos));
     characters[characters.size() - 1].get()->StartJump();
   }
 
   if (characters.size() <= 0)
   {    
     std::cout << "WARNING! Game was started with no characters!\n";
-    characters.push_back(std::make_unique<ComputerCharacter>(0, boost));
+    characters.push_back(std::make_unique<ComputerCharacter>(0, boostPos));
     characters[0].get()->StartJump();
   }
 

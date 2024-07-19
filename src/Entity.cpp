@@ -1,6 +1,6 @@
 #include "Entity.h"
 
-Entity::Entity(const char *textureName, sf::Shader* shader, sf::Vector2i frameSize)
+Entity::Entity(const char *textureName, sf::Shader* shader, sf::Vector2i frameSize, sf::Vector2f origin)
   :
   shader(shader)
 {
@@ -13,8 +13,8 @@ Entity::Entity(const char *textureName, sf::Shader* shader, sf::Vector2i frameSi
   rot = RotationHandler(sprite.get());
 
   // Sets the origin to the middle of the rendered sprite
-  sf::Vector2f origin(sprite.get()->getTextureRect().width / 2.0f, sprite.get()->getTextureRect().height / 2.0f);
-  sprite.get()->setOrigin(origin);
+  sf::Vector2f size(sprite.get()->getTextureRect().width, sprite.get()->getTextureRect().height);
+  sprite.get()->setOrigin({origin.x * size.x, origin.y * size.y});
 }
 
 void Entity::CouplePosition(sf::Vector2f *pos)

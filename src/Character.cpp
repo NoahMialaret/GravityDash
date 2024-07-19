@@ -1,11 +1,11 @@
 #include "Character.h"
 
 
-Character::Character(int charID, PlayerBoost boost)
+Character::Character(int charID, sf::Vector2f boostPos)
   : 
   charID(charID),
   acceleration(0.2f * Utility::gameScale),
-  boost(boost)
+  boost(PlayerBoost(boostPos))
 {
   entity = Entity("character");
 
@@ -149,11 +149,9 @@ void Character::StartJump()
   {
     return;
   }
-  if (isBoosted)
+  if (boost.IsFull())
   {
     boost.Clear();
-    isBoosted = false;
-    return;
   }
   
   curState = State::airborne;
@@ -182,13 +180,9 @@ void Character::Land()
     curState = State::dead;
   }
 
-  if (comboCount >= 5)
+  if (comboCount >= 2)
   {
-    boost.Increment();
-    if (boost.IsFull())
-    {
-      isBoosted = true;
-    }
+    boost.Increment(2000);
   }
 
   comboCount = 0;
@@ -317,9 +311,9 @@ void Character::AddNewPoint(int value, sf::Vector2f pos, sf::Vector2f vel)
 // Playable Character
 // ------------------
 
-PlayableCharacter::PlayableCharacter(int charID, std::unique_ptr<Controls>& controls, PlayerBoost boost)
+PlayableCharacter::PlayableCharacter(int charID, std::unique_ptr<Controls>& controls, sf::Vector2f boostPos)
   : 
-  Character(charID, boost)
+  Character(charID, boostPos)
 {
   this->controls = std::move(controls);
 }
@@ -352,9 +346,9 @@ void PlayableCharacter::Update()
 // Computer Character
 // ------------------
 
-ComputerCharacter::ComputerCharacter(int charID, PlayerBoost boost)
+ComputerCharacter::ComputerCharacter(int charID, sf::Vector2f boostPos)
   :
-  Character(charID, boost)
+  Character(charID, boostPos)
 {}
 
 void ComputerCharacter::Update()

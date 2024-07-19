@@ -21,7 +21,8 @@ public:
   Entity() = default;
   // Constructs an entity with a texture, shader, and framesize if given
   Entity(const char* textureName, sf::Shader* shader = &Utility::entShad, 
-          sf::Vector2i frameSize = sf::Vector2i(Utility::spriteDim, Utility::spriteDim));
+          sf::Vector2i frameSize = {Utility::spriteDim, Utility::spriteDim},
+          sf::Vector2f origin = {0.5f, 0.5f});
 
   // Couples the position of the sprite to some external position vector
   void CouplePosition(sf::Vector2f* pos);

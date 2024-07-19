@@ -35,7 +35,7 @@ public:
 
 public:
   // The constructor which takes an ID and PlayerBoost
-  Character(int charID, PlayerBoost boost);
+  Character(int charID, sf::Vector2f boostPos);
   virtual ~Character();
 
   // Updates the player's state, animation, and position based on player inputs
@@ -100,8 +100,6 @@ protected:
   // Point *points = nullptr; // The points a player accumulates from hitting targets during a jump
   int comboCount = 0;      // The number of consecutive targets destroyed in a jump
 
-  bool isBoosted = false;
-
   int velTimer = 16; // The timer for when the characters velocity can be updated
 
   int particleTimer = 0; // The timer for how long until the next run particle is spawned
@@ -115,7 +113,7 @@ protected:
 class PlayableCharacter : public Character
 {
 public:
-  PlayableCharacter(int charID, std::unique_ptr<Controls> &controls, PlayerBoost boost);
+  PlayableCharacter(int charID, std::unique_ptr<Controls> &controls, sf::Vector2f boostPos);
 
   void Update() override;
 
@@ -126,7 +124,7 @@ private:
 class ComputerCharacter : public Character
 {
 public:
-  ComputerCharacter(int charID, PlayerBoost boost);
+  ComputerCharacter(int charID, sf::Vector2f boostPos);
 
   void Update() override;
 };

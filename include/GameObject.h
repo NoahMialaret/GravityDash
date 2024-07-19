@@ -87,6 +87,8 @@ public:
 
 private:
   float cutOffPoint = 0.0f; // The pixel position of the screen at which the object should be culled
+  float sinOffset = 0.0f;
+  float yBase = 0.0f; // The base y positon of the sprite before oscilations
 };
 
 // class StationaryTarget : public GameObject

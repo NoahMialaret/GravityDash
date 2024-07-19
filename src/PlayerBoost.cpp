@@ -1,103 +1,59 @@
 #include "PlayerBoost.h"
 
-PlayerBoost::PlayerBoost(int numTabs, sf::Vector2f topRight)
+PlayerBoost::PlayerBoost(sf::Vector2f bottomLeft, int limit)
+  :
+  limit(limit)
 {
 
-  for (int i = 0; i < numTabs; i++)
-  {
-    sf::Sprite temp;
+  meter = Entity("boost_meter", nullptr, (sf::Vector2i)Textures::textures.at("boost_meter").getSize(), {0.0f, 1.0f});
+  meter.QueueMotion(Curve::linear, 0, Bezier({bottomLeft}));
+  meter.Update();
 
-    temp.setTexture(Textures::textures.at("boost_tab"));
-    temp.setScale(DEFAULT_SCALE);
-    temp.setPosition(topRight + (float)i * sf::Vector2f(0.0f, (1.0f + temp.getTextureRect().height) * Utility::gameScale));
-    temp.setOrigin(sf::Vector2f(temp.getTextureRect().width, 0.0f));
-
-    sf::RectangleShape tempRect;
-
-    tempRect.setPosition(temp.getPosition() + Utility::gameScale * sf::Vector2f(0.0f, 1.0f));
-    tempRect.setScale(sf::Vector2f(-1.0f, 1.0f));
-    tempRect.setFillColor(sf::Color(255, 229, 181));
-
-    temp.move(sf::Vector2f(3.0f * Utility::gameScale, 0.0f));
-
-    tabs.push_back(temp);
-    tabTimer.push_back(tempRect);
-  }
+  fill.setFillColor(sf::Color(255, 229, 181));
+  fill.setPosition(bottomLeft + Utility::gameScale * sf::Vector2f(1.0f, - 2.0f));
+  fill.setSize({0.0f, 2.0f * Utility::gameScale});
 }
 
 void PlayerBoost::Update()
 {
-  if (boostAmount <= 0 || IsFull())
-  {
+  if (IsFull())
     return;
-  }
-
+  
   timer -= Clock::Delta();
-
+  
   if (timer <= 0)
   {
-    Decrement();
-    return;
+    timer = 0;
   }
 
-  int width = (timer / 1000) + 1;
+  int width = 30.0f * (float)timer / (float)limit;
 
-  tabTimer[boostAmount - 1].setSize(Utility::gameScale * sf::Vector2f((float)width, 4.0f));
+  fill.setSize(Utility::gameScale * sf::Vector2f((float)width, 2.0f));
 }
 
 void PlayerBoost::Render(sf::RenderWindow *win) const
 {
-  for (int i = 0; i < tabs.size(); i++)
-  {
-    win->draw(tabs[i]);
-    win->draw(tabTimer[i]);
-  }
+  win->draw(fill);
+  meter.Render(win);
 }
 
-void PlayerBoost::Increment()
+void PlayerBoost::Increment(int amount)
 {
-  if (IsFull())
+  timer += amount;
+  if (timer > limit)
   {
-    return;
+    timer = limit;
+    fill.setSize(Utility::gameScale * sf::Vector2f(30.0f, 2.0f));
   }
-
-  tabTimer[boostAmount].setSize(Utility::gameScale * sf::Vector2f(4.0f, 4.0f));
-  tabs[boostAmount].move(sf::Vector2f(- 3.0f * Utility::gameScale, 0.0f));
-  timer = 4000;
-
-  if (boostAmount > 0)
-  {
-    tabTimer[boostAmount - 1].setSize(Utility::gameScale * sf::Vector2f(4.0f, 4.0f));    
-  }
-
-  boostAmount++;
-}
-
-void PlayerBoost::Decrement()
-{
-  if (boostAmount <= 0)
-  {
-    return;
-  }
-  
-  timer = 4000;
-
-  tabTimer[boostAmount - 1].setSize(ZERO_VECTOR);
-  tabs[boostAmount - 1].move(sf::Vector2f(3.0f * Utility::gameScale, 0.0f));
-  boostAmount--;
 }
 
 void PlayerBoost::Clear()
 {
-  for (int i = 0; i < boostAmount; i++)
-  {
-    tabTimer[i].setSize(ZERO_VECTOR);
-    tabs[i].move(sf::Vector2f(3.0f * Utility::gameScale, 0.0f));
-  }
-  boostAmount = 0;
+  timer = 0;
+  fill.setSize({0.0f, 2.0f * Utility::gameScale});
 }
 
 bool PlayerBoost::IsFull() const
 {
-  return boostAmount >= tabs.size();
+  return timer >= limit;
 }

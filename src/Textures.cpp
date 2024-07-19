@@ -4,7 +4,7 @@ std::map<std::string, sf::Texture> Textures::textures =
 {
   {"arrow", {}},
   {"background_tiles", {} },
-  {"boost_tab", {} },
+  {"boost_meter", {} },
   {"buttons", {} },
   {"character", {} },
   {"debug", {} },

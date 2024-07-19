@@ -161,19 +161,27 @@ MovingTarget::MovingTarget(sf::IntRect &worldBorder, int maxID)
 
   std::uniform_int_distribution yDist((worldBorder.top) + int(SCALED_DIM) + posBuffer, -worldBorder.top - (int(SCALED_DIM) + posBuffer));
   std::uniform_int_distribution xDist(0, 1);
-  std::uniform_real_distribution<float> velDist(0.3f, 1.0f);
+  std::uniform_real_distribution<float> floatDist(0.3f, 1.0f);
 
   int isGoingRight = xDist(Utility::rng);
 
-  vel = Utility::gameScale * velDist(Utility::rng) * (isGoingRight ? 1.0f : -1.0f);
+  vel = Utility::gameScale * floatDist(Utility::rng) * (isGoingRight ? 1.0f : -1.0f);
 
   pos.x = isGoingRight ? worldBorder.left - SCALED_DIM + posBuffer : worldBorder.left + worldBorder.width + posBuffer;
   pos.y = yDist(Utility::rng);
+  yBase = pos.y;
   entity.CouplePosition(&pos);
+
+  if (!isGoingRight)
+  {
+    entity.FlipX();
+  }
 
   cutOffPoint = worldBorder.left + posBuffer + (isGoingRight ? worldBorder.width : 0.0f);
 
-  entity.QueueAnimation(1, 100);
+  sinOffset = floatDist(Utility::rng) * 100.0f;
+
+  entity.QueueAnimation(1, 600.0f / abs(vel));
 }
 
 
@@ -186,10 +194,13 @@ void MovingTarget::Update(std::vector<Character*> players)
     endOfLife = true;
     return;
   }
+
   
   if (!isFrozen)
   {
     pos.x += (Clock::Delta() / 16.0f) * vel;
+    float rad = std::sin(((float)Clock::Elapsed() + sinOffset) / 400.0f * vel);
+    pos.y = yBase + Utility::gameScale / 2.0f * std::sin(rad);
   }
 
   // float distanceSquaredThresh = SCALED_DIM * SCALED_DIM;

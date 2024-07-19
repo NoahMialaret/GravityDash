@@ -4,6 +4,7 @@
 #include <SFML/Graphics.hpp>
 
 #include "Clock.h"
+#include "Entity.h"
 #include "Textures.h"
 #include "Utility.h"
 
@@ -13,25 +14,23 @@ class PlayerBoost
 {
 public:
   PlayerBoost() = default;
-  PlayerBoost(int numTabs, sf::Vector2f topRight);
+  PlayerBoost(sf::Vector2f bottomLeft, int limit = 30000);
 
   void Update();
   void Render(sf::RenderWindow* win) const;
 
-  void Increment();
-  void Decrement();
+  void Increment(int amount);
 
   void Clear();
 
   bool IsFull() const;
 
 private:
-  std::vector<sf::Sprite> tabs;
-  std::vector<sf::RectangleShape> tabTimer;
+  Entity meter;
+  sf::RectangleShape fill;
   
-  int timer;
-
-  int boostAmount = 0;
+  int timer = 0;
+  int limit = 30000;
 };
 
 #endif
