@@ -13,6 +13,7 @@ std::map<std::string, sf::Texture> Textures::textures =
   {"nums_big", {} },
   {"nums_small", {} },
   {"particles", {} },
+  {"reticle", {}},
   {"tabs", {} },
   {"timer", {} },
   {"title", {} },

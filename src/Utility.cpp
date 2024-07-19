@@ -61,7 +61,7 @@ int Utility::GetSign(int num)
 		return 1;
 	else if (num < 0)
 		return -1;
-    return 0;
+  return 0;
 }
 
 int Utility::GetSign(float num)
@@ -70,7 +70,7 @@ int Utility::GetSign(float num)
 		return 1;
 	else if (num < 0.0f)
 		return -1;
-    return 0;
+  return 0;
 }
 
 float Utility::GetSquaredDistanceToLineSegment(sf::Vector2f centrePos, std::pair<sf::Vector2f, sf::Vector2f> lineSegPoints)

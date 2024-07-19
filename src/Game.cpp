@@ -212,6 +212,17 @@ void Game::Render(sf::RenderWindow* win) const
 
   Utility::RenderParticles(win);
 
+  for (auto& point : totalPoints)
+  {
+    point.Render(win);
+  }
+
+  if (config.mode != Mode::title)
+  {
+    timer.get()->Render(win);
+	  score.get()->Render(win);
+  }
+
   auto node = objects.Start();
   while(node != nullptr)
   {
@@ -219,24 +230,10 @@ void Game::Render(sf::RenderWindow* win) const
     node = node->GetNextNode();
   }
 
-  for (auto& point : totalPoints)
-  {
-    point.Render(win);
-  }
-
 	for (auto& p : characters)
 	{
 		p.get()->Render(win);
 	}
-
-  if (config.mode == Mode::title)
-  {
-    return;
-  }
-
-	score.get()->Render(win);
-
-  timer.get()->Render(win);
 }
 
 void Game::CorrectCharacterPos(Character* player)

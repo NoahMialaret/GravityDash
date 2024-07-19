@@ -218,6 +218,12 @@ TargetPoints::TargetPoints(int startingValue, sf::Vector2f centre, sf::Vector2f 
 
 void TargetPoints::Update()
 {
+  timer -= Clock::Delta();
+  if (spawnVelocity && timer <= 0)
+  {
+    vel = ZERO_VECTOR;
+  }
+  
   for (auto& s : scoreSprites)
   {
     s.move(float(Clock::Delta()) * vel);
@@ -228,6 +234,7 @@ void TargetPoints::Update()
 void TargetPoints::SetVelocity(sf::Vector2f newVel)
 {
   vel = newVel;
+  spawnVelocity = false;
 }
 
 // ===================

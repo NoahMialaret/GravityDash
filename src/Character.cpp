@@ -13,6 +13,9 @@ Character::Character(int charID, sf::Vector2f boostPos)
 
   entity.FlipY();
   entity.QueueAnimation((int)curState, 150);
+
+  reticle = Entity("reticle", nullptr, (sf::Vector2i)Textures::textures.at("reticle").getSize());
+  reticle.CouplePosition(&reticlePos);
 }
 
 Character::~Character()
@@ -30,6 +33,28 @@ void Character::Update()
   }
   
   prevPos = pos;
+
+  if (boost.IsFull())
+  {
+    if (move)
+    {
+      float m = (float)move * (isUpright ? -1.0f : 1.0f);
+      reticleAngle += m * (2.0f - m * reticleAngle) * (float)Clock::Delta() / 500.0f;
+      reticleAngle = std::clamp(reticleAngle, -1.2f, 1.2f);
+    } 
+    else
+    {
+      float m = - (float)Utility::GetSign(reticleAngle);
+      reticleAngle += m * (fabs(reticleAngle)) * (float)Clock::Delta() / 200.0f;
+      if (Utility::GetSign(reticleAngle) == (int)m)
+      {
+        reticleAngle = 0.0f;
+      }
+    } 
+
+    reticlePos = pos + (isUpright ? -1.0f : 1.0f) * Utility::gameScale * Utility::spriteDim * 3.0f * sf::Vector2f(std::sin(reticleAngle), std::cos(reticleAngle));
+    reticle.Update();
+  }
 
   switch (curState)
   {
@@ -60,6 +85,7 @@ void Character::Update()
       entity.SetXDir(move == 1);
     }
 
+
     if (particleTimer <= 0)
     {
       sf::Vector2f partVel(-move * 0.2f * Utility::gameScale, (isUpright ? -0.1f : 0.1f) * Utility::gameScale);
@@ -81,6 +107,8 @@ void Character::Update()
       curState = State::idle;
       invincibilityTimer = 3000;
       entity.SetAnimation((int)curState, (isLastStand ? 2 : 1) * 150);
+      reticleAngle = 0.0f;
+      reticle.Update();
     }
     break;
 
@@ -141,6 +169,11 @@ void Character::Render(sf::RenderWindow *win) const
     point.Render(win);
   }
 
+  if (boost.IsFull() && curState <= State::moving)
+  {
+    reticle.Render(win);
+  }
+
   boost.Render(win);
 }
 
@@ -151,16 +184,24 @@ void Character::StartJump()
     return;
   }
 
-  curState = State::airborne;
-  vel.x = 0.0f;
-  vel.y = acceleration * 80.0f * (isUpright ? -1.0f : 1.0f);
-  isUpright = !isUpright;
+  float jumpSpeed = acceleration * 80.0f * (isUpright ? -1.0f : 1.0f);
 
   if (boost.IsFull())
   {
     boostJumpsRemaining = 5;
-    vel.x = vel.y;
+    vel.y = std::cos(reticleAngle) * jumpSpeed;
+    vel.x = std::sin(reticleAngle) * jumpSpeed;
   }
+  else
+  {
+    vel.y = jumpSpeed;
+    vel.x = 0.0f;
+  }
+  
+  isUpright = !isUpright;
+  reticleAngle = 0.0f;
+
+  curState = State::airborne;
   
   entity.SetAnimation((int)curState, 20);
 }

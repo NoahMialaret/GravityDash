@@ -112,6 +112,10 @@ protected:
 
   PlayerBoost boost;
   int boostJumpsRemaining = -1;
+
+  Entity reticle;
+  sf::Vector2f reticlePos;
+  float reticleAngle = 0.0f;
 };
 
 class PlayableCharacter : public Character

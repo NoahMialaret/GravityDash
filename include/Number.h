@@ -81,6 +81,8 @@ public:
 
 private:
   sf::Vector2f vel;
+  int timer = 100; // Timer for when to stop moving after spawning if it hasn't been given to a TotalPoints yet
+  bool spawnVelocity = true; // Whether the point is using it's spawn velocity
 };
 
 // A Number child class that represents the points that appear after combining TargetPoints
