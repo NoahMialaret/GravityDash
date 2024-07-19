@@ -47,7 +47,9 @@ public:
   void Render(sf::RenderWindow *win) const;
 
   // Initiates a jump if allowed
-  void StartJump();
+  void Jump();
+  // Initiates a super jump if the boost meter is full
+  void SuperJump();
   // Reorientates the player and changes the player's state when the player has landed after jumping
   void Land();
   // Handles the players verticle collision with floors, and lands them from a jump if airborne

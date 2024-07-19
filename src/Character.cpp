@@ -177,26 +177,36 @@ void Character::Render(sf::RenderWindow *win) const
   boost.Render(win);
 }
 
-void Character::StartJump()
+void Character::Jump()
 {
   if (curState >= State::airborne)
   {
     return;
   }
 
+  vel.y = acceleration * 80.0f * (isUpright ? -1.0f : 1.0f);;
+  vel.x = 0.0f;
+  
+  isUpright = !isUpright;
+  reticleAngle = 0.0f;
+
+  curState = State::airborne;
+  
+  entity.SetAnimation((int)curState, 20);
+}
+
+void Character::SuperJump()
+{
+  if (curState >= State::airborne || !boost.IsFull())
+  {
+    return;
+  }
+
   float jumpSpeed = acceleration * 80.0f * (isUpright ? -1.0f : 1.0f);
 
-  if (boost.IsFull())
-  {
-    boostJumpsRemaining = 5;
-    vel.y = std::cos(reticleAngle) * jumpSpeed;
-    vel.x = std::sin(reticleAngle) * jumpSpeed;
-  }
-  else
-  {
-    vel.y = jumpSpeed;
-    vel.x = 0.0f;
-  }
+  boostJumpsRemaining = 5;
+  vel.y = std::cos(reticleAngle) * jumpSpeed;
+  vel.x = std::sin(reticleAngle) * jumpSpeed;
   
   isUpright = !isUpright;
   reticleAngle = 0.0f;
@@ -416,7 +426,11 @@ void PlayableCharacter::Update()
 
   if (controls.get()->JumpPressed())
   {
-    StartJump();
+    Jump();
+  }
+  else if(controls.get()->SuperJumpPressed())
+  {
+    SuperJump();
   }
 
   move = controls.get()->HeldDirection();
@@ -445,7 +459,7 @@ void ComputerCharacter::Update()
 
   if (randomNum == 0)
   {
-    StartJump();
+    Jump();
   }
   else if (randomNum <= 3)
   {

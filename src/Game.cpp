@@ -13,20 +13,20 @@ Game::Game(GameConfig& config)
 	{
     std::unique_ptr<Controls> control = std::make_unique<Keyboard>(i);
 		characters.push_back(std::make_unique<PlayableCharacter>(i, control, boostPos));
-		characters[i].get()->StartJump();
+		characters[i].get()->Jump();
 	}
   
   for (int i = 0; i < config.numComputers; i++)
   {    
     characters.push_back(std::make_unique<ComputerCharacter>(characters.size(), boostPos));
-    characters[characters.size() - 1].get()->StartJump();
+    characters[characters.size() - 1].get()->Jump();
   }
 
   if (characters.size() <= 0)
   {    
     std::cout << "WARNING! Game was started with no characters!\n";
     characters.push_back(std::make_unique<ComputerCharacter>(0, boostPos));
-    characters[0].get()->StartJump();
+    characters[0].get()->Jump();
   }
 
   if (config.mode == Mode::title)
@@ -277,10 +277,10 @@ void Game::HandleLandingSequence(Character* player)
   auto p = player->GetPoints();
   if (p.empty())
   {
-    std::cout << "Nothing!\n";
     player->Land();
     return;
   }
+  
   totalPoints.emplace_back(p);
 
   player->Land();
