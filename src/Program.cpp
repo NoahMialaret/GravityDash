@@ -105,7 +105,25 @@ void Program::HandleEvents()
       GameConfig config = mainMenu.get()->GetGameConfig();
 			mainMenu = nullptr;
       Utility::particles.clear();
-			game = std::make_unique<Game>(config);
+      switch ((Game::Mode)event.data)
+      {
+      case Game::Mode::title:
+        game = std::make_unique<Game>(config);
+        break;
+      case Game::Mode::rush:
+        game = std::make_unique<Rush>(config);
+        break;
+      case Game::Mode::blitz:
+        game = std::make_unique<Blitz>(config);
+        break;
+      case Game::Mode::wild:
+        game = std::make_unique<Wild>(config);
+        break;
+      default:
+        std::cout << "Could not determine the game mode!\n";
+        mainMenu = std::make_unique<MainMenu>();
+        continue;
+      }
 			curState = State::gameplay;
 			break;
     }

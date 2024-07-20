@@ -5,7 +5,7 @@ Title::Title()
     GridMenu("GravDash", 5)
 {
     CreateButton("Play", {0, 0, 8, 3});
-    CreateButton("Null", {9, 0, 5, 3});
+    CreateButton("Multi", {9, 0, 5, 3});
     CreateButton("Scores", {0, 4, 5, 2});
     CreateButton("Options", {6, 4, 5, 2});
     CreateButton("Quit", {12, 4, 2, 2});
@@ -20,8 +20,11 @@ std::unique_ptr<SubMenu> Title::ClickButton()
         std::unique_ptr<SubMenu> newMenu = std::make_unique<GameSelection>();
         return newMenu;
     }
-    if (button == "Null")
-    {}
+    if (button == "Multi")
+    {
+        std::unique_ptr<SubMenu> newMenu = std::make_unique<MultiplayerMenu>();
+        return newMenu;
+    }
     if (button == "Scores")
     {
         std::unique_ptr<SubMenu> newMenu = std::make_unique<ScoresMenu>();
@@ -53,9 +56,9 @@ GameSelection::GameSelection()
     :
     GridMenu("Game Selection", 5)
 {
-    CreateButton("Normal", {0, 0, 6, 3});
-    CreateButton("Simple", {8, 0, 6, 3});
-    CreateButton("Multi", {0, 4, 5, 2});
+    CreateButton("Blitz", {0, 0, 6, 3});
+    CreateButton("60s Rush", {8, 0, 6, 3});
+    CreateButton("Wild", {0, 4, 5, 2});
     CreateButton("Custom", {6, 4, 5, 2});
     CreateButton("Return", {12, 4, 2, 2});
 }
@@ -64,22 +67,26 @@ std::unique_ptr<SubMenu> GameSelection::ClickButton()
 {
     std::string button = Select();
 
-    if (button == "Normal")
+    if (button == "Blitz")
     {
         Event newEvent;
+        newEvent.data = (int)Game::Mode::blitz;
         newEvent.type = Event::Type::loadNewGame;
         Utility::events.push_back(newEvent);
     }
-    if (button == "Simple")
+    if (button == "60s Rush")
     {
         Event newEvent;
+        newEvent.data = (int)Game::Mode::rush;
         newEvent.type = Event::Type::loadNewGame;
         Utility::events.push_back(newEvent);
     }
-    if (button == "Multi")
+    if (button == "Wild")
     {
-        std::unique_ptr<SubMenu> newMenu = std::make_unique<MultiplayerMenu>();
-        return newMenu;
+        Event newEvent;
+        newEvent.data = (int)Game::Mode::wild;
+        newEvent.type = Event::Type::loadNewGame;
+        Utility::events.push_back(newEvent);
     }
     if (button == "Custom")
     {
@@ -119,6 +126,7 @@ std::unique_ptr<SubMenu> MultiplayerMenu::ClickButton()
     if (button == "Co-op")
     {
         Event newEvent;
+        newEvent.data = (int)Game::Mode::rush;
         newEvent.type = Event::Type::loadNewGame;
         Utility::events.push_back(newEvent);
 
@@ -136,7 +144,7 @@ std::unique_ptr<SubMenu> MultiplayerMenu::ClickButton()
     }
     if (button == "Return")
     {
-        std::unique_ptr<SubMenu> newMenu = std::make_unique<GameSelection>();
+        std::unique_ptr<SubMenu> newMenu = std::make_unique<Title>();
         return newMenu;
     }
     return nullptr;
@@ -144,7 +152,7 @@ std::unique_ptr<SubMenu> MultiplayerMenu::ClickButton()
 
 std::unique_ptr<SubMenu> MultiplayerMenu::Return()
 {
-    std::unique_ptr<SubMenu> newMenu = std::make_unique<GameSelection>();
+    std::unique_ptr<SubMenu> newMenu = std::make_unique<Title>();
     return newMenu;
 }
 

@@ -35,7 +35,7 @@ public:
 
 public:
   // The constructor which takes an ID and PlayerBoost
-  Character(int charID, sf::Vector2f boostPos, GameScore* score);
+  Character(int charID);
   virtual ~Character();
 
   // Updates the player's state, animation, and position based on player inputs
@@ -82,6 +82,9 @@ public:
   // Increments the combo counter by one
   void IncrementComboCount();
 
+  void EnableBoost(sf::Vector2f boostPos);
+  void LinkScore(GameScore* score);
+
 protected:
   int charID = 0;
 
@@ -114,7 +117,7 @@ protected:
   int invincibilityTimer = 0; // The timer for how long the player is invincible for
   int stunTimer = 0; // The timer for how long the player is stunned for
 
-  PlayerBoost boost;
+  std::unique_ptr<PlayerBoost> boost = nullptr;
   int boostJumpsRemaining = -1;
 
   Entity reticle;
@@ -125,7 +128,7 @@ protected:
 class PlayableCharacter : public Character
 {
 public:
-  PlayableCharacter(int charID, std::unique_ptr<Controls> &controls, sf::Vector2f boostPos, GameScore* score);
+  PlayableCharacter(int charID, std::unique_ptr<Controls>& controls);
 
   void Update() override;
 
@@ -136,7 +139,7 @@ private:
 class ComputerCharacter : public Character
 {
 public:
-  ComputerCharacter(int charID, sf::Vector2f boostPos, GameScore* score);
+  ComputerCharacter(int charID);
 
   void Update() override;
 };

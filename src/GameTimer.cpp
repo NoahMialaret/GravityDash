@@ -1,6 +1,6 @@
 #include "GameTimer.h"
 
-GameTimer::GameTimer(sf::Int32 time, sf::Vector2f bottomLeft)
+GameTimer::GameTimer(int time, sf::Vector2f bottomLeft)
   :
   timeRemaining(time),
   maxTime(time)
@@ -35,6 +35,23 @@ bool GameTimer::Update()
   return false;
 }
 
+void GameTimer::Render(sf::RenderWindow* win) const
+{
+  win->draw(timeRect);
+  win->draw(sprite);
+}
+
+void GameTimer::AddTime(int addition)
+{
+  timeRemaining += addition;
+  if (timeRemaining > maxTime)
+  {
+    timeRemaining = maxTime;
+  }
+  
+  timeRect.setSize(Utility::gameScale * sf::Vector2f(4.0f, (int)(60.0f * timeRemaining / maxTime)));
+}
+
 void GameTimer::Pause()
 {
   paused = true;
@@ -48,21 +65,4 @@ void GameTimer::Unpause()
 bool GameTimer::IsPaused() const
 {
   return paused;
-}
-
-void GameTimer::Render(sf::RenderWindow* win) const
-{
-  win->draw(timeRect);
-  win->draw(sprite);
-}
-
-void GameTimer::AddTime(sf::Int32 addition)
-{
-  timeRemaining += addition;
-  if (timeRemaining > maxTime)
-  {
-    timeRemaining = maxTime;
-  }
-  
-  timeRect.setSize(Utility::gameScale * sf::Vector2f(4.0f, (int)(60.0f * timeRemaining / maxTime)));
 }

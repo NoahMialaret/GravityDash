@@ -1,12 +1,10 @@
 #include "Character.h"
 
 
-Character::Character(int charID, sf::Vector2f boostPos, GameScore* score)
+Character::Character(int charID)
   : 
   charID(charID),
-  acceleration(0.2f * Utility::gameScale),
-  boost(PlayerBoost(boostPos)),
-  gameScore(score)
+  acceleration(0.2f * Utility::gameScale)
 {
   entity = Entity("character");
 
@@ -36,7 +34,7 @@ void Character::Update()
   
   prevPos = pos;
 
-  if (boost.IsFull())
+  if (boost != nullptr && boost.get()->IsFull())
   {
     if (move)
     {
@@ -125,8 +123,8 @@ void Character::Update()
     vel.y += (isUpright ? 1.0f : -1.0f) * 0.05f * Clock::Delta();
   }
 
-  if (!finalJump)
-    boost.Update();
+  if (!finalJump && boost != nullptr)
+    boost.get()->Update();
 
   pos += (finalJump ? 0.5f : 1.0f) * (Clock::Delta() / 16.0f) * vel;
 }
@@ -167,17 +165,23 @@ void Character::Render(sf::RenderWindow *win) const
     entity.Render(win);
   }
 
-  for (auto& point : targetPoints)
+  if (gameScore != nullptr)
   {
-    point.Render(win);
+    for (auto& point : targetPoints)
+    {
+      point.Render(win);
+    }
   }
 
-  if (boost.IsFull() && curState <= State::moving && !finalJump)
+  if (boost == nullptr)
+    return;
+
+  if (boost.get()->IsFull() && curState <= State::moving && !finalJump)
   {
     reticle.Render(win);
   }
 
-  boost.Render(win);
+  boost.get()->Render(win);
 }
 
 void Character::Jump()
@@ -200,7 +204,7 @@ void Character::Jump()
 
 void Character::SuperJump()
 {
-  if (curState >= State::airborne || !boost.IsFull())
+  if (curState >= State::airborne || (boost != nullptr && !boost.get()->IsFull()))
   {
     return;
   }
@@ -241,9 +245,9 @@ void Character::Land()
     queueFinalJump = false;
   }
 
-  if (comboCount >= 2 && boostJumpsRemaining == -1)
+  if (boost != nullptr && comboCount >= 2 && boostJumpsRemaining == -1)
   {
-    boost.Increment(2000);
+    boost.get()->Increment(2000);
   }
 
   boostJumpsRemaining = -1;
@@ -275,7 +279,7 @@ void Character::FloorCollision(float distance)
     if (boostJumpsRemaining == 0)
     {
       invincibilityTimer = 2000;
-      boost.Clear();
+      boost.get()->Clear();
       Land();
       return;
     }
@@ -410,6 +414,16 @@ void Character::IncrementComboCount()
   }
 }
 
+void Character::EnableBoost(sf::Vector2f boostPos)
+{
+  boost = std::make_unique<PlayerBoost>(boostPos);
+}
+
+void Character::LinkScore(GameScore* score)
+{
+  gameScore = score;
+}
+
 void Character::AddNewPoint(sf::Vector2f pos, sf::Vector2f vel)
 {
   if (boostJumpsRemaining >= 0)
@@ -436,9 +450,9 @@ void Character::AddNewPoint(int value, sf::Vector2f pos, sf::Vector2f vel)
 // Playable Character
 // ------------------
 
-PlayableCharacter::PlayableCharacter(int charID, std::unique_ptr<Controls>& controls, sf::Vector2f boostPos, GameScore* score)
+PlayableCharacter::PlayableCharacter(int charID, std::unique_ptr<Controls>& controls)
   : 
-  Character(charID, boostPos, score)
+  Character(charID)
 {
   this->controls = std::move(controls);
 }
@@ -476,9 +490,9 @@ void PlayableCharacter::Update()
 // Computer Character
 // ------------------
 
-ComputerCharacter::ComputerCharacter(int charID, sf::Vector2f boostPos, GameScore* score)
+ComputerCharacter::ComputerCharacter(int charID)
   :
-  Character(charID, boostPos, score)
+  Character(charID)
 {}
 
 void ComputerCharacter::Update()

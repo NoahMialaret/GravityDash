@@ -18,25 +18,89 @@
 #include <iostream>
 #include <memory>
 
-enum class Mode
-{
-  title,
-  time,
-  survive
-};
-
+// A struct containing different parameters used by the game
 struct GameConfig
 {
-  int targetSpawnChance = 90;
   int numPlayers = 1;
   int numComputers = 0;
+  int targetSpawnChance = 90;
   int sawFrequency = 10;
-  Mode mode = Mode::time;
   // std::vector<ids> transitionIDs
 };
 
 // Handles logic and objects to be used in the main gameplay loop
 class Game
+{
+public:
+  enum class Mode
+  {
+    title,
+    rush,
+    blitz,
+    wild
+    // survival
+    // vs.
+  };
+public:
+  Game(GameConfig& config);
+  ~Game();
+
+  // Handles game states, transitioning between states, and game objects
+  virtual void Update();
+  // Attempts to spawn game objects using RNG
+  virtual void SpawnObjects();
+  // Renders game objects
+  virtual void Render(sf::RenderWindow *win) const;
+
+  // Corrects the player's position based on the bouding playable region
+  void CorrectCharacterPos(Character *player);
+  // Returns whether or not the game is over
+  bool IsGameOver() const;
+
+protected:
+  std::unique_ptr<Mode> gameMode = nullptr;
+
+  std::vector<std::unique_ptr<Character>> characters; // The player characters
+  std::unique_ptr<World> world = nullptr;             // The playable region of the game
+
+  SortedDblyLnkdList<GameObject> objects; // A sorted (by vertical position) linked list of entites
+
+  int spawnTimer = 16;     // Timer for when a target should be attempted to spawn
+  int spikeSpawnTimer = 0; // The time at which the next spike should spawn
+
+  bool gameOver = false; // Whether the game has been finished
+
+  bool canSpawnObjects = true;
+
+  GameConfig config; // The configuration for various game variables
+  // std::vector<worldTransitions>
+};
+
+class Rush : public Game
+{
+public:
+  Rush(GameConfig& config);
+  virtual void Update() override;
+  virtual void Render(sf::RenderWindow* win) const override;
+
+protected:
+  std::unique_ptr<GameScore> score = nullptr; // The total accumulated score made during the game
+  std::unique_ptr<GameTimer> timer = nullptr; // The timer used by the game
+  bool timeUp = false;
+};
+
+class Blitz : public Rush
+{
+public:
+  Blitz(GameConfig& config);
+  void Update() override;
+  void SpawnObjects() override;
+
+protected:
+  int storedTime = 0; // How much time to put back into the timer when it has run out
+};
+
+class Wild : public Game
 {
 public:
   // The different phases of gameplay that can happen
@@ -49,42 +113,14 @@ public:
   };
 
 public:
-  Game(GameConfig& config);
-  ~Game();
+  Wild(GameConfig& config);
+  void Update() override;
+  void Render(sf::RenderWindow* win) const override;
 
-  // Handles game states, transitioning between states, and game objects
-  void Update();
-  // Renders game objects
-  void Render(sf::RenderWindow *win) const;
-
-  // Corrects the player's position based on the bouding playable region
-  void CorrectCharacterPos(Character *player);
-  // Lands the player and adds the total points collected to the score
-  void HandleLandingSequence(Character *player);
-  // Returns whether or not the game is over
-  bool IsGameOver() const;
-
-private:
-  std::vector<std::unique_ptr<Character>> characters; // The player characters
-  std::unique_ptr<World> world = nullptr;             // The playable region of the game
-  std::unique_ptr<GameScore> score = nullptr;         // The total accumulated score made during the game
-
-  SortedDblyLnkdList<GameObject> objects; // A sorted (by vertical position) linked list of entites
-
-  std::unique_ptr<GameTimer> timer = nullptr; // The timer used by the game in 'time' mode
-  bool timeUp = false;
-
+protected:  
   Phase curPhase  = Phase::standard; // The current phase of gameplay
   Phase nextPhase = Phase::standard; // The next phase of gameplay to start after a transition has finished
   sf::Int32 BeginNextPhase;          // The time at which to begin transitioning
-
-  int spawnTimer = 16;     // Timer for when a target should be attempted to spawn
-  int spikeSpawnTimer = 0; // The time at which the next spike should spawn
-
-  bool gameOver = false; // Whether the game has been finished
-
-  GameConfig config; // The configuration for various game variables
-  // std::vector<worldTransitions>
 };
 
 #endif

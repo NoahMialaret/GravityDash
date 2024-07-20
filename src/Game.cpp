@@ -8,31 +8,19 @@ Game::Game(GameConfig& config)
 	sf::IntRect worldRect(- worldSize / 2, worldSize);
   world = std::make_unique<World>(worldRect);
 
-	score = std::make_unique<GameScore>(sf::Vector2f(0.0f, worldRect.top - 6 * Utility::gameScale));
-
   int playerNum = 0;
-  sf::Vector2f boostPos(worldRect.left + 5.0f * Utility::gameScale, - worldRect.top + Utility::gameScale);
 
-  for (int i = 0; i < config.numPlayers; i++)
-	{
-    if (playerNum % 2 == 1)
-      boostPos.x = -boostPos.x;
-    else 
-      boostPos.y = -boostPos.y;
-  
+  for (int i = 0; i < config.numPlayers && playerNum < 4; i++)
+	{  
     std::unique_ptr<Controls> control = std::make_unique<Keyboard>(playerNum);
-		characters.push_back(std::make_unique<PlayableCharacter>(i, control, boostPos, score.get()));
+		characters.push_back(std::make_unique<PlayableCharacter>(i, control));
 		characters[playerNum].get()->Jump();
     playerNum++;
 	}
   
-  for (int i = 0; i < config.numComputers; i++)
+  for (int i = 0; i < config.numComputers && playerNum < 4; i++)
   {    
-    if (playerNum % 2 == 0)
-      boostPos.x = -boostPos.x;
-    else 
-      boostPos.y = -boostPos.y;
-    characters.push_back(std::make_unique<ComputerCharacter>(characters.size(), boostPos, score.get()));
+    characters.push_back(std::make_unique<ComputerCharacter>(playerNum));
     characters[playerNum].get()->Jump();
     playerNum++;
   }
@@ -40,21 +28,9 @@ Game::Game(GameConfig& config)
   if (playerNum == 0)
   {    
     std::cout << "WARNING! Game was started with no characters!\n";
-    characters.push_back(std::make_unique<ComputerCharacter>(0, boostPos, score.get()));
+    characters.push_back(std::make_unique<ComputerCharacter>(0));
     characters[0].get()->Jump();
   }
-
-  if (config.mode == Mode::title)
-  {
-    return;
-  }
-
-
-  spikeSpawnTimer = 1000;
-  // BeginNextPhase = 5000 + CUR_TIME;
-
-  timer = std::make_unique<GameTimer>(60000, sf::Vector2f(worldRect.left + worldRect.width + Utility::gameScale, 
-    worldRect.top + worldRect.height - 2 * Utility::gameScale));
 }
 
 Game::~Game()
@@ -64,15 +40,12 @@ Game::~Game()
   objects.DeleteAll();
 }
 
-void Game::Update() // Should have different update and render functions based on the mode
+void Game::Update()
 {
 	for (auto& p : characters)
 	{
 		p.get()->Update();
 	}
-
-  if (config.mode != Mode::title)
-    score.get()->Update();
 
 	std::vector<Character*> pls;
 	for (auto& p : characters)
@@ -112,101 +85,12 @@ void Game::Update() // Should have different update and render functions based o
     }
   }
 
-  if (gameOver)
-  {
-		std::cout << "\nThe game is over! Well played!\n";
-		std::cout << "\tYou scored: " << score.get()->GetAsString() << " points!\n\n";
-    return;
-  }
+  if (canSpawnObjects)
+    SpawnObjects();
+}
 
-  if (Utility::CheckInitialPress(sf::Keyboard::P))
-  {
-    if (timer.get()->IsPaused())
-    {
-      std::cout << "Resuming Timer!\n";
-      timer.get()->Unpause();
-    }
-    else
-    {
-      std::cout << "Pausing Timer!\n";
-      timer.get()->Pause();
-    }
-  }
-
-  switch (config.mode)
-  {
-    case Mode::time:
-      if (!timeUp && timer.get()->Update())
-      {
-        std::cout << "Time is up, it's you're last jump!\n";
-        timeUp = true;
-        for (auto& p : characters)
-        {
-          p.get()->Kill();
-        }
-
-        auto node = objects.Start();
-        while(node != nullptr)
-        {
-          node->GetData()->Freeze();
-          node = node->GetNextNode();
-        }
-      }
-      break;
-    
-    default:
-      break;
-  }
-
-  if (timeUp)
-  {
-    return;
-  }
-
-	// if (characters.size() == 1 && characters[0].get()->IsLastStand())
-	// {
-  //   node = objects.Start();
-  //   while(node != nullptr)
-  //   {
-  //     node->GetData()->Update(pls);
-  //     node = node->GetNextNode();
-  //   }
-	// 	return;
-	// }
-    
-    // if (BeginNextPhase < Utility::clock.getElapsedTime().asMilliseconds() && curPhase != Phase::transition)
-    // {
-    //     if (curPhase == Phase::standard)
-    //     {
-    //         nextPhase = Phase::skinny;
-	// 		world.get()->SetTargetLeft(32);
-    //     }
-    //     if (curPhase == Phase::skinny)
-    //     {
-    //         nextPhase = Phase::standard;
-	// 		world.get()->SetTargetLeft(400);
-    //     }
-    //     std::cout << "Beginning world transition into phase: " << (int)nextPhase << '\n';
-    //     curPhase = Phase::transition;
-    // }
-
-
-    // if (curPhase == Phase::transition)
-    // {
-	// 	if (Entity::objects == nullptr)
-	// 	{
-	// 		world.get()->Update();
-
-	// 		if (world.get()->FinishedTransitioning())
-	// 		{
-	// 			BeginNextPhase = 5000 + CUR_TIME;
-	// 			curPhase = nextPhase;
-	// 		}
-	// 	}
-
-	// 	return;
-    // }
-
+void Game::SpawnObjects()
+{
 	sf::IntRect playableRegion = world.get()->GetRegion();
   spikeSpawnTimer -= Clock::Delta();
   spawnTimer -= Clock::Delta();
@@ -220,7 +104,6 @@ void Game::Update() // Should have different update and render functions based o
 
     if (config.sawFrequency != 0 && spikeSpawnTimer <= 0)
     {
-      //std::cout << "Spawning obastacle! Last one spawned " << CUR_TIME - nextSpikeSpawnTimeMin + 1000 << " ms ago.\n";
       GameObject* temp = new Saw(playableRegion, characters.size());
       auto searchFrom = objects.Start();
       if (*temp > 0)
@@ -246,12 +129,6 @@ void Game::Render(sf::RenderWindow* win) const
 	world.get()->Render(win);
 
   Utility::RenderParticles(win);
-
-  if (config.mode != Mode::title)
-  {
-    timer.get()->Render(win);
-	  score.get()->Render(win);
-  }
 
   auto node = objects.Start();
   while(node != nullptr)
@@ -296,8 +173,170 @@ void Game::CorrectCharacterPos(Character* player)
 	}
 }
 
-
 bool Game::IsGameOver() const
 {
 	return gameOver;
+}
+
+// ============
+// --- Rush ---
+// ============
+
+Rush::Rush(GameConfig &config)
+  :
+  Game(config)
+{
+  sf::IntRect worldRect = world.get()->GetRegion();
+	score = std::make_unique<GameScore>(sf::Vector2f(0.0f, worldRect.top - 6 * Utility::gameScale));
+  spikeSpawnTimer = 1000;
+
+  timer = std::make_unique<GameTimer>(60000, sf::Vector2f(worldRect.left + worldRect.width + Utility::gameScale, 
+    worldRect.top + worldRect.height - 2 * Utility::gameScale));
+
+  sf::Vector2f boostPos(worldRect.left + 5.0f * Utility::gameScale, - worldRect.top + Utility::gameScale);
+
+  for (int i = 0; i < characters.size(); i++)
+  {
+    if (i % 2 == 1)
+      boostPos.x = -boostPos.x;
+    else 
+      boostPos.y = -boostPos.y;
+
+    characters[i].get()->EnableBoost(boostPos);
+    characters[i].get()->LinkScore(score.get());
+  }
+}
+
+void Rush::Update()
+{
+  score.get()->Update();
+
+  if (gameOver)
+  {
+    Game::Update();
+    return;
+  }
+
+  Game::Update();
+
+  if (Utility::CheckInitialPress(sf::Keyboard::P))
+  {
+    if (timer.get()->IsPaused())
+    {
+      std::cout << "Resuming Timer!\n";
+      timer.get()->Unpause();
+    }
+    else
+    {
+      std::cout << "Pausing Timer!\n";
+      timer.get()->Pause();
+    }
+  }
+
+  if (!timeUp && timer.get()->Update())
+  {
+    std::cout << "Time is up, it's you're last jump!\n";
+    timeUp = true;
+    canSpawnObjects = false;
+    for (auto& p : characters)
+    {
+      p.get()->Kill();
+    }
+
+    auto node = objects.Start();
+    while(node != nullptr)
+    {
+      node->GetData()->Freeze();
+      node = node->GetNextNode();
+    }
+  }
+
+  if (gameOver)
+  {
+		std::cout << "\nThe game is over! Well played!\n";
+		std::cout << "\tYou scored: " << score.get()->GetAsString() << " points!\n\n";
+    return;
+  }
+}
+
+void Rush::Render(sf::RenderWindow *win) const
+{
+  Game::Render(win);
+
+  score.get()->Render(win);
+  timer.get()->Render(win);
+}
+
+// =============
+// --- Blitz ---
+// =============
+
+Blitz::Blitz(GameConfig &config)
+  :
+  Rush(config)
+{
+}
+
+void Blitz::Update()
+{
+  Rush::Update();
+  // Increase target spawn chance on timer refill, but decrease time pickups?
+}
+
+void Blitz::SpawnObjects()
+{
+  Game::SpawnObjects();
+}
+
+// ============
+// --- Wild ---
+// ============
+
+Wild::Wild(GameConfig &config)
+  :
+  Game(config)
+{
+}
+
+void Wild::Update()
+{
+  Game::Update();
+    
+    // if (BeginNextPhase < Utility::clock.getElapsedTime().asMilliseconds() && curPhase != Phase::transition)
+    // {
+    //     if (curPhase == Phase::standard)
+    //     {
+    //         nextPhase = Phase::skinny;
+	// 		world.get()->SetTargetLeft(32);
+    //     }
+    //     if (curPhase == Phase::skinny)
+    //     {
+    //         nextPhase = Phase::standard;
+	// 		world.get()->SetTargetLeft(400);
+    //     }
+    //     std::cout << "Beginning world transition into phase: " << (int)nextPhase << '\n';
+    //     curPhase = Phase::transition;
+    // }
+
+
+    // if (curPhase == Phase::transition)
+    // {
+	// 	if (Entity::objects == nullptr)
+	// 	{
+	// 		world.get()->Update();
+
+	// 		if (world.get()->FinishedTransitioning())
+	// 		{
+	// 			BeginNextPhase = 5000 + CUR_TIME;
+	// 			curPhase = nextPhase;
+	// 		}
+	// 	}
+
+	// 	return;
+    // }
+}
+
+void Wild::Render(sf::RenderWindow *win) const
+{
+  Game::Render(win);
 }

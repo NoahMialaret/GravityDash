@@ -38,7 +38,9 @@ void main()
 
   vec2 fc = vec2(gl_FragCoord.x - 480.0, gl_FragCoord.y - 270.0);
 
-  vec4 score = vec4(100.0, 200.0, 500.0, 100.0);
+  // vec4 score = vec4(100.0, 200.0, 500.0, 100.0);
+  vec4 score = vec4(100.0, 190.0, -100.0, 0.0);
+
   float total = score.x + score.y + score.z + score.w;
   vec4 ratio = score/total * 960.0;
   // +- 384, 192
