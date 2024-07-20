@@ -8,10 +8,19 @@ PlayerBoost::PlayerBoost(sf::Vector2f bottomLeft, int limit)
   meter = Entity("boost_meter", nullptr, (sf::Vector2i)Textures::textures.at("boost_meter").getSize(), {0.0f, 1.0f});
   meter.QueueMotion(Curve::linear, 0, Bezier({bottomLeft}));
   meter.Update();
+  if (bottomLeft.x > 0)
+    meter.FlipX();
+  if (bottomLeft.y > 0)
+    meter.FlipY();
 
   fill.setFillColor(sf::Color(255, 229, 181));
-  fill.setPosition(bottomLeft + Utility::gameScale * sf::Vector2f(1.0f, - 2.0f));
+  fill.setPosition(bottomLeft + Utility::gameScale * 
+    sf::Vector2f((bottomLeft.x < 0 ? 1.0f : -1.0f) * 1.0f, (bottomLeft.y < 0 ? -1.0f : 1.0f) * 2.0f));
   fill.setSize({0.0f, 2.0f * Utility::gameScale});
+  if (bottomLeft.x > 0)
+    fill.scale({-1.0f, 1.0f});
+  if (bottomLeft.y > 0)
+    fill.scale({1.0f, -1.0f});
 }
 
 void PlayerBoost::Update()

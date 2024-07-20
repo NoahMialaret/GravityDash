@@ -8,24 +8,36 @@ Game::Game(GameConfig& config)
 	sf::IntRect worldRect(- worldSize / 2, worldSize);
   world = std::make_unique<World>(worldRect);
 
-  sf::Vector2f boostPos(worldRect.left + 5.0f * Utility::gameScale, worldRect.top - Utility::gameScale);
-
 	score = std::make_unique<GameScore>(sf::Vector2f(0.0f, worldRect.top - 6 * Utility::gameScale));
+
+  int playerNum = 0;
+  sf::Vector2f boostPos(worldRect.left + 5.0f * Utility::gameScale, - worldRect.top + Utility::gameScale);
 
   for (int i = 0; i < config.numPlayers; i++)
 	{
-    std::unique_ptr<Controls> control = std::make_unique<Keyboard>(i);
+    if (playerNum % 2 == 1)
+      boostPos.x = -boostPos.x;
+    else 
+      boostPos.y = -boostPos.y;
+  
+    std::unique_ptr<Controls> control = std::make_unique<Keyboard>(playerNum);
 		characters.push_back(std::make_unique<PlayableCharacter>(i, control, boostPos, score.get()));
-		characters[i].get()->Jump();
+		characters[playerNum].get()->Jump();
+    playerNum++;
 	}
   
   for (int i = 0; i < config.numComputers; i++)
   {    
+    if (playerNum % 2 == 0)
+      boostPos.x = -boostPos.x;
+    else 
+      boostPos.y = -boostPos.y;
     characters.push_back(std::make_unique<ComputerCharacter>(characters.size(), boostPos, score.get()));
-    characters[characters.size() - 1].get()->Jump();
+    characters[playerNum].get()->Jump();
+    playerNum++;
   }
 
-  if (characters.size() <= 0)
+  if (playerNum == 0)
   {    
     std::cout << "WARNING! Game was started with no characters!\n";
     characters.push_back(std::make_unique<ComputerCharacter>(0, boostPos, score.get()));
