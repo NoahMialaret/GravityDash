@@ -72,6 +72,7 @@ private:
   SortedDblyLnkdList<GameObject> objects; // A sorted (by vertical position) linked list of entites
 
   std::unique_ptr<GameTimer> timer = nullptr; // The timer used by the game in 'time' mode
+  bool timeUp = false;
 
   Phase curPhase  = Phase::standard; // The current phase of gameplay
   Phase nextPhase = Phase::standard; // The next phase of gameplay to start after a transition has finished

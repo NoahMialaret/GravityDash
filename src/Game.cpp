@@ -11,7 +11,7 @@ Game::Game(GameConfig& config)
   sf::Vector2f boostPos(worldRect.left + 5.0f * Utility::gameScale, worldRect.top - Utility::gameScale);
 
 	score = std::make_unique<GameScore>(sf::Vector2f(0.0f, worldRect.top - 6 * Utility::gameScale));
-  
+
   for (int i = 0; i < config.numPlayers; i++)
 	{
     std::unique_ptr<Controls> control = std::make_unique<Keyboard>(i);
@@ -54,52 +54,13 @@ Game::~Game()
 
 void Game::Update() // Should have different update and render functions based on the mode
 {
-
-  if (Utility::CheckInitialPress(sf::Keyboard::H))
-  {
-    auto node = objects.Start();
-    while(node != nullptr)
-    {
-      std::cout << node->GetData()->GetPosition().y << '\n';
-      node = node->GetNextNode();
-    }
-  }
-
-	if (gameOver)
-	{
-		return;
-	}
-
-  if (config.mode != Mode::title)
-    score.get()->Update();
-
-  if (Utility::CheckInitialPress(sf::Keyboard::P))
-  {
-    if (timer.get()->IsPaused())
-    {
-      std::cout << "Resuming Timer!\n";
-      timer.get()->Unpause();
-    }
-    else
-    {
-      std::cout << "Pausing Timer!\n";
-      timer.get()->Pause();
-    }
-  }
-
 	for (auto& p : characters)
 	{
 		p.get()->Update();
 	}
 
-	if ((characters.size() == 1 && characters[0].get()->GetCurState() == Character::State::dead) 
-        || (config.mode == Mode::time && timer.get()->Update()))
-	{
-		std::cout << "\nThe game is over! Well played!\n";
-		std::cout << "\tYou scored: " << score.get()->GetAsString() << " points!\n\n";
-		gameOver = true;
-		return;
-	}
+  if (config.mode != Mode::title)
+    score.get()->Update();
 
 	std::vector<Character*> pls;
 	for (auto& p : characters)
@@ -124,16 +85,82 @@ void Game::Update() // Should have different update and render functions based o
     CorrectCharacterPos(p.get());
 	}
 
-	if (characters.size() == 1 && characters[0].get()->IsLastStand())
+	if (gameOver)
 	{
-    node = objects.Start();
-    while(node != nullptr)
-    {
-      node->GetData()->Update(pls);
-      node = node->GetNextNode();
-    }
 		return;
 	}
+
+  gameOver = true;
+  for (auto& p : characters)
+  {
+    if (p.get()->GetCurState() != Character::State::dead)
+    {
+      gameOver = false;
+      break;
+    }
+  }
+
+  if (gameOver)
+  {
+		std::cout << "\nThe game is over! Well played!\n";
+		std::cout << "\tYou scored: " << score.get()->GetAsString() << " points!\n\n";
+    return;
+  }
+
+  if (Utility::CheckInitialPress(sf::Keyboard::P))
+  {
+    if (timer.get()->IsPaused())
+    {
+      std::cout << "Resuming Timer!\n";
+      timer.get()->Unpause();
+    }
+    else
+    {
+      std::cout << "Pausing Timer!\n";
+      timer.get()->Pause();
+    }
+  }
+
+  switch (config.mode)
+  {
+    case Mode::time:
+      if (!timeUp && timer.get()->Update())
+      {
+        std::cout << "Time is up, it's you're last jump!\n";
+        timeUp = true;
+        for (auto& p : characters)
+        {
+          p.get()->Kill();
+        }
+
+        auto node = objects.Start();
+        while(node != nullptr)
+        {
+          node->GetData()->Freeze();
+          node = node->GetNextNode();
+        }
+      }
+      break;
+    
+    default:
+      break;
+  }
+
+  if (timeUp)
+  {
+    return;
+  }
+
+	// if (characters.size() == 1 && characters[0].get()->IsLastStand())
+	// {
+  //   node = objects.Start();
+  //   while(node != nullptr)
+  //   {
+  //     node->GetData()->Update(pls);
+  //     node = node->GetNextNode();
+  //   }
+	// 	return;
+	// }
     
     // if (BeginNextPhase < Utility::clock.getElapsedTime().asMilliseconds() && curPhase != Phase::transition)
     // {

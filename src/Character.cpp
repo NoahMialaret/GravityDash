@@ -27,6 +27,7 @@ void Character::Update()
   particleTimer -= Clock::Delta();
   invincibilityTimer -= Clock::Delta();
   velTimer -= Clock::Delta();
+  jumpTimer -= Clock::Delta();
 
   while (curState <= State::moving && velTimer <= 0)
   {
@@ -67,17 +68,17 @@ void Character::Update()
 
     curState = State::moving;
 
-    entity.SetAnimation((int)curState, (isLastStand ? 3 : 1) * 100);
+    entity.SetAnimation((int)curState, (finalJump ? 3 : 1) * 100);
     entity.SetXDir(move == 1);
 
-    particleTimer = (isLastStand ? 4 : 1) * 150;
+    particleTimer = (finalJump ? 4 : 1) * 150;
     break;
 
   case State::moving:
     if (vel == ZERO_VECTOR && move == 0)
     {
       curState = State::idle;
-      entity.SetAnimation((int)curState, (isLastStand ? 2 : 1) * 150);
+      entity.SetAnimation((int)curState, (finalJump ? 2 : 1) * 150);
       break;
     }
 
@@ -91,7 +92,7 @@ void Character::Update()
     {
       sf::Vector2f partVel(-move * 0.2f * Utility::gameScale, (isUpright ? -0.1f : 0.1f) * Utility::gameScale);
       Utility::particles.push_front(std::make_unique<Puff>(pos, sf::Vector2f(- (float)move, (isUpright ? -1.0f : 1.0f))));
-      particleTimer = (isLastStand ? 4 : 1) * 150;
+      particleTimer = (finalJump ? 4 : 1) * 150;
     }
     break;
 
@@ -107,7 +108,7 @@ void Character::Update()
     {
       curState = State::idle;
       invincibilityTimer = 3000;
-      entity.SetAnimation((int)curState, (isLastStand ? 2 : 1) * 150);
+      entity.SetAnimation((int)curState, (finalJump ? 2 : 1) * 150);
       reticleAngle = 0.0f;
       reticle.Update();
     }
@@ -124,9 +125,10 @@ void Character::Update()
     vel.y += (isUpright ? 1.0f : -1.0f) * 0.05f * Clock::Delta();
   }
 
-  boost.Update();
+  if (!finalJump)
+    boost.Update();
 
-  pos += (isLastStand ? 0.5f : 1.0f) * (Clock::Delta() / 16.0f) * vel;
+  pos += (finalJump ? 0.5f : 1.0f) * (Clock::Delta() / 16.0f) * vel;
 }
 
 void Character::UpdateVelocity(int dir)
@@ -170,7 +172,7 @@ void Character::Render(sf::RenderWindow *win) const
     point.Render(win);
   }
 
-  if (boost.IsFull() && curState <= State::moving)
+  if (boost.IsFull() && curState <= State::moving && !finalJump)
   {
     reticle.Render(win);
   }
@@ -229,9 +231,14 @@ void Character::Land()
 
   Utility::particles.push_front(std::make_unique<Dust>(pos, !isUpright));
 
-  if (isLastStand)
+  if (finalJump)
   {
     curState = State::dead;
+  }
+  else if (queueFinalJump)
+  {
+    finalJump = true;
+    queueFinalJump = false;
   }
 
   if (comboCount >= 2 && boostJumpsRemaining == -1)
@@ -304,7 +311,7 @@ void Character::WallCollision(float distance)
 
 bool Character::Hit(sf::Vector2f entPos)
 {
-  if (invincibilityTimer > 0 || curState >= State::hit || boostJumpsRemaining >= 0)
+  if (invincibilityTimer > 0 || curState >= State::hit || boostJumpsRemaining >= 0 || finalJump)
   {
     return false;
   }
@@ -314,6 +321,11 @@ bool Character::Hit(sf::Vector2f entPos)
   if (curState == State::airborne)
   {
     entity.FlipY();
+  }
+  if (queueFinalJump)
+  {
+    queueFinalJump = false;
+    finalJump = true;
   }
 
   // y = ent.y +- sqrt(64*scale-(this.x-ent.x)^2) + for saws on top
@@ -339,14 +351,25 @@ bool Character::Hit(sf::Vector2f entPos)
 
   return true;
 
-  if (isLastStand)
-  {
-    return false;
-  }
-  isLastStand = true;
-  std::cout << "Character has been hit, this is their final jump!\n";
+  // if (finalJump)
+  // {
+  //   return false;
+  // }
+  // isLastStand = true;
+  // std::cout << "Character has been hit, this is their final jump!\n";
 
-  return true;
+  // return true;
+}
+
+void Character::Kill()
+{
+  jumpTimer = 2000;
+  if (curState == State::airborne)
+  {
+    queueFinalJump = true;
+    return;
+  }
+  finalJump = true;
 }
 
 Character::State Character::GetCurState() const
@@ -354,9 +377,9 @@ Character::State Character::GetCurState() const
     return curState;
 }
 
-bool Character::IsLastStand() const
+bool Character::IsFinalJump() const
 {
-    return isLastStand;
+    return finalJump;
 }
 
 sf::Vector2f Character::GetPosition() const
@@ -422,23 +445,24 @@ PlayableCharacter::PlayableCharacter(int charID, std::unique_ptr<Controls>& cont
 
 void PlayableCharacter::Update()
 {
-  for (auto& point : targetPoints)
-  {
-    point.Update();
-  }
 
   if (curState == State::dead)
   {
     return;
   }
 
+  for (auto& point : targetPoints)
+  {
+    point.Update();
+  }
+
   controls.get()->Update();
 
-  if (controls.get()->JumpPressed())
+  if (controls.get()->JumpPressed() && jumpTimer <= 0)
   {
     Jump();
   }
-  else if(controls.get()->SuperJumpPressed())
+  else if(controls.get()->SuperJumpPressed() && !finalJump && jumpTimer <= 0)
   {
     SuperJump();
   }

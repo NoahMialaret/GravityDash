@@ -59,11 +59,13 @@ public:
 
   // Attempts to damage the player if it is not invincible
   bool Hit(sf::Vector2f entPos);
+  // Kills the player, leaving them with one final jump
+  void Kill();
 
   // Returns the players current state
   State GetCurState() const;
   // Returns whether it is the player's last stand
-  bool IsLastStand() const;
+  bool IsFinalJump() const;
   // Returns the player's current sprite position
   sf::Vector2f GetPosition() const;
   // Sets the player's sprite position
@@ -96,7 +98,8 @@ protected:
   bool isUpright = false; // Whether the player is standing upright (i.e. at the bottom of the world) or is upside down
 
   State curState = State::idle; // The current state of the player
-  bool isLastStand = false;     // Whether this is the player's last jump due to getting hit
+  bool queueFinalJump = false;
+  bool finalJump = false;     // Whether this is the player's last jump
 
   GameScore* gameScore = nullptr; // A pointer to the total game score, so that points can be added
   std::forward_list<TargetPoints> targetPoints; // The points that appear when a player hits a target
@@ -104,6 +107,7 @@ protected:
   int comboCount = 0; // The number of consecutive targets destroyed in a jump
 
   int velTimer = 16; // The timer for when the characters velocity can be updated
+  int jumpTimer = 0; // The timer for when the player can jump
 
   int particleTimer = 0; // The timer for how long until the next run particle is spawned
 

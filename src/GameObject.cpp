@@ -149,6 +149,21 @@ void Saw::Update(std::vector<Character*> players)
   entity.Update();
 }
 
+void Saw::Freeze()
+{
+  entity.DecouplePosition();
+  entity.QueueMotion(Curve::linear, 200, (pos.y < 0 ? -1.0f : 1.0f) * sf::Vector2f(0.0f, SCALED_DIM));
+  GameObject::Freeze();
+}
+
+void Saw::Unfreeze()
+{
+  pos = entity.GetPosition();
+  entity.CouplePosition(&pos);
+  entity.QueueMotion(Curve::linear, 200, (pos.y < 0 ? 1.0f : -1.0f) * sf::Vector2f(0.0f, SCALED_DIM));
+  GameObject::Freeze();
+}
+
 // = ------------ =
 // = Target Class =
 // = ------------ =

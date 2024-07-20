@@ -27,9 +27,9 @@ public:
   void Render(sf::RenderWindow *win) const;
 
   // Stops the object from moving
-  void Freeze();
+  virtual void Freeze();
   // Allows the object to move
-  void Unfreeze();
+  virtual void Unfreeze();
 
   // Whether the object has reached the end of its life
   bool EndOfLife() const;
@@ -69,6 +69,9 @@ public:
   Saw(sf::IntRect &worldBorder, int maxID);
   // Updates the spike's position and checks for player collisions
   void Update(std::vector<Character *> players) override;
+
+  void Freeze() override;
+  void Unfreeze() override;
 
 private:
   float cutOffPoint = 0.0f; // The pixel position of the screen at which the object should be culled

@@ -28,6 +28,7 @@ bool GameTimer::Update()
 
   if (timeRemaining <= 0)
   {
+    timeRect.setSize(ZERO_VECTOR);
     return true;
   }
 
