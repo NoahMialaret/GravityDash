@@ -27,6 +27,8 @@ sf::Shader Utility::worldShad;
 
 std::forward_list<std::unique_ptr<Particle>> Utility::particles;
 
+float Utility::scoreMultiplier = 1.0f;
+
 std::string Utility::IntToString(int number, int minDigits)
 {
 	// The int represented by a string in reverse

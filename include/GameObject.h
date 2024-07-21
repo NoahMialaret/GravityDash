@@ -86,13 +86,27 @@ public:
   // Constructor uses the world border to determine spawn positions and cutoff points
   MovingTarget(sf::IntRect &worldBorder, int maxID);
   // Updates the spike's position and checks for player collisions
-  void Update(std::vector<Character *> players) override;
+  void Update(std::vector<Character*> players) override;
 
 private:
   float cutOffPoint = 0.0f; // The pixel position of the screen at which the object should be culled
   float sinOffset = 0.0f;
   float yBase = 0.0f; // The base y positon of the sprite before oscilations
 };
+
+class TimeBonus : public GameObject
+{
+public:
+  TimeBonus() = delete;
+  // Constructor uses the world border to determine spawn positions and cutoff points
+  TimeBonus(sf::IntRect &worldBorder, int maxID);
+  // Updates the spike's position and checks for player collisions
+  void Update(std::vector<Character*> players) override;
+
+private:
+  float cutOffPoint = 0.0f; // The pixel position of the screen at which the object should be culled
+};
+
 
 // class StationaryTarget : public GameObject
 // {

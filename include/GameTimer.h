@@ -30,6 +30,9 @@ public:
   // Returns whether or not the timer is paused
   bool IsPaused() const;
 
+  // Gets the timer's position
+  sf::Vector2f GetPosition() const;
+
 private:
   sf::Sprite sprite;   // The sprite for the timer gauge
 

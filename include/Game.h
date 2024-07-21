@@ -82,6 +82,7 @@ public:
   Rush(GameConfig& config);
   virtual void Update() override;
   virtual void Render(sf::RenderWindow* win) const override;
+  virtual void UpdateTimer();
 
 protected:
   std::unique_ptr<GameScore> score = nullptr; // The total accumulated score made during the game
@@ -94,10 +95,18 @@ class Blitz : public Rush
 public:
   Blitz(GameConfig& config);
   void Update() override;
+  void Render(sf::RenderWindow* win) const override;
+  void UpdateTimer() override;
   void SpawnObjects() override;
 
 protected:
+  int timeBonusTimer = 16;
+  int timeBonusCooldown = 0;
+  int phase = 0;
   int storedTime = 0; // How much time to put back into the timer when it has run out
+
+  Entity arrow; // The arrow representing visually how much time will be put into the clock
+  sf::Vector2f arrowBottom; // The position the arrow starts at, and gets reset to
 };
 
 class Wild : public Game

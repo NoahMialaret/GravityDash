@@ -88,6 +88,8 @@ public:
   static sf::Shader worldShad;
 
   static std::forward_list<std::unique_ptr<Particle>> particles;
+
+  static float scoreMultiplier;
 };
 
 #endif

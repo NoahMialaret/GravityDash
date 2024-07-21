@@ -29,7 +29,7 @@ void GridMenu::Update()
     {
         if (!IsInBoundsAxis(selectorPos + dir).y)
         {
-            selectorPos.y = dir.y > 0 ? -1 : GRID_HEIGHT;
+            selectorPos.y = dir.y > 0 ? -1 : GRID_HEIGHT - 1;
             sf::IntRect buttonBounds = buttons[curButtonIndex].GetBounds();
             selectorPos.x += originalPos.x > buttonBounds.left + buttonBounds.width / 2 ? -1 : 1;
         }

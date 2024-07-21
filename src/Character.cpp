@@ -250,6 +250,15 @@ void Character::Land()
     boost.get()->Increment(2000);
   }
 
+  if (comboCount >= 3)
+  {
+    canCollect = true;
+  }
+  else 
+  {
+    timeBoostCollected = 0;
+  }
+
   boostJumpsRemaining = -1;
 
   comboCount = 0;
@@ -343,6 +352,8 @@ bool Character::Hit(sf::Vector2f entPos)
 
   targetPoints.clear();
   comboCount = 0;
+  timeBoostCollected = 0;
+  canCollect = false;
 
   AddNewPoint(-5000, pos, ZERO_VECTOR);
 
@@ -378,17 +389,17 @@ void Character::Kill()
 
 Character::State Character::GetCurState() const
 {
-    return curState;
+  return curState;
 }
 
 bool Character::IsFinalJump() const
 {
-    return finalJump;
+  return finalJump;
 }
 
 sf::Vector2f Character::GetPosition() const
 {
-    return pos;
+  return pos;
 }
 
 void Character::SetPosition(sf::Vector2f& newPos)
@@ -424,6 +435,23 @@ void Character::LinkScore(GameScore* score)
   gameScore = score;
 }
 
+void Character::IncrementTimeBoost()
+{
+  timeBoostCollected++;
+}
+
+int Character::GetTimeBoost()
+{
+  if (canCollect)
+  {
+    canCollect = false;
+    int temp = timeBoostCollected;
+    timeBoostCollected = 0;
+    return temp;
+  }
+  return 0;
+}
+
 void Character::AddNewPoint(sf::Vector2f pos, sf::Vector2f vel)
 {
   if (boostJumpsRemaining >= 0)
@@ -443,7 +471,7 @@ void Character::AddNewPoint(sf::Vector2f pos, sf::Vector2f vel)
 
 void Character::AddNewPoint(int value, sf::Vector2f pos, sf::Vector2f vel)
 {
-  targetPoints.emplace_front(TargetPoints(value, pos, vel));
+  targetPoints.emplace_front(TargetPoints((float)value * Utility::scoreMultiplier, pos, vel));
 }
 
 // ------------------

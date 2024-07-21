@@ -202,14 +202,12 @@ MovingTarget::MovingTarget(sf::IntRect &worldBorder, int maxID)
 
 void MovingTarget::Update(std::vector<Character*> players)
 {
-
   if ((vel > 0.0f && pos.x > cutOffPoint) ||
       (vel < 0.0f && pos.x + SCALED_DIM < cutOffPoint))
   {
     endOfLife = true;
     return;
   }
-
   
   if (!isFrozen)
   {
@@ -259,16 +257,78 @@ void MovingTarget::Update(std::vector<Character*> players)
   players[closestIndex]->IncrementComboCount();
 }
 
-// Target::StationaryTarget(sf::Vector2f pos) // Maybe seperate "MovingTarget" class
-// {
-//   sprite.setTexture(tex);
+// = ------------ =
+// = TimeBonus Class =
+// = ------------ =
 
-//   sprite.setOrigin(CENTRED_ORIGIN);
-//   sprite.setPosition(pos);
-//   sprite.setScale(DEFAULT_SCALE);
+TimeBonus::TimeBonus(sf::IntRect& worldBorder, int maxID)
+  :
+  GameObject(maxID)
+{
+	int posBuffer = SCALED_DIM / 2;
 
-//   anim = Animation(&sprite);
-//   anim.ChangeAnimation(1, 100);
-// }
+  std::uniform_int_distribution yDist((worldBorder.top) + int(SCALED_DIM) + posBuffer, -worldBorder.top - (int(SCALED_DIM) + posBuffer));
+  std::uniform_int_distribution xDist(0, 1);
+  std::uniform_real_distribution<float> floatDist(0.3f, 1.0f);
 
-// Update() if isFrozen (dont increment lifespan timer)
+  int isGoingRight = xDist(Utility::rng);
+
+  vel = Utility::gameScale * floatDist(Utility::rng) * (isGoingRight ? 1.0f : -1.0f);
+
+  pos.x = isGoingRight ? worldBorder.left - SCALED_DIM + posBuffer : worldBorder.left + worldBorder.width + posBuffer;
+  pos.y = yDist(Utility::rng);
+  entity.CouplePosition(&pos);
+
+  cutOffPoint = worldBorder.left + posBuffer + (isGoingRight ? worldBorder.width : 0.0f);
+
+  entity.QueueAnimation(2, 200.0f);
+}
+
+void TimeBonus::Update(std::vector<Character*> players)
+{
+  if ((vel > 0.0f && pos.x > cutOffPoint) ||
+      (vel < 0.0f && pos.x + SCALED_DIM < cutOffPoint))
+  {
+    endOfLife = true;
+    return;
+  }
+  
+  if (!isFrozen)
+  {
+    pos.x += (Clock::Delta() / 16.0f) * vel;
+  }
+
+  int closestIndex = -1;
+  float closestDistance = SCALED_DIM * SCALED_DIM;
+
+  for (int i = 0; i < players.size(); i++)
+  {
+    if (players[i]->GetCurState() == Character::State::airborne)
+    {
+      float squaredDistance = Utility::GetSquaredDistanceToLineSegment(pos, players[i]->GetLineHitBox());
+      if (squaredDistance < closestDistance)
+      {
+        closestIndex = i;
+        closestDistance = squaredDistance;
+      }
+    }
+  }
+
+  if (closestIndex == -1)
+  {
+    entity.Update();
+    return;
+  }
+
+  Utility::particles.push_front(std::make_unique<Explosion>(pos));
+
+  sf::Vector2f middlePos = 0.5f * (players[closestIndex]->GetLineHitBox().second + players[closestIndex]->GetLineHitBox().first);
+
+  sf::Vector2f pointVel = 0.02f * (pos - middlePos);
+
+  players[closestIndex]->AddNewPoint(pos, pointVel);
+  players[closestIndex]->IncrementTimeBoost();
+
+  endOfLife = true;
+  players[closestIndex]->IncrementComboCount();
+}

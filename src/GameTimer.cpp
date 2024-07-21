@@ -24,13 +24,15 @@ bool GameTimer::Update()
   }
   
   timeRemaining -= Clock::Delta();
-  timeRect.setSize(Utility::gameScale * sf::Vector2f(4.0f, (int)(60.0f * timeRemaining / maxTime)));
 
   if (timeRemaining <= 0)
   {
     timeRect.setSize(ZERO_VECTOR);
+    timeRemaining = 0;
     return true;
   }
+  
+  timeRect.setSize(Utility::gameScale * sf::Vector2f(4.0f, (int)(60.0f * timeRemaining / maxTime)));
 
   return false;
 }
@@ -65,4 +67,9 @@ void GameTimer::Unpause()
 bool GameTimer::IsPaused() const
 {
   return paused;
+}
+
+sf::Vector2f GameTimer::GetPosition() const
+{
+  return sprite.getPosition();
 }

@@ -37,6 +37,8 @@ Game::~Game()
 {
   std::cout << "Deleting the game and it's objects...\n";
 
+  Utility::scoreMultiplier = 1.0f;
+
   objects.DeleteAll();
 }
 
@@ -217,8 +219,6 @@ void Rush::Update()
     return;
   }
 
-  Game::Update();
-
   if (Utility::CheckInitialPress(sf::Keyboard::P))
   {
     if (timer.get()->IsPaused())
@@ -232,7 +232,28 @@ void Rush::Update()
       timer.get()->Pause();
     }
   }
+  
+  UpdateTimer();
 
+  Game::Update();
+
+  if (gameOver)
+  {
+		std::cout << "\nThe game is over! Well played!\n";
+		std::cout << "\tYou scored: " << score.get()->GetAsString() << " points!\n\n";
+  }
+}
+
+void Rush::Render(sf::RenderWindow *win) const
+{
+  Game::Render(win);
+
+  score.get()->Render(win);
+  timer.get()->Render(win);
+}
+
+void Rush::UpdateTimer()
+{
   if (!timeUp && timer.get()->Update())
   {
     std::cout << "Time is up, it's you're last jump!\n";
@@ -250,21 +271,6 @@ void Rush::Update()
       node = node->GetNextNode();
     }
   }
-
-  if (gameOver)
-  {
-		std::cout << "\nThe game is over! Well played!\n";
-		std::cout << "\tYou scored: " << score.get()->GetAsString() << " points!\n\n";
-    return;
-  }
-}
-
-void Rush::Render(sf::RenderWindow *win) const
-{
-  Game::Render(win);
-
-  score.get()->Render(win);
-  timer.get()->Render(win);
 }
 
 // =============
@@ -275,17 +281,113 @@ Blitz::Blitz(GameConfig &config)
   :
   Rush(config)
 {
+  arrow = Entity("arrow", nullptr, (sf::Vector2i)Textures::textures.at("arrow").getSize());
+  arrowBottom = timer.get()->GetPosition() + Utility::gameScale * sf::Vector2f(8.0f, -0.5f);
+  arrow.QueueMotion(Curve::linear, 0, ZERO_VECTOR, arrowBottom);
+  arrow.FlipX();
 }
 
 void Blitz::Update()
 {
+  arrow.Update();
+  if (gameOver)
+  {
+    Rush::Update();
+    return;
+  }
+
   Rush::Update();
+
+  for (auto& p : characters)
+  {
+    int boost = p.get()->GetTimeBoost();
+    if (boost)
+    {
+      storedTime += boost * 5;
+      if (storedTime >= 60)
+      {
+        storedTime = 60;
+      }
+      arrow.ClearHandlers();
+      arrow.QueueMotion(Curve::easeIn, 1000, arrow.GetPosition(), arrowBottom - (float)storedTime * sf::Vector2f(0.0f, Utility::gameScale));
+    }
+  }
+
   // Increase target spawn chance on timer refill, but decrease time pickups?
+}
+
+void Blitz::Render(sf::RenderWindow *win) const
+{
+  Rush::Render(win);
+
+  arrow.Render(win);
+}
+
+void Blitz::UpdateTimer()
+{
+  if (!timeUp && timer.get()->Update())
+  {
+    if (storedTime != 0)
+    {
+      timer.get()->AddTime(storedTime * 1000);
+      storedTime = 0;
+      arrow.ClearHandlers();
+      arrow.QueueMotion(Curve::easeIn, 1000, arrow.GetPosition(), arrowBottom);
+      Utility::scoreMultiplier += 0.1f;
+      phase++;
+      timeBonusCooldown = phase;
+      if (Utility::scoreMultiplier >= 2.0f)
+      {
+        Utility::scoreMultiplier = 2.0f;
+      }
+      return;
+    }
+    std::cout << "Time is up, it's you're last jump!\n";
+    timeUp = true;
+    canSpawnObjects = false;
+    for (auto& p : characters)
+    {
+      p.get()->Kill();
+    }
+
+    auto node = objects.Start();
+    while(node != nullptr)
+    {
+      node->GetData()->Freeze();
+      node = node->GetNextNode();
+    }
+  }
 }
 
 void Blitz::SpawnObjects()
 {
   Game::SpawnObjects();
+
+  timeBonusTimer -= Clock::Delta();
+
+	sf::IntRect playableRegion = world.get()->GetRegion();
+
+  while (timeBonusTimer <= 0)
+  {
+    timeBonusTimer += 16;
+    std::uniform_int_distribution spawnChance(0, 99);
+    int randomInt = spawnChance(Utility::rng);
+
+    if (randomInt > 98)
+    {
+      if (timeBonusCooldown > 0)
+      {
+        timeBonusCooldown--;
+        return;
+      }     
+      GameObject* temp = new TimeBonus(playableRegion, characters.size());
+      auto searchFrom = objects.Start();
+      if (*temp > 0)
+        searchFrom = objects.End();
+      objects.InsertData(temp, searchFrom);
+      timeBonusCooldown = phase;
+    }  
+  } 
 }
 
 // ============

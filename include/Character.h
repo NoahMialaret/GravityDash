@@ -85,6 +85,9 @@ public:
   void EnableBoost(sf::Vector2f boostPos);
   void LinkScore(GameScore* score);
 
+  void IncrementTimeBoost();
+  int GetTimeBoost();
+
 protected:
   int charID = 0;
 
@@ -123,6 +126,9 @@ protected:
   Entity reticle;
   sf::Vector2f reticlePos;
   float reticleAngle = 0.0f;
+
+  bool canCollect = false;
+  int timeBoostCollected = 0;
 };
 
 class PlayableCharacter : public Character
