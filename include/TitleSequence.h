@@ -4,8 +4,11 @@
 #include <SFML/Graphics.hpp>
 
 #include "AnimationHandler.h"
-#include "Bezier.h"
+#include "Clock.h"
+#include "Entity.h"
+#include "MotionHandler.h"
 #include "Particle.h"
+#include "Textures.h"
 #include "Utility.h"
 #include "World.h"
 
@@ -38,29 +41,23 @@ private:
 
 private:
   Sequence curSeq = Sequence::start;
-  Bezier bezier;
 
   std::unique_ptr<World> world;
   std::forward_list<sf::Sprite> bgTiles;
-  sf::Texture bgTileTex;
   float speed = 5.0f;
 
-  sf::Texture charTex;
-  sf::Sprite character;
-  AnimationHandler charAnim;
+  Entity character;
 
-  sf::Texture titleTex;
-  sf::Sprite title;
+  Entity title;
 
-  sf::Texture frenchieTex;
-  sf::Sprite frenchie;
-
+  float frenchieRot = 0.0f;
+  Entity frenchie;
   sf::Text frenchieText;
 
   sf::Text start;
   sf::Text startShadow;
 
-  sf::Int32 startTime = 0;
+  int timer = 0;
 };
 
 #endif

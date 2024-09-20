@@ -1,69 +1,129 @@
 #include "Particle.h"
-sf::Texture Particle::tex;
 
-Particle::Particle(Particle::Type type, sf::Vector2f vel, sf::Vector2f pos, sf::Vector2f scale)
-  : 
-  vel(vel)
+Particle::Particle(int timer)
+  :
+  timer(timer)
 {
-  sprite.setTexture(tex);
-
-  sprite.setOrigin(CENTRED_ORIGIN);
-  sprite.setPosition(pos);
-  sprite.setScale(scale);
-
-  anims = AnimationHandler(&sprite);
-
-  switch (type)
-  {
-  case Type::walkDust:
-    anims.QueueAnimation((int)type, 100);
-    EndOfLifespan = 400 + CUR_TIME;
-    break;
-
-  case Type::landingImpact:
-    anims.QueueAnimation((int)type, 50);
-    EndOfLifespan = 200 + CUR_TIME;
-    break;
-
-  case Type::targetExplosion:
-    anims.QueueAnimation((int)type, 25);
-    EndOfLifespan = 100 + CUR_TIME;
-    break;
-  
-  case Type::speedLines:
-    anims.QueueAnimation((int)type, 100);
-    EndOfLifespan = 400 + CUR_TIME;
-    break;
-
-  default:
-    std::cout << "Could not determine particle type (" << (int)type << ")\n";
-    hasFinished = true;
-    break;
-  }
+  entity = Entity("particles", nullptr);
 }
 
 bool Particle::HasFinished() const
 {
-  return hasFinished;
+  return timer <= 0;
 }
 
 void Particle::Update()
 {
-  if (EndOfLifespan < CUR_TIME)
+  if (timer <= 0)
   {
-    hasFinished = true;
     return;
   }
 
-  sprite.move(vel);
+  timer -= Clock::Delta();
 
-  anims.Update(&sprite);
+  entity.Update();
 }
 
 void Particle::Render(sf::RenderWindow *win) const
 {
-  if (!hasFinished)
+  if (timer > 0)
   {
-    win->draw(sprite);
+    entity.Render(win);
   }
+}
+
+// ============
+// --- Puff ---
+// ============
+
+Puff::Puff(sf::Vector2f source, sf::Vector2f dir)
+  :
+  Particle(400)
+{
+  entity.QueueAnimation(PUFF, 100, 0);
+
+  if (dir.y > 0)
+  {
+    entity.FlipY();
+  }
+
+  sf::Vector2f end;
+  end.x = source.x + dir.x * Utility::gameScale * Utility::spriteDim;
+  end.y = source.y + dir.y * Utility::gameScale;
+  entity.QueueMotion(Curve::easeIn, 400, source, end);
+}
+
+// ============
+// --- Dust ---
+// ============
+
+Dust::Dust(sf::Vector2f source, bool flip)
+  :
+  Particle(200)
+{
+  entityMirror = Entity("particles", nullptr);
+
+  if (flip)
+  {
+    entity.FlipY();
+    entityMirror.FlipY();
+  }
+
+  entity.QueueAnimation(DUST, 50, 0);
+  entity.QueueMotion(Curve::easeIn, 200, source, source + sf::Vector2f(SCALED_DIM, 0.0f));
+
+  entityMirror.FlipX();
+  entityMirror.QueueAnimation(DUST, 50, 0);
+  entityMirror.QueueMotion(Curve::easeIn, 200, source, source - sf::Vector2f(SCALED_DIM, 0.0f));
+}
+
+void Dust::Update()
+{
+  if (timer <= 0)
+  {
+    return;
+  }
+
+  Particle::Update();
+  entityMirror.Update();
+}
+
+void Dust::Render(sf::RenderWindow* win) const
+{
+  if (timer <= 0)
+  {
+    return;
+  }
+
+  Particle::Render(win);
+  entityMirror.Render(win);
+}
+
+// =================
+// --- Explosion ---
+// =================
+
+Explosion::Explosion(sf::Vector2f source)
+  :
+  Particle(100)
+{
+  entity.QueueAnimation(EXPLOSION, 25, 0);
+  entity.QueueMotion(Curve::linear, 0, source, source);
+}
+
+// =================
+// --- SpeedLine ---
+// =================
+
+SpeedLine::SpeedLine(sf::Vector2f start, float speed)
+  :
+  Particle(400)
+{
+  if (speed < 0)
+  {
+    entity.FlipY();
+  }
+
+  entity.QueueAnimation(SPEEDLINE, 100, 0);
+  entity.QueueMotion(Curve::linear, 400, start, start + speed * sf::Vector2f(0.0f, Utility::gameScale));
 }

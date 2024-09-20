@@ -9,19 +9,27 @@
 #define DEFAULT_SCALE sf::Vector2f(Utility::gameScale, Utility::gameScale)
 // Used to set the origin of a sprite to its centre
 #define CENTRED_ORIGIN 0.5f * sf::Vector2f(Utility::spriteDim, Utility::spriteDim)
-// The current global time in milliseconds
-#define CUR_TIME Utility::clock.getElapsedTime().asMilliseconds()
 
 #include <SFML/Graphics.hpp>
 
+#include "Bezier.h"
 #include "Event.h"
+#include "Textures.h"
 
-
-#include <iostream>
-#include <random>
 #include <forward_list>
+#include <iostream>
+#include <memory>
+#include <random>
+#include <vector>
 
 class Particle;
+
+enum class Curve
+{
+  linear,
+  easeIn,
+  easeOut
+};
 
 union Utility
 {
@@ -54,27 +62,24 @@ public:
   static void RenderParticles(sf::RenderWindow* win);
 
 public:
-  static sf::Clock clock; // The internal game clock
-
   //settings
   static float targetFrameRate;   // The max framerate that the game runs at
 
   // settings (gamescale)
   static float gameScale; // The scale that the game is rendered at compared to the original sprites
-  static float spriteDim; // The dimensions of a typical sprite (like tiles and units)
+  static int spriteDim; // The dimensions of a typical sprite (like tiles and units)
   static sf::Vector2f windowDim;
 
   static std::mt19937 rng;    // Used for random number generation
+
+  static std::vector<Bezier> curves; // The bezier curves used by handlers for smooth transitions
 
   // keyboard
   static std::vector<int> initialKeyPresses;  // A vector of keys which were initially pressed in the current frame
 
   // Debug
-  static sf::Texture debugTexture;            // The texture used for debug sprites
   static sf::Sprite debugSprite;              // The sprite used for rendering debug positions on the screen
   static std::vector<sf::Vector2f> debugPos;  // Holds all the saved debug sprite positions
-
-  static sf::Font programFont;    // The font used throughout the program
 
   // Events
   static std::vector<Event> events;   // Accumulated game events
@@ -82,7 +87,9 @@ public:
   static sf::Shader entShad;
   static sf::Shader worldShad;
 
-  static std::forward_list<Particle> particles;
+  static std::forward_list<std::unique_ptr<Particle>> particles;
+
+  static float scoreMultiplier;
 };
 
 #endif

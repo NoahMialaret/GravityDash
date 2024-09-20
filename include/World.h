@@ -3,6 +3,7 @@
 
 #include <SFML/Graphics.hpp>
 
+#include "Clock.h"
 #include "Utility.h"
 
 #include <iostream>
@@ -26,6 +27,7 @@ public:
     bool FinishedTransitioning() const;
 
 private:
+    // Could use a scale handler for resizing
     sf::IntRect playableRegion;     // The playable region of the game
     sf::RectangleShape renderRect;  // The rectangle to represent the world region
 

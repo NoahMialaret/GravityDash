@@ -6,7 +6,6 @@ MainMenu::MainMenu(bool showIntro)
   config.numPlayers = 0;
   config.numComputers = 4;
   config.sawFrequency = 0;
-  config.mode = Mode::title;
 
   game = std::make_unique<Game>(config);
 

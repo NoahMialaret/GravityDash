@@ -5,7 +5,7 @@ sf::Vector2f SubMenu::namePosition;
 SubMenu::SubMenu(std::string menuName)
 {
     name.setString(menuName);
-    name.setFont(Utility::programFont);
+    name.setFont(Textures::font);
     name.setCharacterSize(SCALED_DIM);
     name.setFillColor(sf::Color(173, 103, 78));
     name.setOrigin(name.getLocalBounds().left, name.getLocalBounds().height + name.getLocalBounds().top);

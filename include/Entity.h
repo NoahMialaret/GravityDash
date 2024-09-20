@@ -4,98 +4,111 @@
 #include <SFML/Graphics.hpp>
 
 #include "AnimationHandler.h"
-#include "Character.h"
-#include "Particle.h"
+#include "Bezier.h"
+#include "MotionHandler.h"
+#include "RotationHandler.h"
+#include "ScaleHandler.h"
+#include "Textures.h"
 #include "Utility.h"
 
-#include <iostream>
+#include <memory>
 
-// A class of non-player entities that can appear during gameplay
+// An Entity class used to encapsulate the various functions a typical
+// game entity might have, such as sprites, animations, and motions
 class Entity
 {
 public:
-  Entity(sf::Texture* tex, int maxID);
-  virtual ~Entity() = default;
+  Entity() = default;
+  // Constructs an entity with a texture, shader, and framesize if given
+  Entity(const char* textureName, sf::Shader* shader = &Utility::entShad, 
+          sf::Vector2i frameSize = {Utility::spriteDim, Utility::spriteDim},
+          sf::Vector2f origin = {0.5f, 0.5f});
 
-  // Virtual function for updating entity logic
-  void virtual Update(std::vector<Character *> players) = 0;
-  // Renders the entity
-  void Render(sf::RenderWindow *win) const;
+  // Couples the position of the sprite to some external position vector
+  void CouplePosition(sf::Vector2f* pos);
+  // Decouples the sprite's position with the external position
+  void DecouplePosition();
 
-  // Stops the entity from moving
-  void Freeze();
-  // Allows the entity to move
-  void Unfreeze();
+  // Couples the scale of the sprite to some external scale vector
+  void CoupleScale(sf::Vector2f* scale);
+  // Decouples the sprite's scale with the external scale
+  void DecoupleScale();
 
-  // Whether the entity has reached the end of its life
-  bool EndOfLife() const;
+  // Couples the rotation of the sprite to some external rotation vector
+  void CoupleRotation(float* rot);
+  // Decouples the sprite's rotation with the external rotation
+  void DecoupleRotation();
 
-  // Operator overloads for comparing the vertical position of the enities
-  bool operator<=(Entity& rhs); 
-  bool operator<(Entity& rhs); 
-  bool operator>=(Entity& rhs); 
-  bool operator>(Entity& rhs); 
-  bool operator<=(float rhs); 
-  bool operator<(float rhs); 
-  bool operator>=(float rhs); 
-  bool operator>(float rhs); 
+  // Updates the entity's animation, as well as its position, scale, and rotation
+  // with either the respective pointers or handlers 
+  void Update();
+  // Renders the sprite to the screen, using a shader if given
+  void Render(sf::RenderWindow* win) const;
 
-  sf::Vector2f GetPosition()
-  {
-    return sprite.getPosition();
-  }
+  // Flips the entity's X directon (i.e. left <-> right)
+  void FlipX();
+  // Flips the entity's Y directon (i.e. up <-> down)
+  void FlipY();
+  // Sets the entity's X direction to right if bool is true, left otherwise
+  void SetXDir(bool right);
+  // Sets the entity's X direction to upright if bool is true, upsidedown otherwise
+  void SetYDir(bool up);
 
-protected:
-  int entID = 0;
-  sf::Sprite sprite;      // The sprite used by the entity
-  AnimationHandler anims; // The entity's animation handler
+  // Gets the sprite's position
+  sf::Vector2f GetPosition() const;
+  // Gets the sprite's scale
+  sf::Vector2f GetScale() const;
+  // Gets the sprite's rotation
+  float GetRotation() const;
 
-  float vel = 0.0f;  // The entity's horizontal velocity
-  bool isFrozen = false; // Whether the movement of the entity has be frozen
+  // Clears the entity's handlers
+  void ClearHandlers();
 
-  bool endOfLife = false; // Whether the entity has reached the end of its lifespan
-};
+  // Gets the entity's hitbox based on it's rendering region on the screen
+  sf::FloatRect HitBox() const;
 
-// The saw is an entity that deals damage to the player on contact, 
-// moves along the upper or lower border of the world
-class Saw : public Entity
-{
-public:
-  Saw() = delete;
-  // Constructor uses the world border to determine spawn positions and cutoff points
-  Saw(sf::Texture* tex, sf::IntRect &worldBorder, int maxID);
-  // Updates the spike's position and checks for player collisions
-  void Update(std::vector<Character *> players) override;
+  // Queues an animation for the entity
+  void QueueAnimation(int index, int dur, int loops = ALWAYS, int hold = 0);
+  // Clears the animation queue and replaces it with a new animation
+  void SetAnimation(int index, int dur, int loops = ALWAYS, int hold = 0);
+
+  // Queues a motion with an offset from the endpoint of that last motion
+  void QueueMotion(Curve curve, float duration, sf::Vector2f offSet);
+  // Queues a motion between two points
+  void QueueMotion(Curve curve, float duration, sf::Vector2f start, sf::Vector2f end);
+  // Queues a motion between any number of points as a curve
+  void QueueMotion(Curve curve, float duration, Bezier points);
+
+  // Queues a scale change between two scales
+  void QueueScale(Curve curve, float duration, sf::Vector2f start, sf::Vector2f end);
+  // Queues a scale change between any number of scales
+  void QueueScale(Curve curve, float duration, Bezier scales);
+
+  // Queues a rotation change
+  void QueueRotation(Curve curve, float duration, float start, float end);
 
 private:
-  float cutOffPoint = 0.0f; // The pixel position of the screen at which the entity should be culled
+  // The sprite used by the entity for rendering
+  std::unique_ptr<sf::Sprite> sprite;
+  
+  // The shader used for rendering
+  sf::Shader* shader = nullptr;
+
+  // A pointer to an external position vector if the sprite's position has been coupled
+  sf::Vector2f* position = nullptr;
+  // A pointer to an external scale vector if the sprite's scale has been coupled
+  sf::Vector2f* scale = nullptr;
+  // A pointer to an external rotation value if the sprite's rotation has been coupled
+  float* rotation = nullptr;
+
+  // The entity's animation handler
+  AnimationHandler anim;
+  // The entity's motion handler, only gets used if the position isn't coupled
+  MotionHandler motion;
+  // The entity's scale handler, only gets used if the scale isn't coupled
+  ScaleHandler scaleHand;
+  // The entity's rotation handler, only gets used if the rotation isn't coupled
+  RotationHandler rot;
 };
-
-// The targets are the entities that the player is trying to hit to score points,
-// they normally spawn randomly in the middle of the world
-class MovingTarget : public Entity
-{
-public:
-  MovingTarget() = delete;
-  // Constructor uses the world border to determine spawn positions and cutoff points
-  MovingTarget(sf::Texture* tex, sf::IntRect &worldBorder, int maxID);
-  // Updates the spike's position and checks for player collisions
-  void Update(std::vector<Character *> players) override;
-
-private:
-  float cutOffPoint = 0.0f; // The pixel position of the screen at which the entity should be culled
-};
-
-// class StationaryTarget : public Entity
-// {
-//   StationaryTarget() = delete;
-//   // Constructor uses the world border to determine spawn positions and cutoff points
-//   StationaryTarget(sf::Texture* tex, sf::IntRect &worldBorder, int lifespan);
-//   // Spawns a stationary target at the desired position
-//   StationaryTarget(sf::Vector2f pos);
-//   // Updates the spike's position and checks for player collisions
-//   void Update(std::vector<Character *> players) override;
-
-// }
 
 #endif

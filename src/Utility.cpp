@@ -1,29 +1,33 @@
 #include "Utility.h"
 #include "Particle.h"
 
-sf::Clock Utility::clock;
-
 float Utility::targetFrameRate = 60.0f;
 float Utility::gameScale = 6.0f;
-float Utility::spriteDim = 8.0f;
+int Utility::spriteDim = 8.0f;
 sf::Vector2f Utility::windowDim;
 
 std::mt19937 Utility::rng = std::mt19937(std::random_device()());
 
+std::vector<Bezier> Utility::curves =
+{
+  Bezier({{0, 0},{1,1}}),
+  Bezier({{0, 0},{0,1},{1, 1}}),
+  Bezier({{0, 0},{1,0},{1, 1}})
+};
+
 std::vector<int> Utility::initialKeyPresses;
 
-sf::Texture Utility::debugTexture;
 sf::Sprite Utility::debugSprite;
 std::vector<sf::Vector2f> Utility::debugPos;
-
-sf::Font Utility::programFont;
 
 std::vector<Event> Utility::events;
 
 sf::Shader Utility::entShad;
 sf::Shader Utility::worldShad;
 
-std::forward_list<Particle> Utility::particles;
+std::forward_list<std::unique_ptr<Particle>> Utility::particles;
+
+float Utility::scoreMultiplier = 1.0f;
 
 std::string Utility::IntToString(int number, int minDigits)
 {
@@ -59,7 +63,7 @@ int Utility::GetSign(int num)
 		return 1;
 	else if (num < 0)
 		return -1;
-    return 0;
+  return 0;
 }
 
 int Utility::GetSign(float num)
@@ -68,7 +72,7 @@ int Utility::GetSign(float num)
 		return 1;
 	else if (num < 0.0f)
 		return -1;
-    return 0;
+  return 0;
 }
 
 float Utility::GetSquaredDistanceToLineSegment(sf::Vector2f centrePos, std::pair<sf::Vector2f, sf::Vector2f> lineSegPoints)
@@ -157,10 +161,10 @@ void Utility::UpdateParticles()
 {
   for (auto prev = particles.before_begin(), cur = particles.begin(); cur != particles.end();)
   {
-    cur->Update();
-    if (cur->HasFinished())
+    cur->get()->Update();
+    if (cur->get()->HasFinished())
     {
-      while (cur != particles.end() && cur->HasFinished())
+      while (cur != particles.end() && cur->get()->HasFinished())
       {
         cur = particles.erase_after(prev);
       }
@@ -179,6 +183,6 @@ void Utility::RenderParticles(sf::RenderWindow* win)
 
   for (auto cur = particles.begin(); cur != particles.end(); cur++)
   {
-    cur->Render(win);
+    cur->get()->Render(win);
   }
 }

@@ -15,10 +15,12 @@ public:
 
   int HeldDirection();
   bool JumpPressed();
+  bool SuperJumpPressed();
 
 protected:
   int heldDirection = 0;
   bool jumpPressed = false;
+  bool superJumpPressed = false;
 };
 
 class Keyboard : public Controls
@@ -32,6 +34,7 @@ private:
   sf::Keyboard::Key leftKey;
   sf::Keyboard::Key rightKey;
   sf::Keyboard::Key jumpKey;
+  sf::Keyboard::Key superJumpKey;
 };
 
 // class Controller : public Controls

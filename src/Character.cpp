@@ -1,37 +1,60 @@
 #include "Character.h"
 
-Character::Character(const char* spritePath, int charID)
+
+Character::Character(int charID)
   : 
-  acceleration(0.2f * Utility::gameScale),
-  charID(charID)
+  charID(charID),
+  acceleration(0.2f * Utility::gameScale)
 {
-  if (!tex.loadFromFile(spritePath)) 
-  {
-    std::cout << "Character texture could not be loaded!\n";
-  }
+  entity = Entity("character");
 
-  sprite.setTexture(tex);    
-  sprite.setOrigin(CENTRED_ORIGIN);
+  entity.CouplePosition(&pos);
 
-  sprite.setScale({Utility::gameScale, -Utility::gameScale});
+  entity.FlipY();
+  entity.QueueAnimation((int)curState, 150);
 
-  anims = AnimationHandler(&sprite);
-  anims.QueueAnimation((int)curState, 150);
+  reticle = Entity("reticle", nullptr, (sf::Vector2i)Textures::textures.at("reticle").getSize());
+  reticle.CouplePosition(&reticlePos);
 }
 
 Character::~Character()
-{
-  Point::DeletePoints(points);
-}
+{}
 
 void Character::Update()
 {
-  if (curState <= State::moving)
+  particleTimer -= Clock::Delta();
+  invincibilityTimer -= Clock::Delta();
+  velTimer -= Clock::Delta();
+  jumpTimer -= Clock::Delta();
+
+  while (curState <= State::moving && velTimer <= 0)
   {
     UpdateVelocity(move);
   }
   
-  prevPos = sprite.getPosition();
+  prevPos = pos;
+
+  if (boost != nullptr && boost.get()->IsFull())
+  {
+    if (move)
+    {
+      float m = (float)move * (isUpright ? -1.0f : 1.0f);
+      reticleAngle += m * (2.0f - m * reticleAngle) * (float)Clock::Delta() / 500.0f;
+      reticleAngle = std::clamp(reticleAngle, -1.2f, 1.2f);
+    } 
+    else
+    {
+      float m = - (float)Utility::GetSign(reticleAngle);
+      reticleAngle += m * (fabs(reticleAngle)) * (float)Clock::Delta() / 200.0f;
+      if (Utility::GetSign(reticleAngle) == (int)m)
+      {
+        reticleAngle = 0.0f;
+      }
+    } 
+
+    reticlePos = pos + (isUpright ? -1.0f : 1.0f) * Utility::gameScale * Utility::spriteDim * 3.0f * sf::Vector2f(std::sin(reticleAngle), std::cos(reticleAngle));
+    reticle.Update();
+  }
 
   switch (curState)
   {
@@ -43,33 +66,30 @@ void Character::Update()
 
     curState = State::moving;
 
-    anims.Clear();
-    anims.QueueAnimation((int)curState, (isLastStand ? 3.0f : 1.0f) * 100);
-    sprite.setScale({move * Utility::gameScale, sprite.getScale().y});
+    entity.SetAnimation((int)curState, (finalJump ? 3 : 1) * 100);
+    entity.SetXDir(move == 1);
 
-    nextRunParticle = (isLastStand ? 4.0f : 1.0f) * 150 + CUR_TIME;
+    particleTimer = (finalJump ? 4 : 1) * 150;
     break;
 
   case State::moving:
     if (vel == ZERO_VECTOR && move == 0)
     {
       curState = State::idle;
-      anims.Clear();
-      anims.QueueAnimation((int)curState, (isLastStand ? 2.0f : 1.0f) * 150);
+      entity.SetAnimation((int)curState, (finalJump ? 2 : 1) * 150);
       break;
     }
 
-    if (move != 0 && move != Utility::GetSign(sprite.getScale().x))
+    if (move != 0)
     {
-      sprite.scale({-1.0f, 1.0f});
+      entity.SetXDir(move == 1);
     }
 
-    if (nextRunParticle < CUR_TIME)
+    if (particleTimer <= 0)
     {
       sf::Vector2f partVel(-move * 0.2f * Utility::gameScale, (isUpright ? -0.1f : 0.1f) * Utility::gameScale);
-      Utility::particles.push_front(Particle(Particle::Type::walkDust, partVel, sprite.getPosition() - 
-        sf::Vector2f(move * 0.5f * SCALED_DIM, 0.0f), sprite.getScale()));
-      nextRunParticle += (isLastStand ? 4.0f : 1.0f) * 150;
+      Utility::particles.push_front(std::make_unique<Puff>(pos, sf::Vector2f(- (float)move, (isUpright ? -1.0f : 1.0f))));
+      particleTimer = (finalJump ? 4 : 1) * 150;
     }
     break;
 
@@ -80,12 +100,14 @@ void Character::Update()
     break;
 
   case State::stunned:
-    if (stunTimer < CUR_TIME)
+    stunTimer -= Clock::Delta();
+    if (stunTimer <= 0)
     {
       curState = State::idle;
-      invincibleEnd = CUR_TIME + 3000;
-      anims.Clear();
-      anims.QueueAnimation((int)curState, (isLastStand ? 2.0f : 1.0f) * 150);
+      invincibilityTimer = 3000;
+      entity.SetAnimation((int)curState, (finalJump ? 2 : 1) * 150);
+      reticleAngle = 0.0f;
+      reticle.Update();
     }
     break;
 
@@ -97,26 +119,19 @@ void Character::Update()
 
   if (curState != State::airborne)
   {
-    vel.y += (isUpright ? 1.0f : -1.0f) * 0.5f;
+    vel.y += (isUpright ? 1.0f : -1.0f) * 0.05f * Clock::Delta();
   }
 
-  sprite.move((isLastStand ? 0.5f : 1.0f) * vel);
-  anims.Update();
-}
+  if (!finalJump && boost != nullptr)
+    boost.get()->Update();
 
-void Character::Render(sf::RenderWindow *win) const
-{
-  Utility::entShad.setUniform("colorID", charID);
-  if (invincibleEnd < CUR_TIME || (CUR_TIME / 64) % 2 == 1)
-  {
-    win->draw(sprite, &Utility::entShad);
-  }
-
-  Point::RenderPoints(points, win);
+  pos += (finalJump ? 0.5f : 1.0f) * (Clock::Delta() / 16.0f) * vel;
 }
 
 void Character::UpdateVelocity(int dir)
 {
+  velTimer += 16;
+
   if (dir != 0 && curState != State::airborne)
   {
     vel.x += acceleration * dir;
@@ -139,159 +154,310 @@ void Character::UpdateVelocity(int dir)
   }
 }
 
-void Character::StartJump()
+void Character::Render(sf::RenderWindow *win) const
+{
+  entity.Update();
+
+  Utility::entShad.setUniform("colorID", charID);
+  if (invincibilityTimer <= 0 || (Clock::Elapsed() / 64) % 2)
+  {
+    entity.Render(win);
+  }
+
+  if (gameScore != nullptr)
+  {
+    for (auto& point : targetPoints)
+    {
+      point.Render(win);
+    }
+  }
+
+  if (boost == nullptr)
+    return;
+
+  if (boost.get()->IsFull() && curState <= State::moving && !finalJump)
+  {
+    reticle.Render(win);
+  }
+
+  boost.get()->Render(win);
+}
+
+void Character::Jump()
 {
   if (curState >= State::airborne)
   {
-      return;
+    return;
   }
-  
-  curState = State::airborne;
+
+  vel.y = acceleration * 80.0f * (isUpright ? -1.0f : 1.0f);;
   vel.x = 0.0f;
-  vel.y = acceleration * 80.0f * (isUpright ? -1.0f : 1.0f);
+  
   isUpright = !isUpright;
-  anims.Clear();
-  anims.QueueAnimation((int)curState, 100);
+  reticleAngle = 0.0f;
+
+  curState = State::airborne;
+  
+  entity.SetAnimation((int)curState, 20);
 }
 
-int Character::Land()
+void Character::SuperJump()
+{
+  if (curState >= State::airborne || (boost != nullptr && !boost.get()->IsFull()))
+  {
+    return;
+  }
+
+  float jumpSpeed = acceleration * 80.0f * (isUpright ? -1.0f : 1.0f);
+
+  boostJumpsRemaining = 5;
+  vel.y = std::cos(reticleAngle) * jumpSpeed;
+  vel.x = std::sin(reticleAngle) * jumpSpeed;
+  
+  isUpright = !isUpright;
+  reticleAngle = 0.0f;
+
+  curState = State::airborne;
+  
+  entity.SetAnimation((int)curState, 20);
+}
+
+void Character::Land()
 {
   vel.y = 0.0f;
+  vel.x = 0.0f;
   curState = State::idle;
 
-  anims.Clear();
-  anims.QueueAnimation((int)State::airborne + 2, 100, 0, 300);
-  anims.QueueAnimation((int)curState, 150);
-  sprite.scale({1.0f, -1.0f});
+  entity.SetAnimation((int)State::airborne + 2, 100, 0, 300);
+  entity.QueueAnimation((int)curState, 150);
+  entity.FlipY();
 
-  sf::Vector2f partVel = {Utility::gameScale * 0.3f, 0.0f};
-  sf::Vector2f offset = {0.5f * SCALED_DIM, 0.0f};
+  Utility::particles.push_front(std::make_unique<Dust>(pos, !isUpright));
 
-  Utility::particles.push_front(Particle(Particle::Type::landingImpact, partVel, sprite.getPosition() + offset, {fabsf(sprite.getScale().x), sprite.getScale().y}));
-  Utility::particles.push_front(Particle(Particle::Type::landingImpact, -partVel, sprite.getPosition() - offset, {-fabsf(sprite.getScale().x), sprite.getScale().y}));
-
-  if (isLastStand)
+  if (finalJump)
   {
     curState = State::dead;
   }
-
-  if (comboCount == 0)
+  else if (queueFinalJump)
   {
-    return 0;
+    finalJump = true;
+    queueFinalJump = false;
   }
+
+  if (boost != nullptr && comboCount >= 2 && boostJumpsRemaining == -1)
+  {
+    boost.get()->Increment(2000);
+  }
+
+  if (comboCount >= 3)
+  {
+    canCollect = true;
+  }
+  else 
+  {
+    timeBoostCollected = 0;
+  }
+
+  boostJumpsRemaining = -1;
 
   comboCount = 0;
 
-	sf::Vector2f avPos = Point::GetAveragePosition(points);
+  if (gameScore != nullptr)
+  {
+    gameScore->AddTargetPoints(targetPoints);
+  }
 
-	unsigned int accumulatedPoints = Point::GetTotalScore(points);
+  targetPoints.clear();
+}
 
-	Point* total = new Point(accumulatedPoints, avPos, 700, 500);
-	Point::CreateNewPoint(points, total);
+void Character::FloorCollision(float distance)
+{
+  pos.y += distance;
 
-	Point::SetPointsDestination(points, avPos, 200);
+  if (curState == State::airborne)
+  {
+    if (boostJumpsRemaining <= 0)
+    {
+      Land();
+      return;
+    }
 
-  return accumulatedPoints;
+    boostJumpsRemaining--;
+
+    if (boostJumpsRemaining == 0)
+    {
+      invincibilityTimer = 2000;
+      boost.get()->Clear();
+      Land();
+      return;
+    }
+
+    pos.y += distance;
+    vel.y = -vel.y;
+
+    return;
+  }
+  else if (curState == State::hit)
+  {
+    curState = State::stunned;
+    stunTimer = 1000;
+    vel.x = 0;
+  }
+
+  vel.y = 0.0f;
+}
+
+void Character::WallCollision(float distance)
+{
+  pos.x += distance;
+  if (boostJumpsRemaining >= 0)
+  {
+    pos.x += distance;
+    vel.x = - vel.x;
+  }
+  else
+  {
+    vel.x = 0.0f;
+  }
 }
 
 bool Character::Hit(sf::Vector2f entPos)
 {
-  if (invincibleEnd > CUR_TIME || curState >= State::hit)
+  if (invincibilityTimer > 0 || curState >= State::hit || boostJumpsRemaining >= 0 || finalJump)
   {
     return false;
   }
+
   std::cout << "Player has been hit!\n";
 
   if (curState == State::airborne)
   {
-    sprite.scale({1.0f, -1.0f});
-
-    sf::Vector2f avPos = Point::GetAveragePosition(points);
-
-    Point::SetPointsDestination(points, avPos, 200);
+    entity.FlipY();
+  }
+  if (queueFinalJump)
+  {
+    queueFinalJump = false;
+    finalJump = true;
   }
 
-  // invincibleEnd = CUR_TIME + 2000;
-
   // y = ent.y +- sqrt(64*scale-(this.x-ent.x)^2) + for saws on top
-  sf::Vector2f pos(sprite.getPosition().x, 0.0f);
   pos.y = entPos.y + (isUpright ? -1.0f : 1.0f) * std::sqrt(64*Utility::gameScale*Utility::gameScale - (pos.x - entPos.x) * (pos.x - entPos.x));
-  sprite.setPosition(pos);
 
   vel.y = (isUpright ? -3.0f : 3.0f);
   vel.x = (pos.x - entPos.x < 0.0f ? -10.0f : 10.0f);
 
   curState = State::hit;
-  anims.Clear();
-  anims.QueueAnimation((int)curState, 100);
+  entity.SetAnimation((int)curState, 100);
 
-  return true;
+  targetPoints.clear();
+  comboCount = 0;
+  timeBoostCollected = 0;
+  canCollect = false;
 
-  if (isLastStand)
+  AddNewPoint(-5000, pos, ZERO_VECTOR);
+
+  if (gameScore != nullptr)
   {
-      return false;
+    gameScore->AddTargetPoints(targetPoints);
   }
-  isLastStand = true;
-  std::cout << "Character has been hit, this is their final jump!\n";
 
-  waitToJump = 1000 + CUR_TIME;
+  targetPoints.clear();
+
   return true;
+
+  // if (finalJump)
+  // {
+  //   return false;
+  // }
+  // isLastStand = true;
+  // std::cout << "Character has been hit, this is their final jump!\n";
+
+  // return true;
+}
+
+void Character::Kill()
+{
+  jumpTimer = 2000;
+  if (curState == State::airborne)
+  {
+    queueFinalJump = true;
+    return;
+  }
+  finalJump = true;
 }
 
 Character::State Character::GetCurState() const
 {
-    return curState;
+  return curState;
 }
 
-bool Character::IsLastStand() const
+bool Character::IsFinalJump() const
 {
-    return isLastStand;
+  return finalJump;
 }
 
 sf::Vector2f Character::GetPosition() const
 {
-    return sprite.getPosition();
+  return pos;
 }
 
 void Character::SetPosition(sf::Vector2f& newPos)
 {
-  sprite.setPosition(newPos);
-}
-
-void Character::SetXVelocity(float xVel)
-{
-  vel.x = xVel;
-}
-
-void Character::SetYVelocity(float yVel)
-{
-  vel.y = yVel;
-
-  if (curState == State::hit)
-  {
-    curState = State::stunned;
-    stunTimer = CUR_TIME + 1000;
-    vel.x = 0;
-  }
+  pos = newPos;
 }
 
 sf::FloatRect Character::GetHitBox() const
 {
-    return sprite.getGlobalBounds();
+    return entity.HitBox();
 }
 
 std::pair<sf::Vector2f, sf::Vector2f> Character::GetLineHitBox() const
 {
-    return std::pair<sf::Vector2f, sf::Vector2f>(prevPos, sprite.getPosition());
+  return std::pair<sf::Vector2f, sf::Vector2f>(prevPos, pos);
 }
 
 void Character::IncrementComboCount()
 {
-  comboCount++;
+  if (comboCount < 7)
+  {
+    comboCount++;
+  }
+}
+
+void Character::EnableBoost(sf::Vector2f boostPos)
+{
+  boost = std::make_unique<PlayerBoost>(boostPos);
+}
+
+void Character::LinkScore(GameScore* score)
+{
+  gameScore = score;
+}
+
+void Character::IncrementTimeBoost()
+{
+  timeBoostCollected++;
+}
+
+int Character::GetTimeBoost()
+{
+  if (canCollect)
+  {
+    canCollect = false;
+    int temp = timeBoostCollected;
+    timeBoostCollected = 0;
+    return temp;
+  }
+  return 0;
 }
 
 void Character::AddNewPoint(sf::Vector2f pos, sf::Vector2f vel)
 {
+  if (boostJumpsRemaining >= 0)
+  {
+    AddNewPoint(1000, pos, vel);
+    return;
+  }
   int value = 50 * (int)pow(2, comboCount);
   if (value >= 25600) // The score from hitting 10th target in a row
   {
@@ -304,40 +470,41 @@ void Character::AddNewPoint(sf::Vector2f pos, sf::Vector2f vel)
 
 void Character::AddNewPoint(int value, sf::Vector2f pos, sf::Vector2f vel)
 {
-  if (value < 0) // Temp code until points and entity link lists are refactored
-  {
-    vel = ZERO_VECTOR;
-  }
-  Point* tempPoint = new Point(value, pos, vel);
-  Point::CreateNewPoint(points, tempPoint);
+  targetPoints.emplace_front(TargetPoints((float)value * Utility::scoreMultiplier, pos, vel));
 }
 
 // ------------------
 // Playable Character
 // ------------------
 
-PlayableCharacter::PlayableCharacter(const char* spritePath, int charID, std::unique_ptr<Controls>& controls)
-    : 
-    Character(spritePath, charID)
+PlayableCharacter::PlayableCharacter(int charID, std::unique_ptr<Controls>& controls)
+  : 
+  Character(charID)
 {
   this->controls = std::move(controls);
 }
 
 void PlayableCharacter::Update()
 {
-  Point::UpdatePoints(points);
-
   if (curState == State::dead)
   {
-    anims.Update();
     return;
+  }
+
+  for (auto& point : targetPoints)
+  {
+    point.Update();
   }
 
   controls.get()->Update();
 
-  if (controls.get()->JumpPressed() && waitToJump < CUR_TIME)
+  if (controls.get()->JumpPressed() && jumpTimer <= 0)
   {
-    StartJump();
+    Jump();
+  }
+  else if(controls.get()->SuperJumpPressed() && !finalJump && jumpTimer <= 0)
+  {
+    SuperJump();
   }
 
   move = controls.get()->HeldDirection();
@@ -349,21 +516,29 @@ void PlayableCharacter::Update()
 // Computer Character
 // ------------------
 
-ComputerCharacter::ComputerCharacter(const char* spritePath, int charID)
+ComputerCharacter::ComputerCharacter(int charID)
   :
-  Character(spritePath, charID)
+  Character(charID)
 {}
 
 void ComputerCharacter::Update()
 {
-  Point::UpdatePoints(points);
+  if (curState == State::dead)
+  {
+    return;
+  }
+
+  for (auto& point : targetPoints)
+  {
+    point.Update();
+  }
   
   std::uniform_int_distribution chance(0, 99);
   int randomNum = chance(Utility::rng);
 
   if (randomNum == 0)
   {
-    StartJump();
+    Jump();
   }
   else if (randomNum <= 3)
   {

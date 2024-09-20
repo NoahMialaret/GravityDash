@@ -5,17 +5,18 @@
 class Event
 {
 public:
-    enum class Type
-    {
-        programClose,
-        loadNewGame,
-        returnCamera,
-        cameraUp,
-        geToMainMenu
-    };
+  enum class Type
+  {
+    programClose,
+    loadNewGame,
+    returnCamera,
+    cameraUp,
+    geToMainMenu
+  };
 
 public:
-    Event::Type type;
+  Event::Type type;
+  int data = 0;
 };
 
 #endif

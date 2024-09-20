@@ -1,17 +1,18 @@
 #include "AnimationHandler.h"
 
-AnimationHandler::AnimationHandler(sf::Sprite* sprite)
+AnimationHandler::AnimationHandler(sf::Sprite* sprite, sf::Vector2i frameSize)
   : 
   AnimationHandler(
     sprite,
-    (int)(sprite->getTexture()->getSize().y / Utility::spriteDim),
-    (int)(sprite->getTexture()->getSize().x / Utility::spriteDim))
+    (int)(sprite->getTexture()->getSize().y / frameSize.y),
+    (int)(sprite->getTexture()->getSize().x / frameSize.x),
+    frameSize)
 {}
 
-AnimationHandler::AnimationHandler(sf::Sprite* sprite, int numAnimations, int numFrames)
+AnimationHandler::AnimationHandler(sf::Sprite* sprite, int numAnimations, int numFrames, sf::Vector2i frameSize)
   : 
   sprite(sprite),
-  frameRect(sf::IntRect(0, 0, (int)Utility::spriteDim, (int)Utility::spriteDim)),
+  frameRect(sf::IntRect((sf::Vector2i)ZERO_VECTOR, frameSize)),
   numAnimations(numAnimations),
   numFrames(numFrames)
 {
@@ -25,16 +26,11 @@ void AnimationHandler::Update()
     return;
   }
 
-  while (nextFrameStart < CUR_TIME)
+  frameTimer -= Clock::Delta();
+  while (frameTimer <= 0 && !animations.empty())
   {
     AdvanceFrame();
   }
-}
-
-void AnimationHandler::Update(sf::Sprite* sprite)
-{
-  this->sprite = sprite;
-  Update();
 }
 
 void AnimationHandler::Clear()
@@ -61,7 +57,7 @@ void AnimationHandler::AdvanceFrame()
         {
           return;
         }
-        nextFrameStart += animations.front().frameDuration + animations.front().hold;
+        frameTimer += animations.front().frameDuration + animations.front().hold;
         SetSpriteRegion();
         return;
       }
@@ -70,7 +66,7 @@ void AnimationHandler::AdvanceFrame()
     }
   }
 
-  nextFrameStart += animations.front().frameDuration;
+  frameTimer += animations.front().frameDuration;
 
   SetSpriteRegion();
 }
@@ -88,13 +84,13 @@ void AnimationHandler::QueueAnimation(Animation& anim)
 
   if (animations.size() == 1) // This animation was pushed to an empty queue
   {
-    nextFrameStart = anim.frameDuration + anim.hold + CUR_TIME;
+    frameTimer = anim.frameDuration + anim.hold;
     frameIndex = 0;
     SetSpriteRegion();
   }
 }
 
-void AnimationHandler::QueueAnimation(int index, sf::Int32 dur, int loops, sf::Int32 hold)
+void AnimationHandler::QueueAnimation(int index, int dur, int loops, int hold)
 {
   Animation anim;
   anim.index = index;

@@ -3,11 +3,12 @@
 
 #include <SFML/Graphics.hpp>
 
+#include "Clock.h"
 #include "Event.h"
 #include "Game.h"
-#include "Particle.h"
-#include "Score.h"
 #include "MainMenu.h"
+#include "Particle.h"
+#include "Textures.h"
 #include "Utility.h"
 
 #include "TitleSequence.h"
