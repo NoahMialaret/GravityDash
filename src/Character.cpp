@@ -85,7 +85,6 @@ void Character::Update()
       entity.SetXDir(move == 1);
     }
 
-
     if (particleTimer <= 0)
     {
       sf::Vector2f partVel(-move * 0.2f * Utility::gameScale, (isUpright ? -0.1f : 0.1f) * Utility::gameScale);
@@ -487,7 +486,6 @@ PlayableCharacter::PlayableCharacter(int charID, std::unique_ptr<Controls>& cont
 
 void PlayableCharacter::Update()
 {
-
   if (curState == State::dead)
   {
     return;
@@ -525,6 +523,11 @@ ComputerCharacter::ComputerCharacter(int charID)
 
 void ComputerCharacter::Update()
 {
+  if (curState == State::dead)
+  {
+    return;
+  }
+
   for (auto& point : targetPoints)
   {
     point.Update();

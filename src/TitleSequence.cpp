@@ -140,9 +140,6 @@ void TitleSequence::Update()
       timer = 2000;
       bgTiles.clear();
       Utility::particles.clear();
-      // Event newEvent;
-      // newEvent.type = Event::Type::showTitle;
-      // Utility::events.push_back(newEvent);
     }
     break;
 
@@ -156,7 +153,6 @@ void TitleSequence::Update()
       character.QueueAnimation(0, 150);
 
       title.QueueScale(Curve::easeIn, 1000, ZERO_VECTOR, DEFAULT_SCALE);
-      title.QueueRotation(Curve::linear, 2000, 0.0f, 720.0f);
       curSeq = Sequence::title;
     }
     break;
