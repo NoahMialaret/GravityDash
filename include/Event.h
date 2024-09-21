@@ -11,12 +11,21 @@ public:
     loadNewGame,
     returnCamera,
     cameraUp,
-    geToMainMenu
+    geToMainMenu,
+    loadNewMenu
   };
 
+  Event() = default;
+  Event(Type type, int data = 0)
+    :
+    type(type),
+    data(data)
+  {}
+
 public:
-  Event::Type type;
+  Type type = Type::programClose;
   int data = 0;
+  // void*;
 };
 
 #endif

@@ -59,13 +59,21 @@ Program::Program(const char* name)
     }
     Utility::worldShad.setUniform("texture", sf::Shader::CurrentTexture);
 		
-		Utility::debugSprite.setTexture(Textures::textures.at("debug"));    
-		Utility::debugSprite.setOrigin(0.5f * sf::Vector2f(Utility::spriteDim, Utility::spriteDim));
-		Utility::debugSprite.setScale(sf::Vector2f(Utility::gameScale, -Utility::gameScale));
+		// Utility::debugSprite.setTexture(Textures::textures.at("debug"));    
+		// Utility::debugSprite.setOrigin(0.5f * sf::Vector2f(Utility::spriteDim, Utility::spriteDim));
+		// Utility::debugSprite.setScale(sf::Vector2f(Utility::gameScale, -Utility::gameScale));
 
 	std::cout << "Initialising Program objects...\n";
 
-    title = std::make_unique<TitleSequence>();
+    menu = std::make_unique<Menu>();
+    
+    GameConfig config;
+    config.numPlayers = 0;
+    config.numComputers = 4;
+    config.sawFrequency = 0;
+    game = std::make_unique<Game>(config);
+
+    //title = std::make_unique<TitleSequence>();
 
     Clock::Init();
     
@@ -101,36 +109,42 @@ void Program::HandleEvents()
 
 		case Event::Type::loadNewGame:
     {
-			std::cout << "Create new game event called\n";
-      GameConfig config = mainMenu.get()->GetGameConfig();
-			mainMenu = nullptr;
-      Utility::particles.clear();
-      switch ((Game::Mode)event.data)
-      {
-      case Game::Mode::title:
-        game = std::make_unique<Game>(config);
-        break;
-      case Game::Mode::rush:
-        game = std::make_unique<Rush>(config);
-        break;
-      case Game::Mode::blitz:
-        game = std::make_unique<Blitz>(config);
-        break;
-      case Game::Mode::wild:
-        game = std::make_unique<Wild>(config);
-        break;
-      default:
-        std::cout << "Could not determine the game mode!\n";
-        mainMenu = std::make_unique<MainMenu>();
-        continue;
-      }
-			curState = State::gameplay;
+			// std::cout << "Create new game event called\n";
+      // // GameConfig config = mainMenu.get()->GetGameConfig();
+      // GameConfig config;
+			// // mainMenu = nullptr;
+      // Utility::particles.clear();
+      // switch ((Game::Mode)event.data)
+      // {
+      // case Game::Mode::title:
+      //   game = std::make_unique<Game>(config);
+      //   break;
+      // case Game::Mode::rush:
+      //   game = std::make_unique<Rush>(config);
+      //   break;
+      // case Game::Mode::blitz:
+      //   game = std::make_unique<Blitz>(config);
+      //   break;
+      // case Game::Mode::wild:
+      //   game = std::make_unique<Wild>(config);
+      //   break;
+      // default:
+      //   std::cout << "Could not determine the game mode!\n";
+      //   // mainMenu = std::make_unique<MainMenu>();
+      //   continue;
+      // }
+			// curState = State::gameplay;
 			break;
     }
+
+    case Event::Type::loadNewMenu:
+      menu.get()->ChangeMenu((Menus)event.data);
+      break;
+
     case Event::Type::geToMainMenu:
       game = nullptr;
-      title = nullptr;
-      mainMenu = std::make_unique<MainMenu>();
+      // title = nullptr;
+      // mainMenu = std::make_unique<MainMenu>();
       curState = State::startMenu;
       break;
 		
@@ -166,7 +180,7 @@ void Program::HandleEvents()
         }
 				if (curState == State::startMenu)
 				{
-					mainMenu.get()->Return();
+					// mainMenu.get()->Return();
 				}
 				// if gameplay, pause
 				break;
@@ -178,8 +192,8 @@ void Program::HandleEvents()
 			case sf::Keyboard::R:
 				std::cout << "Restarting Game!\n";
 				game = nullptr;
-				mainMenu = nullptr;
-        title = std::make_unique<TitleSequence>();
+				// mainMenu = nullptr;
+        // title = std::make_unique<TitleSequence>();
 				curState = State::titleSequence;
 				break;
 			
@@ -209,23 +223,25 @@ void Program::Update()
 	// mainView.move(sf::Vector2f(0.0f, - cameraDistance / 10));
 	// window.setView(mainView);
 
-	switch (curState)
-	{
-  case State::titleSequence:
-    title.get()->Update();
-    break;
+  menu.get()->Update();
 
-	case State::startMenu:
-		mainMenu.get()->Update();
-		break;
+	// switch (curState)
+	// {
+  // case State::titleSequence:
+  //   title.get()->Update();
+  //   break;
 
-	case State::gameplay:
-		game.get()->Update();
-		break;
+	// case State::startMenu:
+	// 	mainMenu.get()->Update();
+	// 	break;
+
+	// case State::gameplay:
+	// 	game.get()->Update();
+	// 	break;
 	
-	default:
-		break;
-	}
+	// default:
+	// 	break;
+	// }
 
   Utility::UpdateParticles();
 
@@ -243,24 +259,25 @@ void Program::Render()
 		return;
 	}
 
+  menu.get()->Render(&window);
 
-	switch (curState)
-	{
-  case State::titleSequence:
-    title.get()->Render(&window);
-    break;
+	// switch (curState)
+	// {
+  // case State::titleSequence:
+  //   title.get()->Render(&window);
+  //   break;
 
-	case State::startMenu:
-		mainMenu.get()->Render(&window);
-		break;
+	// case State::startMenu:
+	// 	mainMenu.get()->Render(&window);
+	// 	break;
 
-	case State::gameplay:
-		game.get()->Render(&window);
-		break;
+	// case State::gameplay:
+	// 	game.get()->Render(&window);
+	// 	break;
 
-	default:
-		break;
-	}
+	// default:
+	// 	break;
+	// }
 
 	Utility::Render(&window);
 

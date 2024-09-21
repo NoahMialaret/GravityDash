@@ -7,7 +7,6 @@ std::map<std::string, sf::Texture> Textures::textures =
   {"boost_meter", {} },
   {"buttons", {} },
   {"character", {} },
-  {"debug", {} },
   {"entities", {} },
   {"frenchie", {} },
   {"nums_big", {} },
@@ -17,7 +16,9 @@ std::map<std::string, sf::Texture> Textures::textures =
   {"tabs", {} },
   {"timer", {} },
   {"title", {} },
-  {"toggle", {} }
+  {"toggle", {} },
+  {"large_button", {}},
+  {"medium_button", {}}
 };
 sf::Font Textures::font;
 
@@ -48,7 +49,6 @@ void Textures::ClearTextures()
     {"boost_tab", {} },
     {"buttons", {} },
     {"character", {} },
-    {"debug", {} },
     {"entities", {} },
     {"frenchie", {} },
     {"nums_big", {} },
@@ -57,6 +57,8 @@ void Textures::ClearTextures()
     {"tabs", {} },
     {"timer", {} },
     {"title", {} },
-    {"toggle", {} }
+    {"toggle", {} },
+    {"large_button", {}},
+    {"medium_button", {}}
   };
 }
