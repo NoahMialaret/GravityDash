@@ -42,6 +42,13 @@ Program::Program(const char* name)
 
     Textures::LoadTextures();
 
+    sf::Image icon;
+    if (!icon.loadFromFile("assets/icon.png"))
+    {
+      std::cout << "Error loading icon!\n";
+    }
+    window.setIcon(icon.getSize().x, icon.getSize().y, icon.getPixelsPtr());
+
     if (!sf::Shader::isAvailable())
     {
       std::cout << "\tShaders are not available on this hardware!\n";
@@ -58,35 +65,16 @@ Program::Program(const char* name)
       std::cout << "ERROR\n";
     }
     Utility::worldShad.setUniform("texture", sf::Shader::CurrentTexture);
-		
-		// Utility::debugSprite.setTexture(Textures::textures.at("debug"));    
-		// Utility::debugSprite.setOrigin(0.5f * sf::Vector2f(Utility::spriteDim, Utility::spriteDim));
-		// Utility::debugSprite.setScale(sf::Vector2f(Utility::gameScale, -Utility::gameScale));
 
 	std::cout << "Initialising Program objects...\n";
 
-    menu = std::make_unique<Menu>();
-    
-    GameConfig config;
-    config.numPlayers = 0;
-    config.numComputers = 4;
-    config.sawFrequency = 0;
-    game = std::make_unique<Game>(config);
-
-    //title = std::make_unique<TitleSequence>();
+    menu = std::make_unique<Menu>(Menus::main);
 
     Clock::Init();
     
 	std::cout << "Program init done! Starting title sequence...\n";
 	
-		curState = State::titleSequence;
-
-    sf::Image icon;
-    if (!icon.loadFromFile("assets/icon.png"))
-    {
-      std::cout << "Error loading icon!\n";
-    }
-    window.setIcon(icon.getSize().x, icon.getSize().y, icon.getPixelsPtr());
+		curState = State::mainMenu;
 
 	std::cout << "--===++++++++++++++===--\n";
 }
@@ -150,9 +138,8 @@ void Program::HandleEvents()
 
     case Event::Type::geToMainMenu:
       game = nullptr;
-      // title = nullptr;
-      // mainMenu = std::make_unique<MainMenu>();
-      curState = State::startMenu;
+      menu = std::make_unique<Menu>(Menus::main);
+      curState = State::mainMenu;
       break;
 		
 		default:
@@ -179,29 +166,28 @@ void Program::HandleEvents()
 		case sf::Event::KeyPressed:
 			switch (SFMLevent.key.code) 
 			{
-			case sf::Keyboard::Escape:
-        if (curState == State::titleSequence)
-        {
-          std::cout << "Quit button has been pressed, closing game...\n";
-          ProgramExit();          
-        }
-				if (curState == State::startMenu)
-				{
-					// mainMenu.get()->Return();
-				}
-				// if gameplay, pause
-				break;
+			// case sf::Keyboard::Escape:
+      //   if (curState == State::mainMenu)
+      //   {
+      //     std::cout << "Quit button has been pressed, closing game...\n";
+      //     ProgramExit();          
+      //   }
+			// 	if (curState == State::startMenu)
+			// 	{
+			// 		// mainMenu.get()->Return();
+			// 	}
+			// 	// if gameplay, pause
+			// 	break;
 
-			case sf::Keyboard::Tab:
-				Utility::FlushDebugSprites();
-				break;
+			// case sf::Keyboard::Tab:
+			// 	Utility::FlushDebugSprites();
+			// 	break;
 
 			case sf::Keyboard::R:
 				std::cout << "Restarting Game!\n";
 				game = nullptr;
-				// mainMenu = nullptr;
-        // title = std::make_unique<TitleSequence>();
-				curState = State::titleSequence;
+        menu = std::make_unique<Menu>(Menus::main); // change to title
+				curState = State::mainMenu;
 				break;
 			
 			default:

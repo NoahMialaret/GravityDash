@@ -1,6 +1,8 @@
 #include "Button.h"
 
 Button::Button(std::string name, Event action, std::string textureName, sf::Vector2f pos)
+  :
+  action(action)
 {
   button = sf::Sprite(Textures::textures.at(textureName));
   button.setScale(DEFAULT_SCALE);

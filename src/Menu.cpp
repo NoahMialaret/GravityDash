@@ -1,8 +1,8 @@
 #include "Menu.h"
 
-Menu::Menu()
+Menu::Menu(Menus startMenu)
 {
-  ChangeMenu(Menus::main);
+  ChangeMenu(startMenu);
 
   GameConfig config;
   config.numPlayers = 0;
@@ -54,7 +54,21 @@ void Menu::ChangeMenu(Menus menuType)
     buttons.push_back({"medal", Event(Event::Type::loadNewMenu, (int)Menus::medal), 1});
     buttons.push_back({"exit", Event(Event::Type::programClose), 1});
 
-    interface = std::make_unique<GridInterface>(2, buttons, Event(Event::Type::loadNewMenu, (int)Menus::title));
+    interface = std::make_unique<GridInterface>(2, buttons, Event(Event::Type::programClose, (int)Menus::title));
+    break;
+  }
+  case Menus::play:
+  {
+    showGame = true;
+
+    std::vector<ButtonConfig> buttons;
+
+    buttons.push_back({"rush", Event(Event::Type::loadNewGame), 2});
+    buttons.push_back({"blitz", Event(Event::Type::loadNewGame), 2});
+    buttons.push_back({"multi", Event(Event::Type::loadNewMenu, (int)Menus::multi), 1});
+    buttons.push_back({"custom", Event(Event::Type::loadNewMenu, (int)Menus::custom), 1});
+
+    interface = std::make_unique<GridInterface>(2, buttons, Event(Event::Type::loadNewMenu, (int)Menus::main));
     break;
   }
   

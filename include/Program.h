@@ -25,8 +25,7 @@ public:
 	enum class State 
 	{
 		notRunning,
-    titleSequence,
-		startMenu,
+    mainMenu,
 		gameplay,
 		paused
 	};	

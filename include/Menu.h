@@ -24,7 +24,7 @@ class Menu
 //   };
 
 public:
-  Menu();
+  Menu(Menus startMenu = Menus::title);
   
   void Update();
   void Render(sf::RenderWindow* win) const;
