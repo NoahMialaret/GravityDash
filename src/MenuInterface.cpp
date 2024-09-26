@@ -23,38 +23,55 @@ MenuInterface::MenuInterface(Event menuReturn)
 //   // if button is medium, pushback, if button is large, pushback * 2
 // }
 
-GridInterface::GridInterface(std::vector<ButtonConfig>& configs, Event menuReturn)
+GridInterface::GridInterface(int startPos, std::vector<ButtonConfig>& configs, Event menuReturn)
   :
-  MenuInterface(menuReturn)
+  MenuInterface(menuReturn),
+  curPos(startPos)
 {
-  float hori = -GRID_HORI;
-  
+  assert (configs.size() > 0);
+
+  float hori = 0;
+  float padding = SCALED_DIM * (configs[0].size == 1 ? 2.0f : 2.5f);
+  float width = -0.5f; // The amount of sprite space the buttons take up (including inbetween)
+
   for (int i = 0; i < configs.size(); i++)
   {
     buttonPos.push_back(i); 
 
     if (configs[i].size == 1)
     {
+      width += 4.5f;
       buttons.push_back(std::make_unique<MediumButton>(sf::Vector2f{hori, -GRID_VERT}, configs[i].name, configs[i].event));
-      i++;
-      buttons.push_back(std::make_unique<MediumButton>(sf::Vector2f{hori, GRID_VERT}, configs[i].name, configs[i].event));
+      if (i + 1 < configs.size() && configs[i + 1].size == 1)
+      {
+        i++;
+        buttons.push_back(std::make_unique<MediumButton>(sf::Vector2f{hori, GRID_VERT}, configs[i].name, configs[i].event));
+        buttonPos.push_back(i);
+      }
+      else
+        buttonPos.push_back(-1);
       hori += GRID_HORI;
     }
     else
     {
-      for (auto& b : buttons)
-        b.get()->Move(sf::Vector2f{-0.5f * SCALED_DIM, 0.0f});
+      width += 5.5f;
 
+      if (i != 0)
+        hori += 0.5f * SCALED_DIM;
+
+      buttonPos.push_back(i);
       buttons.push_back(std::make_unique<LargeButton>(sf::Vector2f{hori, 0}, configs[i].name, configs[i].event));
-      hori += GRID_HORI + 0.5 * SCALED_DIM;
+      
+      hori += GRID_HORI + 0.5f * SCALED_DIM;
     }
-
-    buttonPos.push_back(i);
   }
 
-  assert (buttonPos.size() == 6);
+  for (auto& button : buttons)
+    button.get()->Move(sf::Vector2f(padding - (width * SCALED_DIM) / 2, 0));
 
-  buttons[buttonPos[curPos]].get()->ToggleHighlight();
+  assert (buttonPos.size() <= 6);
+
+  buttons[buttonPos[startPos]].get()->ToggleHighlight();
 }
 
 void GridInterface::Update()
@@ -73,21 +90,22 @@ void GridInterface::Update()
 
   if ((!xMove && !yMove) ||
       (curPos <= 1 && xMove < 0) ||
-      (curPos >= 4 && xMove > 0) ||
+      (curPos >= buttonPos.size() - 2 && xMove > 0) ||
       (curPos % 2 == 0 && yMove < 0) ||
       (curPos % 2 == 1 && yMove > 0)) // If no movement is happening, or movement would be out-of-bounds
     return;
 
   int newPos = curPos + yMove + xMove * 2;
 
-  if (buttonPos[curPos] == buttonPos[newPos]) // If it is the same button
+  if (buttonPos[newPos] == -1)
+    newPos--;
+
+  if (buttonPos[curPos] != buttonPos[newPos]) // If it is a different button
   {
-    curPos = newPos;
-    return;
+    buttons[buttonPos[curPos]].get()->ToggleHighlight();
+    buttons[buttonPos[newPos]].get()->ToggleHighlight();
   }
 
-  buttons[buttonPos[curPos]].get()->ToggleHighlight();
-  buttons[buttonPos[newPos]].get()->ToggleHighlight();
   curPos = newPos; 
 }
 

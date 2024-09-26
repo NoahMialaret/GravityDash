@@ -50,7 +50,7 @@ class TitleInterface : public MenuInterface
 class GridInterface : public MenuInterface // Represents a 2 x 3 grid of tiles that can be filled with buttons
 {
 public:
-  GridInterface(std::vector<ButtonConfig>& configs, Event menuReturn);
+  GridInterface(int startPos, std::vector<ButtonConfig>& configs, Event menuReturn);
 
   void Update() override;
   void Render(sf::RenderWindow* win) const override;

@@ -45,7 +45,7 @@ void Menu::ChangeMenu(Menus menuType)
   case Menus::main:
   {
     showGame = true;
-    
+
     std::vector<ButtonConfig> buttons;
 
     buttons.push_back({"score", Event(Event::Type::loadNewMenu, (int)Menus::score), 1});
@@ -54,7 +54,7 @@ void Menu::ChangeMenu(Menus menuType)
     buttons.push_back({"medal", Event(Event::Type::loadNewMenu, (int)Menus::medal), 1});
     buttons.push_back({"exit", Event(Event::Type::programClose), 1});
 
-    interface = std::make_unique<GridInterface>(buttons, Event(Event::Type::loadNewMenu, (int)Menus::title));
+    interface = std::make_unique<GridInterface>(2, buttons, Event(Event::Type::loadNewMenu, (int)Menus::title));
     break;
   }
   
