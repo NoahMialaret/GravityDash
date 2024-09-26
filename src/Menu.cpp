@@ -1,13 +1,14 @@
 #include "Menu.h"
 
-Menu::Menu(Menus startMenu)
+Menu::Menu(Event::MenuType startMenu)
 {
   ChangeMenu(startMenu);
 
-  GameConfig config;
+  Event::GameConfig config;
   config.numPlayers = 0;
   config.numComputers = 4;
   config.sawFrequency = 0;
+  config.targetSpawnChance = 90;
 
   backgroundGame = std::make_unique<Game>(config);
 }
@@ -38,37 +39,57 @@ void Menu::Render(sf::RenderWindow* win) const
   interface.get()->Render(win);
 }
 
-void Menu::ChangeMenu(Menus menuType)
+void Menu::ChangeMenu(Event::MenuType menuType)
 {
+  Event event;
   switch (menuType)
   {
-  case Menus::main:
+  case Event::MenuType::main:
   {
     showGame = true;
 
     std::vector<ButtonConfig> buttons;
 
-    buttons.push_back({"score", Event(Event::Type::loadNewMenu, (int)Menus::score), MEDIUM});
-    buttons.push_back({"opts.", Event(Event::Type::loadNewMenu, (int)Menus::options), MEDIUM});
-    buttons.push_back({"play", Event(Event::Type::loadNewMenu, (int)Menus::play), LARGE});
-    buttons.push_back({"medal", Event(Event::Type::loadNewMenu, (int)Menus::medal), MEDIUM});
-    buttons.push_back({"exit", Event(Event::Type::programClose), MEDIUM});
+    event.type = Event::Type::loadNewMenu;
+    event.menuType = Event::MenuType::score;
+    buttons.push_back({"score", event, MEDIUM});
+    event.menuType = Event::MenuType::options;
+    buttons.push_back({"opts.", event, MEDIUM});
+    event.menuType = Event::MenuType::play;
+    buttons.push_back({"play", event, LARGE});
+    event.menuType = Event::MenuType::medal;
+    buttons.push_back({"medal", event, MEDIUM});
+    event.type = Event::Type::programClose;
+    buttons.push_back({"exit", event, MEDIUM});
 
-    interface = std::make_unique<GridInterface>(2, buttons, Event(Event::Type::programClose, (int)Menus::title));
+    // event.type = Event::Type::loadNewMenu;
+    // event.menuType = Event::MenuType::title;
+    interface = std::make_unique<GridInterface>(2, buttons, event);
     break;
   }
-  case Menus::play:
+  case Event::MenuType::play:
   {
     showGame = true;
 
     std::vector<ButtonConfig> buttons;
 
-    buttons.push_back({"1min", Event(Event::Type::loadNewGame), LARGE});
-    buttons.push_back({"rush", Event(Event::Type::loadNewGame), LARGE});
-    buttons.push_back({"multi", Event(Event::Type::loadNewMenu, (int)Menus::multi), MEDIUM});
-    buttons.push_back({"wild", Event(Event::Type::loadNewMenu, (int)Menus::custom), MEDIUM});
+    event.type = Event::Type::loadNewGame;
+    event.gameConfig = Event::GameConfig{Event::GameConfig::Type::min, 1, 0, 90, 2};
+    buttons.push_back({"1min", event, LARGE});
+    event.gameConfig.type = Event::GameConfig::Type::rush;
+    buttons.push_back({"rush", event, LARGE});
+    event.type = Event::Type::loadNewMenu;
+    event.menuType = Event::MenuType::multi;
+    buttons.push_back({"multi", event, MEDIUM});
+    event.menuType = Event::MenuType::custom;
+    buttons.push_back({"wild", event, MEDIUM});
 
-    interface = std::make_unique<GridInterface>(2, buttons, Event(Event::Type::loadNewMenu, (int)Menus::main));
+    event.menuType = Event::MenuType::main;
+    interface = std::make_unique<GridInterface>(2, buttons, event);
+    break;
+  }
+  case Event::MenuType::pause:
+  {
     break;
   }
   

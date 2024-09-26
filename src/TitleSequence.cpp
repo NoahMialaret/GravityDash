@@ -82,8 +82,10 @@ void TitleSequence::Update()
     else
     {
       Event newEvent;
-      newEvent.type = Event::Type::geToMainMenu;
-      Utility::events.push_back(newEvent);
+      newEvent.type = Event::Type::loadNewMenu;
+      newEvent.menuType = Event::MenuType::main;
+
+      Event::events.push_back(newEvent);
       return;
     }
   }

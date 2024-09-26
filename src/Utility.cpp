@@ -20,8 +20,6 @@ std::vector<int> Utility::initialKeyPresses;
 sf::Sprite Utility::debugSprite;
 std::vector<sf::Vector2f> Utility::debugPos;
 
-std::vector<Event> Utility::events;
-
 sf::Shader Utility::entShad;
 sf::Shader Utility::worldShad;
 
@@ -143,18 +141,6 @@ void Utility::FlushDebugSprites()
 {
 	std::cout << "Clearing debug sprites...\n";
 	debugPos.clear();
-}
-
-bool Utility::PollEvent(Event &event)
-{
-	if (events.size() == 0)
-	{
-		return false;
-	}
-
-	event = events[events.size() - 1];
-	events.pop_back();
-	return true;
 }
 
 void Utility::UpdateParticles()

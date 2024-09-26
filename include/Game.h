@@ -13,36 +13,17 @@
 #include "SortedDblyLnkdList.h"
 #include "Textures.h"
 #include "World.h"
+#include "Event.h"
 
 #include <list>
 #include <iostream>
 #include <memory>
 
-// A struct containing different parameters used by the game
-struct GameConfig
-{
-  int numPlayers = 1;
-  int numComputers = 0;
-  int targetSpawnChance = 90;
-  int sawFrequency = 10;
-  // std::vector<ids> transitionIDs
-};
-
 // Handles logic and objects to be used in the main gameplay loop
 class Game
 {
 public:
-  enum class Mode
-  {
-    title,
-    rush,
-    blitz,
-    wild
-    // survival
-    // vs.
-  };
-public:
-  Game(GameConfig& config);
+  Game(Event::GameConfig& config);
   ~Game();
 
   // Handles game states, transitioning between states, and game objects
@@ -58,7 +39,7 @@ public:
   bool IsGameOver() const;
 
 protected:
-  std::unique_ptr<Mode> gameMode = nullptr;
+  // std::unique_ptr<Mode> gameMode = nullptr;
 
   std::vector<std::unique_ptr<Character>> characters; // The player characters
   std::unique_ptr<World> world = nullptr;             // The playable region of the game
@@ -72,14 +53,14 @@ protected:
 
   bool canSpawnObjects = true;
 
-  GameConfig config; // The configuration for various game variables
+  Event::GameConfig config; // The configuration for various game variables
   // std::vector<worldTransitions>
 };
 
-class Rush : public Game
+class Min : public Game
 {
 public:
-  Rush(GameConfig& config);
+  Min(Event::GameConfig& config);
   virtual void Update() override;
   virtual void Render(sf::RenderWindow* win) const override;
   virtual void UpdateTimer();
@@ -90,10 +71,10 @@ protected:
   bool timeUp = false;
 };
 
-class Blitz : public Rush
+class Rush : public Min
 {
 public:
-  Blitz(GameConfig& config);
+  Rush(Event::GameConfig& config);
   void Update() override;
   void Render(sf::RenderWindow* win) const override;
   void UpdateTimer() override;
@@ -122,7 +103,7 @@ public:
   };
 
 public:
-  Wild(GameConfig& config);
+  Wild(Event::GameConfig& config);
   void Update() override;
   void Render(sf::RenderWindow* win) const override;
 

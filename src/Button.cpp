@@ -31,7 +31,7 @@ void Button::Move(sf::Vector2f offset)
 
 void Button::Click() const
 {
-  Utility::events.push_back(action);
+  Event::events.push_back(action);
 }
 
 void Button::ToggleHighlight()

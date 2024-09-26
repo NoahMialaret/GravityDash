@@ -11,19 +11,6 @@
 
 #include <iostream>
 
-enum class Menus
-{
-  title,
-  main,
-  play,
-  options,
-  score,
-  medal,
-  custom,
-  multi,
-  pause
-};
-
 class MenuInterface
 {
 public:

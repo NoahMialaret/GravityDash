@@ -1,5 +1,7 @@
 #include "Program.h"
 
+std::vector<Event> Event::events;
+
 Program::Program(const char* name)
 {
 	std::cout << "--=== Program Init ===--\n"  << "Initialising SFML Window...\n";
@@ -68,7 +70,7 @@ Program::Program(const char* name)
 
 	std::cout << "Initialising Program objects...\n";
 
-    menu = std::make_unique<Menu>(Menus::main);
+    menu = std::make_unique<Menu>(Event::MenuType::main);
 
     Clock::Init();
     
@@ -90,10 +92,9 @@ Program::~Program()
 
 void Program::HandleEvents() 
 {
-	// Event should be its own class
 	Event event;
 
-	while (Utility::PollEvent(event))
+	while (Event::PollEvent(event))
 	{
 		switch (event.type)
 		{
@@ -104,41 +105,36 @@ void Program::HandleEvents()
 
 		case Event::Type::loadNewGame:
     {
-			// std::cout << "Create new game event called\n";
-      // // GameConfig config = mainMenu.get()->GetGameConfig();
-      // GameConfig config;
-			// // mainMenu = nullptr;
-      // Utility::particles.clear();
-      // switch ((Game::Mode)event.data)
-      // {
-      // case Game::Mode::title:
-      //   game = std::make_unique<Game>(config);
-      //   break;
-      // case Game::Mode::rush:
-      //   game = std::make_unique<Rush>(config);
-      //   break;
-      // case Game::Mode::blitz:
-      //   game = std::make_unique<Blitz>(config);
-      //   break;
-      // case Game::Mode::wild:
-      //   game = std::make_unique<Wild>(config);
-      //   break;
-      // default:
-      //   std::cout << "Could not determine the game mode!\n";
-      //   // mainMenu = std::make_unique<MainMenu>();
-      //   continue;
-      // }
-			// curState = State::gameplay;
+			std::cout << "Create new game event called\n";
+      switch (event.gameConfig.type)
+      {
+      case Event::GameConfig::Type::title:
+        game = std::make_unique<Game>(event.gameConfig);
+        break;
+      case Event::GameConfig::Type::min:
+        game = std::make_unique<Min>(event.gameConfig);
+        break;
+      case Event::GameConfig::Type::rush:
+        game = std::make_unique<Rush>(event.gameConfig);
+        break;
+      default:
+        std::cout << "Could not determine the game mode!\n";
+        // mainMenu = std::make_unique<MainMenu>();
+        continue;
+      }
+			menu.get()->ChangeMenu(Event::MenuType::pause);
+      Utility::particles.clear();
+			curState = State::gameplay;
 			break;
     }
 
     case Event::Type::loadNewMenu:
-      menu.get()->ChangeMenu((Menus)event.data);
+      menu.get()->ChangeMenu(event.menuType);
       break;
 
-    case Event::Type::geToMainMenu:
+    case Event::Type::exitGame:
       game = nullptr;
-      menu = std::make_unique<Menu>(Menus::main);
+			menu.get()->ChangeMenu(Event::MenuType::main);
       curState = State::mainMenu;
       break;
 		
@@ -186,7 +182,7 @@ void Program::HandleEvents()
 			case sf::Keyboard::R:
 				std::cout << "Restarting Game!\n";
 				game = nullptr;
-        menu = std::make_unique<Menu>(Menus::main); // change to title
+        menu = std::make_unique<Menu>(Event::MenuType::main); // change to title
 				curState = State::mainMenu;
 				break;
 			
@@ -206,35 +202,15 @@ void Program::HandleEvents()
 void Program::Update() 
 {
 	if (curState == State::notRunning) 
-	{
 		return;
-	}
 
   Clock::Update();
 
-	// float cameraDistance = std::max(abs(mainView.getCenter().y - targetPos.y), abs(targetPos.y - mainView.getCenter().y));
-	// mainView.move(sf::Vector2f(0.0f, - cameraDistance / 10));
-	// window.setView(mainView);
+  if (curState >= State::gameplay)
+    game.get()->Update();
 
-  menu.get()->Update();
-
-	// switch (curState)
-	// {
-  // case State::titleSequence:
-  //   title.get()->Update();
-  //   break;
-
-	// case State::startMenu:
-	// 	mainMenu.get()->Update();
-	// 	break;
-
-	// case State::gameplay:
-	// 	game.get()->Update();
-	// 	break;
-	
-	// default:
-	// 	break;
-	// }
+  if (curState != State::gameplay)
+    menu.get()->Update();
 
   Utility::UpdateParticles();
 
@@ -252,7 +228,11 @@ void Program::Render()
 		return;
 	}
 
-  menu.get()->Render(&window);
+  if (curState >= State::gameplay)
+    game.get()->Render(&window);
+
+  if (curState != State::gameplay)
+    menu.get()->Render(&window);
 
 	// switch (curState)
 	// {

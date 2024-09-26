@@ -82,7 +82,7 @@ void GridInterface::Update()
   }
   else if (Utility::CheckInitialPress(sf::Keyboard::Escape))
   {
-    Utility::events.push_back(menuReturn);
+    Event::events.push_back(menuReturn);
   }
 
   int xMove = Utility::CheckInitialPress(sf::Keyboard::D) - Utility::CheckInitialPress(sf::Keyboard::A);

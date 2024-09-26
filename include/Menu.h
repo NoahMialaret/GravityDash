@@ -7,29 +7,20 @@
 #include "Game.h"
 #include "MenuInterface.h"
 #include "Utility.h"
+#include "Event.h"
 
 #include <memory>
 
 // Handles switching between menu interfaces, and the transitions between them
 class Menu
 {
-// public:
-//   enum class Layout
-//   {
-//     title,
-//     main,
-//     play,
-//     options,
-//     pause,//...
-//   };
-
 public:
-  Menu(Menus startMenu = Menus::title);
+  Menu(Event::MenuType startMenu = Event::MenuType::title);
   
   void Update();
   void Render(sf::RenderWindow* win) const;
 
-  void ChangeMenu(Menus menuType);
+  void ChangeMenu(Event::MenuType menuType);
 
   // void LoadLayout(Layout layout);
 

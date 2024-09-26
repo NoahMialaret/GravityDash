@@ -1,6 +1,6 @@
 #include "Game.h"
 
-Game::Game(GameConfig& config)
+Game::Game(Event::GameConfig& config)
   :
   config(config)
 {
@@ -181,10 +181,10 @@ bool Game::IsGameOver() const
 }
 
 // ============
-// --- Rush ---
+// --- Min ---
 // ============
 
-Rush::Rush(GameConfig &config)
+Min::Min(Event::GameConfig& config)
   :
   Game(config)
 {
@@ -209,7 +209,7 @@ Rush::Rush(GameConfig &config)
   }
 }
 
-void Rush::Update()
+void Min::Update()
 {
   score.get()->Update();
 
@@ -244,7 +244,7 @@ void Rush::Update()
   }
 }
 
-void Rush::Render(sf::RenderWindow *win) const
+void Min::Render(sf::RenderWindow *win) const
 {
   Game::Render(win);
 
@@ -252,7 +252,7 @@ void Rush::Render(sf::RenderWindow *win) const
   timer.get()->Render(win);
 }
 
-void Rush::UpdateTimer()
+void Min::UpdateTimer()
 {
   if (!timeUp && timer.get()->Update())
   {
@@ -274,12 +274,12 @@ void Rush::UpdateTimer()
 }
 
 // =============
-// --- Blitz ---
+// --- Rush ---
 // =============
 
-Blitz::Blitz(GameConfig &config)
+Rush::Rush(Event::GameConfig& config)
   :
-  Rush(config)
+  Min(config)
 {
   arrow = Entity("arrow", nullptr, (sf::Vector2i)Textures::textures.at("arrow").getSize());
   arrowBottom = timer.get()->GetPosition() + Utility::gameScale * sf::Vector2f(8.0f, -0.5f);
@@ -287,16 +287,16 @@ Blitz::Blitz(GameConfig &config)
   arrow.FlipX();
 }
 
-void Blitz::Update()
+void Rush::Update()
 {
   arrow.Update();
   if (gameOver)
   {
-    Rush::Update();
+    Min::Update();
     return;
   }
 
-  Rush::Update();
+  Min::Update();
 
   for (auto& p : characters)
   {
@@ -316,14 +316,14 @@ void Blitz::Update()
   // Increase target spawn chance on timer refill, but decrease time pickups?
 }
 
-void Blitz::Render(sf::RenderWindow *win) const
+void Rush::Render(sf::RenderWindow *win) const
 {
-  Rush::Render(win);
+  Min::Render(win);
 
   arrow.Render(win);
 }
 
-void Blitz::UpdateTimer()
+void Rush::UpdateTimer()
 {
   if (!timeUp && timer.get()->Update())
   {
@@ -359,7 +359,7 @@ void Blitz::UpdateTimer()
   }
 }
 
-void Blitz::SpawnObjects()
+void Rush::SpawnObjects()
 {
   Game::SpawnObjects();
 
@@ -394,7 +394,7 @@ void Blitz::SpawnObjects()
 // --- Wild ---
 // ============
 
-Wild::Wild(GameConfig &config)
+Wild::Wild(Event::GameConfig& config)
   :
   Game(config)
 {
