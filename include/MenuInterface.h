@@ -7,6 +7,7 @@
 #include "Event.h" 
 #include "Textures.h"
 #include "Utility.h"
+#include "assert.h"
 
 #include <iostream>
 
@@ -42,10 +43,14 @@ class TitleInterface : public MenuInterface
 
 };
 
+
+#define GRID_HORI 4.5f * float(SCALED_DIM)
+#define GRID_VERT (2.0f * float(SCALED_DIM) - Utility::gameScale)
+
 class GridInterface : public MenuInterface // Represents a 2 x 3 grid of tiles that can be filled with buttons
 {
 public:
-  GridInterface(std::vector<std::unique_ptr<Button>>& b, std::vector<int>& pos, Event menuReturn);
+  GridInterface(std::vector<ButtonConfig>& configs, Event menuReturn);
 
   void Update() override;
   void Render(sf::RenderWindow* win) const override;

@@ -3,6 +3,8 @@
 
 #include <SFML/Graphics.hpp>
 
+#include "Button.h"
+#include "Game.h"
 #include "MenuInterface.h"
 #include "Utility.h"
 
@@ -36,6 +38,8 @@ private:
   // std::unique_ptr<Layout> curLayout = nullptr;
 
   // bool isPauseMenu = false;
+  std::unique_ptr<Game> backgroundGame = nullptr;
+  bool showGame = true;
 };
 
 

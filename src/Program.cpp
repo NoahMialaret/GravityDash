@@ -81,6 +81,13 @@ Program::Program(const char* name)
 	
 		curState = State::titleSequence;
 
+    sf::Image icon;
+    if (!icon.loadFromFile("assets/icon.png"))
+    {
+      std::cout << "Error loading icon!\n";
+    }
+    window.setIcon(icon.getSize().x, icon.getSize().y, icon.getPixelsPtr());
+
 	std::cout << "--===++++++++++++++===--\n";
 }
 

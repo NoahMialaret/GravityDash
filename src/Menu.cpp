@@ -3,11 +3,22 @@
 Menu::Menu()
 {
   ChangeMenu(Menus::main);
+
+  GameConfig config;
+  config.numPlayers = 0;
+  config.numComputers = 4;
+  config.sawFrequency = 0;
+
+  backgroundGame = std::make_unique<Game>(config);
 }
 
 void Menu::Update()
 {
+  if (showGame)
+    backgroundGame.get()->Update();
+
   interface.get()->Update();
+
 
   // if (Utility::CheckInitialPress(sf::Keyboard::Space))
   // {
@@ -21,6 +32,9 @@ void Menu::Update()
 
 void Menu::Render(sf::RenderWindow* win) const
 {
+  if (showGame)
+    backgroundGame.get()->Render(win);
+    
   interface.get()->Render(win);
 }
 
@@ -30,16 +44,17 @@ void Menu::ChangeMenu(Menus menuType)
   {
   case Menus::main:
   {
-    std::vector<std::unique_ptr<Button>> buttons;
-    buttons.push_back(std::make_unique<MediumButton>(sf::Vector2f{-300, -200}, "score", Event(Event::Type::loadNewMenu, (int)Menus::score)));
-    buttons.push_back(std::make_unique<MediumButton>(sf::Vector2f{-300, 200}, "opts.", Event(Event::Type::loadNewMenu, (int)Menus::options)));
-    buttons.push_back(std::make_unique<LargeButton>(sf::Vector2f{0, 0}, "play", Event(Event::Type::loadNewMenu, (int)Menus::play)));
-    buttons.push_back(std::make_unique<MediumButton>(sf::Vector2f{300, -200}, "medal", Event(Event::Type::loadNewMenu, (int)Menus::medal)));
-    buttons.push_back(std::make_unique<MediumButton>(sf::Vector2f{300, 200}, "exit", Event(Event::Type::programClose)));
+    showGame = true;
+    
+    std::vector<ButtonConfig> buttons;
 
-    std::vector<int> pos = {0, 1, 2, 2, 3, 4};
+    buttons.push_back({"score", Event(Event::Type::loadNewMenu, (int)Menus::score), 1});
+    buttons.push_back({"opts.", Event(Event::Type::loadNewMenu, (int)Menus::options), 1});
+    buttons.push_back({"play", Event(Event::Type::loadNewMenu, (int)Menus::play), 2});
+    buttons.push_back({"medal", Event(Event::Type::loadNewMenu, (int)Menus::medal), 1});
+    buttons.push_back({"exit", Event(Event::Type::programClose), 1});
 
-    interface = std::make_unique<GridInterface>(buttons, pos, Event(Event::Type::loadNewMenu, (int)Menus::title));
+    interface = std::make_unique<GridInterface>(buttons, Event(Event::Type::loadNewMenu, (int)Menus::title));
     break;
   }
   

@@ -10,6 +10,13 @@
 #include <string>
 #include <vector>
 
+struct ButtonConfig
+{
+  std::string name;
+  Event event;
+  int size;
+};
+
 class Button
 {
 public:
@@ -18,6 +25,8 @@ public:
 
   virtual void Update() = 0;
   virtual void Render(sf::RenderWindow* win) const;
+
+  void Move(sf::Vector2f offset);
 
   void Click() const;
 

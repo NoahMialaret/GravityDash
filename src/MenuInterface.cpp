@@ -23,19 +23,38 @@ MenuInterface::MenuInterface(Event menuReturn)
 //   // if button is medium, pushback, if button is large, pushback * 2
 // }
 
-GridInterface::GridInterface(std::vector<std::unique_ptr<Button>>& b, std::vector<int>& pos, Event menuReturn)
+GridInterface::GridInterface(std::vector<ButtonConfig>& configs, Event menuReturn)
   :
   MenuInterface(menuReturn)
 {
-  buttons = std::move(b);
-  buttonPos = std::move(pos);
+  float hori = -GRID_HORI;
+  
+  for (int i = 0; i < configs.size(); i++)
+  {
+    buttonPos.push_back(i); 
+
+    if (configs[i].size == 1)
+    {
+      buttons.push_back(std::make_unique<MediumButton>(sf::Vector2f{hori, -GRID_VERT}, configs[i].name, configs[i].event));
+      i++;
+      buttons.push_back(std::make_unique<MediumButton>(sf::Vector2f{hori, GRID_VERT}, configs[i].name, configs[i].event));
+      hori += GRID_HORI;
+    }
+    else
+    {
+      for (auto& b : buttons)
+        b.get()->Move(sf::Vector2f{-0.5f * SCALED_DIM, 0.0f});
+
+      buttons.push_back(std::make_unique<LargeButton>(sf::Vector2f{hori, 0}, configs[i].name, configs[i].event));
+      hori += GRID_HORI + 0.5 * SCALED_DIM;
+    }
+
+    buttonPos.push_back(i);
+  }
+
+  assert (buttonPos.size() == 6);
 
   buttons[buttonPos[curPos]].get()->ToggleHighlight();
-  // for (int i = 0; i < buttons.size(); i++)
-  // {
-  //   buttonPos.push_back(i);
-  //   // Add support for large buttons
-  // }
 }
 
 void GridInterface::Update()
@@ -62,7 +81,10 @@ void GridInterface::Update()
   int newPos = curPos + yMove + xMove * 2;
 
   if (buttonPos[curPos] == buttonPos[newPos]) // If it is the same button
+  {
+    curPos = newPos;
     return;
+  }
 
   buttons[buttonPos[curPos]].get()->ToggleHighlight();
   buttons[buttonPos[newPos]].get()->ToggleHighlight();

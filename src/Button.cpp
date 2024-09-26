@@ -14,6 +14,11 @@ void Button::Render(sf::RenderWindow *win) const
   win->draw(button, &Utility::worldShad);
 }
 
+void Button::Move(sf::Vector2f offset)
+{
+  button.move(offset);
+}
+
 void Button::Click() const
 {
   Utility::events.push_back(action);
