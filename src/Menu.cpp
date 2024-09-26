@@ -48,11 +48,11 @@ void Menu::ChangeMenu(Menus menuType)
 
     std::vector<ButtonConfig> buttons;
 
-    buttons.push_back({"score", Event(Event::Type::loadNewMenu, (int)Menus::score), 1});
-    buttons.push_back({"opts.", Event(Event::Type::loadNewMenu, (int)Menus::options), 1});
-    buttons.push_back({"play", Event(Event::Type::loadNewMenu, (int)Menus::play), 2});
-    buttons.push_back({"medal", Event(Event::Type::loadNewMenu, (int)Menus::medal), 1});
-    buttons.push_back({"exit", Event(Event::Type::programClose), 1});
+    buttons.push_back({"score", Event(Event::Type::loadNewMenu, (int)Menus::score), MEDIUM});
+    buttons.push_back({"opts.", Event(Event::Type::loadNewMenu, (int)Menus::options), MEDIUM});
+    buttons.push_back({"play", Event(Event::Type::loadNewMenu, (int)Menus::play), LARGE});
+    buttons.push_back({"medal", Event(Event::Type::loadNewMenu, (int)Menus::medal), MEDIUM});
+    buttons.push_back({"exit", Event(Event::Type::programClose), MEDIUM});
 
     interface = std::make_unique<GridInterface>(2, buttons, Event(Event::Type::programClose, (int)Menus::title));
     break;
@@ -63,10 +63,10 @@ void Menu::ChangeMenu(Menus menuType)
 
     std::vector<ButtonConfig> buttons;
 
-    buttons.push_back({"rush", Event(Event::Type::loadNewGame), 2});
-    buttons.push_back({"blitz", Event(Event::Type::loadNewGame), 2});
-    buttons.push_back({"multi", Event(Event::Type::loadNewMenu, (int)Menus::multi), 1});
-    buttons.push_back({"custom", Event(Event::Type::loadNewMenu, (int)Menus::custom), 1});
+    buttons.push_back({"1min", Event(Event::Type::loadNewGame), LARGE});
+    buttons.push_back({"rush", Event(Event::Type::loadNewGame), LARGE});
+    buttons.push_back({"multi", Event(Event::Type::loadNewMenu, (int)Menus::multi), MEDIUM});
+    buttons.push_back({"wild", Event(Event::Type::loadNewMenu, (int)Menus::custom), MEDIUM});
 
     interface = std::make_unique<GridInterface>(2, buttons, Event(Event::Type::loadNewMenu, (int)Menus::main));
     break;

@@ -17,6 +17,10 @@ struct ButtonConfig
   int size;
 };
 
+#define SMALL 0
+#define MEDIUM 1
+#define LARGE 2
+
 class Button
 {
 public:
@@ -54,6 +58,8 @@ class SmallButton : public Button
 
 };
 
+#define MEDIUM_TEXT_OFFSET Utility::gameScale * sf::Vector2f(-2.5f, 7.0f)
+
 class MediumButton : public Button
 {
 public:
@@ -62,6 +68,8 @@ public:
   void Update() override;
   void Render(sf::RenderWindow* win) const override;
 };
+
+#define LARGE_TEXT_OFFSET Utility::gameScale * sf::Vector2f(-2.5f, 6.0f)
 
 class LargeButton : public Button
 {

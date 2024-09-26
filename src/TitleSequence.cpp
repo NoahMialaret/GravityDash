@@ -15,9 +15,9 @@ TitleSequence::TitleSequence()
   frenchie.CoupleRotation(&frenchieRot);
 
 
-  start.setFont(Textures::font);
+  start.setFont(Textures::medium);
   start.setPosition(sf::Vector2f(0.0f, 1.5f * SCALED_DIM));
-  startShadow.setFont(Textures::font);
+  startShadow.setFont(Textures::medium);
   start.setString("Press Any Button");
   startShadow.setString(start.getString());
   start.setCharacterSize(SCALED_DIM);
@@ -28,7 +28,7 @@ TitleSequence::TitleSequence()
   start.setOrigin(sf::Vector2f(start.getGlobalBounds().width / 2, start.getGlobalBounds().height / 2));
   startShadow.setOrigin(sf::Vector2f(startShadow.getGlobalBounds().width / 2, startShadow.getGlobalBounds().height / 2));
 
-  frenchieText.setFont(Textures::font);
+  frenchieText.setFont(Textures::medium);
   frenchieText.setString("A game by:\nFrenchie!");
   frenchieText.setCharacterSize(SCALED_DIM);
   frenchieText.setFillColor(sf::Color(255, 229, 181));

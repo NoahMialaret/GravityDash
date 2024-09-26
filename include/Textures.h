@@ -14,7 +14,9 @@ public:
   static void ClearTextures();
 
   static std::map<std::string, sf::Texture> textures;
-  static sf::Font font;
+  static sf::Font large;
+  static sf::Font medium;
+  static sf::Font small;
 };
 
 #endif

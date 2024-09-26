@@ -20,7 +20,9 @@ std::map<std::string, sf::Texture> Textures::textures =
   {"large_button", {}},
   {"medium_button", {}}
 };
-sf::Font Textures::font;
+sf::Font Textures::large;
+sf::Font Textures::medium;
+sf::Font Textures::small;
 
 void Textures::LoadTextures()
 {
@@ -34,9 +36,17 @@ void Textures::LoadTextures()
     }
   }
 
-  if (!font.loadFromFile("assets/GravDash.ttf"))
+  if (!large.loadFromFile("assets/fonts/largeFont.ttf"))
   {
-    std::cout << "\tCould not load the program font!\n";
+    std::cout << "\tCould not load large font, check that largeFont.ttf is in the assets folder\n";
+  }
+  if (!medium.loadFromFile("assets/fonts/mediumFont.ttf"))
+  {
+    std::cout << "\tCould not load medium font, check that mediumFont.ttf is in the assets folder\n";
+  }
+  if (!small.loadFromFile("assets/fonts/smallFont.ttf"))
+  {
+    std::cout << "\tCould not load small font, check that smallFont.ttf is in the assets folder\n";
   }
 }
 
