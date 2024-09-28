@@ -57,6 +57,9 @@ public:
   static void UpdateParticles();
   static void RenderParticles(sf::RenderWindow* win);
 
+  static void InitSprite(sf::Sprite& sprite, std::string tex, sf::Vector2f pos, sf::Vector2i subRect = {1, 1}, sf::Vector2f origin = {0.5f, 0.5f});
+  static void InitText(sf::Text& text, sf::Font& font, std::string str, sf::Vector2f pos, sf::Vector2f origin = {0.5f, 0.5f}, sf::Color col = {173, 103, 78});
+
 public:
   //settings
   static float targetFrameRate;   // The max framerate that the game runs at

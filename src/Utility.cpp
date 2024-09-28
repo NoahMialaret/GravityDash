@@ -172,3 +172,23 @@ void Utility::RenderParticles(sf::RenderWindow* win)
     cur->get()->Render(win);
   }
 }
+
+void Utility::InitSprite(sf::Sprite &sprite, std::string tex, sf::Vector2f pos, sf::Vector2i subRect, sf::Vector2f origin)
+{
+  sprite.setScale(DEFAULT_SCALE);
+  sprite.setTexture(Textures::textures.at(tex));
+  sprite.setPosition(pos);
+  sf::Vector2i texSize = (sf::Vector2i)Textures::textures.at(tex).getSize();
+  sprite.setTextureRect({0, 0, texSize.x / subRect.x, texSize.y / subRect.y});
+  sprite.setOrigin(sf::Vector2f(origin.x * sprite.getTextureRect().width, origin.y * sprite.getTextureRect().height));
+}
+
+void Utility::InitText(sf::Text &text, sf::Font &font, std::string str, sf::Vector2f pos, sf::Vector2f origin, sf::Color col)
+{
+  text.setPosition(pos + sf::Vector2f(0.0f, Utility::gameScale));
+  text.setString(str);
+  text.setCharacterSize(SCALED_DIM);
+  text.setFillColor(col);
+  text.setFont(font);
+  text.setOrigin(sf::Vector2f(origin.x * text.getLocalBounds().width, origin.y * text.getLocalBounds().height));
+}
