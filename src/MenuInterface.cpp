@@ -176,7 +176,24 @@ OptionsInterface::OptionsInterface(std::vector<OptionConfig> configs, Event menu
 
   for (auto& c : configs)
   {
-    options.push_back(std::make_unique<ToggleOption>(c.name, c.event, yPos, false));
+    switch (c.type)
+    {
+    case OptionConfig::Type::toggle:
+      options.push_back(std::make_unique<ToggleOption>(c.name, c.event, yPos, c.toggle));
+      break;
+    case OptionConfig::Type::range:
+      options.push_back(std::make_unique<RangeOption>(c.name, c.event, yPos, c.range));
+      break;
+    case OptionConfig::Type::selection:
+      options.push_back(std::make_unique<SelectionOption>(c.name, c.event, yPos, c.selection));
+      break;
+    case OptionConfig::Type::control:
+      // options.push_back(std::make_unique<ControlOption>(c.name, c.event, yPos, c.control));
+      break;
+    
+    default:
+      break;
+    }
     yPos += SCALED_DIM;
   }
 

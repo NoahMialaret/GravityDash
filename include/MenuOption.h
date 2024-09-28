@@ -14,15 +14,43 @@
 
 struct OptionConfig
 {
+  struct Toggle
+  {
+    bool init;
+  };
+  struct Range
+  {
+    int init;
+    int min;
+    int max;
+  };
+  struct Selection
+  {
+    int initIndex;
+    std::vector<std::string>* selections;
+  };
+  struct Control
+  {
+    sf::Keyboard::Key init;
+  };
+  enum class Type
+  {
+    toggle,
+    range,
+    selection,
+    control
+  };
+
   std::string name;
   Event event;
-  // int size;
-  // union
-  // {
-  //   bool initBool
-  //   int initInt;
-  //   std::string initStr;
-  // }
+  Type type;
+  union
+  {
+    Toggle toggle;
+    Range range;
+    Selection selection;
+    Control control;
+  };
 };
 
 class MenuOption
@@ -49,7 +77,7 @@ protected:
 class ToggleOption : public MenuOption
 {
 public:
-  ToggleOption(std::string name, Event action, float yPos, bool init);
+  ToggleOption(std::string name, Event action, float yPos, OptionConfig::Toggle config);
 
   void Update() override;
   void Render(sf::RenderWindow* win) const override;
@@ -60,22 +88,46 @@ public:
 private:
   bool toggle = false;
   sf::Sprite toggleSprite;
-
 };
 
-class MenuOptionRange
+class RangeOption : public MenuOption
 {
+public:
+  RangeOption(std::string name, Event action, float yPos, OptionConfig::Range config);
 
+  void Update() override;
+  void Render(sf::RenderWindow* win) const override;
+
+  void SetY(float newY) override;
+  void Move(float offsetY) override;
+
+private:
+  int value = 0;
+  int min = 0;
+  int max = 0;
+  sf::Text displayRange;
 };
 
-class MenuOptionSelection
+class SelectionOption : public MenuOption
 {
+public:
+  SelectionOption(std::string name, Event action, float yPos, OptionConfig::Selection config);
 
+  void Update() override;
+  void Render(sf::RenderWindow* win) const override;
+
+  void SetY(float newY) override;
+  void Move(float offsetY) override;
+
+private:
+  int index;
+  std::vector<std::string> selections;
+  sf::Text displaySelection;
 };
 
-class MenuOptionControl
-{
+// class ControlOption
+// {
 
-};
+// };
 
 #endif

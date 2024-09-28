@@ -130,10 +130,24 @@ void Menu::ChangeMenu(Event::MenuType menuType)
     std::vector<OptionConfig> options;
 
     event.type = Event::Type::exitGame;
-    options.push_back({"scale", event});
-    options.push_back({"fullscreen", event});
-    options.push_back({"sfx", event});
-    options.push_back({"music", event});
+
+    OptionConfig option = {"scale", event, OptionConfig::Type::range};
+    option.range = {2, 0, 10};
+    options.push_back(option);
+
+    option = {"fullscreen", event, OptionConfig::Type::toggle};
+    option.toggle = {true};
+    options.push_back(option);
+
+    option = {"colour", event, OptionConfig::Type::selection};
+    std::vector<std::string> colours{"green", "orange", "purple"};
+    option.selection = {0, &colours};
+    options.push_back(option);
+
+    option = {"mode", event, OptionConfig::Type::selection};
+    std::vector<std::string> modes{"1min", "rush", "wild"};
+    option.selection = {0, &modes};
+    options.push_back(option);
 
     event.type = Event::Type::loadNewMenu;
     event.menuType = Event::MenuType::main;
