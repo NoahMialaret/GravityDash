@@ -57,24 +57,27 @@ void Entity::Update()
 {
   anim.Update();
 
-  if (position != nullptr)
-    sprite.get()->setPosition(*position);
-  else
+  if (position == nullptr)
     motion.Update();
 
-  if (scale != nullptr)
-    sprite.get()->setScale(*scale);
-  else
+  if (scale == nullptr)
     scaleHand.Update();
 
-  if (rotation != nullptr)
-    sprite.get()->setRotation(*rotation);
-  else
+  if (rotation == nullptr)
     rot.Update();
 }
 
 void Entity::Render(sf::RenderWindow *win) const
 {
+  if (position != nullptr)
+    sprite.get()->setPosition(*position);
+
+  if (scale != nullptr)
+    sprite.get()->setScale(*scale);
+
+  if (rotation != nullptr)
+    sprite.get()->setRotation(*rotation);
+
   if (shader == nullptr)
   {
     win->draw(*sprite.get());

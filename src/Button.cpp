@@ -46,6 +46,24 @@ void Button::ToggleHighlight()
   button.setTextureRect(curRect);
 }
 
+SmallButton::SmallButton(sf::Vector2f pos, std::string name, Event action)
+  :
+  Button(name, action, "small_button", pos)
+{
+  displayName.setFont(Textures::small);
+  displayName.setOrigin(sf::Vector2f(displayName.getGlobalBounds().width / 2, displayName.getGlobalBounds().height / 2));
+  displayName.move(SMALL_TEXT_OFFSET);
+}
+
+void SmallButton::Update()
+{
+}
+
+void SmallButton::Render(sf::RenderWindow* win) const
+{
+  Button::Render(win);
+}
+
 MediumButton::MediumButton(sf::Vector2f pos, std::string name, Event action)
   :
   Button(name, action, "medium_button", pos)
@@ -59,7 +77,7 @@ void MediumButton::Update()
 {
 }
 
-void MediumButton::Render(sf::RenderWindow *win) const
+void MediumButton::Render(sf::RenderWindow* win) const
 {
   Button::Render(win);
 }
@@ -77,7 +95,7 @@ void LargeButton::Update()
 {
 }
 
-void LargeButton::Render(sf::RenderWindow *win) const
+void LargeButton::Render(sf::RenderWindow* win) const
 {
   Button::Render(win);
 }

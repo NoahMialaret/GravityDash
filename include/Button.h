@@ -53,9 +53,15 @@ protected:
   // sf::IntRect gridBounds;
 };
 
+#define SMALL_TEXT_OFFSET Utility::gameScale * sf::Vector2f(0.0f, 0.5f)
+
 class SmallButton : public Button
 {
+public:
+  SmallButton(sf::Vector2f pos, std::string name, Event action);
 
+  void Update() override;
+  void Render(sf::RenderWindow* win) const override;
 };
 
 #define MEDIUM_TEXT_OFFSET Utility::gameScale * sf::Vector2f(-2.5f, 7.0f)

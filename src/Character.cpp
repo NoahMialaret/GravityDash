@@ -126,6 +126,8 @@ void Character::Update()
     boost.get()->Update();
 
   pos += (finalJump ? 0.5f : 1.0f) * (Clock::Delta() / 16.0f) * vel;
+
+  entity.Update();
 }
 
 void Character::UpdateVelocity(int dir)
@@ -156,8 +158,6 @@ void Character::UpdateVelocity(int dir)
 
 void Character::Render(sf::RenderWindow *win) const
 {
-  entity.Update();
-
   Utility::entShad.setUniform("colorID", charID);
   if (invincibilityTimer <= 0 || (Clock::Elapsed() / 64) % 2)
   {

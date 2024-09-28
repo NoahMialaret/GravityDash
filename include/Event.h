@@ -15,6 +15,7 @@ public:
     medal,
     custom,
     multi,
+    addPlayers,
     pause
   };
 
@@ -45,6 +46,8 @@ public:
     programClose,
     loadNewMenu,
     loadNewGame,
+    pause,
+    resumePlay,
     exitGame,
     // returnCamera,
     // cameraUp,

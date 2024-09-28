@@ -211,6 +211,14 @@ Min::Min(Event::GameConfig& config)
 
 void Min::Update()
 {
+  if (Utility::CheckInitialPress(sf::Keyboard::Escape))
+  {
+    Event event;
+    event.type = Event::Type::pause;
+    Event::events.push_back(event);
+    return;
+  }
+
   score.get()->Update();
 
   if (gameOver)
@@ -289,6 +297,14 @@ Rush::Rush(Event::GameConfig& config)
 
 void Rush::Update()
 {
+  if (Utility::CheckInitialPress(sf::Keyboard::Escape))
+  {
+    Event event;
+    event.type = Event::Type::pause;
+    Event::events.push_back(event);
+    return;
+  }
+  
   arrow.Update();
   if (gameOver)
   {

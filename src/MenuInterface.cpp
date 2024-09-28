@@ -115,17 +115,52 @@ void GridInterface::Render(sf::RenderWindow* win) const
     b.get()->Render(win);
 }
 
-// PauseInterface::PauseInterface()
-//   :
-//   Menu()
-// {
-//   sf::Vector2f startPos(0.0f, -100.0f);
-//   sf::Vector2f offset(0.0f, 50.0f);
+ListInterface::ListInterface(std::vector<ButtonConfig>& configs, Event menuReturn)
+  :
+  MenuInterface(menuReturn)
+{
+  assert (configs.size() > 0);
 
-//   buttons.push_back(std::make_unique<SmallButton>("Continue"));
-//   buttons.push_back(std::make_unique<SmallButton>("Restart"));
-//   buttons.push_back(std::make_unique<SmallButton>("Settings"));
-//   buttons.push_back(std::make_unique<SmallButton>("Exit"));
-//   buttons[0].get()->ToggleHighlight();
-//   curButtonIndex = 0;
-// }
+  float offset = Utility::gameScale * (Textures::textures.at("small_button").getSize().y + 2);
+  float pos = offset * (configs.size() - 1) / 2;
+
+  for (auto& c : configs)
+  {
+    buttons.push_back(std::make_unique<SmallButton>(sf::Vector2f(pos, -pos), c.name, c.event));
+    pos -= offset;
+  }
+
+  assert (buttons.size() <= 6);
+
+  buttons[curPos].get()->ToggleHighlight();
+}
+
+void ListInterface::Update()
+{
+  if (Utility::CheckInitialPress(sf::Keyboard::Space))
+  {
+    buttons[curPos].get()->Click();
+  }
+  else if (Utility::CheckInitialPress(sf::Keyboard::Escape))
+  {
+    Event::events.push_back(menuReturn);
+    curPos = 0;
+  }
+
+  int move = Utility::CheckInitialPress(sf::Keyboard::S) - Utility::CheckInitialPress(sf::Keyboard::W);
+
+  int newPos = curPos + move;
+
+  if (!move || newPos < 0 || newPos >= buttons.size())
+    return;
+
+  buttons[curPos].get()->ToggleHighlight();
+  buttons[newPos].get()->ToggleHighlight();
+  curPos = newPos; 
+}
+
+void ListInterface::Render(sf::RenderWindow *win) const
+{
+  for (auto& b : buttons)
+    b.get()->Render(win);
+}

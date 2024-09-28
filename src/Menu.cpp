@@ -88,8 +88,48 @@ void Menu::ChangeMenu(Event::MenuType menuType)
     interface = std::make_unique<GridInterface>(2, buttons, event);
     break;
   }
+  case Event::MenuType::multi:
+  {
+    showGame = true;
+    // color = blue;
+
+    std::vector<ButtonConfig> buttons;
+
+    event.type = Event::Type::loadNewGame;
+    event.gameConfig = Event::GameConfig{Event::GameConfig::Type::min, 1, 1, 90, 2};
+    buttons.push_back({"ally", event, LARGE});
+    event.type = Event::Type::loadNewMenu;
+    event.menuType = Event::MenuType::addPlayers;
+    buttons.push_back({"add", event, MEDIUM});
+    event.menuType = Event::MenuType::custom;
+    buttons.push_back({"wild", event, MEDIUM});
+    event.type = Event::Type::loadNewGame;
+    event.gameConfig = Event::GameConfig{Event::GameConfig::Type::min, 1, 1, 90, 2};
+    buttons.push_back({"vs.", event, LARGE});
+
+    event.menuType = Event::MenuType::play;
+    interface = std::make_unique<GridInterface>(2, buttons, event);
+    break;    
+  }
   case Event::MenuType::pause:
   {
+    showGame = false;
+
+    std::vector<ButtonConfig> buttons;
+
+    event.type = Event::Type::resumePlay;
+    buttons.push_back({"resume", event, SMALL});
+
+    event.type = Event::Type::loadNewMenu;
+    event.menuType = Event::MenuType::options;
+    buttons.push_back({"opts.", event, SMALL});
+
+    event.type = Event::Type::exitGame;
+    buttons.push_back({"quit", event, SMALL});
+
+    event.type = Event::Type::resumePlay;
+    interface = std::make_unique<ListInterface>(buttons, event);
+
     break;
   }
   

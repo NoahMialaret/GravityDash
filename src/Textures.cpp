@@ -18,7 +18,8 @@ std::map<std::string, sf::Texture> Textures::textures =
   {"title", {} },
   {"toggle", {} },
   {"large_button", {}},
-  {"medium_button", {}}
+  {"medium_button", {}},
+  {"small_button", {}}
 };
 sf::Font Textures::large;
 sf::Font Textures::medium;
@@ -69,6 +70,7 @@ void Textures::ClearTextures()
     {"title", {} },
     {"toggle", {} },
     {"large_button", {}},
-    {"medium_button", {}}
+    {"medium_button", {}},
+    {"small_button", {}}
   };
 }

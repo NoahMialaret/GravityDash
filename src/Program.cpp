@@ -128,6 +128,14 @@ void Program::HandleEvents()
 			break;
     }
 
+    case Event::Type::pause:
+      curState = State::paused;
+      break;
+
+    case Event::Type::resumePlay:
+      curState = State::gameplay;
+      break;
+
     case Event::Type::loadNewMenu:
       menu.get()->ChangeMenu(event.menuType);
       break;
@@ -162,7 +170,6 @@ void Program::HandleEvents()
 		case sf::Event::KeyPressed:
 			switch (SFMLevent.key.code) 
 			{
-			// case sf::Keyboard::Escape:
       //   if (curState == State::mainMenu)
       //   {
       //     std::cout << "Quit button has been pressed, closing game...\n";
@@ -206,7 +213,7 @@ void Program::Update()
 
   Clock::Update();
 
-  if (curState >= State::gameplay)
+  if (curState == State::gameplay)
     game.get()->Update();
 
   if (curState != State::gameplay)
