@@ -1,5 +1,5 @@
-#ifndef BUTTON_H
-#define BUTTON_H
+#ifndef MENUBUTTON_H
+#define MENUBUTTON_H
 
 #include <SFML/Graphics.hpp>
 
@@ -9,6 +9,8 @@
 
 #include <string>
 #include <vector>
+
+// small button and medium/large button should be two seperate, non-inherited classes
 
 struct ButtonConfig
 {
@@ -21,11 +23,11 @@ struct ButtonConfig
 #define MEDIUM 1
 #define LARGE 2
 
-class Button
+class MenuButton
 {
 public:
-  Button(std::string name, Event action, std::string textureName, sf::Vector2f pos);
-  // Button(const Button& button);
+  MenuButton(std::string name, Event action, std::string textureName, sf::Vector2f pos);
+  // MenuButton(const MenuButton& button);
 
   virtual void Update() = 0;
   virtual void Render(sf::RenderWindow* win) const;
@@ -33,9 +35,6 @@ public:
   void Move(sf::Vector2f offset);
 
   void Click() const;
-
-  // std::string GetName() const;
-  // sf::Vector2f GetBounds() const;
 
   void ToggleHighlight();
   
@@ -46,16 +45,11 @@ protected:
   Event action;
 
   bool isHighlighted = false;
-
-  // The name of the button, used by other classes to determine which button was selected
-  //std::string name;
-  // A rectangle that determines the button's grid position and size
-  // sf::IntRect gridBounds;
 };
 
 #define SMALL_TEXT_OFFSET Utility::gameScale * sf::Vector2f(0.0f, 0.5f)
 
-class SmallButton : public Button
+class SmallButton : public MenuButton
 {
 public:
   SmallButton(sf::Vector2f pos, std::string name, Event action);
@@ -66,7 +60,7 @@ public:
 
 #define MEDIUM_TEXT_OFFSET Utility::gameScale * sf::Vector2f(-2.5f, 7.0f)
 
-class MediumButton : public Button
+class MediumButton : public MenuButton
 {
 public:
   MediumButton(sf::Vector2f pos, std::string name, Event action);
@@ -77,7 +71,7 @@ public:
 
 #define LARGE_TEXT_OFFSET Utility::gameScale * sf::Vector2f(-2.5f, 6.0f)
 
-class LargeButton : public Button
+class LargeButton : public MenuButton
 {
 public:
   LargeButton(sf::Vector2f pos, std::string name, Event action);

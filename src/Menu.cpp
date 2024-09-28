@@ -19,16 +19,6 @@ void Menu::Update()
     backgroundGame.get()->Update();
 
   interface.get()->Update();
-
-
-  // if (Utility::CheckInitialPress(sf::Keyboard::Space))
-  // {
-  //   curLayout.get()->DoButtonAction(interface.get(), curLayout.get());
-  // }
-  // else if (Utility::CheckInitialPress(sf::Keyboard::Escape))
-  // {
-  //   curLayout.get()->Return(interface.get(), curLayout.get());
-  // }
 }
 
 void Menu::Render(sf::RenderWindow* win) const
@@ -74,7 +64,7 @@ void Menu::ChangeMenu(Event::MenuType menuType)
     std::vector<ButtonConfig> buttons;
 
     event.type = Event::Type::loadNewGame;
-    event.gameConfig = Event::GameConfig{Event::GameConfig::Type::min, 1, 0, 90, 2};
+    event.gameConfig = Event::GameConfig{Event::GameConfig::Type::min, 1, 0, 90, 23};
     buttons.push_back({"1min", event, LARGE});
     event.gameConfig.type = Event::GameConfig::Type::rush;
     buttons.push_back({"rush", event, LARGE});
@@ -107,6 +97,7 @@ void Menu::ChangeMenu(Event::MenuType menuType)
     event.gameConfig = Event::GameConfig{Event::GameConfig::Type::min, 1, 1, 90, 2};
     buttons.push_back({"vs.", event, LARGE});
 
+    event.type = Event::Type::loadNewMenu;
     event.menuType = Event::MenuType::play;
     interface = std::make_unique<GridInterface>(2, buttons, event);
     break;    
@@ -132,22 +123,24 @@ void Menu::ChangeMenu(Event::MenuType menuType)
 
     break;
   }
+  case Event::MenuType::options:
+  {
+    showGame = true;
+
+    std::vector<OptionConfig> options;
+
+    event.type = Event::Type::exitGame;
+    options.push_back({"scale", event});
+    options.push_back({"fullscreen", event});
+    options.push_back({"sfx", event});
+    options.push_back({"music", event});
+
+    event.type = Event::Type::loadNewMenu;
+    event.menuType = Event::MenuType::main;
+    interface = std::make_unique<OptionsInterface>(options, event);
+  }
   
   default:
     break;
   }
 }
-
-// MainLayout::MainLayout(MenuInterface* interface, Layout* layout)
-// {
-//   menu->curLayout;
-// }
-
-// void MainLayout::DoButtonAction(MenuInterface* interface, Layout* layout)
-// {
-//   int clickedButton = interface.
-// }
-
-// void MainLayout::Return(MenuInterface* interface, Layout* layout)
-// {
-// }

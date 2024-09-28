@@ -1,6 +1,6 @@
-#include "Button.h"
+#include "MenuButton.h"
 
-Button::Button(std::string name, Event action, std::string textureName, sf::Vector2f pos)
+MenuButton::MenuButton(std::string name, Event action, std::string textureName, sf::Vector2f pos)
   :
   action(action)
 {
@@ -17,24 +17,24 @@ Button::Button(std::string name, Event action, std::string textureName, sf::Vect
   displayName.setFillColor(sf::Color(173, 103, 78));
 }
 
-void Button::Render(sf::RenderWindow *win) const
+void MenuButton::Render(sf::RenderWindow *win) const
 {
   win->draw(button, &Utility::worldShad);
   win->draw(displayName);
 }
 
-void Button::Move(sf::Vector2f offset)
+void MenuButton::Move(sf::Vector2f offset)
 {
   button.move(offset);
   displayName.move(offset);
 }
 
-void Button::Click() const
+void MenuButton::Click() const
 {
   Event::events.push_back(action);
 }
 
-void Button::ToggleHighlight()
+void MenuButton::ToggleHighlight()
 {
   sf::IntRect curRect = button.getTextureRect();
   if (!isHighlighted)
@@ -48,7 +48,7 @@ void Button::ToggleHighlight()
 
 SmallButton::SmallButton(sf::Vector2f pos, std::string name, Event action)
   :
-  Button(name, action, "small_button", pos)
+  MenuButton(name, action, "small_button", pos)
 {
   displayName.setFont(Textures::small);
   displayName.setOrigin(sf::Vector2f(displayName.getGlobalBounds().width / 2, displayName.getGlobalBounds().height / 2));
@@ -61,12 +61,12 @@ void SmallButton::Update()
 
 void SmallButton::Render(sf::RenderWindow* win) const
 {
-  Button::Render(win);
+  MenuButton::Render(win);
 }
 
 MediumButton::MediumButton(sf::Vector2f pos, std::string name, Event action)
   :
-  Button(name, action, "medium_button", pos)
+  MenuButton(name, action, "medium_button", pos)
 {
   displayName.setFont(Textures::small);
   displayName.setOrigin(sf::Vector2f(displayName.getGlobalBounds().width / 2, displayName.getGlobalBounds().height / 2));
@@ -79,12 +79,12 @@ void MediumButton::Update()
 
 void MediumButton::Render(sf::RenderWindow* win) const
 {
-  Button::Render(win);
+  MenuButton::Render(win);
 }
 
 LargeButton::LargeButton(sf::Vector2f pos, std::string name, Event action)
   :
-  Button(name, action, "large_button", pos)
+  MenuButton(name, action, "large_button", pos)
 {
   displayName.setFont(Textures::large);
   displayName.setOrigin(sf::Vector2f(displayName.getGlobalBounds().width / 2, displayName.getGlobalBounds().height / 2));
@@ -97,5 +97,5 @@ void LargeButton::Update()
 
 void LargeButton::Render(sf::RenderWindow* win) const
 {
-  Button::Render(win);
+  MenuButton::Render(win);
 }

@@ -3,7 +3,8 @@
 
 #include <SFML/Graphics.hpp>
 
-#include "Button.h"
+#include "MenuButton.h"
+#include "MenuOption.h"
 #include "Event.h" 
 #include "Textures.h"
 #include "Utility.h"
@@ -46,7 +47,7 @@ private:
   // An invisible indicator as to the specific grid position that is highlighted, used to determine button selection
   int curPos = 2;
 
-  std::vector<std::unique_ptr<Button>> buttons;
+  std::vector<std::unique_ptr<MenuButton>> buttons;
   std::vector<int> buttonPos; // Represents which button occupies which grid space, from top to bottom, left to right
 };
 
@@ -62,12 +63,21 @@ private:
   // An invisible indicator as to the specific grid position that is highlighted, used to determine button selection
   int curPos = 0;
 
-  std::vector<std::unique_ptr<Button>> buttons;
+  std::vector<std::unique_ptr<MenuButton>> buttons;
 };
 
-class ConfigurationInterface : public MenuInterface // For options and custom games
+class OptionsInterface : public MenuInterface // For options and custom games
 {
+public:
+  OptionsInterface(std::vector<OptionConfig> configs, Event menuReturn);
 
+  void Update() override;
+  void Render(sf::RenderWindow* win) const override;
+
+private:
+  int curIndex = 0;
+
+  std::vector<std::unique_ptr<MenuOption>> options;
 };
 
 class PlayerSelectInterface : public MenuInterface

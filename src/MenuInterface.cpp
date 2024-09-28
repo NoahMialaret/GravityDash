@@ -164,3 +164,51 @@ void ListInterface::Render(sf::RenderWindow *win) const
   for (auto& b : buttons)
     b.get()->Render(win);
 }
+
+OptionsInterface::OptionsInterface(std::vector<OptionConfig> configs, Event menuReturn)
+  :
+  MenuInterface(menuReturn)
+{
+  assert (configs.size() > 0);
+
+  // float offset = Utility::gameScale * (Textures::textures.at("small_button").getSize().y + 2);
+  float yPos = 0;
+
+  for (auto& c : configs)
+  {
+    options.push_back(std::make_unique<ToggleOption>(c.name, c.event, yPos, false));
+    yPos += SCALED_DIM;
+  }
+
+  options[curIndex].get()->ToggleHighlight();
+}
+
+void OptionsInterface::Update()
+{
+
+  if (Utility::CheckInitialPress(sf::Keyboard::Escape))
+    Event::events.push_back(menuReturn);
+
+  for (auto& o : options)
+    o.get()->Update();
+
+  int move = Utility::CheckInitialPress(sf::Keyboard::S) - Utility::CheckInitialPress(sf::Keyboard::W);
+
+  int newIndex = curIndex + move;
+
+  if (!move || newIndex < 0 || newIndex >= options.size())
+    return;
+
+  options[curIndex].get()->ToggleHighlight();
+  options[newIndex].get()->ToggleHighlight();
+  curIndex = newIndex; 
+
+  for (auto& o : options)
+    o.get()->Move(-move * SCALED_DIM);
+}
+
+void OptionsInterface::Render(sf::RenderWindow* win) const
+{
+  for (auto& o : options)
+    o.get()->Render(win);
+}
