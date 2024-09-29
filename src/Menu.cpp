@@ -131,22 +131,69 @@ void Menu::ChangeMenu(Event::MenuType menuType)
 
     event.type = Event::Type::exitGame;
 
+    std::vector<std::string> colours{"green", "orange", "purple"};
+
+    // Video
     OptionConfig option = {"scale", event, OptionConfig::Type::range};
-    option.range = {2, 0, 10};
+    option.range = {(int)Utility::gameScale, 1, 32};
     options.push_back(option);
 
     option = {"fullscreen", event, OptionConfig::Type::toggle};
-    option.toggle = {true};
+    option.toggle = {false};
     options.push_back(option);
 
     option = {"colour", event, OptionConfig::Type::selection};
-    std::vector<std::string> colours{"green", "orange", "purple"};
     option.selection = {0, &colours};
     options.push_back(option);
 
-    option = {"mode", event, OptionConfig::Type::selection};
-    std::vector<std::string> modes{"1min", "rush", "wild"};
-    option.selection = {0, &modes};
+    // Audio
+    option = {"sfx", event, OptionConfig::Type::range};
+    option.range = {6, 0, 10};
+    options.push_back(option);
+
+    option = {"music", event, OptionConfig::Type::range};
+    option.range = {8, 0, 10};
+    options.push_back(option);
+    
+    // Controls
+
+    option = {"left", event, OptionConfig::Type::control};
+    option.control = {sf::Keyboard::Key::A};
+    options.push_back(option);
+    option = {"right", event, OptionConfig::Type::control};
+    option.control = {sf::Keyboard::Key::D};
+    options.push_back(option);
+    option = {"up", event, OptionConfig::Type::control};
+    option.control = {sf::Keyboard::Key::W};
+    options.push_back(option);
+    option = {"down", event, OptionConfig::Type::control};
+    option.control = {sf::Keyboard::Key::S};
+    options.push_back(option);
+    option = {"jump/click", event, OptionConfig::Type::control};
+    option.control = {sf::Keyboard::Key::Space};
+    options.push_back(option);
+    option = {"special", event, OptionConfig::Type::control};
+    option.control = {sf::Keyboard::Key::LShift};
+    options.push_back(option);
+    option = {"return", event, OptionConfig::Type::control};
+    option.control = {sf::Keyboard::Key::Escape};
+    options.push_back(option);
+    
+    // Accessibility
+    option = {"colour help", event, OptionConfig::Type::toggle};
+    option.toggle = {false};
+    options.push_back(option);
+    option = {"world", event, OptionConfig::Type::selection};
+    option.selection = {0, &colours};
+    options.push_back(option);
+    option = {"player", event, OptionConfig::Type::selection};
+    option.selection = {0, &colours};
+    options.push_back(option);
+    option = {"targets", event, OptionConfig::Type::selection};
+    option.selection = {0, &colours};
+    options.push_back(option);
+    option = {"saws", event, OptionConfig::Type::selection};
+    option.selection = {0, &colours};
     options.push_back(option);
 
     event.type = Event::Type::loadNewMenu;

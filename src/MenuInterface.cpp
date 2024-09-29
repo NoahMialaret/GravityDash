@@ -188,7 +188,7 @@ OptionsInterface::OptionsInterface(std::vector<OptionConfig> configs, Event menu
       options.push_back(std::make_unique<SelectionOption>(c.name, c.event, yPos, c.selection));
       break;
     case OptionConfig::Type::control:
-      // options.push_back(std::make_unique<ControlOption>(c.name, c.event, yPos, c.control));
+      options.push_back(std::make_unique<ControlOption>(c.name, c.event, yPos, c.control));
       break;
     
     default:

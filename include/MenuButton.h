@@ -26,7 +26,7 @@ struct ButtonConfig
 class MenuButton
 {
 public:
-  MenuButton(std::string name, Event action, std::string textureName, sf::Vector2f pos);
+  MenuButton(Event action, std::string textureName, sf::Vector2f pos);
   // MenuButton(const MenuButton& button);
 
   virtual void Update() = 0;
@@ -47,7 +47,7 @@ protected:
   bool isHighlighted = false;
 };
 
-#define SMALL_TEXT_OFFSET Utility::gameScale * sf::Vector2f(0.0f, 0.5f)
+#define SMALL_TEXT_OFFSET Utility::gameScale * sf::Vector2f(0.0f, -0.5f)
 
 class SmallButton : public MenuButton
 {
@@ -58,7 +58,7 @@ public:
   void Render(sf::RenderWindow* win) const override;
 };
 
-#define MEDIUM_TEXT_OFFSET Utility::gameScale * sf::Vector2f(-2.5f, 7.0f)
+#define MEDIUM_TEXT_OFFSET Utility::gameScale * sf::Vector2f(-2.5f, 6.0f)
 
 class MediumButton : public MenuButton
 {
@@ -69,7 +69,7 @@ public:
   void Render(sf::RenderWindow* win) const override;
 };
 
-#define LARGE_TEXT_OFFSET Utility::gameScale * sf::Vector2f(-2.5f, 6.0f)
+#define LARGE_TEXT_OFFSET Utility::gameScale * sf::Vector2f(-2.5f, 5.0f)
 
 class LargeButton : public MenuButton
 {

@@ -190,5 +190,111 @@ void Utility::InitText(sf::Text &text, sf::Font &font, std::string str, sf::Vect
   text.setCharacterSize(SCALED_DIM);
   text.setFillColor(col);
   text.setFont(font);
-  text.setOrigin(sf::Vector2f(origin.x * text.getLocalBounds().width, origin.y * text.getLocalBounds().height));
+
+  float height = Utility::gameScale;
+  if (&font == &Textures::small)
+    height *= 4.0f;
+  else if (&font == &Textures::medium)
+    height *= 5.0f;
+  else // large
+    height *= 6.0f;
+
+  text.setOrigin(sf::Vector2f(origin.x * text.getLocalBounds().width, origin.y * height));
+}
+
+void Utility::UpdateText(sf::Text &text, std::string newStr, sf::Vector2f origin)
+{
+  text.setString(newStr);
+
+  float height = Utility::gameScale;
+  if (text.getFont() == &Textures::small)
+    height *= 4.0f;
+  else if (text.getFont() == &Textures::medium)
+    height *= 5.0f;
+  else // large
+    height *= 6.0f;
+
+  text.setOrigin(sf::Vector2f(origin.x * text.getLocalBounds().width, origin.y * height));
+}
+
+std::string Utility::GetStringFromKeyCode(sf::Keyboard::Key key)
+{
+  if ((int)key >= 0 && (int)key <= 25) // letters
+  {
+    std::string ret;
+    ret = (char)key + 'A';
+    return ret;
+  }
+  else if ((int)key >= 26 && (int)key <= 35) // numbers
+    return std::to_string((int)key - 26);
+  else if ((int)key >= 75 && (int)key <= 84) // numpad
+  {
+    std::string ret = "npad" + std::to_string((int)key - 75);
+    return ret;
+  }
+
+  switch (key)
+  {
+  case sf::Keyboard::Key::Escape:
+    return "esc";
+  case sf::Keyboard::Key::Tab:
+    return "tab";
+  case sf::Keyboard::Key::Enter:
+    return "enter";
+  case sf::Keyboard::Key::Backspace:
+    return "bcksp";
+  case sf::Keyboard::Key::LShift:
+    return "lshft";
+  case sf::Keyboard::Key::RShift:
+    return "rshft";
+  case sf::Keyboard::Key::LControl:
+    return "lctrl";
+  case sf::Keyboard::Key::RControl:
+    return "rctrl";
+  case sf::Keyboard::Key::Space:
+    return "space";
+  case sf::Keyboard::Key::LAlt:
+    return "lalt";
+  case sf::Keyboard::Key::RAlt:
+    return "ralt";  
+  case sf::Keyboard::Key::Up:
+    return "up";  
+  case sf::Keyboard::Key::Down:
+    return "down";  
+  case sf::Keyboard::Key::Left:
+    return "left";  
+  case sf::Keyboard::Key::Right:
+    return "right";  
+  case sf::Keyboard::Key::PageUp:
+    return "p-up";  
+  case sf::Keyboard::Key::PageDown:
+    return "p-dwn";  
+
+  case sf::Keyboard::Key::Grave:
+    return "`";  
+  case sf::Keyboard::Key::Hyphen:
+    return "-";  
+  case sf::Keyboard::Key::Equal:
+    return "=";  
+  case sf::Keyboard::Key::LBracket:
+    return "[";  
+  case sf::Keyboard::Key::RBracket:
+    return "]";  
+  case sf::Keyboard::Key::BackSlash:
+    return "\\";  
+  case sf::Keyboard::Key::SemiColon:
+    return ";";  
+  case sf::Keyboard::Key::Quote:
+    return "'";  
+  case sf::Keyboard::Key::Comma:
+    return ",";  
+  case sf::Keyboard::Key::Period:
+    return ".";  
+  case sf::Keyboard::Key::Slash:
+    return "/";  
+
+  default:
+    return "NULL";
+    break;
+  }
 }

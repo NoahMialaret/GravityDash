@@ -6,6 +6,7 @@
 #include "Event.h"
 #include "Textures.h"
 #include "Utility.h"
+#include "RoundedRect.h"
 
 #include <string>
 #include <vector>
@@ -65,13 +66,18 @@ public:
   virtual void Move(float offsetY);
 
   void ToggleHighlight();
+
+  bool IsActive();
   
 protected:
   sf::Text displayName;
+  static RoundedRect highlightBg;
 
   Event action;
 
   bool isHighlighted = false;
+
+  bool isActive = false;
 };
 
 class ToggleOption : public MenuOption
@@ -125,9 +131,20 @@ private:
   sf::Text displaySelection;
 };
 
-// class ControlOption
-// {
+class ControlOption : public MenuOption
+{
+public:
+  ControlOption(std::string name, Event action, float yPos, OptionConfig::Control config);
 
-// };
+  void Update() override;
+  void Render(sf::RenderWindow* win) const override;
+
+  void SetY(float newY) override;
+  void Move(float offsetY) override;
+
+private:
+  RoundedRect keyBg;
+  sf::Text curKey;
+};
 
 #endif
