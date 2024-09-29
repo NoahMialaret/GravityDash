@@ -165,30 +165,117 @@ void ListInterface::Render(sf::RenderWindow *win) const
     b.get()->Render(win);
 }
 
-OptionsInterface::OptionsInterface(std::vector<OptionConfig> configs, Event menuReturn)
+
+
+OptionsInterface::OptionsInterface(std::vector<std::pair<std::string, std::vector<OptionConfig>>>& configs, Event menuReturn)
   :
-  MenuInterface(menuReturn)
+  MenuInterface(menuReturn),
+  bezier(Utility::curves[(int)Curve::easeIn])
+{
+  origin = 0.0f;
+
+  float yPos = 0.0f;
+  for (auto& c : configs)
+  {
+    subLists.push_back(std::make_unique<OptionsSubList>(c.first, c.second, &origin, yPos));
+    yPos += (c.second.size() + 2) * SCALED_DIM;
+  }
+
+  subLists[0].get()->GoTo(0);
+  timer = 0.0f;
+  start = origin;
+  end = - MenuOption::curHighlight->GetOffset();
+}
+
+OptionsInterface::~OptionsInterface()
+{
+  MenuOption::curHighlight = nullptr;
+}
+
+void OptionsInterface::Update()
+{
+  timer += Clock::Delta();
+
+  if (Utility::CheckInitialPress(sf::Keyboard::Escape))
+    Event::events.push_back(menuReturn);
+
+  float percent = bezier.GetValue(timer / 250.0f);
+  origin = (1.0f - percent) * start + percent * end;
+
+  int move = Utility::CheckInitialPress(sf::Keyboard::S) - Utility::CheckInitialPress(sf::Keyboard::W);
+
+  if (!move)
+  {
+    for (auto& l : subLists)
+      l.get()->Update();
+    return;
+  }
+
+  if (!subLists[curIndex].get()->Move(move))
+  {
+    curIndex += move;
+    if (curIndex < 0)
+      curIndex = subLists.size() - 1;
+    else if (curIndex >= subLists.size())
+      curIndex = 0;
+
+    subLists[curIndex].get()->GoTo(move == 1 ? 0 : -1);
+  }
+
+  timer = 0.0f;
+  start = origin;
+  end = - MenuOption::curHighlight->GetOffset();
+  
+  for (auto& l : subLists)
+    l.get()->Update();
+}
+
+void OptionsInterface::Render(sf::RenderWindow* win) const
+{
+  for (auto& l : subLists)
+    l.get()->Render(win);
+}
+
+OptionsSubList::OptionsSubList(std::string& title, std::vector<OptionConfig>& configs, float* origin, float yPos)
+  :
+  origin(origin),
+  vertOffset(yPos)
 {
   assert (configs.size() > 0);
 
-  // float offset = Utility::gameScale * (Textures::textures.at("small_button").getSize().y + 2);
-  float yPos = 0;
+  Utility::InitText(displayTitle, Textures::large, title, {0, *origin + yPos - SCALED_DIM - Utility::gameScale});
+
+  float width = title.size() * 5.0f + title.size() - 1.0f;
+
+  overline.setFillColor({173, 103, 78});
+  overline.setSize(sf::Vector2f(width, 1.0f));
+  overline.setScale(DEFAULT_SCALE);
+  overline.setPosition({0, *origin + yPos});
+  overline.setOrigin({width / 2.0f, 5.0f});
+
+  underline.setFillColor({173, 103, 78});
+  underline.setSize(sf::Vector2f(width, 1.0f));
+  underline.setScale(DEFAULT_SCALE);
+  underline.setPosition({0, *origin + yPos});
+  underline.setOrigin({width / 2.0f, - 4.0f});
+
+  yPos += 1.25f * SCALED_DIM;
 
   for (auto& c : configs)
   {
     switch (c.type)
     {
     case OptionConfig::Type::toggle:
-      options.push_back(std::make_unique<ToggleOption>(c.name, c.event, yPos, c.toggle));
+      options.push_back(std::make_unique<ToggleOption>(c.name, c.event, origin, yPos, c.toggle));
       break;
     case OptionConfig::Type::range:
-      options.push_back(std::make_unique<RangeOption>(c.name, c.event, yPos, c.range));
+      options.push_back(std::make_unique<RangeOption>(c.name, c.event, origin, yPos, c.range));
       break;
     case OptionConfig::Type::selection:
-      options.push_back(std::make_unique<SelectionOption>(c.name, c.event, yPos, c.selection));
+      options.push_back(std::make_unique<SelectionOption>(c.name, c.event, origin, yPos, c.selection));
       break;
     case OptionConfig::Type::control:
-      options.push_back(std::make_unique<ControlOption>(c.name, c.event, yPos, c.control));
+      options.push_back(std::make_unique<ControlOption>(c.name, c.event, origin, yPos, c.control));
       break;
     
     default:
@@ -196,36 +283,43 @@ OptionsInterface::OptionsInterface(std::vector<OptionConfig> configs, Event menu
     }
     yPos += SCALED_DIM;
   }
-
-  options[curIndex].get()->ToggleHighlight();
 }
 
-void OptionsInterface::Update()
+void OptionsSubList::Update()
 {
-
-  if (Utility::CheckInitialPress(sf::Keyboard::Escape))
-    Event::events.push_back(menuReturn);
+  displayTitle.setPosition({0, *origin + vertOffset - SCALED_DIM - Utility::gameScale});
+  overline.setPosition({0, *origin + vertOffset});
+  underline.setPosition({0, *origin + vertOffset});
 
   for (auto& o : options)
     o.get()->Update();
-
-  int move = Utility::CheckInitialPress(sf::Keyboard::S) - Utility::CheckInitialPress(sf::Keyboard::W);
-
-  int newIndex = curIndex + move;
-
-  if (!move || newIndex < 0 || newIndex >= options.size())
-    return;
-
-  options[curIndex].get()->ToggleHighlight();
-  options[newIndex].get()->ToggleHighlight();
-  curIndex = newIndex; 
-
-  for (auto& o : options)
-    o.get()->Move(-move * SCALED_DIM);
 }
 
-void OptionsInterface::Render(sf::RenderWindow* win) const
+void OptionsSubList::Render(sf::RenderWindow *win) const
 {
+  win->draw(displayTitle);
+  win->draw(overline);
+  win->draw(underline);
+
   for (auto& o : options)
     o.get()->Render(win);
+}
+
+void OptionsSubList::GoTo(int index)
+{
+  curIndex = index;
+  if (curIndex == -1)
+    curIndex = options.size() - 1;
+  options[curIndex].get()->SetHighlight();
+}
+
+bool OptionsSubList::Move(int move)
+{
+  if (curIndex + move < 0 || curIndex + move >= options.size())
+    return false;
+
+  curIndex += move;
+  options[curIndex].get()->SetHighlight();
+
+  return true;
 }

@@ -3,9 +3,10 @@
 
 #include <SFML/Graphics.hpp>
 
+#include "Clock.h"
+#include "Event.h" 
 #include "MenuButton.h"
 #include "MenuOption.h"
-#include "Event.h" 
 #include "Textures.h"
 #include "Utility.h"
 #include "assert.h"
@@ -66,10 +67,35 @@ private:
   std::vector<std::unique_ptr<MenuButton>> buttons;
 };
 
+class OptionsSubList
+{
+public:
+  OptionsSubList(std::string& title, std::vector<OptionConfig>& configs, float* origin, float yPos);
+
+  void Update();
+  void Render(sf::RenderWindow* win) const;
+
+  void GoTo(int index);
+  bool Move(int move);
+
+private:
+  int curIndex = 0;
+
+  float* origin;
+  float vertOffset = 0.0f;
+
+  sf::Text displayTitle;
+  sf::RectangleShape overline;
+  sf::RectangleShape underline;
+
+  std::vector<std::unique_ptr<MenuOption>> options;  
+};
+
 class OptionsInterface : public MenuInterface // For options and custom games
 {
 public:
-  OptionsInterface(std::vector<OptionConfig> configs, Event menuReturn);
+  OptionsInterface(std::vector<std::pair<std::string, std::vector<OptionConfig>>>& configs, Event menuReturn);
+  ~OptionsInterface();
 
   void Update() override;
   void Render(sf::RenderWindow* win) const override;
@@ -77,7 +103,14 @@ public:
 private:
   int curIndex = 0;
 
-  std::vector<std::unique_ptr<MenuOption>> options;
+  Bezier bezier;
+  float timer = 0.0f;
+
+  float origin;
+  float start = 0.0f;
+  float end = 0.0f;
+
+  std::vector<std::unique_ptr<OptionsSubList>> subLists;
 };
 
 class PlayerSelectInterface : public MenuInterface

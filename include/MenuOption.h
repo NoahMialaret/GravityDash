@@ -57,25 +57,30 @@ struct OptionConfig
 class MenuOption
 {
 public:
-  MenuOption(std::string name, Event action, float yPos);
+  MenuOption(std::string name, Event action, float* origin, float offset);
 
   virtual void Update();
   virtual void Render(sf::RenderWindow* win) const;
 
-  virtual void SetY(float newY);
-  virtual void Move(float offsetY);
-
-  void ToggleHighlight();
+  void SetHighlight();
 
   bool IsActive();
+
+  float GetOffset() const;
+
+public:
+  static MenuOption* curHighlight;
   
 protected:
   sf::Text displayName;
   static RoundedRect highlightBg;
 
+  bool isHighlighted = false;
+
   Event action;
 
-  bool isHighlighted = false;
+  float vertOffset;
+  float* origin;
 
   bool isActive = false;
 };
@@ -83,13 +88,10 @@ protected:
 class ToggleOption : public MenuOption
 {
 public:
-  ToggleOption(std::string name, Event action, float yPos, OptionConfig::Toggle config);
+  ToggleOption(std::string name, Event action, float* origin, float offset, OptionConfig::Toggle config);
 
   void Update() override;
   void Render(sf::RenderWindow* win) const override;
-
-  void SetY(float newY) override;
-  void Move(float offsetY) override;
 
 private:
   bool toggle = false;
@@ -99,13 +101,10 @@ private:
 class RangeOption : public MenuOption
 {
 public:
-  RangeOption(std::string name, Event action, float yPos, OptionConfig::Range config);
+  RangeOption(std::string name, Event action, float* origin, float offset, OptionConfig::Range config);
 
   void Update() override;
   void Render(sf::RenderWindow* win) const override;
-
-  void SetY(float newY) override;
-  void Move(float offsetY) override;
 
 private:
   int value = 0;
@@ -117,13 +116,10 @@ private:
 class SelectionOption : public MenuOption
 {
 public:
-  SelectionOption(std::string name, Event action, float yPos, OptionConfig::Selection config);
+  SelectionOption(std::string name, Event action, float* origin, float offset, OptionConfig::Selection config);
 
   void Update() override;
   void Render(sf::RenderWindow* win) const override;
-
-  void SetY(float newY) override;
-  void Move(float offsetY) override;
 
 private:
   int index;
@@ -134,13 +130,10 @@ private:
 class ControlOption : public MenuOption
 {
 public:
-  ControlOption(std::string name, Event action, float yPos, OptionConfig::Control config);
+  ControlOption(std::string name, Event action, float* origin, float offset, OptionConfig::Control config);
 
   void Update() override;
   void Render(sf::RenderWindow* win) const override;
-
-  void SetY(float newY) override;
-  void Move(float offsetY) override;
 
 private:
   RoundedRect keyBg;

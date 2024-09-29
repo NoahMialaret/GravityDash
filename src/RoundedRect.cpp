@@ -25,6 +25,16 @@ void RoundedRect::SetCentre(sf::Vector2f newCentre)
   Move(newCentre - centre);
 }
 
+void RoundedRect::SetVertical(float vertPos)
+{
+  Move(sf::Vector2f(centre.x, vertPos) - centre);
+}
+
+void RoundedRect::SetHorizontal(float horiPos)
+{
+  Move(sf::Vector2f(horiPos, centre.y) - centre);
+}
+
 void RoundedRect::Move(sf::Vector2f offset)
 {  
   main.move(offset);

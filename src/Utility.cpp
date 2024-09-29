@@ -185,7 +185,7 @@ void Utility::InitSprite(sf::Sprite &sprite, std::string tex, sf::Vector2f pos, 
 
 void Utility::InitText(sf::Text &text, sf::Font &font, std::string str, sf::Vector2f pos, sf::Vector2f origin, sf::Color col)
 {
-  text.setPosition(pos + sf::Vector2f(0.0f, Utility::gameScale));
+  text.setPosition(pos);
   text.setString(str);
   text.setCharacterSize(SCALED_DIM);
   text.setFillColor(col);
@@ -199,7 +199,7 @@ void Utility::InitText(sf::Text &text, sf::Font &font, std::string str, sf::Vect
   else // large
     height *= 6.0f;
 
-  text.setOrigin(sf::Vector2f(origin.x * text.getLocalBounds().width, origin.y * height));
+  text.setOrigin(sf::Vector2f(origin.x * text.getLocalBounds().width, origin.y * height - Utility::gameScale));
 }
 
 void Utility::UpdateText(sf::Text &text, std::string newStr, sf::Vector2f origin)
@@ -214,7 +214,7 @@ void Utility::UpdateText(sf::Text &text, std::string newStr, sf::Vector2f origin
   else // large
     height *= 6.0f;
 
-  text.setOrigin(sf::Vector2f(origin.x * text.getLocalBounds().width, origin.y * height));
+  text.setOrigin(sf::Vector2f(origin.x * text.getLocalBounds().width, origin.y * height - Utility::gameScale));
 }
 
 std::string Utility::GetStringFromKeyCode(sf::Keyboard::Key key)

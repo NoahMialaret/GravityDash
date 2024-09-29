@@ -12,6 +12,8 @@ public:
   RoundedRect(sf::Vector2f centre, sf::Vector2f dim, sf::Color color);
 
   void SetCentre(sf::Vector2f newCentre);
+  void SetVertical(float vertPos);
+  void SetHorizontal(float horiPos);
   void Move(sf::Vector2f offset);
   void SetDim(sf::Vector2f newDim);
 
