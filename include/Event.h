@@ -41,6 +41,15 @@ public:
     // std::vector<ids> transitionIDs
   };
 
+  struct GameStats
+  {
+    int jumps;
+    int hits;
+    int combos;
+    int specials;
+    int cycles;
+  };
+
   enum class Type
   {
     programClose,
@@ -49,6 +58,8 @@ public:
     pause,
     resumePlay,
     exitGame,
+    gameDone,
+    restartGame,
     // returnCamera,
     // cameraUp,
   };
@@ -77,6 +88,7 @@ public:
   {
     MenuType menuType;
     GameConfig gameConfig;
+    GameStats gameStats;
   };
 };
 

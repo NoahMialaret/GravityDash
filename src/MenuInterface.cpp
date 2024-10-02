@@ -5,24 +5,6 @@ MenuInterface::MenuInterface(Event menuReturn)
   menuReturn(menuReturn)
 {}
 
-// GridInterface::GridInterface(Layout layout)
-//   :
-//   MenuInterface()
-// {
-//   switch (layout)
-//   {
-//   case Layout::main:
-//     buttons.push_back(std::make_unique<MediumButton>("stats"));
-//     break;
-
-//   case Layout::play:
-  
-//   default:
-//     break;
-//   }
-//   // if button is medium, pushback, if button is large, pushback * 2
-// }
-
 GridInterface::GridInterface(int startPos, std::vector<ButtonConfig>& configs, Event menuReturn)
   :
   MenuInterface(menuReturn),
@@ -165,6 +147,63 @@ void ListInterface::Render(sf::RenderWindow *win) const
     b.get()->Render(win);
 }
 
+GameEndInterface::GameEndInterface(std::vector<ButtonConfig> &configs, Event menuReturn, Event::GameStats stats)
+  :
+  ListInterface(configs, menuReturn)
+{
+  for (auto& b : buttons)
+  {
+    b.get()->Move({4.0f * SCALED_DIM, 0});
+  }
+
+  float yPos = - Utility::gameScale * (40.0f + (stats.cycles == -1 ? 0.0f : 7.0f)) / 2.0f;
+
+  Utility::InitText(displayTitle, Textures::large, "results", {-6.5f * SCALED_DIM, yPos - SCALED_DIM}, {0, 0.0f}, {255, 229, 181});
+  displayTitle.setOutlineColor({173, 103, 78});
+  displayTitle.setOutlineThickness(Utility::gameScale);
+
+  underline.setFillColor({173, 103, 78});
+  underline.setSize(sf::Vector2f(displayTitle.getLocalBounds().width / Utility::gameScale + 6, 1.0f));
+  underline.setScale(DEFAULT_SCALE);
+  underline.setPosition(displayTitle.getPosition() + Utility::gameScale * sf::Vector2f(-3.0f, 17.0f));
+
+  float offset = 7 * Utility::gameScale;
+
+  sf::Text text;
+  Utility::InitText(text, Textures::small, "jumps - " + std::to_string(stats.jumps), {-6.0f * SCALED_DIM, yPos + 14.0f * Utility::gameScale}, {0, 0.0f}, {255, 229, 181});
+  text.setOutlineColor({173, 103, 78});
+  text.setOutlineThickness(Utility::gameScale);
+
+  this->stats.push_back(text);
+
+  text.setString("hits - " + std::to_string(stats.hits));
+  text.move({0.0f, offset});
+  this->stats.push_back(text);
+  text.setString("specials - " + std::to_string(stats.specials));
+  text.move({0.0f, offset});
+  this->stats.push_back(text);
+  text.setString("3+ combos - " + std::to_string(stats.combos));
+  text.move({0.0f, offset});
+  this->stats.push_back(text);
+
+  if (stats.cycles == -1)
+    return;
+
+  text.setString("cycles - " + std::to_string(stats.cycles));
+  text.move({0.0f, offset});
+  this->stats.push_back(text);
+
+}
+
+void GameEndInterface::Render(sf::RenderWindow *win) const
+{
+  ListInterface::Render(win);
+  win->draw(displayTitle);
+  win->draw(underline);
+  for (auto& s : stats)
+    win->draw(s);
+}
+
 
 
 OptionsInterface::OptionsInterface(std::vector<std::pair<std::string, std::vector<OptionConfig>>>& configs, Event menuReturn)
@@ -245,7 +284,7 @@ OptionsSubList::OptionsSubList(std::string& title, std::vector<OptionConfig>& co
 
   Utility::InitText(displayTitle, Textures::large, title, {0, *origin + yPos - SCALED_DIM - Utility::gameScale});
 
-  float width = title.size() * 5.0f + title.size() - 1.0f;
+  float width = displayTitle.getLocalBounds().width / Utility::gameScale + 4;
 
   overline.setFillColor({173, 103, 78});
   overline.setSize(sf::Vector2f(width, 1.0f));

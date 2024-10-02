@@ -111,6 +111,8 @@ void Character::Update()
     }
     break;
 
+  case State::dead:
+    break;
   
   default:
     std::cout << "Could not determine Character state (" << (int)curState << ")\n";
@@ -190,6 +192,8 @@ void Character::Jump()
     return;
   }
 
+  jumps++;
+
   vel.y = acceleration * 80.0f * (isUpright ? -1.0f : 1.0f);;
   vel.x = 0.0f;
   
@@ -207,6 +211,8 @@ void Character::SuperJump()
   {
     return;
   }
+
+  specials++;
 
   float jumpSpeed = acceleration * 80.0f * (isUpright ? -1.0f : 1.0f);
 
@@ -252,6 +258,7 @@ void Character::Land()
   if (comboCount >= 3)
   {
     canCollect = true;
+    combos++;
   }
   else 
   {
@@ -327,6 +334,8 @@ bool Character::Hit(sf::Vector2f entPos)
   {
     return false;
   }
+
+  hits++;
 
   std::cout << "Player has been hit!\n";
 
@@ -451,6 +460,14 @@ int Character::GetTimeBoost()
   return 0;
 }
 
+void Character::GetStats(int *jumps, int *hits, int *specials, int *combos) const
+{
+  *jumps += this->jumps;
+  *hits += this->hits;
+  *specials += this->specials;
+  *combos += this->combos;
+}
+
 void Character::AddNewPoint(sf::Vector2f pos, sf::Vector2f vel)
 {
   if (boostJumpsRemaining >= 0)
@@ -488,6 +505,7 @@ void PlayableCharacter::Update()
 {
   if (curState == State::dead)
   {
+    Character::Update();
     return;
   }
 
@@ -525,6 +543,7 @@ void ComputerCharacter::Update()
 {
   if (curState == State::dead)
   {
+    Character::Update();
     return;
   }
 

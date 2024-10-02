@@ -60,11 +60,24 @@ public:
   void Update() override;
   void Render(sf::RenderWindow* win) const override;
 
-private:
+protected:
   // An invisible indicator as to the specific grid position that is highlighted, used to determine button selection
   int curPos = 0;
 
   std::vector<std::unique_ptr<MenuButton>> buttons;
+};
+
+class GameEndInterface : public ListInterface
+{
+public:
+  GameEndInterface(std::vector<ButtonConfig>& configs, Event menuReturn, Event::GameStats stats);
+
+  void Render(sf::RenderWindow* win) const override;
+
+private:
+  std::vector<sf::Text> stats;
+  sf::Text displayTitle;
+  sf::RectangleShape underline;
 };
 
 class OptionsSubList

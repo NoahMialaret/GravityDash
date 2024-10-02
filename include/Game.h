@@ -38,6 +38,10 @@ public:
   // Returns whether or not the game is over
   bool IsGameOver() const;
 
+  void GetStats();
+
+  Event::GameConfig GetConfig() const;
+
 protected:
   // std::unique_ptr<Mode> gameMode = nullptr;
 

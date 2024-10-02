@@ -88,6 +88,8 @@ public:
   void IncrementTimeBoost();
   int GetTimeBoost();
 
+  void GetStats(int* jumps, int* hits, int* specials, int* combos) const;
+
 protected:
   int charID = 0;
 
@@ -129,6 +131,12 @@ protected:
 
   bool canCollect = false;
   int timeBoostCollected = 0;
+
+  // Stats
+  int jumps = -1; // Accounts for initial jump
+  int hits = 0;
+  int specials = 0;
+  int combos = 0;
 };
 
 class PlayableCharacter : public Character

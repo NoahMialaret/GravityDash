@@ -71,6 +71,7 @@ Program::Program(const char* name)
 	std::cout << "Initialising Program objects...\n";
 
     menu = std::make_unique<Menu>(Event::MenuType::main);
+    LoadMenuGame();
 
     Clock::Init();
     
@@ -141,10 +142,40 @@ void Program::HandleEvents()
       break;
 
     case Event::Type::exitGame:
-      game = nullptr;
+      LoadMenuGame();
 			menu.get()->ChangeMenu(Event::MenuType::main);
       curState = State::mainMenu;
       break;
+
+    case Event::Type::gameDone:
+      menu.get()->LoadGameEndMenu(event.gameStats);
+      curState = State::mainMenu;
+      break;
+
+    case Event::Type::restartGame:
+    {
+			std::cout << "Resetting game...\n";
+      Event::GameConfig config = game.get()->GetConfig();
+      switch (config.type)
+      {
+      case Event::GameConfig::Type::title:
+        game = std::make_unique<Game>(config);
+        break;
+      case Event::GameConfig::Type::min:
+        game = std::make_unique<Min>(config);
+        break;
+      case Event::GameConfig::Type::rush:
+        game = std::make_unique<Rush>(config);
+        break;
+      default:
+        std::cout << "Could not determine the game mode!\n";
+        continue;
+      }
+			menu.get()->ChangeMenu(Event::MenuType::pause);
+      Utility::particles.clear();
+			curState = State::gameplay;
+			break;
+    }
 		
 		default:
 			std::cout << "Event type could not be determined.\n";
@@ -188,7 +219,7 @@ void Program::HandleEvents()
 
 			case sf::Keyboard::R:
 				std::cout << "Restarting Game!\n";
-				game = nullptr;
+        LoadMenuGame();
         menu = std::make_unique<Menu>(Event::MenuType::main); // change to title
 				curState = State::mainMenu;
 				break;
@@ -213,7 +244,7 @@ void Program::Update()
 
   Clock::Update();
 
-  if (curState == State::gameplay)
+  if (curState != State::paused)
     game.get()->Update();
 
   if (curState != State::gameplay)
@@ -235,8 +266,7 @@ void Program::Render()
 		return;
 	}
 
-  if (curState >= State::gameplay)
-    game.get()->Render(&window);
+  game.get()->Render(&window);
 
   if (curState != State::gameplay)
     menu.get()->Render(&window);
@@ -274,4 +304,15 @@ void Program::ProgramExit()
 	std::cout << "Exiting game...\n";
 
 	curState = State::notRunning;
+}
+
+void Program::LoadMenuGame()
+{
+  Event::GameConfig config;
+  config.numPlayers = 0;
+  config.numComputers = 4;
+  config.sawFrequency = 0;
+  config.targetSpawnChance = 90;
+
+  game = std::make_unique<Game>(config);
 }

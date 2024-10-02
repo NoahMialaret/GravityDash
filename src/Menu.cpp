@@ -3,29 +3,15 @@
 Menu::Menu(Event::MenuType startMenu)
 {
   ChangeMenu(startMenu);
-
-  Event::GameConfig config;
-  config.numPlayers = 0;
-  config.numComputers = 4;
-  config.sawFrequency = 0;
-  config.targetSpawnChance = 90;
-
-  backgroundGame = std::make_unique<Game>(config);
 }
 
 void Menu::Update()
 {
-  if (showGame)
-    backgroundGame.get()->Update();
-
   interface.get()->Update();
 }
 
 void Menu::Render(sf::RenderWindow* win) const
 {
-  if (showGame)
-    backgroundGame.get()->Render(win);
-    
   interface.get()->Render(win);
 }
 
@@ -36,8 +22,6 @@ void Menu::ChangeMenu(Event::MenuType menuType)
   {
   case Event::MenuType::main:
   {
-    showGame = true;
-
     std::vector<ButtonConfig> buttons;
 
     event.type = Event::Type::loadNewMenu;
@@ -59,8 +43,6 @@ void Menu::ChangeMenu(Event::MenuType menuType)
   }
   case Event::MenuType::play:
   {
-    showGame = true;
-
     std::vector<ButtonConfig> buttons;
 
     event.type = Event::Type::loadNewGame;
@@ -80,7 +62,6 @@ void Menu::ChangeMenu(Event::MenuType menuType)
   }
   case Event::MenuType::multi:
   {
-    showGame = true;
     // color = blue;
 
     std::vector<ButtonConfig> buttons;
@@ -104,12 +85,13 @@ void Menu::ChangeMenu(Event::MenuType menuType)
   }
   case Event::MenuType::pause:
   {
-    showGame = false;
-
     std::vector<ButtonConfig> buttons;
 
     event.type = Event::Type::resumePlay;
     buttons.push_back({"resume", event, SMALL});
+
+    event.type = Event::Type::restartGame;
+    buttons.push_back({"retry", event, SMALL});
 
     event.type = Event::Type::loadNewMenu;
     event.menuType = Event::MenuType::options;
@@ -125,8 +107,6 @@ void Menu::ChangeMenu(Event::MenuType menuType)
   }
   case Event::MenuType::options:
   {
-    showGame = true;
-
     std::vector<std::pair<std::string, std::vector<OptionConfig>>> options;
 
     event.type = Event::Type::exitGame;
@@ -135,7 +115,11 @@ void Menu::ChangeMenu(Event::MenuType menuType)
 
     // Video
     options.push_back({"video", {}});
-    OptionConfig option = {"scale", event, OptionConfig::Type::range};
+    OptionConfig option = {"auto-scale", event, OptionConfig::Type::toggle};
+    option.toggle = {true};
+    options[0].second.push_back(option);
+
+    option = {"scale", event, OptionConfig::Type::range};
     option.range = {(int)Utility::gameScale, 1, 32};
     options[0].second.push_back(option);
 
@@ -180,24 +164,45 @@ void Menu::ChangeMenu(Event::MenuType menuType)
     option = {"return", event, OptionConfig::Type::control};
     option.control = {sf::Keyboard::Key::Escape};
     options[2].second.push_back(option);
+
+    // Multiplayer
+    options.push_back({"multiplayer", {}});
+    option = {"p1 colour", event, OptionConfig::Type::selection};
+    option.selection = {0, &colours};
+    options[3].second.push_back(option);
+    option = {"p2 colour", event, OptionConfig::Type::selection};
+    option.selection = {0, &colours};
+    options[3].second.push_back(option);
+    option = {"p2 left", event, OptionConfig::Type::control};
+    option.control = {sf::Keyboard::Key::A};
+    options[3].second.push_back(option);
+    option = {"p2 right", event, OptionConfig::Type::control};
+    option.control = {sf::Keyboard::Key::D};
+    options[3].second.push_back(option);
+    option = {"p2 jump", event, OptionConfig::Type::control};
+    option.control = {sf::Keyboard::Key::W};
+    options[3].second.push_back(option);
+    option = {"p2 special", event, OptionConfig::Type::control};
+    option.control = {sf::Keyboard::Key::S};
+    options[3].second.push_back(option);
     
     // Accessibility
     options.push_back({"accessibility", {}});
     option = {"colour help", event, OptionConfig::Type::toggle};
     option.toggle = {false};
-    options[3].second.push_back(option);
+    options[4].second.push_back(option);
     option = {"world", event, OptionConfig::Type::selection};
     option.selection = {0, &colours};
-    options[3].second.push_back(option);
+    options[4].second.push_back(option);
     option = {"player", event, OptionConfig::Type::selection};
     option.selection = {0, &colours};
-    options[3].second.push_back(option);
+    options[4].second.push_back(option);
     option = {"targets", event, OptionConfig::Type::selection};
     option.selection = {0, &colours};
-    options[3].second.push_back(option);
+    options[4].second.push_back(option);
     option = {"saws", event, OptionConfig::Type::selection};
     option.selection = {0, &colours};
-    options[3].second.push_back(option);
+    options[4].second.push_back(option);
 
     event.type = Event::Type::loadNewMenu;
     event.menuType = Event::MenuType::main;
@@ -207,4 +212,19 @@ void Menu::ChangeMenu(Event::MenuType menuType)
   default:
     break;
   }
+}
+
+void Menu::LoadGameEndMenu(Event::GameStats stats)
+{
+  Event event;
+
+  std::vector<ButtonConfig> buttons;
+
+  event.type = Event::Type::restartGame;
+  buttons.push_back({"retry", event, SMALL});
+
+  event.type = Event::Type::exitGame;
+  buttons.push_back({"quit", event, SMALL});
+
+  interface = std::make_unique<GameEndInterface>(buttons, event, stats);
 }

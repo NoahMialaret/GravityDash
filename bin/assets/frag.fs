@@ -73,7 +73,7 @@ void main()
   {
     if (pixel.r <= 0.2) // darker
     {
-      gl_FragColor = vec4(079.0, 125.0, 171.0, 1.0);
+      gl_FragColor = vec4(79.0, 125.0, 171.0, 1.0);
     }
     else if (pixel.r <= 0.4) // dark
     {
@@ -93,7 +93,7 @@ void main()
   {
     if (pixel.r <= 0.2) // darker
     {
-      gl_FragColor = vec4(148.0, 080.0, 171.0, 1.0);
+      gl_FragColor = vec4(148.0, 80.0, 171.0, 1.0);
     }
     else if (pixel.r <= 0.4) // dark
     {
@@ -113,7 +113,7 @@ void main()
   {
     if (pixel.r <= 0.2) // darker
     {
-      gl_FragColor = vec4(080.0, 171.0, 095.0, 1.0);
+      gl_FragColor = vec4(80.0, 171.0, 95.0, 1.0);
     }
     else if (pixel.r <= 0.4) // dark
     {

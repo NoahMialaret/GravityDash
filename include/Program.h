@@ -51,6 +51,8 @@ private:
 	// Sets the game state to "notRunning"
 	void ProgramExit();
 
+  void LoadMenuGame();
+
 private:
 	//SFML Objects --------------------------------------------------------
   sf::RenderWindow window;	// The window of the program 

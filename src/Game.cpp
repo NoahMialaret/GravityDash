@@ -87,6 +87,13 @@ void Game::Update()
     }
   }
 
+  if (gameOver)
+  {
+    objects.DeleteAll();
+    GetStats();
+    return;
+  }
+
   if (canSpawnObjects)
     SpawnObjects();
 }
@@ -180,6 +187,24 @@ bool Game::IsGameOver() const
 	return gameOver;
 }
 
+void Game::GetStats()
+{
+  Event event;
+  event.type = Event::Type::gameDone;
+  Event::GameStats stats{0, 0, 0, 0, -1};
+
+  for (auto& c : characters)
+    c.get()->GetStats(&stats.jumps, &stats.hits, &stats.specials, &stats.combos);
+
+  event.gameStats = stats;
+  Event::events.push_back(event);
+}
+
+Event::GameConfig Game::GetConfig() const
+{
+  return config;
+}
+
 // ============
 // --- Min ---
 // ============
@@ -211,13 +236,6 @@ Min::Min(Event::GameConfig& config)
 
 void Min::Update()
 {
-  if (Utility::CheckInitialPress(sf::Keyboard::Escape))
-  {
-    Event event;
-    event.type = Event::Type::pause;
-    Event::events.push_back(event);
-    return;
-  }
 
   score.get()->Update();
 
@@ -226,19 +244,13 @@ void Min::Update()
     Game::Update();
     return;
   }
-
-  if (Utility::CheckInitialPress(sf::Keyboard::P))
+  
+  if (Utility::CheckInitialPress(sf::Keyboard::Escape))
   {
-    if (timer.get()->IsPaused())
-    {
-      std::cout << "Resuming Timer!\n";
-      timer.get()->Unpause();
-    }
-    else
-    {
-      std::cout << "Pausing Timer!\n";
-      timer.get()->Pause();
-    }
+    Event event;
+    event.type = Event::Type::pause;
+    Event::events.push_back(event);
+    return;
   }
   
   UpdateTimer();

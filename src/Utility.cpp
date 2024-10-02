@@ -145,6 +145,9 @@ void Utility::FlushDebugSprites()
 
 void Utility::UpdateParticles()
 {
+  if (particles.empty())
+    return;
+    
   for (auto prev = particles.before_begin(), cur = particles.begin(); cur != particles.end();)
   {
     cur->get()->Update();
