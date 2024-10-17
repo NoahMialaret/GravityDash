@@ -48,6 +48,25 @@ float MenuOption::GetOffset() const
   return vertOffset;
 }
 
+StaticText::StaticText(std::string name, Event action, float *origin, float offset, OptionConfig::StaticText config)
+  :
+  MenuOption(name, action, origin, offset)
+{
+  Utility::InitText(staticText, Textures::small, *config.text, {CONFIG_MENU_MARGIN, *origin + offset}, {1.0f, 0.5f});
+}
+
+void StaticText::Update()
+{
+  staticText.setPosition(staticText.getPosition().x, *origin + vertOffset);
+  MenuOption::Update();
+}
+
+void StaticText::Render(sf::RenderWindow *win) const
+{
+  MenuOption::Render(win);
+  win->draw(staticText);
+}
+
 ToggleOption::ToggleOption(std::string name, Event action, float* origin, float offset, OptionConfig::Toggle config)
   :
   MenuOption(name, action, origin, offset),

@@ -15,6 +15,10 @@
 
 struct OptionConfig
 {
+  struct StaticText
+  {
+    std::string* text;
+  };
   struct Toggle
   {
     bool init;
@@ -36,6 +40,7 @@ struct OptionConfig
   };
   enum class Type
   {
+    stat,
     toggle,
     range,
     selection,
@@ -47,6 +52,7 @@ struct OptionConfig
   Type type;
   union
   {
+    StaticText statText;
     Toggle toggle;
     Range range;
     Selection selection;
@@ -83,6 +89,18 @@ protected:
   float* origin;
 
   bool isActive = false;
+};
+
+class StaticText : public MenuOption
+{
+public:
+  StaticText(std::string name, Event action, float* origin, float offset, OptionConfig::StaticText config);
+
+  void Update() override;
+  void Render(sf::RenderWindow* win) const override;
+
+private:
+  sf::Text staticText;
 };
 
 class ToggleOption : public MenuOption

@@ -82,7 +82,7 @@ void TitleSequence::Update()
     else
     {
       Event newEvent;
-      newEvent.type = Event::Type::loadNewMenu;
+      newEvent.type = Event::Type::reloadMenu;
       newEvent.menuType = Event::MenuType::main;
 
       Event::events.push_back(newEvent);

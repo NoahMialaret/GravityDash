@@ -2,7 +2,7 @@
 
 Menu::Menu(Event::MenuType startMenu)
 {
-  ChangeMenu(startMenu);
+  Push(startMenu);
 }
 
 void Menu::Update()
@@ -15,7 +15,28 @@ void Menu::Render(sf::RenderWindow* win) const
   interface.get()->Render(win);
 }
 
-void Menu::ChangeMenu(Event::MenuType menuType)
+void Menu::ReloadStack(Event::MenuType menuType)
+{
+  while(!menuStack.empty())
+    menuStack.pop();
+
+  Push(menuType);
+}
+
+void Menu::Push(Event::MenuType menuType)
+{
+  menuStack.push(menuType);
+  LoadMenu(menuType);
+}
+
+void Menu::Return()
+{
+  assert(!menuStack.empty());
+  menuStack.pop();
+  LoadMenu(menuStack.top());
+}
+
+void Menu::LoadMenu(Event::MenuType menuType)
 {
   Event event;
   switch (menuType)
@@ -24,19 +45,19 @@ void Menu::ChangeMenu(Event::MenuType menuType)
   {
     std::vector<ButtonConfig> buttons;
 
-    event.type = Event::Type::loadNewMenu;
+    event.type = Event::Type::pushMenu;
     event.menuType = Event::MenuType::score;
     buttons.push_back({"score", event, MEDIUM});
     event.menuType = Event::MenuType::options;
     buttons.push_back({"opts.", event, MEDIUM});
     event.menuType = Event::MenuType::play;
     buttons.push_back({"play", event, LARGE});
-    event.menuType = Event::MenuType::medal;
-    buttons.push_back({"medal", event, MEDIUM});
+    event.menuType = Event::MenuType::stats;
+    buttons.push_back({"stats", event, MEDIUM});
     event.type = Event::Type::programClose;
     buttons.push_back({"exit", event, MEDIUM});
 
-    // event.type = Event::Type::loadNewMenu;
+    event.type = Event::Type::programClose;
     // event.menuType = Event::MenuType::title;
     interface = std::make_unique<GridInterface>(2, buttons, event);
     break;
@@ -46,17 +67,17 @@ void Menu::ChangeMenu(Event::MenuType menuType)
     std::vector<ButtonConfig> buttons;
 
     event.type = Event::Type::loadNewGame;
-    event.gameConfig = Event::GameConfig{Event::GameConfig::Type::min, 1, 0, 90, 23};
+    event.gameConfig = Event::GameConfig{Event::GameConfig::Type::min, 1, 0, 90, 23, 60};
     buttons.push_back({"1min", event, LARGE});
     event.gameConfig.type = Event::GameConfig::Type::rush;
     buttons.push_back({"rush", event, LARGE});
-    event.type = Event::Type::loadNewMenu;
+    event.type = Event::Type::pushMenu;
     event.menuType = Event::MenuType::multi;
     buttons.push_back({"multi", event, MEDIUM});
     event.menuType = Event::MenuType::custom;
     buttons.push_back({"wild", event, MEDIUM});
 
-    event.menuType = Event::MenuType::main;
+    event.type = Event::Type::menuReturn;
     interface = std::make_unique<GridInterface>(2, buttons, event);
     break;
   }
@@ -67,19 +88,13 @@ void Menu::ChangeMenu(Event::MenuType menuType)
     std::vector<ButtonConfig> buttons;
 
     event.type = Event::Type::loadNewGame;
-    event.gameConfig = Event::GameConfig{Event::GameConfig::Type::min, 1, 1, 90, 2};
+    event.gameConfig = Event::GameConfig{Event::GameConfig::Type::min, 1, 1, 90, 2, 60};
     buttons.push_back({"ally", event, LARGE});
-    event.type = Event::Type::loadNewMenu;
-    event.menuType = Event::MenuType::addPlayers;
-    buttons.push_back({"add", event, MEDIUM});
-    event.menuType = Event::MenuType::custom;
-    buttons.push_back({"wild", event, MEDIUM});
     event.type = Event::Type::loadNewGame;
-    event.gameConfig = Event::GameConfig{Event::GameConfig::Type::min, 1, 1, 90, 2};
+    event.gameConfig = Event::GameConfig{Event::GameConfig::Type::min, 1, 1, 90, 2, 60};
     buttons.push_back({"vs.", event, LARGE});
 
-    event.type = Event::Type::loadNewMenu;
-    event.menuType = Event::MenuType::play;
+    event.type = Event::Type::menuReturn;
     interface = std::make_unique<GridInterface>(2, buttons, event);
     break;    
   }
@@ -93,7 +108,7 @@ void Menu::ChangeMenu(Event::MenuType menuType)
     event.type = Event::Type::restartGame;
     buttons.push_back({"retry", event, SMALL});
 
-    event.type = Event::Type::loadNewMenu;
+    event.type = Event::Type::pushMenu;
     event.menuType = Event::MenuType::options;
     buttons.push_back({"opts.", event, SMALL});
 
@@ -204,27 +219,125 @@ void Menu::ChangeMenu(Event::MenuType menuType)
     option.selection = {0, &colours};
     options[4].second.push_back(option);
 
-    event.type = Event::Type::loadNewMenu;
-    event.menuType = Event::MenuType::main;
+    event.type = Event::Type::menuReturn;
     interface = std::make_unique<OptionsInterface>(options, event);
+    break;
   }
+  case Event::MenuType::stats:
+  {
+    std::vector<std::pair<std::string, std::vector<OptionConfig>>> options;
+
+    event.type = Event::Type::exitGame;
+
+    // Stats
+    options.push_back({"statistics", {}});
+    OptionConfig option = {"jumps", event, OptionConfig::Type::stat};
+    std::string tmp = std::to_string(56);
+    option.statText = {&tmp};
+    options[0].second.push_back(option);
+
+    option = {"specials", event, OptionConfig::Type::stat};
+    option.statText = {&tmp};
+    options[0].second.push_back(option);
+    option = {"hits", event, OptionConfig::Type::stat};
+    option.statText = {&tmp};
+    options[0].second.push_back(option);
+    option = {"games played", event, OptionConfig::Type::stat};
+    option.statText = {&tmp};
+    options[0].second.push_back(option);
+
+    event.type = Event::Type::menuReturn;
+    interface = std::make_unique<OptionsInterface>(options, event);
+    break;
+  }
+  case Event::MenuType::score:
+  {
+    std::vector<std::pair<std::string, std::vector<OptionConfig>>> options;
+
+    event.type = Event::Type::exitGame;
+
+    // 1-min
+    options.push_back({"1-minute", {}});
+    OptionConfig option = {"1st", event, OptionConfig::Type::stat};
+    std::string tmp = std::to_string(56);
+    option.statText = {&tmp};
+    options[0].second.push_back(option);
+
+    option = {"2nd", event, OptionConfig::Type::stat};
+    option.statText = {&tmp};
+    options[0].second.push_back(option);
+    option = {"3rd", event, OptionConfig::Type::stat};
+    option.statText = {&tmp};
+    options[0].second.push_back(option);
+
+    // Rush
+    options.push_back({"Rush", {}});
+    option = {"1st", event, OptionConfig::Type::stat};
+    option.statText = {&tmp};
+    options[1].second.push_back(option);
+    option = {"2nd", event, OptionConfig::Type::stat};
+    option.statText = {&tmp};
+    options[1].second.push_back(option);
+    option = {"3rd", event, OptionConfig::Type::stat};
+    option.statText = {&tmp};
+    options[1].second.push_back(option);
+
+    // Co-op
+    options.push_back({"Co-op", {}});
+    option = {"1st", event, OptionConfig::Type::stat};
+    option.statText = {&tmp};
+    options[2].second.push_back(option);
+    option = {"2nd", event, OptionConfig::Type::stat};
+    option.statText = {&tmp};
+    options[2].second.push_back(option);
+    option = {"3rd", event, OptionConfig::Type::stat};
+    option.statText = {&tmp};
+    options[2].second.push_back(option);
+
+    event.type = Event::Type::menuReturn;
+    interface = std::make_unique<OptionsInterface>(options, event);
+    break;
+  }
+  case Event::MenuType::custom:
+  {
+    std::vector<std::pair<std::string, std::vector<OptionConfig>>> options;
+
+    event.type = Event::Type::exitGame;
+
+    std::vector<std::string> modes{"standard", "rush"};
+
+    // Video
+    options.push_back({"video", {}});
+    OptionConfig option = {"auto-scale", event, OptionConfig::Type::toggle};
+    option.toggle = {true};
+    options[0].second.push_back(option);
+
+    option = {"scale", event, OptionConfig::Type::range};
+    option.range = {(int)Utility::gameScale, 1, 32};
+    options[0].second.push_back(option);
+
+    event.type = Event::Type::menuReturn;
+    interface = std::make_unique<OptionsInterface>(options, event);
+    break;
+  }
+  
   
   default:
     break;
   }
 }
 
-void Menu::LoadGameEndMenu(Event::GameStats stats)
-{
-  Event event;
+// void Menu::LoadGameEndMenu(Event::GameStats stats)
+// {
+//   Event event;
 
-  std::vector<ButtonConfig> buttons;
+//   std::vector<ButtonConfig> buttons;
 
-  event.type = Event::Type::restartGame;
-  buttons.push_back({"retry", event, SMALL});
+//   event.type = Event::Type::restartGame;
+//   buttons.push_back({"retry", event, SMALL});
 
-  event.type = Event::Type::exitGame;
-  buttons.push_back({"quit", event, SMALL});
+//   event.type = Event::Type::exitGame;
+//   buttons.push_back({"quit", event, SMALL});
 
-  interface = std::make_unique<GameEndInterface>(buttons, event, stats);
-}
+//   interface = std::make_unique<GameEndInterface>(buttons, event, stats);
+// }

@@ -131,10 +131,15 @@ void ListInterface::Update()
 
   int move = Utility::CheckInitialPress(sf::Keyboard::S) - Utility::CheckInitialPress(sf::Keyboard::W);
 
+  if (!move)
+    return;
+
   int newPos = curPos + move;
 
-  if (!move || newPos < 0 || newPos >= buttons.size())
-    return;
+  if (newPos < 0)
+    newPos = buttons.size() - 1;
+  else if (newPos >= buttons.size())
+    newPos = 0;
 
   buttons[curPos].get()->ToggleHighlight();
   buttons[newPos].get()->ToggleHighlight();
@@ -304,6 +309,9 @@ OptionsSubList::OptionsSubList(std::string& title, std::vector<OptionConfig>& co
   {
     switch (c.type)
     {
+    case OptionConfig::Type::stat:
+      options.push_back(std::make_unique<StaticText>(c.name, c.event, origin, yPos, c.statText));
+      break;
     case OptionConfig::Type::toggle:
       options.push_back(std::make_unique<ToggleOption>(c.name, c.event, origin, yPos, c.toggle));
       break;

@@ -217,7 +217,7 @@ Min::Min(Event::GameConfig& config)
 	score = std::make_unique<GameScore>(sf::Vector2f(0.0f, worldRect.top - 6 * Utility::gameScale));
   spikeSpawnTimer = 1000;
 
-  timer = std::make_unique<GameTimer>(60000, sf::Vector2f(worldRect.left + worldRect.width + Utility::gameScale, 
+  timer = std::make_unique<GameTimer>(config.maxTime * 1000, sf::Vector2f(worldRect.left + worldRect.width + Utility::gameScale, 
     worldRect.top + worldRect.height - 2 * Utility::gameScale));
 
   sf::Vector2f boostPos(worldRect.left + 5.0f * Utility::gameScale, - worldRect.top + Utility::gameScale);
@@ -305,18 +305,16 @@ Rush::Rush(Event::GameConfig& config)
   arrowBottom = timer.get()->GetPosition() + Utility::gameScale * sf::Vector2f(8.0f, -0.5f);
   arrow.QueueMotion(Curve::linear, 0, ZERO_VECTOR, arrowBottom);
   arrow.FlipX();
+
+  sf::IntRect worldRect = world.get()->GetRegion();
+
+  Utility::InitText(multiplierText, Textures::large, "*1.0", {0.0f, worldRect.height / 2.0f - SCALED_DIM + 2 * Utility::gameScale}, {0.5f, 0.0f}, {255, 229, 181});
+  multiplierText.setOutlineColor({173, 103, 78});
+  multiplierText.setOutlineThickness(Utility::gameScale);
 }
 
 void Rush::Update()
-{
-  if (Utility::CheckInitialPress(sf::Keyboard::Escape))
-  {
-    Event event;
-    event.type = Event::Type::pause;
-    Event::events.push_back(event);
-    return;
-  }
-  
+{  
   arrow.Update();
   if (gameOver)
   {
@@ -332,12 +330,12 @@ void Rush::Update()
     if (boost)
     {
       storedTime += boost * 5;
-      if (storedTime >= 60)
+      if (storedTime >= config.maxTime)
       {
-        storedTime = 60;
+        storedTime = config.maxTime;
       }
       arrow.ClearHandlers();
-      arrow.QueueMotion(Curve::easeIn, 1000, arrow.GetPosition(), arrowBottom - (float)storedTime * sf::Vector2f(0.0f, Utility::gameScale));
+      arrow.QueueMotion(Curve::easeIn, 1000, arrow.GetPosition(), arrowBottom - (float)storedTime * sf::Vector2f(0.0f, Utility::gameScale) * 60.0f / (float)config.maxTime);
     }
   }
 
@@ -349,6 +347,8 @@ void Rush::Render(sf::RenderWindow *win) const
   Min::Render(win);
 
   arrow.Render(win);
+
+  win->draw(multiplierText);
 }
 
 void Rush::UpdateTimer()
@@ -368,6 +368,10 @@ void Rush::UpdateTimer()
       {
         Utility::scoreMultiplier = 2.0f;
       }
+      std::string multText = "*" + std::to_string((int)(10 * Utility::scoreMultiplier));
+      multText.push_back(multText[2]);
+      multText[2] = '.';
+      Utility::UpdateText(multiplierText, multText, {0.5f, 0.0f});
       return;
     }
     std::cout << "Time is up, it's you're last jump!\n";

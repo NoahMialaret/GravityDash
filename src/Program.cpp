@@ -123,7 +123,7 @@ void Program::HandleEvents()
         // mainMenu = std::make_unique<MainMenu>();
         continue;
       }
-			menu.get()->ChangeMenu(Event::MenuType::pause);
+			menu.get()->ReloadStack(Event::MenuType::pause);
       Utility::particles.clear();
 			curState = State::gameplay;
 			break;
@@ -137,18 +137,26 @@ void Program::HandleEvents()
       curState = State::gameplay;
       break;
 
-    case Event::Type::loadNewMenu:
-      menu.get()->ChangeMenu(event.menuType);
+    case Event::Type::reloadMenu:
+      menu.get()->ReloadStack(event.menuType);
+      break;
+      
+    case Event::Type::pushMenu:
+      menu.get()->Push(event.menuType);
+      break;
+    
+    case Event::Type::menuReturn:
+      menu.get()->Return();
       break;
 
     case Event::Type::exitGame:
       LoadMenuGame();
-			menu.get()->ChangeMenu(Event::MenuType::main);
+			menu.get()->ReloadStack(Event::MenuType::main);
       curState = State::mainMenu;
       break;
 
     case Event::Type::gameDone:
-      menu.get()->LoadGameEndMenu(event.gameStats);
+      menu.get()->ReloadStack(Event::MenuType::main);
       curState = State::mainMenu;
       break;
 
@@ -171,7 +179,7 @@ void Program::HandleEvents()
         std::cout << "Could not determine the game mode!\n";
         continue;
       }
-			menu.get()->ChangeMenu(Event::MenuType::pause);
+			menu.get()->ReloadStack(Event::MenuType::pause);
       Utility::particles.clear();
 			curState = State::gameplay;
 			break;

@@ -12,7 +12,7 @@ public:
     play,
     options,
     score,
-    medal,
+    stats,
     custom,
     multi,
     addPlayers,
@@ -34,6 +34,7 @@ public:
     int numComputers;
     int targetSpawnChance;
     int sawFrequency;
+    int maxTime;
     // int numPlayers = 1;
     // int numComputers = 0;
     // int targetSpawnChance = 90;
@@ -53,7 +54,9 @@ public:
   enum class Type
   {
     programClose,
-    loadNewMenu,
+    reloadMenu,
+    pushMenu,
+    menuReturn,
     loadNewGame,
     pause,
     resumePlay,

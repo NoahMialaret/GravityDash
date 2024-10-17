@@ -92,6 +92,8 @@ protected:
 
   Entity arrow; // The arrow representing visually how much time will be put into the clock
   sf::Vector2f arrowBottom; // The position the arrow starts at, and gets reset to
+
+  sf::Text multiplierText;
 };
 
 class Wild : public Game
