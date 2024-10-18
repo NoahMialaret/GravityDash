@@ -7,16 +7,14 @@ class Event
 public:
   enum class MenuType
   {
-    title,
+    gameEnd,
     main,
-    play,
     options,
+    pause,
+    play,
     score,
     stats,
-    custom,
-    multi,
-    addPlayers,
-    pause
+    title
   };
 
   // A struct containing different parameters used by the game
@@ -35,20 +33,6 @@ public:
     int targetSpawnChance;
     int sawFrequency;
     int maxTime;
-    // int numPlayers = 1;
-    // int numComputers = 0;
-    // int targetSpawnChance = 90;
-    // int sawFrequency = 10;
-    // std::vector<ids> transitionIDs
-  };
-
-  struct GameStats
-  {
-    int jumps;
-    int hits;
-    int combos;
-    int specials;
-    int cycles;
   };
 
   enum class Type
@@ -62,9 +46,7 @@ public:
     resumePlay,
     exitGame,
     gameDone,
-    restartGame,
-    // returnCamera,
-    // cameraUp,
+    restartGame
   };
 
   Event() = default;
@@ -89,9 +71,9 @@ public:
   
   union 
   {
+    int value;
     MenuType menuType;
     GameConfig gameConfig;
-    GameStats gameStats;
   };
 };
 

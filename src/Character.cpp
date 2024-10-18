@@ -6,11 +6,11 @@ Character::Character(int charID)
   charID(charID),
   acceleration(0.2f * Utility::gameScale)
 {
+  vel.y = 1000.0f;
   entity = Entity("character");
 
   entity.CouplePosition(&pos);
 
-  entity.FlipY();
   entity.QueueAnimation((int)curState, 150);
 
   reticle = Entity("reticle", nullptr, (sf::Vector2i)Textures::textures.at("reticle").getSize());
@@ -192,7 +192,7 @@ void Character::Jump()
     return;
   }
 
-  jumps++;
+  GameStats::localStats.jumps++;
 
   vel.y = acceleration * 80.0f * (isUpright ? -1.0f : 1.0f);;
   vel.x = 0.0f;
@@ -212,7 +212,7 @@ void Character::SuperJump()
     return;
   }
 
-  specials++;
+  GameStats::localStats.specials++;
 
   float jumpSpeed = acceleration * 80.0f * (isUpright ? -1.0f : 1.0f);
 
@@ -258,7 +258,7 @@ void Character::Land()
   if (comboCount >= 3)
   {
     canCollect = true;
-    combos++;
+    GameStats::localStats.combos++;
   }
   else 
   {
@@ -335,7 +335,7 @@ bool Character::Hit(sf::Vector2f entPos)
     return false;
   }
 
-  hits++;
+  GameStats::localStats.hits++;
 
   std::cout << "Player has been hit!\n";
 
@@ -373,15 +373,6 @@ bool Character::Hit(sf::Vector2f entPos)
   targetPoints.clear();
 
   return true;
-
-  // if (finalJump)
-  // {
-  //   return false;
-  // }
-  // isLastStand = true;
-  // std::cout << "Character has been hit, this is their final jump!\n";
-
-  // return true;
 }
 
 void Character::Kill()
@@ -460,14 +451,6 @@ int Character::GetTimeBoost()
   return 0;
 }
 
-void Character::GetStats(int *jumps, int *hits, int *specials, int *combos) const
-{
-  *jumps += this->jumps;
-  *hits += this->hits;
-  *specials += this->specials;
-  *combos += this->combos;
-}
-
 void Character::AddNewPoint(sf::Vector2f pos, sf::Vector2f vel)
 {
   if (boostJumpsRemaining >= 0)
@@ -479,7 +462,6 @@ void Character::AddNewPoint(sf::Vector2f pos, sf::Vector2f vel)
   if (value >= 25600) // The score from hitting 10th target in a row
   {
     value = 25600;
-    // Goldenpoint++; a record of how many times this value was reached
   }
 
   AddNewPoint(value, pos, vel);

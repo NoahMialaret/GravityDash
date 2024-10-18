@@ -156,7 +156,7 @@ void Program::HandleEvents()
       break;
 
     case Event::Type::gameDone:
-      menu.get()->ReloadStack(Event::MenuType::main);
+      menu.get()->ReloadStack(Event::MenuType::gameEnd);
       curState = State::mainMenu;
       break;
 

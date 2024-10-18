@@ -152,7 +152,7 @@ void ListInterface::Render(sf::RenderWindow *win) const
     b.get()->Render(win);
 }
 
-GameEndInterface::GameEndInterface(std::vector<ButtonConfig> &configs, Event menuReturn, Event::GameStats stats)
+GameEndInterface::GameEndInterface(std::vector<ButtonConfig> &configs, Event menuReturn)
   :
   ListInterface(configs, menuReturn)
 {
@@ -161,7 +161,7 @@ GameEndInterface::GameEndInterface(std::vector<ButtonConfig> &configs, Event men
     b.get()->Move({4.0f * SCALED_DIM, 0});
   }
 
-  float yPos = - Utility::gameScale * (40.0f + (stats.cycles == -1 ? 0.0f : 7.0f)) / 2.0f;
+  float yPos = - Utility::gameScale * (40.0f + (GameStats::localStats.timeBoosts == -1 ? 0.0f : 7.0f)) / 2.0f;
 
   Utility::InitText(displayTitle, Textures::large, "results", {-6.5f * SCALED_DIM, yPos - SCALED_DIM}, {0, 0.0f}, {255, 229, 181});
   displayTitle.setOutlineColor({173, 103, 78});
@@ -175,26 +175,26 @@ GameEndInterface::GameEndInterface(std::vector<ButtonConfig> &configs, Event men
   float offset = 7 * Utility::gameScale;
 
   sf::Text text;
-  Utility::InitText(text, Textures::small, "jumps - " + std::to_string(stats.jumps), {-6.0f * SCALED_DIM, yPos + 14.0f * Utility::gameScale}, {0, 0.0f}, {255, 229, 181});
+  Utility::InitText(text, Textures::small, "jumps - " + std::to_string(GameStats::localStats.jumps), {-6.0f * SCALED_DIM, yPos + 14.0f * Utility::gameScale}, {0, 0.0f}, {255, 229, 181});
   text.setOutlineColor({173, 103, 78});
   text.setOutlineThickness(Utility::gameScale);
 
   this->stats.push_back(text);
 
-  text.setString("hits - " + std::to_string(stats.hits));
+  text.setString("hits - " + std::to_string(GameStats::localStats.hits));
   text.move({0.0f, offset});
   this->stats.push_back(text);
-  text.setString("specials - " + std::to_string(stats.specials));
+  text.setString("specials - " + std::to_string(GameStats::localStats.specials));
   text.move({0.0f, offset});
   this->stats.push_back(text);
-  text.setString("3+ combos - " + std::to_string(stats.combos));
+  text.setString("3+ combos - " + std::to_string(GameStats::localStats.combos));
   text.move({0.0f, offset});
   this->stats.push_back(text);
 
-  if (stats.cycles == -1)
+  if (GameStats::localStats.timeBoosts == -1)
     return;
 
-  text.setString("cycles - " + std::to_string(stats.cycles));
+  text.setString("cycles - " + std::to_string(GameStats::localStats.timeBoosts));
   text.move({0.0f, offset});
   this->stats.push_back(text);
 

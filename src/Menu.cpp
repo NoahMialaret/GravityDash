@@ -71,32 +71,15 @@ void Menu::LoadMenu(Event::MenuType menuType)
     buttons.push_back({"1min", event, LARGE});
     event.gameConfig.type = Event::GameConfig::Type::rush;
     buttons.push_back({"rush", event, LARGE});
-    event.type = Event::Type::pushMenu;
-    event.menuType = Event::MenuType::multi;
-    buttons.push_back({"multi", event, MEDIUM});
-    event.menuType = Event::MenuType::custom;
-    buttons.push_back({"wild", event, MEDIUM});
+    event.gameConfig.type = Event::GameConfig::Type::min;
+    event.gameConfig = Event::GameConfig{Event::GameConfig::Type::min, 1, 1, 90, 2, 60};
+    buttons.push_back({"co-op", event, MEDIUM});
+    event.gameConfig = Event::GameConfig{Event::GameConfig::Type::min, 1, 1, 90, 2, 60};
+    buttons.push_back({"vs.", event, MEDIUM});
 
     event.type = Event::Type::menuReturn;
     interface = std::make_unique<GridInterface>(2, buttons, event);
     break;
-  }
-  case Event::MenuType::multi:
-  {
-    // color = blue;
-
-    std::vector<ButtonConfig> buttons;
-
-    event.type = Event::Type::loadNewGame;
-    event.gameConfig = Event::GameConfig{Event::GameConfig::Type::min, 1, 1, 90, 2, 60};
-    buttons.push_back({"ally", event, LARGE});
-    event.type = Event::Type::loadNewGame;
-    event.gameConfig = Event::GameConfig{Event::GameConfig::Type::min, 1, 1, 90, 2, 60};
-    buttons.push_back({"vs.", event, LARGE});
-
-    event.type = Event::Type::menuReturn;
-    interface = std::make_unique<GridInterface>(2, buttons, event);
-    break;    
   }
   case Event::MenuType::pause:
   {
@@ -298,26 +281,20 @@ void Menu::LoadMenu(Event::MenuType menuType)
     interface = std::make_unique<OptionsInterface>(options, event);
     break;
   }
-  case Event::MenuType::custom:
+  case Event::MenuType::gameEnd:
   {
-    std::vector<std::pair<std::string, std::vector<OptionConfig>>> options;
+    Event event;
+
+    std::vector<ButtonConfig> buttons;
+
+    event.type = Event::Type::restartGame;
+    buttons.push_back({"retry", event, SMALL});
 
     event.type = Event::Type::exitGame;
+    buttons.push_back({"quit", event, SMALL});
 
-    std::vector<std::string> modes{"standard", "rush"};
+    interface = std::make_unique<GameEndInterface>(buttons, event);
 
-    // Video
-    options.push_back({"video", {}});
-    OptionConfig option = {"auto-scale", event, OptionConfig::Type::toggle};
-    option.toggle = {true};
-    options[0].second.push_back(option);
-
-    option = {"scale", event, OptionConfig::Type::range};
-    option.range = {(int)Utility::gameScale, 1, 32};
-    options[0].second.push_back(option);
-
-    event.type = Event::Type::menuReturn;
-    interface = std::make_unique<OptionsInterface>(options, event);
     break;
   }
   
@@ -326,18 +303,3 @@ void Menu::LoadMenu(Event::MenuType menuType)
     break;
   }
 }
-
-// void Menu::LoadGameEndMenu(Event::GameStats stats)
-// {
-//   Event event;
-
-//   std::vector<ButtonConfig> buttons;
-
-//   event.type = Event::Type::restartGame;
-//   buttons.push_back({"retry", event, SMALL});
-
-//   event.type = Event::Type::exitGame;
-//   buttons.push_back({"quit", event, SMALL});
-
-//   interface = std::make_unique<GameEndInterface>(buttons, event, stats);
-// }

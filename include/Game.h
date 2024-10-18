@@ -6,17 +6,18 @@
 #include "Character.h"
 #include "Clock.h"
 #include "Controls.h"
+#include "Event.h"
 #include "GameObject.h"
+#include "GameStats.h"
 #include "GameTimer.h"
 #include "Number.h"
 #include "PlayerBoost.h"
 #include "SortedDblyLnkdList.h"
 #include "Textures.h"
 #include "World.h"
-#include "Event.h"
 
-#include <list>
 #include <iostream>
+#include <list>
 #include <memory>
 
 // Handles logic and objects to be used in the main gameplay loop
@@ -38,8 +39,6 @@ public:
   // Returns whether or not the game is over
   bool IsGameOver() const;
 
-  void GetStats();
-
   Event::GameConfig GetConfig() const;
 
 protected:
@@ -58,7 +57,6 @@ protected:
   bool canSpawnObjects = true;
 
   Event::GameConfig config; // The configuration for various game variables
-  // std::vector<worldTransitions>
 };
 
 class Min : public Game

@@ -4,6 +4,8 @@ Game::Game(Event::GameConfig& config)
   :
   config(config)
 {
+  GameStats::localStats = GameStats::Local();
+
   sf::Vector2i worldSize = int(SCALED_DIM) * sf::Vector2i(16, 8);
 	sf::IntRect worldRect(- worldSize / 2, worldSize);
   world = std::make_unique<World>(worldRect);
@@ -14,14 +16,12 @@ Game::Game(Event::GameConfig& config)
 	{  
     std::unique_ptr<Controls> control = std::make_unique<Keyboard>(playerNum);
 		characters.push_back(std::make_unique<PlayableCharacter>(i, control));
-		characters[playerNum].get()->Jump();
     playerNum++;
 	}
   
   for (int i = 0; i < config.numComputers && playerNum < 4; i++)
   {    
     characters.push_back(std::make_unique<ComputerCharacter>(playerNum));
-    characters[playerNum].get()->Jump();
     playerNum++;
   }
 
@@ -90,7 +90,9 @@ void Game::Update()
   if (gameOver)
   {
     objects.DeleteAll();
-    GetStats();
+    Event event;
+    event.type = Event::Type::gameDone;
+    Event::events.push_back(event);
     return;
   }
 
@@ -185,19 +187,6 @@ void Game::CorrectCharacterPos(Character* player)
 bool Game::IsGameOver() const
 {
 	return gameOver;
-}
-
-void Game::GetStats()
-{
-  Event event;
-  event.type = Event::Type::gameDone;
-  Event::GameStats stats{0, 0, 0, 0, -1};
-
-  for (auto& c : characters)
-    c.get()->GetStats(&stats.jumps, &stats.hits, &stats.specials, &stats.combos);
-
-  event.gameStats = stats;
-  Event::events.push_back(event);
 }
 
 Event::GameConfig Game::GetConfig() const
@@ -301,6 +290,8 @@ Rush::Rush(Event::GameConfig& config)
   :
   Min(config)
 {
+  GameStats::localStats.timeBoosts = 0;
+  
   arrow = Entity("arrow", nullptr, (sf::Vector2i)Textures::textures.at("arrow").getSize());
   arrowBottom = timer.get()->GetPosition() + Utility::gameScale * sf::Vector2f(8.0f, -0.5f);
   arrow.QueueMotion(Curve::linear, 0, ZERO_VECTOR, arrowBottom);

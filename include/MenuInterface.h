@@ -3,13 +3,14 @@
 
 #include <SFML/Graphics.hpp>
 
+#include "assert.h"
 #include "Clock.h"
 #include "Event.h" 
+#include "GameStats.h"
 #include "MenuButton.h"
 #include "MenuOption.h"
 #include "Textures.h"
 #include "Utility.h"
-#include "assert.h"
 
 #include <iostream>
 
@@ -70,7 +71,7 @@ protected:
 class GameEndInterface : public ListInterface
 {
 public:
-  GameEndInterface(std::vector<ButtonConfig>& configs, Event menuReturn, Event::GameStats stats);
+  GameEndInterface(std::vector<ButtonConfig>& configs, Event menuReturn);
 
   void Render(sf::RenderWindow* win) const override;
 
