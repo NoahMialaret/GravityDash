@@ -1,5 +1,7 @@
 #include "Program.h"
 
+std::vector<Event> Event::events;
+
 Program::Program(const char* name)
 {
 	std::cout << "--=== Program Init ===--\n"  << "Initialising SFML Window...\n";
@@ -42,6 +44,13 @@ Program::Program(const char* name)
 
     Textures::LoadTextures();
 
+    sf::Image icon;
+    if (!icon.loadFromFile("assets/icon.png"))
+    {
+      std::cout << "Error loading icon!\n";
+    }
+    window.setIcon(icon.getSize().x, icon.getSize().y, icon.getPixelsPtr());
+
     if (!sf::Shader::isAvailable())
     {
       std::cout << "\tShaders are not available on this hardware!\n";
@@ -58,20 +67,17 @@ Program::Program(const char* name)
       std::cout << "ERROR\n";
     }
     Utility::worldShad.setUniform("texture", sf::Shader::CurrentTexture);
-		
-		Utility::debugSprite.setTexture(Textures::textures.at("debug"));    
-		Utility::debugSprite.setOrigin(0.5f * sf::Vector2f(Utility::spriteDim, Utility::spriteDim));
-		Utility::debugSprite.setScale(sf::Vector2f(Utility::gameScale, -Utility::gameScale));
 
 	std::cout << "Initialising Program objects...\n";
 
-    title = std::make_unique<TitleSequence>();
+    menu = std::make_unique<Menu>(Event::MenuType::main);
+    LoadMenuGame();
 
     Clock::Init();
     
 	std::cout << "Program init done! Starting title sequence...\n";
 	
-		curState = State::titleSequence;
+		curState = State::mainMenu;
 
 	std::cout << "--===++++++++++++++===--\n";
 }
@@ -87,10 +93,9 @@ Program::~Program()
 
 void Program::HandleEvents() 
 {
-	// Event should be its own class
 	Event event;
 
-	while (Utility::PollEvent(event))
+	while (Event::PollEvent(event))
 	{
 		switch (event.type)
 		{
@@ -102,37 +107,83 @@ void Program::HandleEvents()
 		case Event::Type::loadNewGame:
     {
 			std::cout << "Create new game event called\n";
-      GameConfig config = mainMenu.get()->GetGameConfig();
-			mainMenu = nullptr;
-      Utility::particles.clear();
-      switch ((Game::Mode)event.data)
+      switch (event.gameConfig.type)
       {
-      case Game::Mode::title:
-        game = std::make_unique<Game>(config);
+      case Event::GameConfig::Type::title:
+        game = std::make_unique<Game>(event.gameConfig);
         break;
-      case Game::Mode::rush:
-        game = std::make_unique<Rush>(config);
+      case Event::GameConfig::Type::min:
+        game = std::make_unique<Min>(event.gameConfig);
         break;
-      case Game::Mode::blitz:
-        game = std::make_unique<Blitz>(config);
-        break;
-      case Game::Mode::wild:
-        game = std::make_unique<Wild>(config);
+      case Event::GameConfig::Type::rush:
+        game = std::make_unique<Rush>(event.gameConfig);
         break;
       default:
         std::cout << "Could not determine the game mode!\n";
-        mainMenu = std::make_unique<MainMenu>();
+        // mainMenu = std::make_unique<MainMenu>();
         continue;
       }
+			menu.get()->ReloadStack(Event::MenuType::pause);
+      Utility::particles.clear();
 			curState = State::gameplay;
 			break;
     }
-    case Event::Type::geToMainMenu:
-      game = nullptr;
-      title = nullptr;
-      mainMenu = std::make_unique<MainMenu>();
-      curState = State::startMenu;
+
+    case Event::Type::pause:
+      curState = State::paused;
       break;
+
+    case Event::Type::resumePlay:
+      curState = State::gameplay;
+      break;
+
+    case Event::Type::reloadMenu:
+      menu.get()->ReloadStack(event.menuType);
+      break;
+      
+    case Event::Type::pushMenu:
+      menu.get()->Push(event.menuType);
+      break;
+    
+    case Event::Type::menuReturn:
+      menu.get()->Return();
+      break;
+
+    case Event::Type::exitGame:
+      LoadMenuGame();
+			menu.get()->ReloadStack(Event::MenuType::main);
+      curState = State::mainMenu;
+      break;
+
+    case Event::Type::gameDone:
+      menu.get()->ReloadStack(Event::MenuType::gameEnd);
+      curState = State::mainMenu;
+      break;
+
+    case Event::Type::restartGame:
+    {
+			std::cout << "Resetting game...\n";
+      Event::GameConfig config = game.get()->GetConfig();
+      switch (config.type)
+      {
+      case Event::GameConfig::Type::title:
+        game = std::make_unique<Game>(config);
+        break;
+      case Event::GameConfig::Type::min:
+        game = std::make_unique<Min>(config);
+        break;
+      case Event::GameConfig::Type::rush:
+        game = std::make_unique<Rush>(config);
+        break;
+      default:
+        std::cout << "Could not determine the game mode!\n";
+        continue;
+      }
+			menu.get()->ReloadStack(Event::MenuType::pause);
+      Utility::particles.clear();
+			curState = State::gameplay;
+			break;
+    }
 		
 		default:
 			std::cout << "Event type could not be determined.\n";
@@ -158,29 +209,27 @@ void Program::HandleEvents()
 		case sf::Event::KeyPressed:
 			switch (SFMLevent.key.code) 
 			{
-			case sf::Keyboard::Escape:
-        if (curState == State::titleSequence)
-        {
-          std::cout << "Quit button has been pressed, closing game...\n";
-          ProgramExit();          
-        }
-				if (curState == State::startMenu)
-				{
-					mainMenu.get()->Return();
-				}
-				// if gameplay, pause
-				break;
+      //   if (curState == State::mainMenu)
+      //   {
+      //     std::cout << "Quit button has been pressed, closing game...\n";
+      //     ProgramExit();          
+      //   }
+			// 	if (curState == State::startMenu)
+			// 	{
+			// 		// mainMenu.get()->Return();
+			// 	}
+			// 	// if gameplay, pause
+			// 	break;
 
-			case sf::Keyboard::Tab:
-				Utility::FlushDebugSprites();
-				break;
+			// case sf::Keyboard::Tab:
+			// 	Utility::FlushDebugSprites();
+			// 	break;
 
 			case sf::Keyboard::R:
 				std::cout << "Restarting Game!\n";
-				game = nullptr;
-				mainMenu = nullptr;
-        title = std::make_unique<TitleSequence>();
-				curState = State::titleSequence;
+        LoadMenuGame();
+        menu = std::make_unique<Menu>(Event::MenuType::main); // change to title
+				curState = State::mainMenu;
 				break;
 			
 			default:
@@ -199,33 +248,15 @@ void Program::HandleEvents()
 void Program::Update() 
 {
 	if (curState == State::notRunning) 
-	{
 		return;
-	}
 
   Clock::Update();
 
-	// float cameraDistance = std::max(abs(mainView.getCenter().y - targetPos.y), abs(targetPos.y - mainView.getCenter().y));
-	// mainView.move(sf::Vector2f(0.0f, - cameraDistance / 10));
-	// window.setView(mainView);
+  if (curState != State::paused)
+    game.get()->Update();
 
-	switch (curState)
-	{
-  case State::titleSequence:
-    title.get()->Update();
-    break;
-
-	case State::startMenu:
-		mainMenu.get()->Update();
-		break;
-
-	case State::gameplay:
-		game.get()->Update();
-		break;
-	
-	default:
-		break;
-	}
+  if (curState != State::gameplay)
+    menu.get()->Update();
 
   Utility::UpdateParticles();
 
@@ -243,24 +274,28 @@ void Program::Render()
 		return;
 	}
 
+  game.get()->Render(&window);
 
-	switch (curState)
-	{
-  case State::titleSequence:
-    title.get()->Render(&window);
-    break;
+  if (curState != State::gameplay)
+    menu.get()->Render(&window);
 
-	case State::startMenu:
-		mainMenu.get()->Render(&window);
-		break;
+	// switch (curState)
+	// {
+  // case State::titleSequence:
+  //   title.get()->Render(&window);
+  //   break;
 
-	case State::gameplay:
-		game.get()->Render(&window);
-		break;
+	// case State::startMenu:
+	// 	mainMenu.get()->Render(&window);
+	// 	break;
 
-	default:
-		break;
-	}
+	// case State::gameplay:
+	// 	game.get()->Render(&window);
+	// 	break;
+
+	// default:
+	// 	break;
+	// }
 
 	Utility::Render(&window);
 
@@ -277,4 +312,15 @@ void Program::ProgramExit()
 	std::cout << "Exiting game...\n";
 
 	curState = State::notRunning;
+}
+
+void Program::LoadMenuGame()
+{
+  Event::GameConfig config;
+  config.numPlayers = 0;
+  config.numComputers = 4;
+  config.sawFrequency = 0;
+  config.targetSpawnChance = 90;
+
+  game = std::make_unique<Game>(config);
 }

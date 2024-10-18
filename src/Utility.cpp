@@ -20,8 +20,6 @@ std::vector<int> Utility::initialKeyPresses;
 sf::Sprite Utility::debugSprite;
 std::vector<sf::Vector2f> Utility::debugPos;
 
-std::vector<Event> Utility::events;
-
 sf::Shader Utility::entShad;
 sf::Shader Utility::worldShad;
 
@@ -145,20 +143,11 @@ void Utility::FlushDebugSprites()
 	debugPos.clear();
 }
 
-bool Utility::PollEvent(Event &event)
-{
-	if (events.size() == 0)
-	{
-		return false;
-	}
-
-	event = events[events.size() - 1];
-	events.pop_back();
-	return true;
-}
-
 void Utility::UpdateParticles()
 {
+  if (particles.empty())
+    return;
+    
   for (auto prev = particles.before_begin(), cur = particles.begin(); cur != particles.end();)
   {
     cur->get()->Update();
@@ -184,5 +173,131 @@ void Utility::RenderParticles(sf::RenderWindow* win)
   for (auto cur = particles.begin(); cur != particles.end(); cur++)
   {
     cur->get()->Render(win);
+  }
+}
+
+void Utility::InitSprite(sf::Sprite &sprite, std::string tex, sf::Vector2f pos, sf::Vector2i subRect, sf::Vector2f origin)
+{
+  sprite.setScale(DEFAULT_SCALE);
+  sprite.setTexture(Textures::textures.at(tex));
+  sprite.setPosition(pos);
+  sf::Vector2i texSize = (sf::Vector2i)Textures::textures.at(tex).getSize();
+  sprite.setTextureRect({0, 0, texSize.x / subRect.x, texSize.y / subRect.y});
+  sprite.setOrigin(sf::Vector2f(origin.x * sprite.getTextureRect().width, origin.y * sprite.getTextureRect().height));
+}
+
+void Utility::InitText(sf::Text &text, sf::Font &font, std::string str, sf::Vector2f pos, sf::Vector2f origin, sf::Color col)
+{
+  text.setPosition(pos);
+  text.setString(str);
+  text.setCharacterSize(SCALED_DIM);
+  text.setFillColor(col);
+  text.setFont(font);
+
+  float height = Utility::gameScale;
+  if (&font == &Textures::small)
+    height *= 4.0f;
+  else if (&font == &Textures::medium)
+    height *= 5.0f;
+  else // large
+    height *= 6.0f;
+
+  text.setOrigin(sf::Vector2f(origin.x * text.getLocalBounds().width, origin.y * height - Utility::gameScale));
+}
+
+void Utility::UpdateText(sf::Text &text, std::string newStr, sf::Vector2f origin)
+{
+  text.setString(newStr);
+
+  float height = Utility::gameScale;
+  if (text.getFont() == &Textures::small)
+    height *= 4.0f;
+  else if (text.getFont() == &Textures::medium)
+    height *= 5.0f;
+  else // large
+    height *= 6.0f;
+
+  text.setOrigin(sf::Vector2f(origin.x * text.getLocalBounds().width, origin.y * height - Utility::gameScale));
+}
+
+std::string Utility::GetStringFromKeyCode(sf::Keyboard::Key key)
+{
+  if ((int)key >= 0 && (int)key <= 25) // letters
+  {
+    std::string ret;
+    ret = (char)key + 'A';
+    return ret;
+  }
+  else if ((int)key >= 26 && (int)key <= 35) // numbers
+    return std::to_string((int)key - 26);
+  else if ((int)key >= 75 && (int)key <= 84) // numpad
+  {
+    std::string ret = "npad" + std::to_string((int)key - 75);
+    return ret;
+  }
+
+  switch (key)
+  {
+  case sf::Keyboard::Key::Escape:
+    return "esc";
+  case sf::Keyboard::Key::Tab:
+    return "tab";
+  case sf::Keyboard::Key::Enter:
+    return "enter";
+  case sf::Keyboard::Key::Backspace:
+    return "bcksp";
+  case sf::Keyboard::Key::LShift:
+    return "lshft";
+  case sf::Keyboard::Key::RShift:
+    return "rshft";
+  case sf::Keyboard::Key::LControl:
+    return "lctrl";
+  case sf::Keyboard::Key::RControl:
+    return "rctrl";
+  case sf::Keyboard::Key::Space:
+    return "space";
+  case sf::Keyboard::Key::LAlt:
+    return "lalt";
+  case sf::Keyboard::Key::RAlt:
+    return "ralt";  
+  case sf::Keyboard::Key::Up:
+    return "up";  
+  case sf::Keyboard::Key::Down:
+    return "down";  
+  case sf::Keyboard::Key::Left:
+    return "left";  
+  case sf::Keyboard::Key::Right:
+    return "right";  
+  case sf::Keyboard::Key::PageUp:
+    return "p-up";  
+  case sf::Keyboard::Key::PageDown:
+    return "p-dwn";  
+
+  case sf::Keyboard::Key::Grave:
+    return "`";  
+  case sf::Keyboard::Key::Hyphen:
+    return "-";  
+  case sf::Keyboard::Key::Equal:
+    return "=";  
+  case sf::Keyboard::Key::LBracket:
+    return "[";  
+  case sf::Keyboard::Key::RBracket:
+    return "]";  
+  case sf::Keyboard::Key::BackSlash:
+    return "\\";  
+  case sf::Keyboard::Key::SemiColon:
+    return ";";  
+  case sf::Keyboard::Key::Quote:
+    return "'";  
+  case sf::Keyboard::Key::Comma:
+    return ",";  
+  case sf::Keyboard::Key::Period:
+    return ".";  
+  case sf::Keyboard::Key::Slash:
+    return "/";  
+
+  default:
+    return "NULL";
+    break;
   }
 }

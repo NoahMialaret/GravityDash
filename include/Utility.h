@@ -13,7 +13,6 @@
 #include <SFML/Graphics.hpp>
 
 #include "Bezier.h"
-#include "Event.h"
 #include "Textures.h"
 
 #include <forward_list>
@@ -55,11 +54,13 @@ public:
   // Removes all debug sprites
   static void FlushDebugSprites();
 
-  // Gets the next event off of the stack
-  static bool PollEvent(Event& event);
-
   static void UpdateParticles();
   static void RenderParticles(sf::RenderWindow* win);
+
+  static void InitSprite(sf::Sprite& sprite, std::string tex, sf::Vector2f pos, sf::Vector2i subRect = {1, 1}, sf::Vector2f origin = {0.5f, 0.5f});
+  static void InitText(sf::Text& text, sf::Font& font, std::string str, sf::Vector2f pos, sf::Vector2f origin = {0.5f, 0.5f}, sf::Color col = {173, 103, 78});
+  static void UpdateText(sf::Text &text, std::string newStr, sf::Vector2f origin = {0.5f, 0.5f});
+  static std::string GetStringFromKeyCode(sf::Keyboard::Key key);
 
 public:
   //settings
@@ -80,9 +81,6 @@ public:
   // Debug
   static sf::Sprite debugSprite;              // The sprite used for rendering debug positions on the screen
   static std::vector<sf::Vector2f> debugPos;  // Holds all the saved debug sprite positions
-
-  // Events
-  static std::vector<Event> events;   // Accumulated game events
 
   static sf::Shader entShad;
   static sf::Shader worldShad;

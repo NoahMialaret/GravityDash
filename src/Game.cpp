@@ -1,9 +1,11 @@
 #include "Game.h"
 
-Game::Game(GameConfig& config)
+Game::Game(Event::GameConfig& config)
   :
   config(config)
 {
+  GameStats::localStats = GameStats::Local();
+
   sf::Vector2i worldSize = int(SCALED_DIM) * sf::Vector2i(16, 8);
 	sf::IntRect worldRect(- worldSize / 2, worldSize);
   world = std::make_unique<World>(worldRect);
@@ -14,14 +16,12 @@ Game::Game(GameConfig& config)
 	{  
     std::unique_ptr<Controls> control = std::make_unique<Keyboard>(playerNum);
 		characters.push_back(std::make_unique<PlayableCharacter>(i, control));
-		characters[playerNum].get()->Jump();
     playerNum++;
 	}
   
   for (int i = 0; i < config.numComputers && playerNum < 4; i++)
   {    
     characters.push_back(std::make_unique<ComputerCharacter>(playerNum));
-    characters[playerNum].get()->Jump();
     playerNum++;
   }
 
@@ -85,6 +85,15 @@ void Game::Update()
       gameOver = false;
       break;
     }
+  }
+
+  if (gameOver)
+  {
+    objects.DeleteAll();
+    Event event;
+    event.type = Event::Type::gameDone;
+    Event::events.push_back(event);
+    return;
   }
 
   if (canSpawnObjects)
@@ -180,11 +189,16 @@ bool Game::IsGameOver() const
 	return gameOver;
 }
 
+Event::GameConfig Game::GetConfig() const
+{
+  return config;
+}
+
 // ============
-// --- Rush ---
+// --- Min ---
 // ============
 
-Rush::Rush(GameConfig &config)
+Min::Min(Event::GameConfig& config)
   :
   Game(config)
 {
@@ -192,7 +206,7 @@ Rush::Rush(GameConfig &config)
 	score = std::make_unique<GameScore>(sf::Vector2f(0.0f, worldRect.top - 6 * Utility::gameScale));
   spikeSpawnTimer = 1000;
 
-  timer = std::make_unique<GameTimer>(60000, sf::Vector2f(worldRect.left + worldRect.width + Utility::gameScale, 
+  timer = std::make_unique<GameTimer>(config.maxTime * 1000, sf::Vector2f(worldRect.left + worldRect.width + Utility::gameScale, 
     worldRect.top + worldRect.height - 2 * Utility::gameScale));
 
   sf::Vector2f boostPos(worldRect.left + 5.0f * Utility::gameScale, - worldRect.top + Utility::gameScale);
@@ -209,8 +223,9 @@ Rush::Rush(GameConfig &config)
   }
 }
 
-void Rush::Update()
+void Min::Update()
 {
+
   score.get()->Update();
 
   if (gameOver)
@@ -218,19 +233,13 @@ void Rush::Update()
     Game::Update();
     return;
   }
-
-  if (Utility::CheckInitialPress(sf::Keyboard::P))
+  
+  if (Utility::CheckInitialPress(sf::Keyboard::Escape))
   {
-    if (timer.get()->IsPaused())
-    {
-      std::cout << "Resuming Timer!\n";
-      timer.get()->Unpause();
-    }
-    else
-    {
-      std::cout << "Pausing Timer!\n";
-      timer.get()->Pause();
-    }
+    Event event;
+    event.type = Event::Type::pause;
+    Event::events.push_back(event);
+    return;
   }
   
   UpdateTimer();
@@ -244,7 +253,7 @@ void Rush::Update()
   }
 }
 
-void Rush::Render(sf::RenderWindow *win) const
+void Min::Render(sf::RenderWindow *win) const
 {
   Game::Render(win);
 
@@ -252,7 +261,7 @@ void Rush::Render(sf::RenderWindow *win) const
   timer.get()->Render(win);
 }
 
-void Rush::UpdateTimer()
+void Min::UpdateTimer()
 {
   if (!timeUp && timer.get()->Update())
   {
@@ -274,29 +283,37 @@ void Rush::UpdateTimer()
 }
 
 // =============
-// --- Blitz ---
+// --- Rush ---
 // =============
 
-Blitz::Blitz(GameConfig &config)
+Rush::Rush(Event::GameConfig& config)
   :
-  Rush(config)
+  Min(config)
 {
+  GameStats::localStats.timeBoosts = 0;
+  
   arrow = Entity("arrow", nullptr, (sf::Vector2i)Textures::textures.at("arrow").getSize());
   arrowBottom = timer.get()->GetPosition() + Utility::gameScale * sf::Vector2f(8.0f, -0.5f);
   arrow.QueueMotion(Curve::linear, 0, ZERO_VECTOR, arrowBottom);
   arrow.FlipX();
+
+  sf::IntRect worldRect = world.get()->GetRegion();
+
+  Utility::InitText(multiplierText, Textures::large, "*1.0", {0.0f, worldRect.height / 2.0f - SCALED_DIM + 2 * Utility::gameScale}, {0.5f, 0.0f}, {255, 229, 181});
+  multiplierText.setOutlineColor({173, 103, 78});
+  multiplierText.setOutlineThickness(Utility::gameScale);
 }
 
-void Blitz::Update()
-{
+void Rush::Update()
+{  
   arrow.Update();
   if (gameOver)
   {
-    Rush::Update();
+    Min::Update();
     return;
   }
 
-  Rush::Update();
+  Min::Update();
 
   for (auto& p : characters)
   {
@@ -304,26 +321,28 @@ void Blitz::Update()
     if (boost)
     {
       storedTime += boost * 5;
-      if (storedTime >= 60)
+      if (storedTime >= config.maxTime)
       {
-        storedTime = 60;
+        storedTime = config.maxTime;
       }
       arrow.ClearHandlers();
-      arrow.QueueMotion(Curve::easeIn, 1000, arrow.GetPosition(), arrowBottom - (float)storedTime * sf::Vector2f(0.0f, Utility::gameScale));
+      arrow.QueueMotion(Curve::easeIn, 1000, arrow.GetPosition(), arrowBottom - (float)storedTime * sf::Vector2f(0.0f, Utility::gameScale) * 60.0f / (float)config.maxTime);
     }
   }
 
   // Increase target spawn chance on timer refill, but decrease time pickups?
 }
 
-void Blitz::Render(sf::RenderWindow *win) const
+void Rush::Render(sf::RenderWindow *win) const
 {
-  Rush::Render(win);
+  Min::Render(win);
 
   arrow.Render(win);
+
+  win->draw(multiplierText);
 }
 
-void Blitz::UpdateTimer()
+void Rush::UpdateTimer()
 {
   if (!timeUp && timer.get()->Update())
   {
@@ -340,6 +359,10 @@ void Blitz::UpdateTimer()
       {
         Utility::scoreMultiplier = 2.0f;
       }
+      std::string multText = "*" + std::to_string((int)(10 * Utility::scoreMultiplier));
+      multText.push_back(multText[2]);
+      multText[2] = '.';
+      Utility::UpdateText(multiplierText, multText, {0.5f, 0.0f});
       return;
     }
     std::cout << "Time is up, it's you're last jump!\n";
@@ -359,7 +382,7 @@ void Blitz::UpdateTimer()
   }
 }
 
-void Blitz::SpawnObjects()
+void Rush::SpawnObjects()
 {
   Game::SpawnObjects();
 
@@ -394,7 +417,7 @@ void Blitz::SpawnObjects()
 // --- Wild ---
 // ============
 
-Wild::Wild(GameConfig &config)
+Wild::Wild(Event::GameConfig& config)
   :
   Game(config)
 {

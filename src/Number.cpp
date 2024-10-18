@@ -255,6 +255,8 @@ void Number::Subtract(unsigned int value)
     scoreSprites.pop_back();
   }
 
+  Recentre();
+
   if (isNegative)
     PushBackNumber(NEGATIVE_SIGN);
 }
@@ -431,6 +433,9 @@ GameScore::GameScore(int startingValue, sf::Vector2f centre)
 
 void GameScore::Update()
 {
+  if (totalPoints.empty())
+    return;
+    
   for (auto& point : totalPoints)
   {
     point.Update();

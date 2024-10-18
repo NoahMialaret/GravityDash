@@ -6,11 +6,11 @@ Character::Character(int charID)
   charID(charID),
   acceleration(0.2f * Utility::gameScale)
 {
+  vel.y = 1000.0f;
   entity = Entity("character");
 
   entity.CouplePosition(&pos);
 
-  entity.FlipY();
   entity.QueueAnimation((int)curState, 150);
 
   reticle = Entity("reticle", nullptr, (sf::Vector2i)Textures::textures.at("reticle").getSize());
@@ -111,6 +111,8 @@ void Character::Update()
     }
     break;
 
+  case State::dead:
+    break;
   
   default:
     std::cout << "Could not determine Character state (" << (int)curState << ")\n";
@@ -126,6 +128,8 @@ void Character::Update()
     boost.get()->Update();
 
   pos += (finalJump ? 0.5f : 1.0f) * (Clock::Delta() / 16.0f) * vel;
+
+  entity.Update();
 }
 
 void Character::UpdateVelocity(int dir)
@@ -156,8 +160,6 @@ void Character::UpdateVelocity(int dir)
 
 void Character::Render(sf::RenderWindow *win) const
 {
-  entity.Update();
-
   Utility::entShad.setUniform("colorID", charID);
   if (invincibilityTimer <= 0 || (Clock::Elapsed() / 64) % 2)
   {
@@ -190,6 +192,8 @@ void Character::Jump()
     return;
   }
 
+  GameStats::localStats.jumps++;
+
   vel.y = acceleration * 80.0f * (isUpright ? -1.0f : 1.0f);;
   vel.x = 0.0f;
   
@@ -207,6 +211,8 @@ void Character::SuperJump()
   {
     return;
   }
+
+  GameStats::localStats.specials++;
 
   float jumpSpeed = acceleration * 80.0f * (isUpright ? -1.0f : 1.0f);
 
@@ -252,6 +258,7 @@ void Character::Land()
   if (comboCount >= 3)
   {
     canCollect = true;
+    GameStats::localStats.combos++;
   }
   else 
   {
@@ -328,6 +335,8 @@ bool Character::Hit(sf::Vector2f entPos)
     return false;
   }
 
+  GameStats::localStats.hits++;
+
   std::cout << "Player has been hit!\n";
 
   if (curState == State::airborne)
@@ -364,15 +373,6 @@ bool Character::Hit(sf::Vector2f entPos)
   targetPoints.clear();
 
   return true;
-
-  // if (finalJump)
-  // {
-  //   return false;
-  // }
-  // isLastStand = true;
-  // std::cout << "Character has been hit, this is their final jump!\n";
-
-  // return true;
 }
 
 void Character::Kill()
@@ -462,7 +462,6 @@ void Character::AddNewPoint(sf::Vector2f pos, sf::Vector2f vel)
   if (value >= 25600) // The score from hitting 10th target in a row
   {
     value = 25600;
-    // Goldenpoint++; a record of how many times this value was reached
   }
 
   AddNewPoint(value, pos, vel);
@@ -488,6 +487,7 @@ void PlayableCharacter::Update()
 {
   if (curState == State::dead)
   {
+    Character::Update();
     return;
   }
 
@@ -525,6 +525,7 @@ void ComputerCharacter::Update()
 {
   if (curState == State::dead)
   {
+    Character::Update();
     return;
   }
 

@@ -6,7 +6,9 @@
 #include "Character.h"
 #include "Clock.h"
 #include "Controls.h"
+#include "Event.h"
 #include "GameObject.h"
+#include "GameStats.h"
 #include "GameTimer.h"
 #include "Number.h"
 #include "PlayerBoost.h"
@@ -14,35 +16,15 @@
 #include "Textures.h"
 #include "World.h"
 
-#include <list>
 #include <iostream>
+#include <list>
 #include <memory>
-
-// A struct containing different parameters used by the game
-struct GameConfig
-{
-  int numPlayers = 1;
-  int numComputers = 0;
-  int targetSpawnChance = 90;
-  int sawFrequency = 10;
-  // std::vector<ids> transitionIDs
-};
 
 // Handles logic and objects to be used in the main gameplay loop
 class Game
 {
 public:
-  enum class Mode
-  {
-    title,
-    rush,
-    blitz,
-    wild
-    // survival
-    // vs.
-  };
-public:
-  Game(GameConfig& config);
+  Game(Event::GameConfig& config);
   ~Game();
 
   // Handles game states, transitioning between states, and game objects
@@ -57,8 +39,10 @@ public:
   // Returns whether or not the game is over
   bool IsGameOver() const;
 
+  Event::GameConfig GetConfig() const;
+
 protected:
-  std::unique_ptr<Mode> gameMode = nullptr;
+  // std::unique_ptr<Mode> gameMode = nullptr;
 
   std::vector<std::unique_ptr<Character>> characters; // The player characters
   std::unique_ptr<World> world = nullptr;             // The playable region of the game
@@ -72,14 +56,13 @@ protected:
 
   bool canSpawnObjects = true;
 
-  GameConfig config; // The configuration for various game variables
-  // std::vector<worldTransitions>
+  Event::GameConfig config; // The configuration for various game variables
 };
 
-class Rush : public Game
+class Min : public Game
 {
 public:
-  Rush(GameConfig& config);
+  Min(Event::GameConfig& config);
   virtual void Update() override;
   virtual void Render(sf::RenderWindow* win) const override;
   virtual void UpdateTimer();
@@ -90,10 +73,10 @@ protected:
   bool timeUp = false;
 };
 
-class Blitz : public Rush
+class Rush : public Min
 {
 public:
-  Blitz(GameConfig& config);
+  Rush(Event::GameConfig& config);
   void Update() override;
   void Render(sf::RenderWindow* win) const override;
   void UpdateTimer() override;
@@ -107,6 +90,8 @@ protected:
 
   Entity arrow; // The arrow representing visually how much time will be put into the clock
   sf::Vector2f arrowBottom; // The position the arrow starts at, and gets reset to
+
+  sf::Text multiplierText;
 };
 
 class Wild : public Game
@@ -122,7 +107,7 @@ public:
   };
 
 public:
-  Wild(GameConfig& config);
+  Wild(Event::GameConfig& config);
   void Update() override;
   void Render(sf::RenderWindow* win) const override;
 

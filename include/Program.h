@@ -6,7 +6,7 @@
 #include "Clock.h"
 #include "Event.h"
 #include "Game.h"
-#include "MainMenu.h"
+#include "Menu.h"
 #include "Particle.h"
 #include "Textures.h"
 #include "Utility.h"
@@ -25,8 +25,7 @@ public:
 	enum class State 
 	{
 		notRunning,
-    titleSequence,
-		startMenu,
+    mainMenu,
 		gameplay,
 		paused
 	};	
@@ -52,6 +51,8 @@ private:
 	// Sets the game state to "notRunning"
 	void ProgramExit();
 
+  void LoadMenuGame();
+
 private:
 	//SFML Objects --------------------------------------------------------
   sf::RenderWindow window;	// The window of the program 
@@ -62,8 +63,8 @@ private:
 
 	//Program Objects ----------------------------------------------------- 
 	std::unique_ptr<Game> game = nullptr;
-	std::unique_ptr<MainMenu> mainMenu = nullptr;
-  std::unique_ptr<TitleSequence> title = nullptr;
+	std::unique_ptr<Menu> menu = nullptr;
+  // std::unique_ptr<TitleSequence> title = nullptr;
 };
 
 #endif

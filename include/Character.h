@@ -7,6 +7,7 @@
 #include "Clock.h"
 #include "Controls.h"
 #include "Entity.h"
+#include "GameStats.h"
 #include "Number.h"
 #include "Particle.h"
 #include "PlayerBoost.h"
@@ -101,7 +102,7 @@ protected:
   int move = 0; // The direction that the character wants to move (i.e. the button a player is pressing)
   float acceleration = 0; // A modifier that determines how much the player's velocity changes each frame
 
-  bool isUpright = false; // Whether the player is standing upright (i.e. at the bottom of the world) or is upside down
+  bool isUpright = true; // Whether the player is standing upright (i.e. at the bottom of the world) or is upside down
 
   State curState = State::idle; // The current state of the player
   bool queueFinalJump = false;
