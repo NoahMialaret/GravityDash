@@ -1,6 +1,6 @@
 #include "MenuOption.h"
 
-RoundedRect MenuOption::highlightBg = RoundedRect({0,0}, {2.0f * CONFIG_MENU_MARGIN + 2.0f * Utility::gameScale, 6 * Utility::gameScale}, sf::Color(245, 204, 164));
+RoundedRect MenuOption::highlightBg = RoundedRect({0,0}, {2.0f * CONFIG_MENU_MARGIN + 2.0f * ProgramSettings::gameScale, 6 * ProgramSettings::gameScale}, sf::Color(245, 204, 164));
 MenuOption* MenuOption::curHighlight = nullptr;
 
 MenuOption::MenuOption(std::string name, Event action, float* origin, float offset)
@@ -180,10 +180,10 @@ ControlOption::ControlOption(std::string name, Event action, float* origin, floa
   :
   MenuOption(name, action, origin, offset)
 {  
-  Utility::InitText(curKey, Textures::small, Utility::GetStringFromKeyCode(config.init), {CONFIG_MENU_MARGIN - 2 * Utility::gameScale, *origin + offset}, {1.0f, 0.5f}, {255, 229, 181});
+  Utility::InitText(curKey, Textures::small, Utility::GetStringFromKeyCode(config.init), {CONFIG_MENU_MARGIN - 2 * ProgramSettings::gameScale, *origin + offset}, {1.0f, 0.5f}, {255, 229, 181});
   
   float width = curKey.getGlobalBounds().getSize().x;
-  keyBg = RoundedRect(curKey.getPosition() + sf::Vector2f(-width / 2.0f, -Utility::gameScale), sf::Vector2f(width + 4.0f * Utility::gameScale, 6.0f * Utility::gameScale), {173, 103, 78});
+  keyBg = RoundedRect(curKey.getPosition() + sf::Vector2f(-width / 2.0f, -ProgramSettings::gameScale), sf::Vector2f(width + 4.0f * ProgramSettings::gameScale, 6.0f * ProgramSettings::gameScale), {173, 103, 78});
 }
  
 void ControlOption::Update()
@@ -196,7 +196,7 @@ void ControlOption::Update()
     Utility::UpdateText(curKey, Utility::GetStringFromKeyCode((sf::Keyboard::Key)Utility::initialKeyPresses[0]), {1.0f, 0.5f});
     float width = curKey.getGlobalBounds().getSize().x;
     keyBg.SetHorizontal(curKey.getPosition().x - width / 2.0f);
-    keyBg.SetDim(sf::Vector2f(width + 4.0f * Utility::gameScale, 6.0f * Utility::gameScale));
+    keyBg.SetDim(sf::Vector2f(width + 4.0f * ProgramSettings::gameScale, 6.0f * ProgramSettings::gameScale));
   }
 }
 

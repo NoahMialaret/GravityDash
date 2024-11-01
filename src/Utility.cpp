@@ -1,11 +1,6 @@
 #include "Utility.h"
 #include "Particle.h"
 
-float Utility::targetFrameRate = 60.0f;
-float Utility::gameScale = 6.0f;
-int Utility::spriteDim = 8.0f;
-sf::Vector2f Utility::windowDim;
-
 std::mt19937 Utility::rng = std::mt19937(std::random_device()());
 
 std::vector<Bezier> Utility::curves =
@@ -26,6 +21,37 @@ sf::Shader Utility::worldShad;
 std::forward_list<std::unique_ptr<Particle>> Utility::particles;
 
 float Utility::scoreMultiplier = 1.0f;
+
+void Utility::LoadSave(const char* filename)
+{
+  // std::ifstream file(filename);
+
+  // if (!file)
+  //   CreateSave(filename);
+
+  // // Processing inputs
+  // std::string line;
+  // std::stringstream temp;
+  // while(std::getline(file, line))
+  // {
+  //   temp.read()
+  //   std::cout << in << '\n';
+  // }
+  // std::stringstream stream(in);
+  // std::string temp;
+  // while (stream >> temp)
+  //   tasks.push_back({temp[0], temp.substr(1)});
+
+
+}
+
+void Utility::SaveData(const char* filename)
+{
+}
+
+void Utility::CreateSave(const char* filename)
+{
+}
 
 std::string Utility::IntToString(int number, int minDigits)
 {
@@ -194,7 +220,7 @@ void Utility::InitText(sf::Text &text, sf::Font &font, std::string str, sf::Vect
   text.setFillColor(col);
   text.setFont(font);
 
-  float height = Utility::gameScale;
+  float height = ProgramSettings::gameScale;
   if (&font == &Textures::small)
     height *= 4.0f;
   else if (&font == &Textures::medium)
@@ -202,14 +228,14 @@ void Utility::InitText(sf::Text &text, sf::Font &font, std::string str, sf::Vect
   else // large
     height *= 6.0f;
 
-  text.setOrigin(sf::Vector2f(origin.x * text.getLocalBounds().width, origin.y * height - Utility::gameScale));
+  text.setOrigin(sf::Vector2f(origin.x * text.getLocalBounds().width, origin.y * height - ProgramSettings::gameScale));
 }
 
 void Utility::UpdateText(sf::Text &text, std::string newStr, sf::Vector2f origin)
 {
   text.setString(newStr);
 
-  float height = Utility::gameScale;
+  float height = ProgramSettings::gameScale;
   if (text.getFont() == &Textures::small)
     height *= 4.0f;
   else if (text.getFont() == &Textures::medium)
@@ -217,7 +243,7 @@ void Utility::UpdateText(sf::Text &text, std::string newStr, sf::Vector2f origin
   else // large
     height *= 6.0f;
 
-  text.setOrigin(sf::Vector2f(origin.x * text.getLocalBounds().width, origin.y * height - Utility::gameScale));
+  text.setOrigin(sf::Vector2f(origin.x * text.getLocalBounds().width, origin.y * height - ProgramSettings::gameScale));
 }
 
 std::string Utility::GetStringFromKeyCode(sf::Keyboard::Key key)

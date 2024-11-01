@@ -4,6 +4,7 @@
 #include "SFML/Graphics.hpp"
 
 #include "Utility.h"
+#include "programSettings.h"
 
 class RoundedRect
 {

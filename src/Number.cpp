@@ -159,11 +159,11 @@ void Number::PushBackNumber(int value)
 void Number::Recentre()
 {
   float scale = (tex == &Textures::textures.at("nums_small") ? 0.5f : 1.0f);
-  float xPos = centre.x + scale * (scoreSprites.size() - 1) * (float)digitSize.x * Utility::gameScale / 2.0f;
+  float xPos = centre.x + scale * (scoreSprites.size() - 1) * (float)digitSize.x * ProgramSettings::gameScale / 2.0f;
   for (auto& s : scoreSprites)
   {
     s.setPosition(sf::Vector2f(xPos, centre.y));
-    xPos -= scale * digitSize.x * Utility::gameScale;
+    xPos -= scale * digitSize.x * ProgramSettings::gameScale;
   }
 }
 
@@ -325,7 +325,7 @@ TotalPoints::TotalPoints(std::forward_list<TargetPoints> targetPoints)
   AddPoints(accumulatedPoints);
 
   prevIndex = Clock::Elapsed() / 150 % scoreSprites.size();
-  scoreSprites[prevIndex].move(sf::Vector2f(0.0f, -0.5f * Utility::gameScale));
+  scoreSprites[prevIndex].move(sf::Vector2f(0.0f, -0.5f * ProgramSettings::gameScale));
 
   timer = 500;
 }
@@ -366,7 +366,7 @@ void TotalPoints::Update()
   case State::total:
     for (auto& s : scoreSprites)
     {
-      s.move((Clock::Delta() / 16.0f) * sf::Vector2f(0.0f, -Utility::gameScale / 10));
+      s.move((Clock::Delta() / 16.0f) * sf::Vector2f(0.0f, -ProgramSettings::gameScale / 10));
     }
     if (timer <= 0)
     {
@@ -385,8 +385,8 @@ void TotalPoints::Update()
     return;
   }
 
-  scoreSprites[prevIndex].move(sf::Vector2f(0.0f, 0.5f * Utility::gameScale));
-  scoreSprites[index].move(sf::Vector2f(0.0f, - 0.5f * Utility::gameScale));
+  scoreSprites[prevIndex].move(sf::Vector2f(0.0f, 0.5f * ProgramSettings::gameScale));
+  scoreSprites[index].move(sf::Vector2f(0.0f, - 0.5f * ProgramSettings::gameScale));
 
   prevIndex = index;
 }

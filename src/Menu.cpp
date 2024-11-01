@@ -118,7 +118,7 @@ void Menu::LoadMenu(Event::MenuType menuType)
     options[0].second.push_back(option);
 
     option = {"scale", event, OptionConfig::Type::range};
-    option.range = {(int)Utility::gameScale, 1, 32};
+    option.range = {(int)ProgramSettings::gameScale, 1, 32};
     options[0].second.push_back(option);
 
     option = {"fullscreen", event, OptionConfig::Type::toggle};

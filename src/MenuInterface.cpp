@@ -103,7 +103,7 @@ ListInterface::ListInterface(std::vector<ButtonConfig>& configs, Event menuRetur
 {
   assert (configs.size() > 0);
 
-  float offset = Utility::gameScale * (Textures::textures.at("small_button").getSize().y + 2);
+  float offset = ProgramSettings::gameScale * (Textures::textures.at("small_button").getSize().y + 2);
   float pos = offset * (configs.size() - 1) / 2;
 
   for (auto& c : configs)
@@ -161,23 +161,23 @@ GameEndInterface::GameEndInterface(std::vector<ButtonConfig> &configs, Event men
     b.get()->Move({4.0f * SCALED_DIM, 0});
   }
 
-  float yPos = - Utility::gameScale * (40.0f + (GameStats::localStats.timeBoosts == -1 ? 0.0f : 7.0f)) / 2.0f;
+  float yPos = - ProgramSettings::gameScale * (40.0f + (GameStats::localStats.timeBoosts == -1 ? 0.0f : 7.0f)) / 2.0f;
 
   Utility::InitText(displayTitle, Textures::large, "results", {-6.5f * SCALED_DIM, yPos - SCALED_DIM}, {0, 0.0f}, {255, 229, 181});
   displayTitle.setOutlineColor({173, 103, 78});
-  displayTitle.setOutlineThickness(Utility::gameScale);
+  displayTitle.setOutlineThickness(ProgramSettings::gameScale);
 
   underline.setFillColor({173, 103, 78});
-  underline.setSize(sf::Vector2f(displayTitle.getLocalBounds().width / Utility::gameScale + 6, 1.0f));
+  underline.setSize(sf::Vector2f(displayTitle.getLocalBounds().width / ProgramSettings::gameScale + 6, 1.0f));
   underline.setScale(DEFAULT_SCALE);
-  underline.setPosition(displayTitle.getPosition() + Utility::gameScale * sf::Vector2f(-3.0f, 17.0f));
+  underline.setPosition(displayTitle.getPosition() + ProgramSettings::gameScale * sf::Vector2f(-3.0f, 17.0f));
 
-  float offset = 7 * Utility::gameScale;
+  float offset = 7 * ProgramSettings::gameScale;
 
   sf::Text text;
-  Utility::InitText(text, Textures::small, "jumps - " + std::to_string(GameStats::localStats.jumps), {-6.0f * SCALED_DIM, yPos + 14.0f * Utility::gameScale}, {0, 0.0f}, {255, 229, 181});
+  Utility::InitText(text, Textures::small, "jumps - " + std::to_string(GameStats::localStats.jumps), {-6.0f * SCALED_DIM, yPos + 14.0f * ProgramSettings::gameScale}, {0, 0.0f}, {255, 229, 181});
   text.setOutlineColor({173, 103, 78});
-  text.setOutlineThickness(Utility::gameScale);
+  text.setOutlineThickness(ProgramSettings::gameScale);
 
   this->stats.push_back(text);
 
@@ -287,9 +287,9 @@ OptionsSubList::OptionsSubList(std::string& title, std::vector<OptionConfig>& co
 {
   assert (configs.size() > 0);
 
-  Utility::InitText(displayTitle, Textures::large, title, {0, *origin + yPos - SCALED_DIM - Utility::gameScale});
+  Utility::InitText(displayTitle, Textures::large, title, {0, *origin + yPos - SCALED_DIM - ProgramSettings::gameScale});
 
-  float width = displayTitle.getLocalBounds().width / Utility::gameScale + 4;
+  float width = displayTitle.getLocalBounds().width / ProgramSettings::gameScale + 4;
 
   overline.setFillColor({173, 103, 78});
   overline.setSize(sf::Vector2f(width, 1.0f));
@@ -334,7 +334,7 @@ OptionsSubList::OptionsSubList(std::string& title, std::vector<OptionConfig>& co
 
 void OptionsSubList::Update()
 {
-  displayTitle.setPosition({0, *origin + vertOffset - SCALED_DIM - Utility::gameScale});
+  displayTitle.setPosition({0, *origin + vertOffset - SCALED_DIM - ProgramSettings::gameScale});
   overline.setPosition({0, *origin + vertOffset});
   underline.setPosition({0, *origin + vertOffset});
 

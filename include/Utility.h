@@ -4,20 +4,26 @@
 // The zero vector, used to set default values
 #define ZERO_VECTOR sf::Vector2f(0.0f, 0.0f)
 // The ingame pixel dimensions of a sprite
-#define SCALED_DIM Utility::gameScale * Utility::spriteDim
+#define SCALED_DIM (ProgramSettings::gameScale * Utility::spriteDim)
 // The default scale used by sprites
-#define DEFAULT_SCALE sf::Vector2f(Utility::gameScale, Utility::gameScale)
+#define DEFAULT_SCALE sf::Vector2f(ProgramSettings::gameScale, ProgramSettings::gameScale)
 // Used to set the origin of a sprite to its centre
-#define CENTRED_ORIGIN 0.5f * sf::Vector2f(Utility::spriteDim, Utility::spriteDim)
+#define CENTRED_ORIGIN (0.5f * sf::Vector2f(Utility::spriteDim, Utility::spriteDim))
+
+#define SAVE_FILE "files/save.txt"
 
 #include <SFML/Graphics.hpp>
 
 #include "Bezier.h"
+#include "GameStats.h"
+#include "programSettings.h"
 #include "Textures.h"
 
 #include <forward_list>
+#include <fstream>
 #include <iostream>
 #include <memory>
+#include <sstream>
 #include <random>
 #include <vector>
 
@@ -30,9 +36,16 @@ enum class Curve
   easeOut
 };
 
-union Utility
+struct Utility
 {
 public:
+  // Loads save data from disk
+  static void LoadSave(const char* filename);
+  // Saves data to disk
+  static void SaveData(const char* filename);
+  // Generates a new save file if one cannot be found or loaded
+  static void CreateSave(const char* filename);
+
   // Converts interger numbers into a string
 	static std::string IntToString(int number, int minDigits = 0);
 
@@ -63,13 +76,7 @@ public:
   static std::string GetStringFromKeyCode(sf::Keyboard::Key key);
 
 public:
-  //settings
-  static float targetFrameRate;   // The max framerate that the game runs at
-
-  // settings (gamescale)
-  static float gameScale; // The scale that the game is rendered at compared to the original sprites
-  static int spriteDim; // The dimensions of a typical sprite (like tiles and units)
-  static sf::Vector2f windowDim;
+  static constexpr int spriteDim = 8; // The dimensions of a typical sprite
 
   static std::mt19937 rng;    // Used for random number generation
 

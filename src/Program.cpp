@@ -4,6 +4,8 @@ std::vector<Event> Event::events;
 
 Program::Program(const char* name)
 {
+  Utility::LoadSave(SAVE_FILE);
+
 	std::cout << "--=== Program Init ===--\n"  << "Initialising SFML Window...\n";
 
 		sf::VideoMode desktop = sf::VideoMode::getDesktopMode();	
@@ -21,8 +23,8 @@ Program::Program(const char* name)
 		std::cout << "\tWindow dimensions: " << windowSize.x << "px x " << windowSize.y << "px\n";
 		std::cout << "\tDesktop dimensions: " << desktop.width << "px x " << desktop.height << "px\n";
 
-		Utility::gameScale = scale;
-    Utility::windowDim = windowSize;
+		ProgramSettings::gameScale = scale;
+    ProgramSettings::windowDim = windowSize;
 
 		window.create(sf::VideoMode(windowSize.x, windowSize.y), name, sf::Style::Close);
 

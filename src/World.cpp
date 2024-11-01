@@ -5,8 +5,8 @@ World::World(sf::IntRect playableRegion)
     playableRegion(playableRegion)
 {
     targetLeft = playableRegion.left;
-    renderRect = sf::RectangleShape({Utility::windowDim.x, Utility::windowDim.y});
-    renderRect.setPosition(- Utility::windowDim.x / 2, - Utility::windowDim.y / 2);
+    renderRect = sf::RectangleShape({ProgramSettings::windowDim.x, ProgramSettings::windowDim.y});
+    renderRect.setPosition(- ProgramSettings::windowDim.x / 2, - ProgramSettings::windowDim.y / 2);
 }
 
 void World::Update()

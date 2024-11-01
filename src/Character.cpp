@@ -4,7 +4,7 @@
 Character::Character(int charID)
   : 
   charID(charID),
-  acceleration(0.2f * Utility::gameScale)
+  acceleration(0.2f * ProgramSettings::gameScale)
 {
   vel.y = 1000.0f;
   entity = Entity("character");
@@ -52,7 +52,7 @@ void Character::Update()
       }
     } 
 
-    reticlePos = pos + (isUpright ? -1.0f : 1.0f) * Utility::gameScale * Utility::spriteDim * 3.0f * sf::Vector2f(std::sin(reticleAngle), std::cos(reticleAngle));
+    reticlePos = pos + (isUpright ? -1.0f : 1.0f) * ProgramSettings::gameScale * Utility::spriteDim * 3.0f * sf::Vector2f(std::sin(reticleAngle), std::cos(reticleAngle));
     reticle.Update();
   }
 
@@ -87,7 +87,7 @@ void Character::Update()
 
     if (particleTimer <= 0)
     {
-      sf::Vector2f partVel(-move * 0.2f * Utility::gameScale, (isUpright ? -0.1f : 0.1f) * Utility::gameScale);
+      sf::Vector2f partVel(-move * 0.2f * ProgramSettings::gameScale, (isUpright ? -0.1f : 0.1f) * ProgramSettings::gameScale);
       Utility::particles.push_front(std::make_unique<Puff>(pos, sf::Vector2f(- (float)move, (isUpright ? -1.0f : 1.0f))));
       particleTimer = (finalJump ? 4 : 1) * 150;
     }
@@ -350,7 +350,7 @@ bool Character::Hit(sf::Vector2f entPos)
   }
 
   // y = ent.y +- sqrt(64*scale-(this.x-ent.x)^2) + for saws on top
-  pos.y = entPos.y + (isUpright ? -1.0f : 1.0f) * std::sqrt(64*Utility::gameScale*Utility::gameScale - (pos.x - entPos.x) * (pos.x - entPos.x));
+  pos.y = entPos.y + (isUpright ? -1.0f : 1.0f) * std::sqrt(64*ProgramSettings::gameScale*ProgramSettings::gameScale - (pos.x - entPos.x) * (pos.x - entPos.x));
 
   vel.y = (isUpright ? -3.0f : 3.0f);
   vel.x = (pos.x - entPos.x < 0.0f ? -10.0f : 10.0f);

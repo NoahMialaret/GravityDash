@@ -12,6 +12,7 @@
 #include "Utility.h"
 #include "World.h"
 #include "Event.h"
+#include "programSettings.h"
 
 #include <forward_list>
 #include <iostream>

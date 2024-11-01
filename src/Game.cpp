@@ -203,13 +203,13 @@ Min::Min(Event::GameConfig& config)
   Game(config)
 {
   sf::IntRect worldRect = world.get()->GetRegion();
-	score = std::make_unique<GameScore>(sf::Vector2f(0.0f, worldRect.top - 6 * Utility::gameScale));
+	score = std::make_unique<GameScore>(sf::Vector2f(0.0f, worldRect.top - 6 * ProgramSettings::gameScale));
   spikeSpawnTimer = 1000;
 
-  timer = std::make_unique<GameTimer>(config.maxTime * 1000, sf::Vector2f(worldRect.left + worldRect.width + Utility::gameScale, 
-    worldRect.top + worldRect.height - 2 * Utility::gameScale));
+  timer = std::make_unique<GameTimer>(config.maxTime * 1000, sf::Vector2f(worldRect.left + worldRect.width + ProgramSettings::gameScale, 
+    worldRect.top + worldRect.height - 2 * ProgramSettings::gameScale));
 
-  sf::Vector2f boostPos(worldRect.left + 5.0f * Utility::gameScale, - worldRect.top + Utility::gameScale);
+  sf::Vector2f boostPos(worldRect.left + 5.0f * ProgramSettings::gameScale, - worldRect.top + ProgramSettings::gameScale);
 
   for (int i = 0; i < characters.size(); i++)
   {
@@ -293,15 +293,15 @@ Rush::Rush(Event::GameConfig& config)
   GameStats::localStats.timeBoosts = 0;
   
   arrow = Entity("arrow", nullptr, (sf::Vector2i)Textures::textures.at("arrow").getSize());
-  arrowBottom = timer.get()->GetPosition() + Utility::gameScale * sf::Vector2f(8.0f, -0.5f);
+  arrowBottom = timer.get()->GetPosition() + ProgramSettings::gameScale * sf::Vector2f(8.0f, -0.5f);
   arrow.QueueMotion(Curve::linear, 0, ZERO_VECTOR, arrowBottom);
   arrow.FlipX();
 
   sf::IntRect worldRect = world.get()->GetRegion();
 
-  Utility::InitText(multiplierText, Textures::large, "*1.0", {0.0f, worldRect.height / 2.0f - SCALED_DIM + 2 * Utility::gameScale}, {0.5f, 0.0f}, {255, 229, 181});
+  Utility::InitText(multiplierText, Textures::large, "*1.0", {0.0f, worldRect.height / 2.0f - SCALED_DIM + 2 * ProgramSettings::gameScale}, {0.5f, 0.0f}, {255, 229, 181});
   multiplierText.setOutlineColor({173, 103, 78});
-  multiplierText.setOutlineThickness(Utility::gameScale);
+  multiplierText.setOutlineThickness(ProgramSettings::gameScale);
 }
 
 void Rush::Update()
@@ -326,7 +326,7 @@ void Rush::Update()
         storedTime = config.maxTime;
       }
       arrow.ClearHandlers();
-      arrow.QueueMotion(Curve::easeIn, 1000, arrow.GetPosition(), arrowBottom - (float)storedTime * sf::Vector2f(0.0f, Utility::gameScale) * 60.0f / (float)config.maxTime);
+      arrow.QueueMotion(Curve::easeIn, 1000, arrow.GetPosition(), arrowBottom - (float)storedTime * sf::Vector2f(0.0f, ProgramSettings::gameScale) * 60.0f / (float)config.maxTime);
     }
   }
 

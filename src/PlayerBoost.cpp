@@ -14,9 +14,9 @@ PlayerBoost::PlayerBoost(sf::Vector2f bottomLeft, int limit)
     meter.FlipY();
 
   fill.setFillColor(sf::Color(255, 229, 181));
-  fill.setPosition(bottomLeft + Utility::gameScale * 
+  fill.setPosition(bottomLeft + ProgramSettings::gameScale * 
     sf::Vector2f((bottomLeft.x < 0 ? 1.0f : -1.0f) * 1.0f, (bottomLeft.y < 0 ? -1.0f : 1.0f) * 2.0f));
-  fill.setSize({0.0f, 2.0f * Utility::gameScale});
+  fill.setSize({0.0f, 2.0f * ProgramSettings::gameScale});
   if (bottomLeft.x > 0)
     fill.scale({-1.0f, 1.0f});
   if (bottomLeft.y > 0)
@@ -37,7 +37,7 @@ void PlayerBoost::Update()
 
   int width = 30.0f * (float)timer / (float)limit;
 
-  fill.setSize(Utility::gameScale * sf::Vector2f((float)width, 2.0f));
+  fill.setSize(ProgramSettings::gameScale * sf::Vector2f((float)width, 2.0f));
 }
 
 void PlayerBoost::Render(sf::RenderWindow *win) const
@@ -52,14 +52,14 @@ void PlayerBoost::Increment(int amount)
   if (timer > limit)
   {
     timer = limit;
-    fill.setSize(Utility::gameScale * sf::Vector2f(30.0f, 2.0f));
+    fill.setSize(ProgramSettings::gameScale * sf::Vector2f(30.0f, 2.0f));
   }
 }
 
 void PlayerBoost::Clear()
 {
   timer = 0;
-  fill.setSize({0.0f, 2.0f * Utility::gameScale});
+  fill.setSize({0.0f, 2.0f * ProgramSettings::gameScale});
 }
 
 bool PlayerBoost::IsFull() const

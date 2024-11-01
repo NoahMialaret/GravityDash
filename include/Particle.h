@@ -7,6 +7,7 @@
 #include "Clock.h"
 #include "Entity.h"
 #include "Textures.h"
+#include "programSettings.h"
 
 #include <iostream>
 

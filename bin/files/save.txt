@@ -1,0 +1,13 @@
+min 0 0 0
+rush 0 0 0
+coop 0 0 0
+stats 2 123 2 3
+gamesPlayed 2
+jumps 123
+specials 2
+hits 3
+video 1 6 0 2
+audio 9 5
+controls 54 21 102 39 19 293 34
+multiplayer 1 2 32 64 23 87
+accessibility 0 4 3 2 4

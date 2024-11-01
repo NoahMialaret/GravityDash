@@ -15,6 +15,7 @@
 #include "SortedDblyLnkdList.h"
 #include "Textures.h"
 #include "World.h"
+#include "programSettings.h"
 
 #include <iostream>
 #include <list>
