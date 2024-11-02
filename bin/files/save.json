@@ -1,0 +1,26 @@
+{
+  "settings": {
+    "accessibility": {
+      "colourHelp": false,
+      "player": 2,
+      "saw": 3,
+      "target": 1,
+      "time": 3,
+      "world": 0
+    },
+    "audio": {
+      "music": 10,
+      "sfx": 10
+    },
+    "multiplayer": {
+      "p1Colour": 0,
+      "p2Colour": 0
+    },
+    "video": {
+      "autoScale": true,
+      "colour": 0,
+      "fullscreen": false,
+      "scale": 6.0
+    }
+  }
+}

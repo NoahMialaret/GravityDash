@@ -10,9 +10,10 @@
 // Used to set the origin of a sprite to its centre
 #define CENTRED_ORIGIN (0.5f * sf::Vector2f(Utility::spriteDim, Utility::spriteDim))
 
-#define SAVE_FILE "files/save.txt"
+#define SAVE_FILE "files/save.json"
 
 #include <SFML/Graphics.hpp>
+#include <nlohmann/json.hpp>
 
 #include "Bezier.h"
 #include "GameStats.h"
@@ -43,8 +44,6 @@ public:
   static void LoadSave(const char* filename);
   // Saves data to disk
   static void SaveData(const char* filename);
-  // Generates a new save file if one cannot be found or loaded
-  static void CreateSave(const char* filename);
 
   // Converts interger numbers into a string
 	static std::string IntToString(int number, int minDigits = 0);

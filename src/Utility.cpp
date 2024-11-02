@@ -24,33 +24,37 @@ float Utility::scoreMultiplier = 1.0f;
 
 void Utility::LoadSave(const char* filename)
 {
-  // std::ifstream file(filename);
 
-  // if (!file)
-  //   CreateSave(filename);
+  try
+  {
+    std::ifstream file(filename);
+    nlohmann::json save = nlohmann::json::parse(file);
 
-  // // Processing inputs
-  // std::string line;
-  // std::stringstream temp;
-  // while(std::getline(file, line))
-  // {
-  //   temp.read()
-  //   std::cout << in << '\n';
-  // }
-  // std::stringstream stream(in);
-  // std::string temp;
-  // while (stream >> temp)
-  //   tasks.push_back({temp[0], temp.substr(1)});
+    ProgramSettings::Init(save["settings"]);
 
-
+    file.close();
+  }
+  catch (const nlohmann::json::exception& e)
+  {
+    std::cout << "Save file was corrupted or could not be found, creating new one...\n";
+    ProgramSettings::Init();
+    SaveData(filename);
+  }
 }
 
 void Utility::SaveData(const char* filename)
 {
-}
+  nlohmann::json save;
 
-void Utility::CreateSave(const char* filename)
-{
+  ProgramSettings::Save(save);
+
+  std::ofstream file(filename);
+
+  file << save.dump(2);
+
+  file.close();
+
+  std::cout << "Data saved!\n";
 }
 
 std::string Utility::IntToString(int number, int minDigits)

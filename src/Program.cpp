@@ -86,9 +86,16 @@ Program::Program(const char* name)
 
 Program::~Program()
 {
+  Utility::SaveData(SAVE_FILE);
+
+	std::cout << "Cleaning program...\n";
+
 	window.close();
 
   Utility::particles.clear();
+
+  game = nullptr;
+  menu = nullptr;
 
 	std::cout << "Program successfully cleaned!\n";
 }
@@ -103,8 +110,8 @@ void Program::HandleEvents()
 		{
 		case Event::Type::programClose:
 			std::cout << "Quit button has been pressed, closing game...\n";
-			ProgramExit();
-			break;
+			curState = State::notRunning;
+			return;
 
 		case Event::Type::loadNewGame:
     {
@@ -201,8 +208,8 @@ void Program::HandleEvents()
 		{
 		case sf::Event::Closed:
 			std::cout << "Window close event called.\n";
-			ProgramExit();
-			break;
+			curState = State::notRunning;
+      return;
 		
 		case sf::Event::LostFocus:
 			//Pause();
@@ -272,9 +279,7 @@ void Program::Render()
   // if (curState != State::titleSequence)
 
 	if (curState == State::notRunning) 
-	{
 		return;
-	}
 
   game.get()->Render(&window);
 
@@ -307,13 +312,6 @@ void Program::Render()
 Program::State Program::GetCurState() const 
 {
 	return curState;
-}
-
-void Program::ProgramExit() 
-{
-	std::cout << "Exiting game...\n";
-
-	curState = State::notRunning;
 }
 
 void Program::LoadMenuGame()

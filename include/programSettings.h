@@ -2,6 +2,7 @@
 #define PROGRAMSETTINGS_H
 
 #include <SFML/Graphics.hpp>
+#include <nlohmann/json.hpp>
 
 // Static class which holds various user defined settings about the game
 class ProgramSettings
@@ -16,6 +17,9 @@ public:
   };
 
 public:
+  static void Init();
+  static void Init(nlohmann::json& save);
+  static void Save(nlohmann::json& save);
   static Colours GetWorldColour();
   static Colours GetPlayerColour(int id);
   static Colours GetTargetColour();
