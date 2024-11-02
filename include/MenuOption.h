@@ -7,7 +7,8 @@
 #include "Textures.h"
 #include "Utility.h"
 #include "RoundedRect.h"
-#include "programSettings.h"
+#include "ProgramSettings.h"
+#include "Keyboard.h"
 
 #include <string>
 #include <vector>

@@ -6,11 +6,12 @@
 #include "Clock.h"
 #include "Event.h"
 #include "Game.h"
+#include "Keyboard.h"
 #include "Menu.h"
 #include "Particle.h"
 #include "Textures.h"
 #include "Utility.h"
-#include "programSettings.h"
+#include "ProgramSettings.h"
 
 #include "TitleSequence.h"
 

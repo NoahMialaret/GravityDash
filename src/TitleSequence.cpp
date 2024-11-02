@@ -65,7 +65,8 @@ void TitleSequence::Update()
     tile.move((Clock::Delta() / 16.0f) * sf::Vector2f(0.0f, - speed * ProgramSettings::gameScale));
   }
 
-  if (Utility::initialKeyPresses.size() > 0)
+  // if (!Keyboard::keysPressed.empty())
+  if (true)
   {
     if (curSeq < Sequence::title)
     {

@@ -15,7 +15,7 @@ bool Controls::SuperJumpPressed()
   return superJumpPressed;
 }
 
-Keyboard::Keyboard(int playerNumber)
+KeyboardControls::KeyboardControls(int playerNumber)
 {
   // Get keybindings for player: <playerNumber>
   if (playerNumber == 0)
@@ -34,9 +34,9 @@ Keyboard::Keyboard(int playerNumber)
   }
 }
 
-void Keyboard::Update()
+void KeyboardControls::Update()
 {
-  heldDirection = sf::Keyboard::isKeyPressed(rightKey) - sf::Keyboard::isKeyPressed(leftKey);
+  heldDirection = Keyboard::IsKeyHeld(rightKey) - Keyboard::IsKeyHeld(leftKey);
 
   if (heldDirection != 0)
   {
@@ -44,6 +44,7 @@ void Keyboard::Update()
     i++;
   }
 
-  jumpPressed = Utility::CheckInitialPress(jumpKey);
-  superJumpPressed = Utility::CheckInitialPress(superJumpKey);
+
+  jumpPressed = Keyboard::IsKeyOnInitialClick(jumpKey);
+  superJumpPressed = Keyboard::IsKeyOnInitialClick(superJumpKey);
 }

@@ -3,6 +3,7 @@
 
 #include <SFML/Graphics.hpp>
 
+#include "Keyboard.h"
 #include "Utility.h"
 
 class Controls
@@ -23,10 +24,10 @@ protected:
   bool superJumpPressed = false;
 };
 
-class Keyboard : public Controls
+class KeyboardControls : public Controls
 {
 public:
-  Keyboard(int playerNumber); // Uses playerNumber to determine which keybindings to get
+  KeyboardControls(int playerNumber); // Uses playerNumber to determine which keybindings to get
 
   void Update() override;
 

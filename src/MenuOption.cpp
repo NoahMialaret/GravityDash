@@ -86,7 +86,7 @@ void ToggleOption::Update()
 {
   MenuOption::Update();
   toggleSprite.setPosition(toggleSprite.getPosition().x, *origin + vertOffset);
-  if (!isHighlighted || !Utility::CheckInitialPress(sf::Keyboard::Space))
+  if (!isHighlighted || !Keyboard::IsKeyOnInitialClick(sf::Keyboard::Space))
     return;
 
   toggle = !toggle;
@@ -120,7 +120,7 @@ void RangeOption::Update()
   if (!isHighlighted)
     return;
 
-  int delta = Utility::CheckInitialPress(sf::Keyboard::D) - Utility::CheckInitialPress(sf::Keyboard::A);
+  int delta = Keyboard::IsKeyClicked(sf::Keyboard::D) - Keyboard::IsKeyClicked(sf::Keyboard::A);
   
   if (!delta || value + delta > max || value + delta < min)
     return;
@@ -154,7 +154,7 @@ void SelectionOption::Update()
   if (!isHighlighted)
     return;
 
-  int delta = Utility::CheckInitialPress(sf::Keyboard::D) - Utility::CheckInitialPress(sf::Keyboard::A);
+  int delta = Keyboard::IsKeyClicked(sf::Keyboard::D) - Keyboard::IsKeyClicked(sf::Keyboard::A);
   
   if (!delta)
     return;
@@ -180,7 +180,7 @@ ControlOption::ControlOption(std::string name, Event action, float* origin, floa
   :
   MenuOption(name, action, origin, offset)
 {  
-  Utility::InitText(curKey, Textures::small, Utility::GetStringFromKeyCode(config.init), {CONFIG_MENU_MARGIN - 2 * ProgramSettings::gameScale, *origin + offset}, {1.0f, 0.5f}, {255, 229, 181});
+  Utility::InitText(curKey, Textures::small, Keyboard::GetStringFromKeyCode(config.init), {CONFIG_MENU_MARGIN - 2 * ProgramSettings::gameScale, *origin + offset}, {1.0f, 0.5f}, {255, 229, 181});
   
   float width = curKey.getGlobalBounds().getSize().x;
   keyBg = RoundedRect(curKey.getPosition() + sf::Vector2f(-width / 2.0f, -ProgramSettings::gameScale), sf::Vector2f(width + 4.0f * ProgramSettings::gameScale, 6.0f * ProgramSettings::gameScale), {173, 103, 78});
@@ -191,13 +191,13 @@ void ControlOption::Update()
   MenuOption::Update();
   curKey.setPosition(curKey.getPosition().x, *origin + vertOffset);
   keyBg.SetVertical(*origin + vertOffset);
-  if (!Utility::initialKeyPresses.empty())
-  {
-    Utility::UpdateText(curKey, Utility::GetStringFromKeyCode((sf::Keyboard::Key)Utility::initialKeyPresses[0]), {1.0f, 0.5f});
-    float width = curKey.getGlobalBounds().getSize().x;
-    keyBg.SetHorizontal(curKey.getPosition().x - width / 2.0f);
-    keyBg.SetDim(sf::Vector2f(width + 4.0f * ProgramSettings::gameScale, 6.0f * ProgramSettings::gameScale));
-  }
+  // if (!Keyboard::keysPressed.empty())
+  // {
+  //   Utility::UpdateText(curKey, Keyboard::GetStringFromKeyCode(Keyboard::keysPressed.front()), {1.0f, 0.5f});
+  //   float width = curKey.getGlobalBounds().getSize().x;
+  //   keyBg.SetHorizontal(curKey.getPosition().x - width / 2.0f);
+  //   keyBg.SetDim(sf::Vector2f(width + 4.0f * ProgramSettings::gameScale, 6.0f * ProgramSettings::gameScale));
+  // }
 }
 
 void ControlOption::Render(sf::RenderWindow* win) const

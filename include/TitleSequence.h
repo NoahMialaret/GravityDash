@@ -6,13 +6,14 @@
 #include "AnimationHandler.h"
 #include "Clock.h"
 #include "Entity.h"
+#include "Keyboard.h"
 #include "MotionHandler.h"
 #include "Particle.h"
 #include "Textures.h"
 #include "Utility.h"
 #include "World.h"
 #include "Event.h"
-#include "programSettings.h"
+#include "ProgramSettings.h"
 
 #include <forward_list>
 #include <iostream>

@@ -14,7 +14,7 @@ Game::Game(Event::GameConfig& config)
 
   for (int i = 0; i < config.numPlayers && playerNum < 4; i++)
 	{  
-    std::unique_ptr<Controls> control = std::make_unique<Keyboard>(playerNum);
+    std::unique_ptr<Controls> control = std::make_unique<KeyboardControls>(playerNum);
 		characters.push_back(std::make_unique<PlayableCharacter>(i, control));
     playerNum++;
 	}
@@ -234,7 +234,7 @@ void Min::Update()
     return;
   }
   
-  if (Utility::CheckInitialPress(sf::Keyboard::Escape))
+  if (Keyboard::IsKeyClicked(sf::Keyboard::Escape))
   {
     Event event;
     event.type = Event::Type::pause;

@@ -242,7 +242,7 @@ void Program::HandleEvents()
 				break;
 			
 			default:
-				Utility::AddKeyPress(SFMLevent.key.code);
+				Keyboard::AddKeyPress(SFMLevent.key.code);
 				break;
 			}
 
@@ -269,7 +269,7 @@ void Program::Update()
 
   Utility::UpdateParticles();
 
-	Utility::initialKeyPresses.clear();
+	Keyboard::Update();
 }
 
 void Program::Render()

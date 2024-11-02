@@ -7,7 +7,7 @@
 #include "Entity.h"
 #include "Textures.h"
 #include "Utility.h"
-#include "programSettings.h"
+#include "ProgramSettings.h"
 
 #include <vector>
 

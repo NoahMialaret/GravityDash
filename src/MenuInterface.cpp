@@ -58,17 +58,17 @@ GridInterface::GridInterface(int startPos, std::vector<ButtonConfig>& configs, E
 
 void GridInterface::Update()
 {
-  if (Utility::CheckInitialPress(sf::Keyboard::Space))
+  if (Keyboard::IsKeyOnInitialClick(sf::Keyboard::Space))
   {
     buttons[buttonPos[curPos]].get()->Click();
   }
-  else if (Utility::CheckInitialPress(sf::Keyboard::Escape))
+  else if (Keyboard::IsKeyOnInitialClick(sf::Keyboard::Escape))
   {
     Event::events.push_back(menuReturn);
   }
 
-  int xMove = Utility::CheckInitialPress(sf::Keyboard::D) - Utility::CheckInitialPress(sf::Keyboard::A);
-  int yMove = Utility::CheckInitialPress(sf::Keyboard::S) - Utility::CheckInitialPress(sf::Keyboard::W);
+  int xMove = Keyboard::IsKeyClicked(sf::Keyboard::D) - Keyboard::IsKeyClicked(sf::Keyboard::A);
+  int yMove = Keyboard::IsKeyClicked(sf::Keyboard::S) - Keyboard::IsKeyClicked(sf::Keyboard::W);
 
   if ((!xMove && !yMove) ||
       (curPos <= 1 && xMove < 0) ||
@@ -119,17 +119,17 @@ ListInterface::ListInterface(std::vector<ButtonConfig>& configs, Event menuRetur
 
 void ListInterface::Update()
 {
-  if (Utility::CheckInitialPress(sf::Keyboard::Space))
+  if (Keyboard::IsKeyOnInitialClick(sf::Keyboard::Space))
   {
     buttons[curPos].get()->Click();
   }
-  else if (Utility::CheckInitialPress(sf::Keyboard::Escape))
+  else if (Keyboard::IsKeyOnInitialClick(sf::Keyboard::Escape))
   {
     Event::events.push_back(menuReturn);
     curPos = 0;
   }
 
-  int move = Utility::CheckInitialPress(sf::Keyboard::S) - Utility::CheckInitialPress(sf::Keyboard::W);
+  int move = Keyboard::IsKeyClicked(sf::Keyboard::S) - Keyboard::IsKeyClicked(sf::Keyboard::W);
 
   if (!move)
     return;
@@ -240,13 +240,13 @@ void OptionsInterface::Update()
 {
   timer += Clock::Delta();
 
-  if (Utility::CheckInitialPress(sf::Keyboard::Escape))
+  if (Keyboard::IsKeyOnInitialClick(sf::Keyboard::Escape))
     Event::events.push_back(menuReturn);
 
   float percent = bezier.GetValue(timer / 250.0f);
   origin = (1.0f - percent) * start + percent * end;
 
-  int move = Utility::CheckInitialPress(sf::Keyboard::S) - Utility::CheckInitialPress(sf::Keyboard::W);
+  int move = Keyboard::IsKeyClicked(sf::Keyboard::S) - Keyboard::IsKeyClicked(sf::Keyboard::W);
 
   if (!move)
   {

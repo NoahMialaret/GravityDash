@@ -11,7 +11,8 @@
 #include "MenuOption.h"
 #include "Textures.h"
 #include "Utility.h"
-#include "programSettings.h"
+#include "ProgramSettings.h"
+#include "Keyboard.h"
 
 #include <iostream>
 

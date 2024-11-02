@@ -13,7 +13,7 @@
 #include "PlayerBoost.h"
 #include "Textures.h"
 #include "Utility.h"
-#include "programSettings.h"
+#include "ProgramSettings.h"
 
 #include <forward_list>
 #include <iostream>

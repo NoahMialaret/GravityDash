@@ -1,4 +1,4 @@
-#include "programSettings.h"
+#include "ProgramSettings.h"
 #include <iostream>
 
 sf::Vector2f ProgramSettings::windowDim;

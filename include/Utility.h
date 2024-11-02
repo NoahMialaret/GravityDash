@@ -17,7 +17,7 @@
 
 #include "Bezier.h"
 #include "GameStats.h"
-#include "programSettings.h"
+#include "ProgramSettings.h"
 #include "Textures.h"
 
 #include <forward_list>
@@ -58,11 +58,6 @@ public:
   // Render debug sprites
   static void Render(sf::RenderWindow* win);
 
-  // Adds a key to 'initialKeyPresses'
-  static void AddKeyPress(int key);
-  // Checks whether a key was initially pressed in the current frame
-  static bool CheckInitialPress(int key);
-
   // Removes all debug sprites
   static void FlushDebugSprites();
 
@@ -72,7 +67,6 @@ public:
   static void InitSprite(sf::Sprite& sprite, std::string tex, sf::Vector2f pos, sf::Vector2i subRect = {1, 1}, sf::Vector2f origin = {0.5f, 0.5f});
   static void InitText(sf::Text& text, sf::Font& font, std::string str, sf::Vector2f pos, sf::Vector2f origin = {0.5f, 0.5f}, sf::Color col = {173, 103, 78});
   static void UpdateText(sf::Text &text, std::string newStr, sf::Vector2f origin = {0.5f, 0.5f});
-  static std::string GetStringFromKeyCode(sf::Keyboard::Key key);
 
 public:
   static constexpr int spriteDim = 8; // The dimensions of a typical sprite
@@ -80,9 +74,6 @@ public:
   static std::mt19937 rng;    // Used for random number generation
 
   static std::vector<Bezier> curves; // The bezier curves used by handlers for smooth transitions
-
-  // keyboard
-  static std::vector<int> initialKeyPresses;  // A vector of keys which were initially pressed in the current frame
 
   // Debug
   static sf::Sprite debugSprite;              // The sprite used for rendering debug positions on the screen
