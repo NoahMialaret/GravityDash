@@ -49,7 +49,7 @@ public:
 
   // Converts a key code to a string, returns `"NULL"` if not found
   static std::string GetStringFromKeyCode(sf::Keyboard::Key keyCode);
-  // Converts a string to a key code, returns `sf::keyboard::Unknown` if not found
+  // Converts a string to a key code, throws `std::invalid_argument` if not found
   static sf::Keyboard::Key GetKeyCodeFromString(std::string keyString);
 
 private:

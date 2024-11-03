@@ -29,6 +29,7 @@ void Utility::LoadSave(const char* filename)
     nlohmann::json save = nlohmann::json::parse(file);
 
     ProgramSettings::Init(save["settings"]);
+    Stats::Init(save["stats"]);
 
     file.close();
   }
@@ -36,6 +37,7 @@ void Utility::LoadSave(const char* filename)
   {
     std::cout << "Save file was corrupted or could not be found, creating new one...\n";
     ProgramSettings::Init();
+    Stats::Init();
     SaveData(filename);
   }
 }
@@ -45,6 +47,8 @@ void Utility::SaveData(const char* filename)
   nlohmann::json save;
 
   ProgramSettings::Save(save);
+
+  Stats::Save(save);
 
   std::ofstream file(filename);
 

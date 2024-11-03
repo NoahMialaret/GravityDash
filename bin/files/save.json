@@ -42,5 +42,27 @@
       "fullscreen": false,
       "scale": 6.0
     }
+  },
+  "stats": {
+    "combos": 0,
+    "coop": [
+      50,
+      0,
+      0
+    ],
+    "gamesPlayed": 0,
+    "hits": 0,
+    "jumps": 0,
+    "min": [
+      100,
+      1,
+      0
+    ],
+    "rush": [
+      200,
+      34,
+      5
+    ],
+    "specialJumps": 0
   }
 }

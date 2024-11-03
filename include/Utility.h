@@ -18,6 +18,7 @@
 #include "Bezier.h"
 #include "GameStats.h"
 #include "ProgramSettings.h"
+#include "Stats.h"
 #include "Textures.h"
 
 #include <forward_list>

@@ -125,7 +125,7 @@ sf::Keyboard::Key Keyboard::GetKeyCodeFromString(std::string keyString)
       return pair.first;
   }
 
-  throw '\0';
+  throw std::invalid_argument("Could not find the key code corresponding to the string " + keyString + "!\n");
 }
 
 Keyboard::Key* Keyboard::GetKey(sf::Keyboard::Key keyCode)
