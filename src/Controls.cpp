@@ -1,50 +1,29 @@
 #include "Controls.h"
 
-int Controls::HeldDirection()
+bool KeyboardControls::IsBindingHeld(Binding binding)
 {
-  return heldDirection;
+  return Keyboard::IsKeyHeld(keys[(int)binding]);
 }
 
-bool Controls::JumpPressed()
+bool KeyboardControls::IsBindingOnInitialClick(Binding binding)
 {
-  return jumpPressed;
+  return Keyboard::IsKeyOnInitialClick(keys[(int)binding]);
 }
 
-bool Controls::SuperJumpPressed()
+bool KeyboardControls::IsBindingClicked(Binding binding)
 {
-  return superJumpPressed;
+  return Keyboard::IsKeyClicked(keys[(int)binding]);
 }
 
-KeyboardControls::KeyboardControls(int playerNumber)
+sf::Keyboard::Key KeyboardControls::GetKeyBinding(Controls::Binding binding) const
 {
-  // Get keybindings for player: <playerNumber>
-  if (playerNumber == 0)
-  {
-    leftKey = sf::Keyboard::Key::A;
-    rightKey = sf::Keyboard::Key::D;
-    jumpKey = sf::Keyboard::Key::Space;
-    superJumpKey = sf::Keyboard::Key::LShift;
-  }
-  else if (playerNumber == 1)
-  {
-    leftKey = sf::Keyboard::Key::Left;
-    rightKey = sf::Keyboard::Key::Right;
-    jumpKey = sf::Keyboard::Key::Up;
-    superJumpKey = sf::Keyboard::Key::RShift;
-  }
+  if (binding < (Controls::Binding)0 || binding >= Controls::Binding::end)
+    return sf::Keyboard::Unknown;
+
+  return keys[(int)binding];
 }
 
-void KeyboardControls::Update()
+void KeyboardControls::SetKeyBinding(Controls::Binding binding, sf::Keyboard::Key key)
 {
-  heldDirection = Keyboard::IsKeyHeld(rightKey) - Keyboard::IsKeyHeld(leftKey);
-
-  if (heldDirection != 0)
-  {
-    int i = 0;
-    i++;
-  }
-
-
-  jumpPressed = Keyboard::IsKeyOnInitialClick(jumpKey);
-  superJumpPressed = Keyboard::IsKeyOnInitialClick(superJumpKey);
+  keys[(int)binding] = key;
 }

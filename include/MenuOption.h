@@ -3,6 +3,7 @@
 
 #include "SFML/Graphics.hpp"
 
+#include "Controls.h"
 #include "Event.h"
 #include "Textures.h"
 #include "Utility.h"

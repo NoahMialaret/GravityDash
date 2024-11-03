@@ -5,6 +5,7 @@
 
 #include "assert.h"
 #include "Clock.h"
+#include "Controls.h"
 #include "Event.h" 
 #include "GameStats.h"
 #include "MenuButton.h"

@@ -476,12 +476,11 @@ void Character::AddNewPoint(int value, sf::Vector2f pos, sf::Vector2f vel)
 // Playable Character
 // ------------------
 
-PlayableCharacter::PlayableCharacter(int charID, std::unique_ptr<Controls>& controls)
+PlayableCharacter::PlayableCharacter(int charID, Controls* controls)
   : 
-  Character(charID)
-{
-  this->controls = std::move(controls);
-}
+  Character(charID),
+  controls(controls)
+{}
 
 void PlayableCharacter::Update()
 {
@@ -496,18 +495,16 @@ void PlayableCharacter::Update()
     point.Update();
   }
 
-  controls.get()->Update();
-
-  if (controls.get()->JumpPressed() && jumpTimer <= 0)
+  if (controls->IsBindingOnInitialClick(Controls::Binding::jump) && jumpTimer <= 0)
   {
     Jump();
   }
-  else if(controls.get()->SuperJumpPressed() && !finalJump && jumpTimer <= 0)
+  else if(controls->IsBindingOnInitialClick(Controls::Binding::special) && !finalJump && jumpTimer <= 0)
   {
     SuperJump();
   }
 
-  move = controls.get()->HeldDirection();
+  move = controls->IsBindingHeld(Controls::Binding::right) - controls->IsBindingHeld(Controls::Binding::left);
 
   Character::Update();
 }

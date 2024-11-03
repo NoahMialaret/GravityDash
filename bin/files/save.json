@@ -14,7 +14,27 @@
     },
     "multiplayer": {
       "p1Colour": 0,
-      "p2Colour": 0
+      "p1Controls": {
+        "down": "s",
+        "escape": "esc",
+        "jump": "space",
+        "left": "a",
+        "right": "d",
+        "select": "space",
+        "special": "lshft",
+        "up": "w"
+      },
+      "p2Colour": 0,
+      "p2Controls": {
+        "down": "down",
+        "escape": "p-down",
+        "jump": "up",
+        "left": "left",
+        "right": "right",
+        "select": "p-up",
+        "special": "rshft",
+        "up": "up"
+      }
     },
     "video": {
       "autoScale": true,

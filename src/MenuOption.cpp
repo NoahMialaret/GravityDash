@@ -86,7 +86,7 @@ void ToggleOption::Update()
 {
   MenuOption::Update();
   toggleSprite.setPosition(toggleSprite.getPosition().x, *origin + vertOffset);
-  if (!isHighlighted || !Keyboard::IsKeyOnInitialClick(sf::Keyboard::Space))
+  if (!isHighlighted || !ProgramSettings::GetControls()->IsBindingOnInitialClick(Controls::Binding::select))
     return;
 
   toggle = !toggle;
@@ -120,7 +120,8 @@ void RangeOption::Update()
   if (!isHighlighted)
     return;
 
-  int delta = Keyboard::IsKeyClicked(sf::Keyboard::D) - Keyboard::IsKeyClicked(sf::Keyboard::A);
+  int delta = ProgramSettings::GetControls()->IsBindingOnInitialClick(Controls::Binding::right)
+     - ProgramSettings::GetControls()->IsBindingOnInitialClick(Controls::Binding::left);
   
   if (!delta || value + delta > max || value + delta < min)
     return;
@@ -154,7 +155,8 @@ void SelectionOption::Update()
   if (!isHighlighted)
     return;
 
-  int delta = Keyboard::IsKeyClicked(sf::Keyboard::D) - Keyboard::IsKeyClicked(sf::Keyboard::A);
+  int delta = ProgramSettings::GetControls()->IsBindingOnInitialClick(Controls::Binding::right)
+     - ProgramSettings::GetControls()->IsBindingOnInitialClick(Controls::Binding::left);
   
   if (!delta)
     return;

@@ -58,17 +58,18 @@ GridInterface::GridInterface(int startPos, std::vector<ButtonConfig>& configs, E
 
 void GridInterface::Update()
 {
-  if (Keyboard::IsKeyOnInitialClick(sf::Keyboard::Space))
+  Controls* controls = ProgramSettings::GetControls();
+  if (controls->IsBindingOnInitialClick(Controls::Binding::select))
   {
     buttons[buttonPos[curPos]].get()->Click();
   }
-  else if (Keyboard::IsKeyOnInitialClick(sf::Keyboard::Escape))
+  else if (controls->IsBindingOnInitialClick(Controls::Binding::escape))
   {
     Event::events.push_back(menuReturn);
   }
 
-  int xMove = Keyboard::IsKeyClicked(sf::Keyboard::D) - Keyboard::IsKeyClicked(sf::Keyboard::A);
-  int yMove = Keyboard::IsKeyClicked(sf::Keyboard::S) - Keyboard::IsKeyClicked(sf::Keyboard::W);
+  int xMove = controls->IsBindingClicked(Controls::Binding::right) - controls->IsBindingClicked(Controls::Binding::left);
+  int yMove = controls->IsBindingClicked(Controls::Binding::down) - controls->IsBindingClicked(Controls::Binding::up);
 
   if ((!xMove && !yMove) ||
       (curPos <= 1 && xMove < 0) ||
@@ -119,17 +120,18 @@ ListInterface::ListInterface(std::vector<ButtonConfig>& configs, Event menuRetur
 
 void ListInterface::Update()
 {
-  if (Keyboard::IsKeyOnInitialClick(sf::Keyboard::Space))
+  Controls* controls = ProgramSettings::GetControls();
+  if (controls->IsBindingOnInitialClick(Controls::Binding::select))
   {
     buttons[curPos].get()->Click();
   }
-  else if (Keyboard::IsKeyOnInitialClick(sf::Keyboard::Escape))
+  else if (controls->IsBindingOnInitialClick(Controls::Binding::escape))
   {
     Event::events.push_back(menuReturn);
     curPos = 0;
   }
 
-  int move = Keyboard::IsKeyClicked(sf::Keyboard::S) - Keyboard::IsKeyClicked(sf::Keyboard::W);
+  int move = controls->IsBindingClicked(Controls::Binding::down) - controls->IsBindingClicked(Controls::Binding::up);
 
   if (!move)
     return;
@@ -240,13 +242,14 @@ void OptionsInterface::Update()
 {
   timer += Clock::Delta();
 
-  if (Keyboard::IsKeyOnInitialClick(sf::Keyboard::Escape))
+  Controls* controls = ProgramSettings::GetControls();
+  if (controls->IsBindingOnInitialClick(Controls::Binding::escape))
     Event::events.push_back(menuReturn);
 
   float percent = bezier.GetValue(timer / 250.0f);
   origin = (1.0f - percent) * start + percent * end;
 
-  int move = Keyboard::IsKeyClicked(sf::Keyboard::S) - Keyboard::IsKeyClicked(sf::Keyboard::W);
+  int move = controls->IsBindingClicked(Controls::Binding::down) - controls->IsBindingClicked(Controls::Binding::up);
 
   if (!move)
   {

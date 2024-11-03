@@ -32,7 +32,7 @@ void Utility::LoadSave(const char* filename)
 
     file.close();
   }
-  catch (const nlohmann::json::exception& e)
+  catch (...)
   {
     std::cout << "Save file was corrupted or could not be found, creating new one...\n";
     ProgramSettings::Init();

@@ -3,6 +3,10 @@
 
 #include <SFML/Graphics.hpp>
 #include <nlohmann/json.hpp>
+#include <memory>
+
+#include "Controls.h"
+#include "Keyboard.h"
 
 // Static class which holds various user defined settings about the game
 class ProgramSettings
@@ -20,11 +24,18 @@ public:
   static void Init();
   static void Init(nlohmann::json& save);
   static void Save(nlohmann::json& save);
+
+  static Controls* GetControls(int playerNum = 1);
+
   static Colours GetWorldColour();
   static Colours GetPlayerColour(int id);
   static Colours GetTargetColour();
   static Colours GetSawColour();
   static Colours GetTimeColour();
+
+private:
+  static void LoadControls(nlohmann::json& controls, int player);
+  static void SaveControls(nlohmann::json& save, int player);
 
 public:
   // General Program Settings
@@ -43,8 +54,10 @@ public:
   static int SFXVolume;
 
   // Multiplayer Settings
-  static Colours player1Colour;
-  static Colours player2Colour;
+  static Colours p1Colour;
+  static Colours p2Colour;
+  static KeyboardControls p1Controls;
+  static KeyboardControls p2Controls;
 
   // Accessibility Settings
   static bool useAccessibilityColours;

@@ -3,45 +3,47 @@
 
 #include <SFML/Graphics.hpp>
 
-#include "Keyboard.h"
-#include "Utility.h"
+#include <Keyboard.h>
 
 class Controls
 {
 public:
+  enum class Binding
+  {
+    left,
+    right,
+    up,
+    down,
+    select,
+    escape,
+    jump,
+    special,
+    end
+  };
+
+public:
   Controls() = default;
   virtual ~Controls() = default;
-
-  virtual void Update() = 0;
-
-  int HeldDirection();
-  bool JumpPressed();
-  bool SuperJumpPressed();
-
-protected:
-  int heldDirection = 0;
-  bool jumpPressed = false;
-  bool superJumpPressed = false;
+ 
+  virtual bool IsBindingHeld(Binding binding) = 0;  
+  virtual bool IsBindingOnInitialClick(Binding binding) = 0; 
+  virtual bool IsBindingClicked(Binding binding) = 0;  
 };
 
 class KeyboardControls : public Controls
 {
 public:
-  KeyboardControls(int playerNumber); // Uses playerNumber to determine which keybindings to get
+  KeyboardControls() = default;
 
-  void Update() override;
+  bool IsBindingHeld(Binding binding) override;  
+  bool IsBindingOnInitialClick(Binding binding) override; 
+  bool IsBindingClicked(Binding binding) override; 
+
+  sf::Keyboard::Key GetKeyBinding(Controls::Binding binding) const;
+  void SetKeyBinding(Controls::Binding binding, sf::Keyboard::Key key);
 
 private:
-  sf::Keyboard::Key leftKey;
-  sf::Keyboard::Key rightKey;
-  sf::Keyboard::Key jumpKey;
-  sf::Keyboard::Key superJumpKey;
+  std::vector<sf::Keyboard::Key> keys = std::vector<sf::Keyboard::Key>((int)Controls::Binding::end, sf::Keyboard::Unknown);
 };
-
-// class Controller : public Controls
-// {
-// public:
-//   Controller(int playerNumber); // Uses playerNumber to determine which controller to use
-// };
 
 #endif

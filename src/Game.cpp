@@ -14,8 +14,7 @@ Game::Game(Event::GameConfig& config)
 
   for (int i = 0; i < config.numPlayers && playerNum < 4; i++)
 	{  
-    std::unique_ptr<Controls> control = std::make_unique<KeyboardControls>(playerNum);
-		characters.push_back(std::make_unique<PlayableCharacter>(i, control));
+		characters.push_back(std::make_unique<PlayableCharacter>(playerNum, ProgramSettings::GetControls(playerNum)));
     playerNum++;
 	}
   
@@ -234,7 +233,7 @@ void Min::Update()
     return;
   }
   
-  if (Keyboard::IsKeyClicked(sf::Keyboard::Escape))
+  if (ProgramSettings::GetControls()->IsBindingOnInitialClick(Controls::Binding::escape))
   {
     Event event;
     event.type = Event::Type::pause;
