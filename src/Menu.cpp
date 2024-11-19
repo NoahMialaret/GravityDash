@@ -118,7 +118,7 @@ void Menu::LoadMenu(Event::MenuType menuType)
     options[0].second.push_back(option);
 
     option = {"scale", event, OptionConfig::Type::range};
-    option.range = {(int)Utility::gameScale, 1, 32};
+    option.range = {(int)ProgramSettings::gameScale, 1, 32};
     options[0].second.push_back(option);
 
     option = {"fullscreen", event, OptionConfig::Type::toggle};
@@ -153,7 +153,10 @@ void Menu::LoadMenu(Event::MenuType menuType)
     option = {"down", event, OptionConfig::Type::control};
     option.control = {sf::Keyboard::Key::S};
     options[2].second.push_back(option);
-    option = {"jump/click", event, OptionConfig::Type::control};
+    option = {"jump", event, OptionConfig::Type::control};
+    option.control = {sf::Keyboard::Key::Space};
+    options[2].second.push_back(option);
+    option = {"select", event, OptionConfig::Type::control};
     option.control = {sf::Keyboard::Key::Space};
     options[2].second.push_back(option);
     option = {"special", event, OptionConfig::Type::control};

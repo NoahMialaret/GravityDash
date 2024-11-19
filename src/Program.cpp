@@ -4,6 +4,8 @@ std::vector<Event> Event::events;
 
 Program::Program(const char* name)
 {
+  Utility::LoadSave(SAVE_FILE);
+
 	std::cout << "--=== Program Init ===--\n"  << "Initialising SFML Window...\n";
 
 		sf::VideoMode desktop = sf::VideoMode::getDesktopMode();	
@@ -21,8 +23,8 @@ Program::Program(const char* name)
 		std::cout << "\tWindow dimensions: " << windowSize.x << "px x " << windowSize.y << "px\n";
 		std::cout << "\tDesktop dimensions: " << desktop.width << "px x " << desktop.height << "px\n";
 
-		Utility::gameScale = scale;
-    Utility::windowDim = windowSize;
+		ProgramSettings::gameScale = scale;
+    ProgramSettings::windowDim = windowSize;
 
 		window.create(sf::VideoMode(windowSize.x, windowSize.y), name, sf::Style::Close);
 
@@ -84,9 +86,16 @@ Program::Program(const char* name)
 
 Program::~Program()
 {
+  Utility::SaveData(SAVE_FILE);
+
+	std::cout << "Cleaning program...\n";
+
 	window.close();
 
   Utility::particles.clear();
+
+  game = nullptr;
+  menu = nullptr;
 
 	std::cout << "Program successfully cleaned!\n";
 }
@@ -101,8 +110,8 @@ void Program::HandleEvents()
 		{
 		case Event::Type::programClose:
 			std::cout << "Quit button has been pressed, closing game...\n";
-			ProgramExit();
-			break;
+			curState = State::notRunning;
+			return;
 
 		case Event::Type::loadNewGame:
     {
@@ -199,8 +208,8 @@ void Program::HandleEvents()
 		{
 		case sf::Event::Closed:
 			std::cout << "Window close event called.\n";
-			ProgramExit();
-			break;
+			curState = State::notRunning;
+      return;
 		
 		case sf::Event::LostFocus:
 			//Pause();
@@ -233,7 +242,7 @@ void Program::HandleEvents()
 				break;
 			
 			default:
-				Utility::AddKeyPress(SFMLevent.key.code);
+				Keyboard::AddKeyPress(SFMLevent.key.code);
 				break;
 			}
 
@@ -260,7 +269,7 @@ void Program::Update()
 
   Utility::UpdateParticles();
 
-	Utility::initialKeyPresses.clear();
+	Keyboard::Update();
 }
 
 void Program::Render()
@@ -270,9 +279,7 @@ void Program::Render()
   // if (curState != State::titleSequence)
 
 	if (curState == State::notRunning) 
-	{
 		return;
-	}
 
   game.get()->Render(&window);
 
@@ -305,13 +312,6 @@ void Program::Render()
 Program::State Program::GetCurState() const 
 {
 	return curState;
-}
-
-void Program::ProgramExit() 
-{
-	std::cout << "Exiting game...\n";
-
-	curState = State::notRunning;
 }
 
 void Program::LoadMenuGame()

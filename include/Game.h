@@ -10,11 +10,13 @@
 #include "GameObject.h"
 #include "GameStats.h"
 #include "GameTimer.h"
+#include "Keyboard.h"
 #include "Number.h"
 #include "PlayerBoost.h"
 #include "SortedDblyLnkdList.h"
 #include "Textures.h"
 #include "World.h"
+#include "ProgramSettings.h"
 
 #include <iostream>
 #include <list>

@@ -6,10 +6,12 @@
 #include "Clock.h"
 #include "Event.h"
 #include "Game.h"
+#include "Keyboard.h"
 #include "Menu.h"
 #include "Particle.h"
 #include "Textures.h"
 #include "Utility.h"
+#include "ProgramSettings.h"
 
 #include "TitleSequence.h"
 
@@ -34,7 +36,7 @@ public:
 	Program() = delete;
 	// Program constructor that takes the title to be displayed on the window
 	Program(const char* name);
-	// Destructor closes the window and frees up dynamic memory created from the Particle class
+	// Destructor closes the window and frees up dynamic memory
   ~Program();
 
 	// Handles SFML events
@@ -48,9 +50,7 @@ public:
 	Program::State GetCurState() const;
 
 private:
-	// Sets the game state to "notRunning"
-	void ProgramExit();
-
+  // Loads the background game seen in menus
   void LoadMenuGame();
 
 private:

@@ -48,8 +48,8 @@ Puff::Puff(sf::Vector2f source, sf::Vector2f dir)
   }
 
   sf::Vector2f end;
-  end.x = source.x + dir.x * Utility::gameScale * Utility::spriteDim;
-  end.y = source.y + dir.y * Utility::gameScale;
+  end.x = source.x + dir.x * ProgramSettings::gameScale * Utility::spriteDim;
+  end.y = source.y + dir.y * ProgramSettings::gameScale;
   entity.QueueMotion(Curve::easeIn, 400, source, end);
 }
 
@@ -125,5 +125,5 @@ SpeedLine::SpeedLine(sf::Vector2f start, float speed)
   }
 
   entity.QueueAnimation(SPEEDLINE, 100, 0);
-  entity.QueueMotion(Curve::linear, 400, start, start + speed * sf::Vector2f(0.0f, Utility::gameScale));
+  entity.QueueMotion(Curve::linear, 400, start, start + speed * sf::Vector2f(0.0f, ProgramSettings::gameScale));
 }

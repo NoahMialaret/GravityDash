@@ -13,6 +13,7 @@
 #include "PlayerBoost.h"
 #include "Textures.h"
 #include "Utility.h"
+#include "ProgramSettings.h"
 
 #include <forward_list>
 #include <iostream>
@@ -135,12 +136,12 @@ protected:
 class PlayableCharacter : public Character
 {
 public:
-  PlayableCharacter(int charID, std::unique_ptr<Controls>& controls);
+  PlayableCharacter(int charID, Controls* controls);
 
   void Update() override;
 
 private:
-  std::unique_ptr<Controls> controls; // The controls for the player
+  Controls* controls; // The keyboard controls for the player
 };
 
 class ComputerCharacter : public Character

@@ -5,8 +5,8 @@ GameTimer::GameTimer(int time, sf::Vector2f bottomLeft)
   timeRemaining(time),
   maxTime(time)
 {
-  timeRect = sf::RectangleShape(Utility::gameScale * sf::Vector2f(4.0f, 60.0f));
-  timeRect.setPosition(bottomLeft + sf::Vector2f(0.0f, - Utility::gameScale));
+  timeRect = sf::RectangleShape(ProgramSettings::gameScale * sf::Vector2f(4.0f, 60.0f));
+  timeRect.setPosition(bottomLeft + sf::Vector2f(0.0f, - ProgramSettings::gameScale));
   timeRect.setFillColor(sf::Color(255, 229, 181));
   timeRect.setScale(sf::Vector2f(1.0f, -1.0f));
 
@@ -32,7 +32,7 @@ bool GameTimer::Update()
     return true;
   }
   
-  timeRect.setSize(Utility::gameScale * sf::Vector2f(4.0f, (int)(60.0f * timeRemaining / maxTime)));
+  timeRect.setSize(ProgramSettings::gameScale * sf::Vector2f(4.0f, (int)(60.0f * timeRemaining / maxTime)));
 
   return false;
 }
@@ -51,7 +51,7 @@ void GameTimer::AddTime(int addition)
     timeRemaining = maxTime;
   }
   
-  timeRect.setSize(Utility::gameScale * sf::Vector2f(4.0f, (int)(60.0f * timeRemaining / maxTime)));
+  timeRect.setSize(ProgramSettings::gameScale * sf::Vector2f(4.0f, (int)(60.0f * timeRemaining / maxTime)));
 }
 
 void GameTimer::Pause()

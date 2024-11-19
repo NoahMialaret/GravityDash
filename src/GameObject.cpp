@@ -89,7 +89,7 @@ Saw::Saw(sf::IntRect& worldBorder, int maxID)
   int isOnTop = dist(Utility::rng);
   int isGoingRight = dist(Utility::rng);
 
-  vel = 1.0f * (isGoingRight ? Utility::gameScale : -Utility::gameScale);
+  vel = 1.0f * (isGoingRight ? ProgramSettings::gameScale : -ProgramSettings::gameScale);
 
   pos.x = isGoingRight ? worldBorder.left - SCALED_DIM : worldBorder.left + worldBorder.width;
   pos.y = isOnTop ? worldBorder.top : worldBorder.top + worldBorder.height;
@@ -180,7 +180,7 @@ MovingTarget::MovingTarget(sf::IntRect &worldBorder, int maxID)
 
   int isGoingRight = xDist(Utility::rng);
 
-  vel = Utility::gameScale * floatDist(Utility::rng) * (isGoingRight ? 1.0f : -1.0f);
+  vel = ProgramSettings::gameScale * floatDist(Utility::rng) * (isGoingRight ? 1.0f : -1.0f);
 
   pos.x = isGoingRight ? worldBorder.left - SCALED_DIM + posBuffer : worldBorder.left + worldBorder.width + posBuffer;
   pos.y = yDist(Utility::rng);
@@ -213,7 +213,7 @@ void MovingTarget::Update(std::vector<Character*> players)
   {
     pos.x += (Clock::Delta() / 16.0f) * vel;
     float rad = std::sin(((float)Clock::Elapsed() + sinOffset) / 400.0f * vel);
-    pos.y = yBase + Utility::gameScale / 2.0f * std::sin(rad);
+    pos.y = yBase + ProgramSettings::gameScale / 2.0f * std::sin(rad);
   }
 
   // float distanceSquaredThresh = SCALED_DIM * SCALED_DIM;
@@ -273,7 +273,7 @@ TimeBonus::TimeBonus(sf::IntRect& worldBorder, int maxID)
 
   int isGoingRight = xDist(Utility::rng);
 
-  vel = Utility::gameScale * floatDist(Utility::rng) * (isGoingRight ? 1.0f : -1.0f);
+  vel = ProgramSettings::gameScale * floatDist(Utility::rng) * (isGoingRight ? 1.0f : -1.0f);
 
   pos.x = isGoingRight ? worldBorder.left - SCALED_DIM + posBuffer : worldBorder.left + worldBorder.width + posBuffer;
   pos.y = yDist(Utility::rng);

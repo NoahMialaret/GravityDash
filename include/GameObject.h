@@ -10,6 +10,7 @@
 #include "Particle.h"
 #include "Textures.h"
 #include "Utility.h"
+#include "ProgramSettings.h"
 
 #include <iostream>
 #include <memory>

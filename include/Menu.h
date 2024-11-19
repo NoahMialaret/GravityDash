@@ -9,6 +9,7 @@
 #include "MenuInterface.h"
 #include "Utility.h"
 #include "Event.h"
+#include "ProgramSettings.h"
 
 #include <memory>
 #include <stack>

@@ -3,10 +3,13 @@
 
 #include "SFML/Graphics.hpp"
 
+#include "Controls.h"
 #include "Event.h"
 #include "Textures.h"
 #include "Utility.h"
 #include "RoundedRect.h"
+#include "ProgramSettings.h"
+#include "Keyboard.h"
 
 #include <string>
 #include <vector>

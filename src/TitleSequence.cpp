@@ -4,10 +4,10 @@ TitleSequence::TitleSequence()
 {
   character = Entity("character", &Utility::worldShad);
   character.QueueAnimation(2, 50);
-  character.QueueMotion(Curve::easeIn, 2000, sf::Vector2f(0.0f, Utility::gameScale * 100.0f), ZERO_VECTOR);
+  character.QueueMotion(Curve::easeIn, 2000, sf::Vector2f(0.0f, ProgramSettings::gameScale * 100.0f), ZERO_VECTOR);
 
   title = Entity("title", &Utility::entShad, (sf::Vector2i)Textures::textures.at("title").getSize());
-  title.QueueMotion(Curve::linear, 0, sf::Vector2f(0.0f, - 1.25f * Utility::gameScale * Utility::spriteDim));
+  title.QueueMotion(Curve::linear, 0, sf::Vector2f(0.0f, - 1.25f * ProgramSettings::gameScale * Utility::spriteDim));
 
   frenchie = Entity("frenchie", nullptr, (sf::Vector2i)Textures::textures.at("frenchie").getSize());
   frenchie.QueueScale(Curve::linear, 0, DEFAULT_SCALE, 0.035f * DEFAULT_SCALE);
@@ -62,10 +62,11 @@ void TitleSequence::Update()
 
   for (auto& tile : bgTiles)
   {
-    tile.move((Clock::Delta() / 16.0f) * sf::Vector2f(0.0f, - speed * Utility::gameScale));
+    tile.move((Clock::Delta() / 16.0f) * sf::Vector2f(0.0f, - speed * ProgramSettings::gameScale));
   }
 
-  if (Utility::initialKeyPresses.size() > 0)
+  // if (!Keyboard::keysPressed.empty())
+  if (true)
   {
     if (curSeq < Sequence::title)
     {
@@ -95,11 +96,11 @@ void TitleSequence::Update()
   case Sequence::start:
     if (timer <= 0)
     {
-      sf::Vector2f logoTarget(- Utility::windowDim.x / 4.0f, 0.0f);
+      sf::Vector2f logoTarget(- ProgramSettings::windowDim.x / 4.0f, 0.0f);
       curSeq = Sequence::logoIn;
-      frenchie.QueueMotion(Curve::easeIn, 2000, sf::Vector2f(logoTarget.x, Utility::gameScale * 100.0f), logoTarget);
+      frenchie.QueueMotion(Curve::easeIn, 2000, sf::Vector2f(logoTarget.x, ProgramSettings::gameScale * 100.0f), logoTarget);
       frenchie.QueueMotion(Curve::linear, 3000, ZERO_VECTOR);
-      frenchie.QueueMotion(Curve::easeOut, 2000, sf::Vector2f(0.0f, - Utility::gameScale * 100.0f));
+      frenchie.QueueMotion(Curve::easeOut, 2000, sf::Vector2f(0.0f, - ProgramSettings::gameScale * 100.0f));
       frenchieText.setPosition(frenchie.GetPosition());
       timer = 2000;
     }
@@ -130,7 +131,7 @@ void TitleSequence::Update()
     {
       curSeq = Sequence::intermission;
       timer = 3000;
-      character.QueueMotion(Curve::easeOut, 2000, ZERO_VECTOR, sf::Vector2f(0.0f, - Utility::gameScale * 100.0f));
+      character.QueueMotion(Curve::easeOut, 2000, ZERO_VECTOR, sf::Vector2f(0.0f, - ProgramSettings::gameScale * 100.0f));
     }
     break;
 
@@ -215,11 +216,11 @@ void TitleSequence::SpawnBGTile()
   newTile.setScale(DEFAULT_SCALE);
 
   
-  std::uniform_int_distribution xDist(- (((int)Utility::windowDim.x / 2) / (int)(SCALED_DIM)), 
-    ((int)Utility::windowDim.x / 2) / (int)(SCALED_DIM));
+  std::uniform_int_distribution xDist(- (((int)ProgramSettings::windowDim.x / 2) / (int)(SCALED_DIM)), 
+    ((int)ProgramSettings::windowDim.x / 2) / (int)(SCALED_DIM));
   int xSpawn = xDist(Utility::rng);
 
-  sf::Vector2f pos(xSpawn * SCALED_DIM, Utility::windowDim.y);
+  sf::Vector2f pos(xSpawn * SCALED_DIM, ProgramSettings::windowDim.y);
   newTile.setPosition(pos);
 
   bgTiles.emplace_front(newTile);

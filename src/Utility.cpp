@@ -1,11 +1,6 @@
 #include "Utility.h"
 #include "Particle.h"
 
-float Utility::targetFrameRate = 60.0f;
-float Utility::gameScale = 6.0f;
-int Utility::spriteDim = 8.0f;
-sf::Vector2f Utility::windowDim;
-
 std::mt19937 Utility::rng = std::mt19937(std::random_device()());
 
 std::vector<Bezier> Utility::curves =
@@ -14,8 +9,6 @@ std::vector<Bezier> Utility::curves =
   Bezier({{0, 0},{0,1},{1, 1}}),
   Bezier({{0, 0},{1,0},{1, 1}})
 };
-
-std::vector<int> Utility::initialKeyPresses;
 
 sf::Sprite Utility::debugSprite;
 std::vector<sf::Vector2f> Utility::debugPos;
@@ -26,6 +19,45 @@ sf::Shader Utility::worldShad;
 std::forward_list<std::unique_ptr<Particle>> Utility::particles;
 
 float Utility::scoreMultiplier = 1.0f;
+
+void Utility::LoadSave(const char* filename)
+{
+
+  try
+  {
+    std::ifstream file(filename);
+    nlohmann::json save = nlohmann::json::parse(file);
+
+    ProgramSettings::Init(save["settings"]);
+    Stats::Init(save["stats"]);
+
+    file.close();
+  }
+  catch (...)
+  {
+    std::cout << "Save file was corrupted or could not be found, creating new one...\n";
+    ProgramSettings::Init();
+    Stats::Init();
+    SaveData(filename);
+  }
+}
+
+void Utility::SaveData(const char* filename)
+{
+  nlohmann::json save;
+
+  ProgramSettings::Save(save);
+
+  Stats::Save(save);
+
+  std::ofstream file(filename);
+
+  file << save.dump(2);
+
+  file.close();
+
+  std::cout << "Data saved!\n";
+}
 
 std::string Utility::IntToString(int number, int minDigits)
 {
@@ -119,24 +151,6 @@ void Utility::Render(sf::RenderWindow* win)
 	}
 }
 
-void Utility::AddKeyPress(int key)
-{
-	initialKeyPresses.push_back(key);
-}
-
-bool Utility::CheckInitialPress(int key)
-{
-	for (auto& k : initialKeyPresses)
-	{
-		if (k == key)
-		{
-			return true;
-		}
-	}
-
-	return false;
-}
-
 void Utility::FlushDebugSprites()
 {
 	std::cout << "Clearing debug sprites...\n";
@@ -194,7 +208,7 @@ void Utility::InitText(sf::Text &text, sf::Font &font, std::string str, sf::Vect
   text.setFillColor(col);
   text.setFont(font);
 
-  float height = Utility::gameScale;
+  float height = ProgramSettings::gameScale;
   if (&font == &Textures::small)
     height *= 4.0f;
   else if (&font == &Textures::medium)
@@ -202,14 +216,14 @@ void Utility::InitText(sf::Text &text, sf::Font &font, std::string str, sf::Vect
   else // large
     height *= 6.0f;
 
-  text.setOrigin(sf::Vector2f(origin.x * text.getLocalBounds().width, origin.y * height - Utility::gameScale));
+  text.setOrigin(sf::Vector2f(origin.x * text.getLocalBounds().width, origin.y * height - ProgramSettings::gameScale));
 }
 
 void Utility::UpdateText(sf::Text &text, std::string newStr, sf::Vector2f origin)
 {
   text.setString(newStr);
 
-  float height = Utility::gameScale;
+  float height = ProgramSettings::gameScale;
   if (text.getFont() == &Textures::small)
     height *= 4.0f;
   else if (text.getFont() == &Textures::medium)
@@ -217,87 +231,5 @@ void Utility::UpdateText(sf::Text &text, std::string newStr, sf::Vector2f origin
   else // large
     height *= 6.0f;
 
-  text.setOrigin(sf::Vector2f(origin.x * text.getLocalBounds().width, origin.y * height - Utility::gameScale));
-}
-
-std::string Utility::GetStringFromKeyCode(sf::Keyboard::Key key)
-{
-  if ((int)key >= 0 && (int)key <= 25) // letters
-  {
-    std::string ret;
-    ret = (char)key + 'A';
-    return ret;
-  }
-  else if ((int)key >= 26 && (int)key <= 35) // numbers
-    return std::to_string((int)key - 26);
-  else if ((int)key >= 75 && (int)key <= 84) // numpad
-  {
-    std::string ret = "npad" + std::to_string((int)key - 75);
-    return ret;
-  }
-
-  switch (key)
-  {
-  case sf::Keyboard::Key::Escape:
-    return "esc";
-  case sf::Keyboard::Key::Tab:
-    return "tab";
-  case sf::Keyboard::Key::Enter:
-    return "enter";
-  case sf::Keyboard::Key::Backspace:
-    return "bcksp";
-  case sf::Keyboard::Key::LShift:
-    return "lshft";
-  case sf::Keyboard::Key::RShift:
-    return "rshft";
-  case sf::Keyboard::Key::LControl:
-    return "lctrl";
-  case sf::Keyboard::Key::RControl:
-    return "rctrl";
-  case sf::Keyboard::Key::Space:
-    return "space";
-  case sf::Keyboard::Key::LAlt:
-    return "lalt";
-  case sf::Keyboard::Key::RAlt:
-    return "ralt";  
-  case sf::Keyboard::Key::Up:
-    return "up";  
-  case sf::Keyboard::Key::Down:
-    return "down";  
-  case sf::Keyboard::Key::Left:
-    return "left";  
-  case sf::Keyboard::Key::Right:
-    return "right";  
-  case sf::Keyboard::Key::PageUp:
-    return "p-up";  
-  case sf::Keyboard::Key::PageDown:
-    return "p-dwn";  
-
-  case sf::Keyboard::Key::Grave:
-    return "`";  
-  case sf::Keyboard::Key::Hyphen:
-    return "-";  
-  case sf::Keyboard::Key::Equal:
-    return "=";  
-  case sf::Keyboard::Key::LBracket:
-    return "[";  
-  case sf::Keyboard::Key::RBracket:
-    return "]";  
-  case sf::Keyboard::Key::BackSlash:
-    return "\\";  
-  case sf::Keyboard::Key::SemiColon:
-    return ";";  
-  case sf::Keyboard::Key::Quote:
-    return "'";  
-  case sf::Keyboard::Key::Comma:
-    return ",";  
-  case sf::Keyboard::Key::Period:
-    return ".";  
-  case sf::Keyboard::Key::Slash:
-    return "/";  
-
-  default:
-    return "NULL";
-    break;
-  }
+  text.setOrigin(sf::Vector2f(origin.x * text.getLocalBounds().width, origin.y * height - ProgramSettings::gameScale));
 }

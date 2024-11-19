@@ -1,0 +1,68 @@
+{
+  "settings": {
+    "accessibility": {
+      "colourHelp": false,
+      "player": 2,
+      "saw": 3,
+      "target": 1,
+      "time": 3,
+      "world": 0
+    },
+    "audio": {
+      "music": 10,
+      "sfx": 10
+    },
+    "multiplayer": {
+      "p1Colour": 0,
+      "p1Controls": {
+        "down": "s",
+        "escape": "esc",
+        "jump": "space",
+        "left": "a",
+        "right": "d",
+        "select": "space",
+        "special": "lshft",
+        "up": "w"
+      },
+      "p2Colour": 0,
+      "p2Controls": {
+        "down": "down",
+        "escape": "p-down",
+        "jump": "up",
+        "left": "left",
+        "right": "right",
+        "select": "p-up",
+        "special": "rshft",
+        "up": "up"
+      }
+    },
+    "video": {
+      "autoScale": true,
+      "colour": 0,
+      "fullscreen": false,
+      "scale": 6.0
+    }
+  },
+  "stats": {
+    "combos": 0,
+    "coop": [
+      50,
+      0,
+      0
+    ],
+    "gamesPlayed": 0,
+    "hits": 0,
+    "jumps": 0,
+    "min": [
+      100,
+      1,
+      0
+    ],
+    "rush": [
+      200,
+      34,
+      5
+    ],
+    "specialJumps": 0
+  }
+}
