@@ -283,6 +283,8 @@ void Program::Render()
 
   game.get()->Render(&window);
 
+  Utility::RenderParticles(&window);
+
   if (curState != State::gameplay)
     menu.get()->Render(&window);
 

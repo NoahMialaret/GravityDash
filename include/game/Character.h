@@ -90,6 +90,8 @@ public:
   void IncrementTimeBoost();
   int GetTimeBoost();
 
+  int GetID();
+
 protected:
   int charID = 0;
 

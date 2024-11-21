@@ -1,73 +1,78 @@
 #include "GameObject.h"
 
-GameObject::GameObject(int maxID)
-{
-  entity = Entity("entities");
+GameObject::GameObject(sf::IntRect& worldBorder)
+  :
+  bounds({worldBorder.left - SCALED_DIM, worldBorder.left + worldBorder.width + SCALED_DIM}),
+  entity(Entity("objects"))
+{}
 
-  std::uniform_int_distribution id(0, maxID - 1);
-  entID = id(Utility::rng);
+void GameObject::Update()
+{
+  if (pos.x < bounds.first || pos.x > bounds.second)
+    tombstone = true;
+
+  if (tombstone)
+    return;
+
+  if (activated)
+    pos.x += Clock::Delta() * vel;
+
+  entity.Update();
 }
 
-bool GameObject::EndOfLife() const
+void GameObject::HandleCollision(Character* character)
 {
-  return endOfLife;
+  std::pair<sf::Vector2f, sf::Vector2f> collision = character->GetLineHitBox();
+  float squaredThreshold = SCALED_DIM * SCALED_DIM;
+
+  // Do a broad check of proximity to prematurely stop calculations if the object is far away
+  if (character->GetCurState() != Character::State::airborne
+    || pos.x + SCALED_DIM < std::min(collision.first.x, collision.second.x) 
+    || pos.x - SCALED_DIM > std::max(collision.first.x, collision.second.x))
+      return ;
+  
+  float squaredDistance = Utility::GetSquaredDistanceToLineSegment(pos, collision);
+  if (squaredDistance > squaredThreshold)
+    return;
+
+  if (!destructable)
+  {
+    tagEvent.value = character->GetID();
+    Event::events.push_back(tagEvent);
+    return;
+  }
+  
+  if (tag != -1 && squaredDistance > tagSquareDist)
+    return;
+
+  tag = character->GetID();
+  tagSquareDist = squaredDistance;
 }
 
-void GameObject::Freeze()
+void GameObject::ProcessTag()
 {
-  isFrozen = true;
-}
+  if (tag == -1)
+    return;
 
-void GameObject::Unfreeze()
-{
-  isFrozen = false;
+  tagEvent.value = tag;
+  Event::events.push_back(tagEvent);
+
+  if (destructable)
+  {
+    tombstone = true;
+    Utility::particles.push_front(std::make_unique<Explosion>(pos));
+  }
 }
 
 void GameObject::Render(sf::RenderWindow* win) const
 {
-  //Utility::shaderTest.setUniform("texture", sprite.getTexture());
-  Utility::entShad.setUniform("colorID", entID);
-  entity.Render(win);
+  if (!tombstone)
+    entity.Render(win);
 }
 
-bool GameObject::operator<=(GameObject& rhs)
+bool GameObject::IsTombstoned() const
 {
-  return this->pos.y <= rhs.pos.y;
-}
-
-bool GameObject::operator<(GameObject& rhs)
-{
-  return this->pos.y < rhs.pos.y;
-}
-
-bool GameObject::operator>=(GameObject& rhs)
-{
-  return this->pos.y >= rhs.pos.y;
-}
-
-bool GameObject::operator>(GameObject& rhs)
-{
-  return this->pos.y > rhs.pos.y;
-}
-
-bool GameObject::operator<=(float rhs)
-{
-  return this->pos.y <= rhs;
-}
-
-bool GameObject::operator<(float rhs)
-{
-  return this->pos.y < rhs;
-}
-
-bool GameObject::operator>=(float rhs)
-{
-  return this->pos.y >= rhs;
-}
-
-bool GameObject::operator>(float rhs)
-{
-  return this->pos.y > rhs;
+  return tombstone;
 }
 
 sf::Vector2f GameObject::GetPosition()
@@ -75,260 +80,123 @@ sf::Vector2f GameObject::GetPosition()
   return pos;
 }
 
+void GameObject::Deactivate()
+{
+  activated = false;
+}
+
+void GameObject::Activate()
+{
+  activated = true;
+}
+
 // = --------- =
 // = Saw Class =
 // = --------- =
 
-Saw::Saw(sf::IntRect& worldBorder, int maxID)
+Saw::Saw(sf::IntRect& worldBorder)
   :
-  GameObject(maxID)
+  GameObject(worldBorder)
 {
+  tagEvent.type = Event::Type::sawCollision;
+
+  destructable = false;
+
+  entity.CouplePosition(&pos);
+  entity.QueueAnimation(0, 50);
+
+  // buffer between the centre and edge of the object
 	int posBuffer = SCALED_DIM / 2;
 
   std::uniform_int_distribution dist(0, 1);
+
   int isOnTop = dist(Utility::rng);
   int isGoingRight = dist(Utility::rng);
 
-  vel = 1.0f * (isGoingRight ? ProgramSettings::gameScale : -ProgramSettings::gameScale);
-
-  pos.x = isGoingRight ? worldBorder.left - SCALED_DIM : worldBorder.left + worldBorder.width;
+  vel = 0.0625f * ProgramSettings::gameScale * (isGoingRight ? 1.0f : -1.0f);
+  pos.x = isGoingRight ? worldBorder.left - posBuffer : worldBorder.left + worldBorder.width + posBuffer;
   pos.y = isOnTop ? worldBorder.top : worldBorder.top + worldBorder.height;
-  entity.CouplePosition(&pos);
-
-  // TODO: change scaling now that it is a saw instead of a spike
-  if (isOnTop)
-  {
-    entity.FlipY();
-  }
-  cutOffPoint = worldBorder.left + (isGoingRight ? worldBorder.width : 0.0f);
-
-  entity.QueueAnimation(0, 50);
 }
 
-void Saw::Update(std::vector<Character*> players)
-{
-  if ((vel > 0.0f && pos.x > cutOffPoint) ||
-      (vel < 0.0f && pos.x + SCALED_DIM < cutOffPoint))
-  {
-    endOfLife = true;
-    return;
-  }
-
-  if (!isFrozen)
-  {
-    pos.x += (Clock::Delta() / 16.0f) * vel;
-  }
-
-  float distanceSquaredThresh = SCALED_DIM * SCALED_DIM;
-
-  for (auto& p : players)
-  {
-    // if (sprite.getGlobalBounds().intersects(p->GetHitBox()))
-    // // Change to radial distance chenck (is spritedim * gamescale < distance between the two)
-    // {
-    //   p->Hit();
-    //   // if (p->Hit())
-    //   // {
-    //   //   sf::Vector2f middlePos = 0.5f * (p->GetLineHitBox().second + p->GetLineHitBox().first);
-
-    //   //   sf::Vector2f pointVel = 0.2f * (pos - middlePos);
-    //   //   p->AddNewPoint(-1000, pos, pointVel);
-    //   // }
-    // }
-
-    // needs to loop through all line segments if there are multiple
-    // maybe try to optimise by doing a broad check of proximity before doing line segment calculations
-    float squaredDistance = Utility::GetSquaredDistanceToLineSegment(pos, p->GetLineHitBox());
-    // std::cout << "Distance: " << squaredDistance << '\n';
-    if (squaredDistance < distanceSquaredThresh)
-    {
-      p->Hit(pos);
-    }
-  }
-
-  entity.Update();
-}
-
-void Saw::Freeze()
+void Saw::Deactivate()
 {
   entity.DecouplePosition();
   entity.QueueMotion(Curve::linear, 200, (pos.y < 0 ? -1.0f : 1.0f) * sf::Vector2f(0.0f, SCALED_DIM));
-  GameObject::Freeze();
+  GameObject::Deactivate();
 }
 
-void Saw::Unfreeze()
+void Saw::Activate()
 {
-  pos = entity.GetPosition();
   entity.CouplePosition(&pos);
-  entity.QueueMotion(Curve::linear, 200, (pos.y < 0 ? 1.0f : -1.0f) * sf::Vector2f(0.0f, SCALED_DIM));
-  GameObject::Freeze();
+  GameObject::Activate();
 }
 
 // = ------------ =
 // = Target Class =
 // = ------------ =
 
-MovingTarget::MovingTarget(sf::IntRect &worldBorder, int maxID)
+MovingTarget::MovingTarget(sf::IntRect& worldBorder)
   :
-  GameObject(maxID)
+  GameObject(worldBorder)
 {
+  tagEvent.type = Event::Type::targetCollision;
+
+  entity.CouplePosition(&pos);
+  entity.QueueAnimation(1, 50);
+
+  // buffer between the centre and edge of the object
 	int posBuffer = SCALED_DIM / 2;
 
-  std::uniform_int_distribution yDist((worldBorder.top) + int(SCALED_DIM) + posBuffer, -worldBorder.top - (int(SCALED_DIM) + posBuffer));
   std::uniform_int_distribution xDist(0, 1);
-  std::uniform_real_distribution<float> floatDist(0.3f, 1.0f);
-
   int isGoingRight = xDist(Utility::rng);
+  pos.x = isGoingRight ? worldBorder.left - posBuffer : worldBorder.left + worldBorder.width + posBuffer;
 
-  vel = ProgramSettings::gameScale * floatDist(Utility::rng) * (isGoingRight ? 1.0f : -1.0f);
-
-  pos.x = isGoingRight ? worldBorder.left - SCALED_DIM + posBuffer : worldBorder.left + worldBorder.width + posBuffer;
+  std::uniform_int_distribution yDist((worldBorder.top) + int(SCALED_DIM) + posBuffer, -worldBorder.top - (int(SCALED_DIM) + posBuffer));
   pos.y = yDist(Utility::rng);
   yBase = pos.y;
-  entity.CouplePosition(&pos);
 
-  if (!isGoingRight)
-  {
-    entity.FlipX();
-  }
-
-  cutOffPoint = worldBorder.left + posBuffer + (isGoingRight ? worldBorder.width : 0.0f);
-
-  sinOffset = floatDist(Utility::rng) * 100.0f;
-
-  entity.QueueAnimation(1, 600.0f / abs(vel));
-}
-
-
-void MovingTarget::Update(std::vector<Character*> players)
-{
-  if ((vel > 0.0f && pos.x > cutOffPoint) ||
-      (vel < 0.0f && pos.x + SCALED_DIM < cutOffPoint))
-  {
-    endOfLife = true;
-    return;
-  }
+  std::uniform_real_distribution<float> floatDist(0.3f, 1.0f);
+  vel = 0.0625 * floatDist(Utility::rng) * ProgramSettings::gameScale * (isGoingRight ? 1.0f : -1.0f);
+  oscillationSpeed = 64.0f * vel;
   
-  if (!isFrozen)
-  {
-    pos.x += (Clock::Delta() / 16.0f) * vel;
-    float rad = std::sin(((float)Clock::Elapsed() + sinOffset) / 400.0f * vel);
-    pos.y = yBase + ProgramSettings::gameScale / 2.0f * std::sin(rad);
-  }
-
-  // float distanceSquaredThresh = SCALED_DIM * SCALED_DIM;
-  // change to pointer to use range based for loop
-  int closestIndex = -1;
-  float closestDistance = SCALED_DIM * SCALED_DIM;
-
-  for (int i = 0; i < players.size(); i++)
-  {
-    if (players[i]->GetCurState() == Character::State::airborne)
-    {
-      // needs to loop through all line segments if there are multiple
-      // maybe try to optimise by doing a broad check of proximity before doing line segment calculations
-      float squaredDistance = Utility::GetSquaredDistanceToLineSegment(pos, players[i]->GetLineHitBox());
-      if (squaredDistance < closestDistance)
-      {
-        closestIndex = i;
-        closestDistance = squaredDistance;
-      }
-    }
-  }
-
-  if (closestIndex == -1)
-  {
-    entity.Update();
-    return;
-  }
-
-  Utility::particles.push_front(std::make_unique<Explosion>(pos));
-
-  //players[closestIndex].TargetHit(pos);
-
-  // in player, loop through vector of points (that represent the segment), and take the average
-  sf::Vector2f middlePos = 0.5f * (players[closestIndex]->GetLineHitBox().second + players[closestIndex]->GetLineHitBox().first);
-
-  sf::Vector2f pointVel = 0.02f * (pos - middlePos);
-
-  players[closestIndex]->AddNewPoint(pos, pointVel);
-
-  endOfLife = true;
-  players[closestIndex]->IncrementComboCount();
+  if (!isGoingRight)
+    entity.FlipX();
 }
 
-// = ------------ =
-// = TimeBonus Class =
-// = ------------ =
+void MovingTarget::Update()
+{  
+  GameObject::Update();
 
-TimeBonus::TimeBonus(sf::IntRect& worldBorder, int maxID)
+  if (!activated || tombstone)
+    return;
+
+  float rad = (float)Clock::Elapsed() / 1024.0f * oscillationSpeed;
+  pos.y = yBase + 0.5f * ProgramSettings::gameScale * std::sin(rad);
+}
+
+// = --------------- =
+// = TimeBonus Class =
+// = --------------- =
+
+TimeBonus::TimeBonus(sf::IntRect& worldBorder)
   :
-  GameObject(maxID)
+  GameObject(worldBorder)
 {
+  tagEvent.type = Event::Type::targetCollision;
+
+  entity.CouplePosition(&pos);
+  entity.QueueAnimation(2, 50);
+
+  // buffer between the centre and edge of the object
 	int posBuffer = SCALED_DIM / 2;
 
-  std::uniform_int_distribution yDist((worldBorder.top) + int(SCALED_DIM) + posBuffer, -worldBorder.top - (int(SCALED_DIM) + posBuffer));
   std::uniform_int_distribution xDist(0, 1);
-  std::uniform_real_distribution<float> floatDist(0.3f, 1.0f);
-
   int isGoingRight = xDist(Utility::rng);
+  pos.x = isGoingRight ? worldBorder.left - posBuffer : worldBorder.left + worldBorder.width + posBuffer;
 
-  vel = ProgramSettings::gameScale * floatDist(Utility::rng) * (isGoingRight ? 1.0f : -1.0f);
-
-  pos.x = isGoingRight ? worldBorder.left - SCALED_DIM + posBuffer : worldBorder.left + worldBorder.width + posBuffer;
+  std::uniform_int_distribution yDist((worldBorder.top) + int(SCALED_DIM) + posBuffer, -worldBorder.top - (int(SCALED_DIM) + posBuffer));
   pos.y = yDist(Utility::rng);
-  entity.CouplePosition(&pos);
 
-  cutOffPoint = worldBorder.left + posBuffer + (isGoingRight ? worldBorder.width : 0.0f);
-
-  entity.QueueAnimation(2, 200.0f);
-}
-
-void TimeBonus::Update(std::vector<Character*> players)
-{
-  if ((vel > 0.0f && pos.x > cutOffPoint) ||
-      (vel < 0.0f && pos.x + SCALED_DIM < cutOffPoint))
-  {
-    endOfLife = true;
-    return;
-  }
-  
-  if (!isFrozen)
-  {
-    pos.x += (Clock::Delta() / 16.0f) * vel;
-  }
-
-  int closestIndex = -1;
-  float closestDistance = SCALED_DIM * SCALED_DIM;
-
-  for (int i = 0; i < players.size(); i++)
-  {
-    if (players[i]->GetCurState() == Character::State::airborne)
-    {
-      float squaredDistance = Utility::GetSquaredDistanceToLineSegment(pos, players[i]->GetLineHitBox());
-      if (squaredDistance < closestDistance)
-      {
-        closestIndex = i;
-        closestDistance = squaredDistance;
-      }
-    }
-  }
-
-  if (closestIndex == -1)
-  {
-    entity.Update();
-    return;
-  }
-
-  Utility::particles.push_front(std::make_unique<Explosion>(pos));
-
-  sf::Vector2f middlePos = 0.5f * (players[closestIndex]->GetLineHitBox().second + players[closestIndex]->GetLineHitBox().first);
-
-  sf::Vector2f pointVel = 0.02f * (pos - middlePos);
-
-  players[closestIndex]->AddNewPoint(pos, pointVel);
-  players[closestIndex]->IncrementTimeBoost();
-
-  endOfLife = true;
-  players[closestIndex]->IncrementComboCount();
+  std::uniform_real_distribution<float> floatDist(0.3f, 1.0f);
+  vel = 0.0625 * floatDist(Utility::rng) * ProgramSettings::gameScale * (isGoingRight ? 1.0f : -1.0f);
 }

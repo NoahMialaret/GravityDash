@@ -7,118 +7,98 @@
 #include "Character.h"
 #include "Clock.h"
 #include "Entity.h"
+#include "Event.h"
 #include "Particle.h"
+#include "ProgramSettings.h"
 #include "Textures.h"
 #include "Utility.h"
-#include "ProgramSettings.h"
 
 #include <iostream>
 #include <memory>
 
-// A class representing the non-player interactable objects that can appear during gameplay
+// A class representing interactable game objects,
+// collision causes them to be tagged and send out an event
 class GameObject
 {
 public:
-  GameObject(int maxID);
-  virtual ~GameObject() = default;
+  // Constructs the object's boundary and entity
+  GameObject(sf::IntRect& worldBorder);
 
-  // Virtual function for updating object logic
-  void virtual Update(std::vector<Character *> players) = 0;
+  // Updates the objects position and entity
+  virtual void Update();
+  // Checks and handles collision with a character
+  void HandleCollision(Character* character);
+  // Processes the tag and its related event
+  void ProcessTag();
+
   // Renders the object
   void Render(sf::RenderWindow *win) const;
 
-  // Stops the object from moving
-  virtual void Freeze();
-  // Allows the object to move
-  virtual void Unfreeze();
-
-  // Whether the object has reached the end of its life
-  bool EndOfLife() const;
-
-  // Operator overloads for comparing the vertical position of the enities
-  bool operator<=(GameObject& rhs); 
-  bool operator<(GameObject& rhs); 
-  bool operator>=(GameObject& rhs); 
-  bool operator>(GameObject& rhs); 
-  bool operator<=(float rhs); 
-  bool operator<(float rhs); 
-  bool operator>=(float rhs); 
-  bool operator>(float rhs); 
-
+  // Returns the position of the object
   sf::Vector2f GetPosition();
 
+  // Stops the object from moving, potentially removing interaction
+  virtual void Deactivate();
+  // Allows the object to move and be interactionable again
+  virtual void Activate();
+
+  // Whether the object is set for deletion
+  bool IsTombstoned() const;
+
 protected:
-  int entID = 0;
+  std::pair<int, int> bounds; // Horizontal boundary, objects get tombstoned outside of this
   
   Entity entity; // The entity used by the object for rendering and animations
 
-  sf::Vector2f pos = ZERO_VECTOR; // The objects position in the game world
-  float vel = 0.0f;  // The object's horizontal velocity
+  sf::Vector2f pos;       // The objects position in the game world
+  float vel = 0.0f;       // The object's horizontal velocity
+  bool activated = true;  // Whether the object can move and (potentially) be interactable 
 
-  bool isFrozen = false; // Whether the movement of the object has be frozen
+  bool destructable = true; // Whether collision with the object destroys it, being non-destructive
+                            //    implies multiple collisions can happen simultaneously
+  bool tombstone = false;   // Whether the object is set for deletion
 
-  bool endOfLife = false; // Whether the object has reached the end of its lifespan
+  int tag = -1;         // The charID of the character who tagged this object
+  float tagSquareDist;  // The squared distance the character was when tagging
+  Event tagEvent;       // The event associated with the act of tagging
 };
 
-// The saw is an object that deals damage to the player on contact, 
+// The `Saw` is an object that stuns the player on contact, 
 // moves along the upper or lower border of the world
 class Saw : public GameObject
 {
 public:
-  Saw() = delete;
-  // Constructor uses the world border to determine spawn positions and cutoff points
-  Saw(sf::IntRect &worldBorder, int maxID);
-  // Updates the spike's position and checks for player collisions
-  void Update(std::vector<Character *> players) override;
+  // Initialises `Saw` with a random position and direction on the top or bottom of the world
+  Saw(sf::IntRect& worldBorder);
 
-  void Freeze() override;
-  void Unfreeze() override;
-
-private:
-  float cutOffPoint = 0.0f; // The pixel position of the screen at which the object should be culled
+  // Causes the saw to move outside of the game region
+  void Deactivate() override;
+  // Moves the saw back into active play
+  void Activate() override;
 };
 
-// The targets are the entities that the player is trying to hit to score points,
-// they normally spawn randomly in the middle of the world
+// The `MovingTarget` is what the player is trying to hit to score points,
+// they spawn randomly in the vertical centre of the world
 class MovingTarget : public GameObject
 {
 public:
-  MovingTarget() = delete;
-  // Constructor uses the world border to determine spawn positions and cutoff points
-  MovingTarget(sf::IntRect &worldBorder, int maxID);
-  // Updates the spike's position and checks for player collisions
-  void Update(std::vector<Character*> players) override;
+  // Initialises `MovingTarget` with a random velocity and vertical position 
+  MovingTarget(sf::IntRect& worldBorder);
+  // Updates the oscillation of the object
+  void Update() override;
 
 private:
-  float cutOffPoint = 0.0f; // The pixel position of the screen at which the object should be culled
-  float sinOffset = 0.0f;
-  float yBase = 0.0f; // The base y positon of the sprite before oscilations
+  float oscillationSpeed;  // How fast the object oscillates
+  float yBase;             // The base y positon of the sprite before oscilations
 };
 
+// The `TimeBonus` can be collected to increase the duration of the game timer,
+// spawns randomly in the vertical centre of the world
 class TimeBonus : public GameObject
 {
 public:
-  TimeBonus() = delete;
-  // Constructor uses the world border to determine spawn positions and cutoff points
-  TimeBonus(sf::IntRect &worldBorder, int maxID);
-  // Updates the spike's position and checks for player collisions
-  void Update(std::vector<Character*> players) override;
-
-private:
-  float cutOffPoint = 0.0f; // The pixel position of the screen at which the object should be culled
+  // Initialises `TimeBonus` with a random velocity and vertical position 
+  TimeBonus(sf::IntRect& worldBorder);
 };
-
-
-// class StationaryTarget : public GameObject
-// {
-//   StationaryTarget() = delete;
-//   // Constructor uses the world border to determine spawn positions and cutoff points
-//   StationaryTarget(sf::Texture* tex, sf::IntRect &worldBorder, int lifespan);
-//   // Spawns a stationary target at the desired position
-//   StationaryTarget(sf::Vector2f pos);
-//   // Updates the spike's position and checks for player collisions
-//   void Update(std::vector<Character *> players) override;
-
-// }
 
 #endif

@@ -13,7 +13,6 @@
 #include "Keyboard.h"
 #include "Number.h"
 #include "PlayerBoost.h"
-#include "SortedDblyLnkdList.h"
 #include "Textures.h"
 #include "World.h"
 #include "ProgramSettings.h"
@@ -49,7 +48,7 @@ protected:
   std::vector<std::unique_ptr<Character>> characters; // The player characters
   std::unique_ptr<World> world = nullptr;             // The playable region of the game
 
-  SortedDblyLnkdList<GameObject> objects; // A sorted (by vertical position) linked list of entites
+  std::forward_list<std::unique_ptr<GameObject>> objects; // A list of game objects
 
   int spawnTimer = 16;     // Timer for when a target should be attempted to spawn
   int spikeSpawnTimer = 0; // The time at which the next spike should spawn

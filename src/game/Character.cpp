@@ -451,6 +451,11 @@ int Character::GetTimeBoost()
   return 0;
 }
 
+int Character::GetID()
+{
+  return charID;
+}
+
 void Character::AddNewPoint(sf::Vector2f pos, sf::Vector2f vel)
 {
   if (boostJumpsRemaining >= 0)

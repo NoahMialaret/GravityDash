@@ -46,7 +46,15 @@ public:
     resumePlay,
     exitGame,
     gameDone,
-    restartGame
+    restartGame,
+
+    sawCollision,
+    targetCollision,
+    timeBonusCollision,
+
+    playerLand,
+    gameTimeUp,
+    timerRefill, // causes increase in score multiplier and decrease in timer spawn chances
   };
 
   Event() = default;

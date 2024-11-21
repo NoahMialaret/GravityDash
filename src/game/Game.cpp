@@ -38,7 +38,7 @@ Game::~Game()
 
   Utility::scoreMultiplier = 1.0f;
 
-  objects.DeleteAll();
+  objects.clear();
 }
 
 void Game::Update()
@@ -46,35 +46,32 @@ void Game::Update()
 	for (auto& p : characters)
 	{
 		p.get()->Update();
-	}
-
-	std::vector<Character*> pls;
-	for (auto& p : characters)
-	{
-		pls.push_back(p.get());
-	}
-
-  auto node = objects.Start();
-  while(node != nullptr)
-  {
-    node->GetData()->Update(pls);
-    if (node->GetData()->EndOfLife())
-    {
-      node = objects.Delete(node);
-      continue;
-    }
-    node = node->GetNextNode();
-  }
-
-	for (auto& p : characters)
-	{
     CorrectCharacterPos(p.get());
 	}
 
+  for (auto prev = objects.before_begin(), cur = objects.begin(); cur != objects.end();)
+  {
+    while (cur != objects.end() && cur->get()->IsTombstoned())
+    {
+      cur = objects.erase_after(prev);
+    }
+
+    if (cur == objects.end())
+      break;
+
+    cur->get()->Update();
+
+    for (auto& character : characters)
+      cur->get()->HandleCollision(character.get());
+
+    cur->get()->ProcessTag();
+
+    prev++;
+    cur++;
+  }
+
 	if (gameOver)
-	{
 		return;
-	}
 
   gameOver = true;
   for (auto& p : characters)
@@ -88,7 +85,7 @@ void Game::Update()
 
   if (gameOver)
   {
-    objects.DeleteAll();
+    objects.clear();
     Event event;
     event.type = Event::Type::gameDone;
     Event::events.push_back(event);
@@ -114,22 +111,13 @@ void Game::SpawnObjects()
 
     if (config.sawFrequency != 0 && spikeSpawnTimer <= 0)
     {
-      GameObject* temp = new Saw(playableRegion, characters.size());
-      auto searchFrom = objects.Start();
-      if (*temp > 0)
-        searchFrom = objects.End();
-
-      objects.InsertData(temp, searchFrom);
+      objects.push_front(std::make_unique<Saw>(playableRegion));
       spikeSpawnTimer = 500 + randomInt * 10; // Spawns every 1000 +- 500 ms
     }
 
     if (randomInt > config.targetSpawnChance)
     {           
-      GameObject* temp = new MovingTarget(playableRegion, characters.size());
-      auto searchFrom = objects.Start();
-      if (*temp > 0)
-        searchFrom = objects.End();
-      objects.InsertData(temp, searchFrom);
+      objects.push_front(std::make_unique<MovingTarget>(playableRegion));
     }  
   }
 }
@@ -138,19 +126,11 @@ void Game::Render(sf::RenderWindow* win) const
 {
 	world.get()->Render(win);
 
-  Utility::RenderParticles(win);
+  for (auto& object : objects)
+    object.get()->Render(win);
 
-  auto node = objects.Start();
-  while(node != nullptr)
-  {
-    node->GetData()->Render(win);
-    node = node->GetNextNode();
-  }
-
-	for (auto& p : characters)
-	{
-		p.get()->Render(win);
-	}
+	for (auto& character : characters)
+		character.get()->Render(win);
 }
 
 void Game::CorrectCharacterPos(Character* player)
@@ -272,12 +252,8 @@ void Min::UpdateTimer()
       p.get()->Kill();
     }
 
-    auto node = objects.Start();
-    while(node != nullptr)
-    {
-      node->GetData()->Freeze();
-      node = node->GetNextNode();
-    }
+    for (auto& object : objects)
+      object.get()->Deactivate();
   }
 }
 
@@ -372,12 +348,8 @@ void Rush::UpdateTimer()
       p.get()->Kill();
     }
 
-    auto node = objects.Start();
-    while(node != nullptr)
-    {
-      node->GetData()->Freeze();
-      node = node->GetNextNode();
-    }
+    for (auto& object : objects)
+      object.get()->Deactivate();
   }
 }
 
@@ -402,11 +374,7 @@ void Rush::SpawnObjects()
         timeBonusCooldown--;
         return;
       }     
-      GameObject* temp = new TimeBonus(playableRegion, characters.size());
-      auto searchFrom = objects.Start();
-      if (*temp > 0)
-        searchFrom = objects.End();
-      objects.InsertData(temp, searchFrom);
+      objects.push_front(std::make_unique<TimeBonus>(playableRegion));
       timeBonusCooldown = phase;
     }  
   } 
