@@ -10,12 +10,12 @@ TimerComponent::TimerComponent(Game* game, int maxTime)
   timeRect.setFillColor(sf::Color(255, 229, 181));
   timeRect.setScale(sf::Vector2f(1.0f, -1.0f));
 
-  Utility::InitSprite(sprite, "timer", ZERO_VECTOR, {1, 1}, {0.0f, 0.5f});
+  Utility::InitSprite(gauge, "timer", ZERO_VECTOR, {1, 1}, {0.0f, 0.5f});
 
   std::function<void(sf::Vector2f)> updatePosFunction = [this](sf::Vector2f pos)
   {
-    sprite.setPosition(pos);
-    timeRect.setPosition(pos + sf::Vector2f(0.0f, 0.5f * sprite.getGlobalBounds().height - ProgramSettings::gameScale));
+    gauge.setPosition(pos);
+    timeRect.setPosition(pos + sf::Vector2f(0.0f, 0.5f * gauge.getGlobalBounds().height - ProgramSettings::gameScale));
   };
   game->Attach(World::AttachPoint::right, updatePosFunction);
 }
@@ -29,7 +29,7 @@ void TimerComponent::Update()
 
   if (timeRemaining > 0)
   {
-    timeRect.setSize(ProgramSettings::gameScale * sf::Vector2f(4.0f, (int)(60.0f * timeRemaining / maxTime)));
+    timeRect.setSize(ProgramSettings::gameScale * sf::Vector2f(4.0f, (int)((gauge.getTextureRect().height - 1) * timeRemaining / maxTime)));
     return;
   }
   
@@ -44,16 +44,11 @@ void TimerComponent::Update()
 void TimerComponent::Render(sf::RenderWindow* win) const
 {
   win->draw(timeRect);
-  win->draw(sprite);
+  win->draw(gauge);
 }
 
 void TimerComponent::AddTime(int addition)
 {
-  timeRemaining += addition;
-  if (timeRemaining > maxTime)
-  {
-    timeRemaining = maxTime;
-  }
-  
-  timeRect.setSize(ProgramSettings::gameScale * sf::Vector2f(4.0f, (int)(60.0f * timeRemaining / maxTime)));
+  timeRemaining += std::min(timeRemaining + addition, maxTime);
+  timeRect.setSize(ProgramSettings::gameScale * sf::Vector2f(4.0f, (int)((gauge.getTextureRect().height - 1) * timeRemaining / maxTime)));
 }

@@ -5,11 +5,11 @@
 
 #include "Clock.h"
 #include "Event.h"
-#include "Textures.h"
 #include "Utility.h"
 #include "ProgramSettings.h"
 #include "Game.h"
 #include "GameComponent.h"
+#include "World.h"
 
 #include <functional>
 #include <iostream>
@@ -18,7 +18,7 @@
 class TimerComponent : public GameComponent
 {
 public:
-  // Create a timer with the desired time duration (in ms), and the bottom left position of the time
+  // Create a timer with the desired time duration (in milliseconds)
   TimerComponent(Game* game, int maxTime);
   // Update the amount of time remaining, sends out events if the timer is refilled or runs out
   void Update() override;
@@ -30,14 +30,13 @@ private:
   void AddTime(int addition);
 
 private:
-  sf::Sprite sprite;  // The sprite for the timer gauge
+  sf::Sprite gauge;             // The sprite for the timer gauge
+  sf::RectangleShape timeRect;  // The rectangle used to display how much time is left
+
+  const int maxTime = 0;  // The maximum amount of time the timer can hold (in milliseconds)
+  int timeRemaining = 0;  // The amount of time left in the timer (in milliseconds)
 
   bool done = false;  // Whether the timer is done
-
-  sf::RectangleShape timeRect; // The rectangle used to display how much time is left
-
-  int maxTime = 0;       // The maximum amount of time the timer can hold
-  int timeRemaining = 0; // The amount of time left in the timer
 };
 
 #endif
