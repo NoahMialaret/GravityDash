@@ -5,7 +5,7 @@
 
 #include "Clock.h"
 #include "Event.h"
-#include "Game.h"
+#include "GameManager.h"
 #include "Keyboard.h"
 #include "Menu.h"
 #include "Particle.h"
@@ -50,10 +50,6 @@ public:
 	Program::State GetCurState() const;
 
 private:
-  // Loads the background game seen in menus
-  void LoadMenuGame();
-
-private:
 	//SFML Objects --------------------------------------------------------
   sf::RenderWindow window;	// The window of the program 
 	sf::View mainView; 			// Represents the region of the gameworld that should be displayed onto the window
@@ -62,7 +58,7 @@ private:
 	State curState = State::notRunning; // The current state of the game
 
 	//Program Objects ----------------------------------------------------- 
-	std::unique_ptr<Game> game = nullptr;
+	std::unique_ptr<GameManager> gameManager = nullptr;
 	std::unique_ptr<Menu> menu = nullptr;
   // std::unique_ptr<TitleSequence> title = nullptr;
 };

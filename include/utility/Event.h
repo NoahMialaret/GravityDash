@@ -18,21 +18,14 @@ public:
   };
 
   // A struct containing different parameters used by the game
-  struct GameConfig
+  enum class GamePreset
   {
-    enum class Type
-    {
-      title,
-      min,
-      rush
-    };
-
-    Type type;
-    int numPlayers;
-    int numComputers;
-    int targetSpawnChance;
-    int sawFrequency;
-    int maxTime;
+    title,
+    minute,
+    rush,
+    coop,
+    vs,
+    null
   };
 
   enum class Type
@@ -41,20 +34,24 @@ public:
     reloadMenu,
     pushMenu,
     menuReturn,
-    loadNewGame,
-    pause,
-    resumePlay,
-    exitGame,
-    gameDone,
-    restartGame,
 
-    sawCollision,
-    targetCollision,
-    timeBonusCollision,
+    // Game events
+    gameNew,    // GamePreset
+    gameReset,  // null
+    gameTimeUp, // null
+    gameDone,   // null
+    gameExit,   // null
 
-    playerLand,
-    gameTimeUp,
-    timerRefill, // causes increase in score multiplier and decrease in timer spawn chances
+    pause,  // null
+    resume, // null
+
+    collisionSaw,       // int (charID)
+    collisionTarget,    // int (charID)
+    collisionTimeBonus, // int (charID)
+
+    boostFull,    // int (charID)
+    playerLand,   // int (charID)
+    timerRefill,  // null
   };
 
   Event() = default;
@@ -81,7 +78,7 @@ public:
   {
     int value;
     MenuType menuType;
-    GameConfig gameConfig;
+    GamePreset gamePreset;
   };
 };
 

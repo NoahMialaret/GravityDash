@@ -1,4 +1,4 @@
-#include "PlayerBoost.h"
+#include "BoostComponent.h"
 
 PlayerBoost::PlayerBoost(sf::Vector2f bottomLeft, int limit)
   :

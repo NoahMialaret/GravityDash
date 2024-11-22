@@ -98,7 +98,7 @@ Saw::Saw(sf::IntRect& worldBorder)
   :
   GameObject(worldBorder)
 {
-  tagEvent.type = Event::Type::sawCollision;
+  tagEvent.type = Event::Type::collisionSaw;
 
   destructable = false;
 
@@ -139,7 +139,7 @@ MovingTarget::MovingTarget(sf::IntRect& worldBorder)
   :
   GameObject(worldBorder)
 {
-  tagEvent.type = Event::Type::targetCollision;
+  tagEvent.type = Event::Type::collisionTarget;
 
   entity.CouplePosition(&pos);
   entity.QueueAnimation(1, 50);
@@ -182,7 +182,7 @@ TimeBonus::TimeBonus(sf::IntRect& worldBorder)
   :
   GameObject(worldBorder)
 {
-  tagEvent.type = Event::Type::targetCollision;
+  tagEvent.type = Event::Type::collisionTimeBonus;
 
   entity.CouplePosition(&pos);
   entity.QueueAnimation(2, 50);

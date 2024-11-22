@@ -1,10 +1,12 @@
-#include "GameTimer.h"
+#include "TimerComponent.h"
 
-GameTimer::GameTimer(int time, sf::Vector2f bottomLeft)
+TimerComponent::TimerComponent(Game* game, int maxTime)
   :
-  timeRemaining(time),
-  maxTime(time)
+  GameComponent(game),
+  timeRemaining(maxTime),
+  maxTime(maxTime)
 {
+  sf::Vector2f bottomLeft = ZERO_VECTOR;
   timeRect = sf::RectangleShape(ProgramSettings::gameScale * sf::Vector2f(4.0f, 60.0f));
   timeRect.setPosition(bottomLeft + sf::Vector2f(0.0f, - ProgramSettings::gameScale));
   timeRect.setFillColor(sf::Color(255, 229, 181));
@@ -16,34 +18,33 @@ GameTimer::GameTimer(int time, sf::Vector2f bottomLeft)
   sprite.setOrigin(sf::Vector2f(0.0f, sprite.getTextureRect().height));
 }
 
-bool GameTimer::Update()
+void TimerComponent::Update()
 {
   if (paused)
-  {
-    return false;
-  }
+    return;
   
   timeRemaining -= Clock::Delta();
 
-  if (timeRemaining <= 0)
+  if (timeRemaining > 0)
   {
-    timeRect.setSize(ZERO_VECTOR);
-    timeRemaining = 0;
-    return true;
+    timeRect.setSize(ProgramSettings::gameScale * sf::Vector2f(4.0f, (int)(60.0f * timeRemaining / maxTime)));
+    return;
   }
   
-  timeRect.setSize(ProgramSettings::gameScale * sf::Vector2f(4.0f, (int)(60.0f * timeRemaining / maxTime)));
-
-  return false;
+  timeRect.setSize(ZERO_VECTOR);
+  timeRemaining = 0;
+  Event event;
+  event.type = Event::Type::gameTimeUp;
+  Event::events.push_back(event);
 }
 
-void GameTimer::Render(sf::RenderWindow* win) const
+void TimerComponent::Render(sf::RenderWindow* win) const
 {
   win->draw(timeRect);
   win->draw(sprite);
 }
 
-void GameTimer::AddTime(int addition)
+void TimerComponent::AddTime(int addition)
 {
   timeRemaining += addition;
   if (timeRemaining > maxTime)
@@ -54,22 +55,22 @@ void GameTimer::AddTime(int addition)
   timeRect.setSize(ProgramSettings::gameScale * sf::Vector2f(4.0f, (int)(60.0f * timeRemaining / maxTime)));
 }
 
-void GameTimer::Pause()
+void TimerComponent::Pause()
 {
   paused = true;
 }
 
-void GameTimer::Unpause()
+void TimerComponent::Unpause()
 {
   paused = false;
 }
 
-bool GameTimer::IsPaused() const
+bool TimerComponent::IsPaused() const
 {
   return paused;
 }
 
-sf::Vector2f GameTimer::GetPosition() const
+sf::Vector2f TimerComponent::GetPosition() const
 {
   return sprite.getPosition();
 }

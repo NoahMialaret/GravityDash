@@ -73,7 +73,7 @@ Program::Program(const char* name)
 	std::cout << "Initialising Program objects...\n";
 
     menu = std::make_unique<Menu>(Event::MenuType::main);
-    LoadMenuGame();
+    gameManager = std::make_unique<GameManager>(Event::GamePreset::title);
 
     Clock::Init();
     
@@ -94,7 +94,7 @@ Program::~Program()
 
   Utility::particles.clear();
 
-  game = nullptr;
+  gameManager = nullptr;
   menu = nullptr;
 
 	std::cout << "Program successfully cleaned!\n";
@@ -113,25 +113,10 @@ void Program::HandleEvents()
 			curState = State::notRunning;
 			return;
 
-		case Event::Type::loadNewGame:
+		case Event::Type::gameNew:
     {
 			std::cout << "Create new game event called\n";
-      switch (event.gameConfig.type)
-      {
-      case Event::GameConfig::Type::title:
-        game = std::make_unique<Game>(event.gameConfig);
-        break;
-      case Event::GameConfig::Type::min:
-        game = std::make_unique<Min>(event.gameConfig);
-        break;
-      case Event::GameConfig::Type::rush:
-        game = std::make_unique<Rush>(event.gameConfig);
-        break;
-      default:
-        std::cout << "Could not determine the game mode!\n";
-        // mainMenu = std::make_unique<MainMenu>();
-        continue;
-      }
+      gameManager = std::make_unique<GameManager>(event.gamePreset);
 			menu.get()->ReloadStack(Event::MenuType::pause);
       Utility::particles.clear();
 			curState = State::gameplay;
@@ -142,7 +127,7 @@ void Program::HandleEvents()
       curState = State::paused;
       break;
 
-    case Event::Type::resumePlay:
+    case Event::Type::resume:
       curState = State::gameplay;
       break;
 
@@ -158,8 +143,8 @@ void Program::HandleEvents()
       menu.get()->Return();
       break;
 
-    case Event::Type::exitGame:
-      LoadMenuGame();
+    case Event::Type::gameExit:
+      gameManager = std::make_unique<GameManager>(Event::GamePreset::title);
 			menu.get()->ReloadStack(Event::MenuType::main);
       curState = State::mainMenu;
       break;
@@ -169,25 +154,10 @@ void Program::HandleEvents()
       curState = State::mainMenu;
       break;
 
-    case Event::Type::restartGame:
+    case Event::Type::gameReset:
     {
 			std::cout << "Resetting game...\n";
-      Event::GameConfig config = game.get()->GetConfig();
-      switch (config.type)
-      {
-      case Event::GameConfig::Type::title:
-        game = std::make_unique<Game>(config);
-        break;
-      case Event::GameConfig::Type::min:
-        game = std::make_unique<Min>(config);
-        break;
-      case Event::GameConfig::Type::rush:
-        game = std::make_unique<Rush>(config);
-        break;
-      default:
-        std::cout << "Could not determine the game mode!\n";
-        continue;
-      }
+      gameManager = std::make_unique<GameManager>(gameManager.get()->GetPreset());
 			menu.get()->ReloadStack(Event::MenuType::pause);
       Utility::particles.clear();
 			curState = State::gameplay;
@@ -236,7 +206,7 @@ void Program::HandleEvents()
 
 			case sf::Keyboard::R:
 				std::cout << "Restarting Game!\n";
-        LoadMenuGame();
+        gameManager = std::make_unique<GameManager>(Event::GamePreset::title);
         menu = std::make_unique<Menu>(Event::MenuType::main); // change to title
 				curState = State::mainMenu;
 				break;
@@ -262,7 +232,7 @@ void Program::Update()
   Clock::Update();
 
   if (curState != State::paused)
-    game.get()->Update();
+    gameManager.get()->Update();
 
   if (curState != State::gameplay)
     menu.get()->Update();
@@ -281,7 +251,7 @@ void Program::Render()
 	if (curState == State::notRunning) 
 		return;
 
-  game.get()->Render(&window);
+  gameManager.get()->Render(&window);
 
   Utility::RenderParticles(&window);
 
@@ -314,15 +284,4 @@ void Program::Render()
 Program::State Program::GetCurState() const 
 {
 	return curState;
-}
-
-void Program::LoadMenuGame()
-{
-  Event::GameConfig config;
-  config.numPlayers = 0;
-  config.numComputers = 4;
-  config.sawFrequency = 0;
-  config.targetSpawnChance = 90;
-
-  game = std::make_unique<Game>(config);
 }

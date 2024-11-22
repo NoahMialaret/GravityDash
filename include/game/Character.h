@@ -10,7 +10,7 @@
 #include "GameStats.h"
 #include "Number.h"
 #include "Particle.h"
-#include "PlayerBoost.h"
+#include "BoostComponent.h"
 #include "Textures.h"
 #include "Utility.h"
 #include "ProgramSettings.h"

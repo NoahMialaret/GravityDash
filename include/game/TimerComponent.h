@@ -4,22 +4,28 @@
 #include <SFML/Graphics.hpp>
 
 #include "Clock.h"
+#include "Event.h"
 #include "Textures.h"
 #include "Utility.h"
 #include "ProgramSettings.h"
+#include "Game.h"
+#include "GameComponent.h"
+
 
 #include <iostream>
 
 // A class to display and keep track of the time remaining in a game
-class GameTimer
+class TimerComponent : public GameComponent
 {
 public:
   // Create a timer with the desired time duration (in ms), and the bottom left position of the time
-  GameTimer(int time, sf::Vector2f bottomLeft);
-  // Update the amount of time remaining, returns true if the timer has finished
-  bool Update();
-  // Renders the timer gauge and the time remaining
-  void Render(sf::RenderWindow* win) const;
+  TimerComponent(Game* game, int maxTime);
+  // Update the amount of time remaining, sends out events if the timer is refilled or runs out
+  void Update() override;
+  // Renders the timer gauge
+  void Render(sf::RenderWindow* win) const override;
+
+private:
 
   // Add or subtracts time from the timer
   void AddTime(int addition);
