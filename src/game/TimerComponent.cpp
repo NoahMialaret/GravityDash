@@ -6,16 +6,18 @@ TimerComponent::TimerComponent(Game* game, int maxTime)
   timeRemaining(maxTime),
   maxTime(maxTime)
 {
-  sf::Vector2f bottomLeft = ZERO_VECTOR;
   timeRect = sf::RectangleShape(ProgramSettings::gameScale * sf::Vector2f(4.0f, 60.0f));
-  timeRect.setPosition(bottomLeft + sf::Vector2f(0.0f, - ProgramSettings::gameScale));
   timeRect.setFillColor(sf::Color(255, 229, 181));
   timeRect.setScale(sf::Vector2f(1.0f, -1.0f));
 
-  sprite.setTexture(Textures::textures.at("timer"));
-  sprite.setScale(DEFAULT_SCALE);
-  sprite.setPosition(bottomLeft);
-  sprite.setOrigin(sf::Vector2f(0.0f, sprite.getTextureRect().height));
+  Utility::InitSprite(sprite, "timer", ZERO_VECTOR, {1, 1}, {0.0f, 0.5f});
+
+  std::function<void(sf::Vector2f)> updatePosFunction = [this](sf::Vector2f pos)
+  {
+    sprite.setPosition(pos);
+    timeRect.setPosition(pos + sf::Vector2f(0.0f, 0.5f * sprite.getGlobalBounds().height - ProgramSettings::gameScale));
+  };
+  game->Attach(World::AttachPoint::right, updatePosFunction);
 }
 
 void TimerComponent::Update()

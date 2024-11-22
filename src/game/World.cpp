@@ -1,57 +1,40 @@
 #include "World.h"
 
-World::World(sf::Vector2i size)
-    :
-    playableRegion(-(int)SCALED_DIM * size / 2, (int)SCALED_DIM * size)
+World::World(sf::Vector2f size)
+  :
+  bounds(0.5f * SCALED_DIM * size)
 {
-    targetLeft = playableRegion.left;
-    renderRect = sf::RectangleShape({ProgramSettings::windowDim.x, ProgramSettings::windowDim.y});
-    renderRect.setPosition(- ProgramSettings::windowDim.x / 2, - ProgramSettings::windowDim.y / 2);
+  float outline = ProgramSettings::gameScale;
+  // TODO: fix world rendering
+  renderRect = sf::RectangleShape(SCALED_DIM * size);
+  renderRect.setOrigin(0.5f * SCALED_DIM * size);
+  renderRect.setOutlineThickness(outline);
+
+  attachments[(int)AttachPoint::left]  = Attachment({-bounds.x - outline, 0.0f});
+  attachments[(int)AttachPoint::right] = Attachment({bounds.x + outline, 0.0f});
+
+  attachments[(int)AttachPoint::topLeft]     = Attachment({-0.5f * bounds.x, -bounds.y - outline});
+  attachments[(int)AttachPoint::topRight]    = Attachment({0.5f * bounds.x, -bounds.y - outline});
+  attachments[(int)AttachPoint::bottomLeft]  = Attachment({-0.5f * bounds.x, bounds.y + outline});
+  attachments[(int)AttachPoint::bottomRight] = Attachment({0.5f * bounds.x, bounds.y + outline});
 }
 
 void World::Update()
 {  
-    if (!isTransitioning)
-    {
-        return;
-    }
-
-    int deltaLeft = (-targetLeft - playableRegion.left) / 5;
-    if (deltaLeft == 0)
-    {
-        deltaLeft = (playableRegion.left > -targetLeft) ? -1 : 1;
-    }
-
-    playableRegion.left += deltaLeft;
-    playableRegion.width = - playableRegion.left * 2;
-
-    // renderRect.setPosition((float)playableRegion.left, (float)playableRegion.top);
-    // renderRect.setSize({(float)playableRegion.width, (float)playableRegion.height});
-
-    if (playableRegion.left == -targetLeft)
-    {
-        std::cout << "World has finished transitioning!\n";
-        isTransitioning = false;
-    }
+  // TODO: do resizing with a handler
 }
 
 void World::Render(sf::RenderWindow* win) const
 {
-    win->draw(renderRect, &Utility::worldShad);
+  win->draw(renderRect, &Utility::worldShad);
 }
 
-sf::IntRect World::GetRegion() const
+sf::Vector2f World::GetBounds() const
 {
-    return playableRegion;
+  return bounds;
 }
 
-void World::SetTargetLeft(int targetWorldLeft)
+void World::Attach(AttachPoint point, std::function<void(sf::Vector2f)>& function)
 {
-    targetLeft = targetWorldLeft;
-    isTransitioning = true;
-}
-
-bool World::FinishedTransitioning() const
-{
-    return !isTransitioning;
+  attachments[(int)point].Attach(function);
 }

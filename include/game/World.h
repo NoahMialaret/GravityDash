@@ -3,39 +3,50 @@
 
 #include <SFML/Graphics.hpp>
 
-#include "Clock.h"
-#include "Utility.h"
+#include "Attachment.h"
 #include "ProgramSettings.h"
+#include "Utility.h"
 
+#include <functional>
 #include <iostream>
 
-#define DEFAULT_WORLD_SIZE sf::Vector2i(16, 8)
+// The default size to initialise the world at
+#define DEFAULT_WORLD_SIZE sf::Vector2f(16.0f, 8.0f)
 
-// A class representing the playable region of the game
+// A class representing the playable region of the game, centred at the origin (0,0)
 class World
 {
 public:
-  // Constructs World based on the given (tile) dimensions
-  World(sf::Vector2i size = DEFAULT_WORLD_SIZE);
-  // Updates the playable region of the world if the game is currently transitioning to a different state
+  // The positions on the world border that components can be attached to
+  enum class AttachPoint
+  {
+    left,
+    right,
+    topLeft,
+    topRight,
+    bottomLeft,
+    bottomRight,
+    null
+  };
+
+public:
+  // Constructs World based on the given size (in tiles)
+  World(sf::Vector2f size = DEFAULT_WORLD_SIZE);
+  // Updates the world size if it is currently changing size
   void Update();
   // Renders the playable region as a rectangle
   void Render(sf::RenderWindow* win) const;
 
-  // Gets the playable region of the game
-  sf::IntRect GetRegion() const;
-  // Changes the desired size of the region based upon the left position on the region
-  void SetTargetLeft(int targetWorldWidth);
-  // Returns whether the world has finished changing the region size if it was previously transitioning
-  bool FinishedTransitioning() const;
+  // Gets the playable bounds of the game
+  sf::Vector2f GetBounds() const;
+  // Gets a pointer to a specified attachment point
+  void Attach(AttachPoint point, std::function<void(sf::Vector2f)>& function);
 
 private:
-  // Could use a scale handler for resizing
-  sf::IntRect playableRegion;     // The playable region of the game
-  sf::RectangleShape renderRect;  // The rectangle to represent the world region
+  sf::Vector2f bounds;            // The bounds of the world
+  sf::RectangleShape renderRect;  // The rectangle used to render the world
 
-  int targetLeft = 0;             // The new desired left position of the region if a transition is happening
-  bool isTransitioning = false;   // Whether or not the world is currently changing sizes
+  std::vector<Attachment> attachments{(int)AttachPoint::null}; // Points on the world border that components can attach to
 };
 
 #endif

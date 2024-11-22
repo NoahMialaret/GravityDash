@@ -16,6 +16,8 @@ Game::Game(int numHumans, int numComputers)
 
 void Game::Update()
 {
+  world.get()->Update();
+  
 	for (auto& character : characters)
 		character.get()->Update();
 
@@ -85,9 +87,14 @@ int Game::NumCharacters() const
   return characters.size();
 }
 
-const World* Game::GetWorld() const
+sf::Vector2f Game::GetWorldBounds() const
 {
-  return world.get();
+  return world.get()->GetBounds();
+}
+
+void Game::Attach(World::AttachPoint point, std::function<void(sf::Vector2f)> function)
+{
+  world.get()->Attach(point, function);
 }
 
 void Game::CorrectCharacterPos(Character* character)
@@ -95,13 +102,13 @@ void Game::CorrectCharacterPos(Character* character)
 	sf::Vector2f playerPos = character->GetPosition();
 	float posBuffer = 0.5f * SCALED_DIM;
 
-	sf::FloatRect playableRegion = (sf::FloatRect)world.get()->GetRegion();
+	sf::Vector2f bounds = world.get()->GetBounds();
 
-  float horiOffset = std::abs(playerPos.x) + posBuffer - std::abs(playableRegion.left);
+  float horiOffset = std::abs(playerPos.x) + posBuffer - std::abs(bounds.x);
 	if (horiOffset > 0)
     character->WallCollision(-horiOffset * Utility::GetSign(playerPos.x));
 
-  float vertOffset = std::abs(playerPos.y) + posBuffer - std::abs(playableRegion.top);
+  float vertOffset = std::abs(playerPos.y) + posBuffer - std::abs(bounds.y);
 	if (vertOffset > 0)
     character->FloorCollision(-vertOffset * Utility::GetSign(playerPos.y));
 }

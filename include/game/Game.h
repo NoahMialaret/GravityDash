@@ -10,6 +10,7 @@
 #include "ProgramSettings.h"
 #include "Utility.h"
 
+#include <functional>
 #include <iostream>
 #include <list>
 #include <memory>
@@ -35,8 +36,10 @@ public:
   void SpawnObject(std::unique_ptr<GameObject> newObject);
   // Returns the number of characters in the game
   int NumCharacters() const;
-  // Returns a pointer to the game world
-  const World* GetWorld() const;
+  // Returns the bounds of the game world
+  sf::Vector2f GetWorldBounds() const;
+  // Attaches given function to the specfied world attachment
+  void Attach(World::AttachPoint point, std::function<void(sf::Vector2f)> function);
 
 private:
   // Corrects the character positions based on the bouding playable region

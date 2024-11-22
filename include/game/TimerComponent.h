@@ -1,5 +1,5 @@
-#ifndef GAMETIMER_H
-#define GAMETIMER_H
+#ifndef TIMERCOMPONENT_H
+#define TIMERCOMPONENT_H
 
 #include <SFML/Graphics.hpp>
 
@@ -11,7 +11,7 @@
 #include "Game.h"
 #include "GameComponent.h"
 
-
+#include <functional>
 #include <iostream>
 
 // A class to display and keep track of the time remaining in a game
@@ -30,9 +30,9 @@ private:
   void AddTime(int addition);
 
 private:
-  sf::Sprite sprite;   // The sprite for the timer gauge
+  sf::Sprite sprite;  // The sprite for the timer gauge
 
-  bool done = false; // Whether the timer is done
+  bool done = false;  // Whether the timer is done
 
   sf::RectangleShape timeRect; // The rectangle used to display how much time is left
 
