@@ -26,24 +26,13 @@ public:
   void Render(sf::RenderWindow* win) const override;
 
 private:
-
   // Add or subtracts time from the timer
   void AddTime(int addition);
-
-  // Pauses the timer so that it no longer ticks when Update() is called
-  void Pause();
-  // Updauses the timer so that it can resume ticking
-  void Unpause();
-  // Returns whether or not the timer is paused
-  bool IsPaused() const;
-
-  // Gets the timer's position
-  sf::Vector2f GetPosition() const;
 
 private:
   sf::Sprite sprite;   // The sprite for the timer gauge
 
-  bool paused = false; // Whether the timer is paused
+  bool done = false; // Whether the timer is done
 
   sf::RectangleShape timeRect; // The rectangle used to display how much time is left
 

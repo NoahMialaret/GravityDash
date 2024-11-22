@@ -1,6 +1,6 @@
 #include "Program.h"
 
-std::vector<Event> Event::events;
+std::queue<Event> Event::events;
 
 Program::Program(const char* name)
 {
@@ -165,7 +165,7 @@ void Program::HandleEvents()
     }
 		
 		default:
-			std::cout << "Event type could not be determined.\n";
+      gameManager.get()->ProcessEvents(event);
 			break;
 		}
 	}

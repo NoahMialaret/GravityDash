@@ -2,57 +2,27 @@
 
 Game::Game(int numHumans, int numComputers)
 {
-  GameStats::localStats = GameStats::Local();
+  world = std::make_unique<World>();
 
-  sf::Vector2i worldSize = int(SCALED_DIM) * sf::Vector2i(16, 8);
-	sf::IntRect worldRect(- worldSize / 2, worldSize);
-  world = std::make_unique<World>(worldRect);
-
-  int playerNum = 0;
-
-  for (int i = 0; i < numHumans && playerNum < 4; i++)
-	{  
-		characters.push_back(std::make_unique<PlayableCharacter>(playerNum, ProgramSettings::GetControls(playerNum)));
-    playerNum++;
-	}
-  
-  for (int i = 0; i < numComputers && playerNum < 4; i++)
-  {    
-    characters.push_back(std::make_unique<ComputerCharacter>(playerNum));
-    playerNum++;
+  int numPlayers = std::min(4, numHumans + numComputers);
+  for (int i = 0; i < numPlayers; i++)
+  {
+    if (i < numHumans)
+		  characters.push_back(std::make_unique<PlayableCharacter>(i, ProgramSettings::GetControls(i)));
+    else
+      characters.push_back(std::make_unique<ComputerCharacter>(i));
   }
-
-  if (playerNum == 0)
-  {    
-    std::cout << "WARNING! Game was started with no characters!\n";
-    characters.push_back(std::make_unique<ComputerCharacter>(0));
-    characters[0].get()->Jump();
-  }
-}
-
-Game::~Game()
-{
-  std::cout << "Deleting the game and it's objects...\n";
-
-  Utility::scoreMultiplier = 1.0f;
-
-  objects.clear();
 }
 
 void Game::Update()
 {
-	for (auto& p : characters)
-	{
-		p.get()->Update();
-    CorrectCharacterPos(p.get());
-	}
+	for (auto& character : characters)
+		character.get()->Update();
 
   for (auto prev = objects.before_begin(), cur = objects.begin(); cur != objects.end();)
   {
     while (cur != objects.end() && cur->get()->IsTombstoned())
-    {
       cur = objects.erase_after(prev);
-    }
 
     if (cur == objects.end())
       break;
@@ -68,13 +38,17 @@ void Game::Update()
     cur++;
   }
 
+  // Corrects position afterwards to ensure that collision events are handled first
+  for (auto& character : characters)
+    CorrectCharacterPos(character.get());
+
 	if (gameOver)
 		return;
 
   gameOver = true;
-  for (auto& p : characters)
+  for (auto& character : characters)
   {
-    if (p.get()->GetCurState() != Character::State::dead)
+    if (character.get()->GetCurState() != Character::State::dead)
     {
       gameOver = false;
       break;
@@ -86,37 +60,7 @@ void Game::Update()
     objects.clear();
     Event event;
     event.type = Event::Type::gameDone;
-    Event::events.push_back(event);
-    return;
-  }
-
-  if (spawnersEnabled)
-    SpawnObjects();
-}
-
-void Game::SpawnObjects()
-{
-	sf::IntRect playableRegion = world.get()->GetRegion();
-  spikeSpawnTimer -= Clock::Delta();
-  spawnTimer -= Clock::Delta();
-
-  while (spawnTimer <= 0)
-  {
-    spawnTimer += 16;
-    std::uniform_int_distribution spawnChance(0, 99);
-    int randomInt = spawnChance(Utility::rng);
-
-
-    if (0 != 0 && spikeSpawnTimer <= 0)
-    {
-      objects.push_front(std::make_unique<Saw>(playableRegion));
-      spikeSpawnTimer = 500 + randomInt * 10; // Spawns every 1000 +- 500 ms
-    }
-
-    if (randomInt > 90)
-    {           
-      objects.push_front(std::make_unique<MovingTarget>(playableRegion));
-    }  
+    Event::events.push(event);
   }
 }
 
@@ -133,11 +77,12 @@ void Game::Render(sf::RenderWindow* win) const
 
 void Game::SpawnObject(std::unique_ptr<GameObject> newObject)
 {
+  objects.push_front(std::move(newObject));
 }
 
-int Game::NumPlayers() const
+int Game::NumCharacters() const
 {
-  return 0;
+  return characters.size();
 }
 
 const World* Game::GetWorld() const
@@ -145,34 +90,20 @@ const World* Game::GetWorld() const
   return world.get();
 }
 
-void Game::CorrectCharacterPos(Character *player)
+void Game::CorrectCharacterPos(Character* character)
 {
-	sf::Vector2f playerPos = player->GetPosition();
+	sf::Vector2f playerPos = character->GetPosition();
 	float posBuffer = 0.5f * SCALED_DIM;
 
 	sf::FloatRect playableRegion = (sf::FloatRect)world.get()->GetRegion();
 
-	if (playerPos.x <= playableRegion.left + posBuffer)
-	{
-    float offset = playableRegion.left + posBuffer - playerPos.x;
-    player->WallCollision(offset);
-	}
-	else if (playerPos.x + posBuffer > playableRegion.left + playableRegion.width)
-	{
-    float offset = playableRegion.left + playableRegion.width - posBuffer - playerPos.x;
-    player->WallCollision(offset);
-	}
+  float horiOffset = std::abs(playerPos.x) + posBuffer - std::abs(playableRegion.left);
+	if (horiOffset > 0)
+    character->WallCollision(-horiOffset * Utility::GetSign(playerPos.x));
 
-  if (playerPos.y - posBuffer < playableRegion.top)
-  {
-    float offset = playableRegion.top + posBuffer - playerPos.y;
-    player->FloorCollision(offset);
-  }
-  else if (playerPos.y + posBuffer > playableRegion.top + playableRegion.height)
-  {
-    float offset = playableRegion.top + playableRegion.height - posBuffer - playerPos.y;
-    player->FloorCollision(offset);
-	}
+  float vertOffset = std::abs(playerPos.y) + posBuffer - std::abs(playableRegion.top);
+	if (vertOffset > 0)
+    character->FloorCollision(-vertOffset * Utility::GetSign(playerPos.y));
 }
 
 bool Game::IsGameOver() const
@@ -180,266 +111,19 @@ bool Game::IsGameOver() const
 	return gameOver;
 }
 
-void Game::ProcessEvent(Event &event)
+void Game::ProcessEvent(Event& event)
 {
+  switch (event.type)
+  {
+  case Event::Type::gameTimeUp:
+    spawnersEnabled = false;
+    for (auto& character : characters)
+      character.get()->Kill();
+    for (auto& object : objects)
+      object.get()->Deactivate();
+    break;
+  
+  default:
+    break;
+  }
 }
-
-// ============
-// --- Min ---
-// ============
-
-// Min::Min(Event::GameConfig& config)
-//   :
-//   Game(config)
-// {
-//   sf::IntRect worldRect = world.get()->GetRegion();
-// 	score = std::make_unique<GameScore>(sf::Vector2f(0.0f, worldRect.top - 6 * ProgramSettings::gameScale));
-//   spikeSpawnTimer = 1000;
-
-//    = std::make_unique<GameTimer>(config.maxTime * 1000, sf::Vector2f(worldRect.left + worldRect.width + ProgramSettings::gameScale, 
-//     worldRect.top + worldRect.height - 2 * ProgramSettings::gameScale));
-
-//   sf::Vector2f boostPos(worldRect.left + 5.0f * ProgramSettings::gameScale, - worldRect.top + ProgramSettings::gameScale);
-
-//   for (int i = 0; i < characters.size(); i++)
-//   {
-//     if (i % 2 == 1)
-//       boostPos.x = -boostPos.x;
-//     else 
-//       boostPos.y = -boostPos.y;
-
-//     characters[i].get()->EnableBoost(boostPos);
-//     characters[i].get()->LinkScore(score.get());
-//   }
-// }
-
-// void Min::Update()
-// {
-
-//   score.get()->Update();
-
-//   if (gameOver)
-//   {
-//     Game::Update();
-//     return;
-//   }
-  
-//   if (ProgramSettings::GetControls()->IsBindingOnInitialClick(Controls::Binding::escape))
-//   {
-//     Event event;
-//     event.type = Event::Type::pause;
-//     Event::events.push_back(event);
-//     return;
-//   }
-  
-//   UpdateTimer();
-
-//   Game::Update();
-
-//   if (gameOver)
-//   {
-// 		std::cout << "\nThe game is over! Well played!\n";
-// 		std::cout << "\tYou scored: " << score.get()->GetAsString() << " points!\n\n";
-//   }
-// }
-
-// void Min::Render(sf::RenderWindow *win) const
-// {
-//   Game::Render(win);
-
-//   score.get()->Render(win);
-//   timer.get()->Render(win);
-// }
-
-// void Min::UpdateTimer()
-// {
-//   if (!timeUp && timer.get()->Update())
-//   {
-//     std::cout << "Time is up, it's you're last jump!\n";
-//     timeUp = true;
-//     spawnersEnabled = false;
-//     for (auto& p : characters)
-//     {
-//       p.get()->Kill();
-//     }
-
-//     for (auto& object : objects)
-//       object.get()->Deactivate();
-//   }
-// }
-
-// // =============
-// // --- Rush ---
-// // =============
-
-// Rush::Rush(Event::GameConfig& config)
-//   :
-//   Min(config)
-// {
-//   GameStats::localStats.timeBoosts = 0;
-  
-//   arrow = Entity("arrow", nullptr, (sf::Vector2i)Textures::textures.at("arrow").getSize());
-//   arrowBottom = timer.get()->GetPosition() + ProgramSettings::gameScale * sf::Vector2f(8.0f, -0.5f);
-//   arrow.QueueMotion(Curve::linear, 0, ZERO_VECTOR, arrowBottom);
-//   arrow.FlipX();
-
-//   sf::IntRect worldRect = world.get()->GetRegion();
-
-//   Utility::InitText(multiplierText, Textures::large, "*1.0", {0.0f, worldRect.height / 2.0f - SCALED_DIM + 2 * ProgramSettings::gameScale}, {0.5f, 0.0f}, {255, 229, 181});
-//   multiplierText.setOutlineColor({173, 103, 78});
-//   multiplierText.setOutlineThickness(ProgramSettings::gameScale);
-// }
-
-// void Rush::Update()
-// {  
-//   arrow.Update();
-//   if (gameOver)
-//   {
-//     Min::Update();
-//     return;
-//   }
-
-//   Min::Update();
-
-//   for (auto& p : characters)
-//   {
-//     int boost = p.get()->GetTimeBoost();
-//     if (boost)
-//     {
-//       storedTime += boost * 5;
-//       if (storedTime >= config.maxTime)
-//       {
-//         storedTime = config.maxTime;
-//       }
-//       arrow.ClearHandlers();
-//       arrow.QueueMotion(Curve::easeIn, 1000, arrow.GetPosition(), arrowBottom - (float)storedTime * sf::Vector2f(0.0f, ProgramSettings::gameScale) * 60.0f / (float)config.maxTime);
-//     }
-//   }
-
-//   // Increase target spawn chance on timer refill, but decrease time pickups?
-// }
-
-// void Rush::Render(sf::RenderWindow *win) const
-// {
-//   Min::Render(win);
-
-//   arrow.Render(win);
-
-//   win->draw(multiplierText);
-// }
-
-// void Rush::UpdateTimer()
-// {
-//   if (!timeUp && timer.get()->Update())
-//   {
-//     if (storedTime != 0)
-//     {
-//       timer.get()->AddTime(storedTime * 1000);
-//       storedTime = 0;
-//       arrow.ClearHandlers();
-//       arrow.QueueMotion(Curve::easeIn, 1000, arrow.GetPosition(), arrowBottom);
-//       Utility::scoreMultiplier += 0.1f;
-//       phase++;
-//       timeBonusCooldown = phase;
-//       if (Utility::scoreMultiplier >= 2.0f)
-//       {
-//         Utility::scoreMultiplier = 2.0f;
-//       }
-//       std::string multText = "*" + std::to_string((int)(10 * Utility::scoreMultiplier));
-//       multText.push_back(multText[2]);
-//       multText[2] = '.';
-//       Utility::UpdateText(multiplierText, multText, {0.5f, 0.0f});
-//       return;
-//     }
-//     std::cout << "Time is up, it's you're last jump!\n";
-//     timeUp = true;
-//     spawnersEnabled = false;
-//     for (auto& p : characters)
-//     {
-//       p.get()->Kill();
-//     }
-
-//     for (auto& object : objects)
-//       object.get()->Deactivate();
-//   }
-// }
-
-// void Rush::SpawnObjects()
-// {
-//   Game::SpawnObjects();
-
-//   timeBonusTimer -= Clock::Delta();
-
-// 	sf::IntRect playableRegion = world.get()->GetRegion();
-
-//   while (timeBonusTimer <= 0)
-//   {
-//     timeBonusTimer += 16;
-//     std::uniform_int_distribution spawnChance(0, 99);
-//     int randomInt = spawnChance(Utility::rng);
-
-//     if (randomInt > 98)
-//     {
-//       if (timeBonusCooldown > 0)
-//       {
-//         timeBonusCooldown--;
-//         return;
-//       }     
-//       objects.push_front(std::make_unique<TimeBonus>(playableRegion));
-//       timeBonusCooldown = phase;
-//     }  
-//   } 
-// }
-
-// // ============
-// // --- Wild ---
-// // ============
-
-// Wild::Wild(Event::GameConfig& config)
-//   :
-//   Game(config)
-// {
-// }
-
-// void Wild::Update()
-// {
-//   Game::Update();
-    
-//     // if (BeginNextPhase < Utility::clock.getElapsedTime().asMilliseconds() && curPhase != Phase::transition)
-//     // {
-//     //     if (curPhase == Phase::standard)
-//     //     {
-//     //         nextPhase = Phase::skinny;
-// 	// 		world.get()->SetTargetLeft(32);
-//     //     }
-//     //     if (curPhase == Phase::skinny)
-//     //     {
-//     //         nextPhase = Phase::standard;
-// 	// 		world.get()->SetTargetLeft(400);
-//     //     }
-//     //     std::cout << "Beginning world transition into phase: " << (int)nextPhase << '\n';
-//     //     curPhase = Phase::transition;
-//     // }
-
-
-//     // if (curPhase == Phase::transition)
-//     // {
-// 	// 	if (Entity::objects == nullptr)
-// 	// 	{
-// 	// 		world.get()->Update();
-
-// 	// 		if (world.get()->FinishedTransitioning())
-// 	// 		{
-// 	// 			BeginNextPhase = 5000 + CUR_TIME;
-// 	// 			curPhase = nextPhase;
-// 	// 		}
-// 	// 	}
-
-// 	// 	return;
-//     // }
-// }
-
-// void Wild::Render(sf::RenderWindow *win) const
-// {
-//   Game::Render(win);
-// }

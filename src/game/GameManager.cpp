@@ -1,6 +1,8 @@
 #include "GameManager.h"
 
 GameManager::GameManager(Event::GamePreset preset)
+  :
+  preset(preset)
 {
   switch (preset)
   {
@@ -65,7 +67,7 @@ void GameManager::LoadMinutePreset()
 {
   game = std::make_unique<Game>(1, 0);
 
-  components.push_front(std::make_unique<TimerComponent>(game.get(), 60000));
+  components.push_front(std::make_unique<TimerComponent>(game.get(), 5000));
 }
 
 void GameManager::LoadRushPreset()

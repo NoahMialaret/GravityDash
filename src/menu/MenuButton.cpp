@@ -21,7 +21,7 @@ void MenuButton::Move(sf::Vector2f offset)
 
 void MenuButton::Click() const
 {
-  Event::events.push_back(action);
+  Event::events.push(action);
 }
 
 void MenuButton::ToggleHighlight()

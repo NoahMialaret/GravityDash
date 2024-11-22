@@ -20,7 +20,7 @@ TimerComponent::TimerComponent(Game* game, int maxTime)
 
 void TimerComponent::Update()
 {
-  if (paused)
+  if (done)
     return;
   
   timeRemaining -= Clock::Delta();
@@ -35,7 +35,8 @@ void TimerComponent::Update()
   timeRemaining = 0;
   Event event;
   event.type = Event::Type::gameTimeUp;
-  Event::events.push_back(event);
+  Event::events.push(event);
+  done = true;
 }
 
 void TimerComponent::Render(sf::RenderWindow* win) const
@@ -53,24 +54,4 @@ void TimerComponent::AddTime(int addition)
   }
   
   timeRect.setSize(ProgramSettings::gameScale * sf::Vector2f(4.0f, (int)(60.0f * timeRemaining / maxTime)));
-}
-
-void TimerComponent::Pause()
-{
-  paused = true;
-}
-
-void TimerComponent::Unpause()
-{
-  paused = false;
-}
-
-bool TimerComponent::IsPaused() const
-{
-  return paused;
-}
-
-sf::Vector2f TimerComponent::GetPosition() const
-{
-  return sprite.getPosition();
 }

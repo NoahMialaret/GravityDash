@@ -1,8 +1,8 @@
 #include "World.h"
 
-World::World(sf::IntRect playableRegion)
+World::World(sf::Vector2i size)
     :
-    playableRegion(playableRegion)
+    playableRegion(-(int)SCALED_DIM * size / 2, (int)SCALED_DIM * size)
 {
     targetLeft = playableRegion.left;
     renderRect = sf::RectangleShape({ProgramSettings::windowDim.x, ProgramSettings::windowDim.y});

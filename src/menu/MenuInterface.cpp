@@ -65,7 +65,7 @@ void GridInterface::Update()
   }
   else if (controls->IsBindingOnInitialClick(Controls::Binding::escape))
   {
-    Event::events.push_back(menuReturn);
+    Event::events.push(menuReturn);
   }
 
   int xMove = controls->IsBindingClicked(Controls::Binding::right) - controls->IsBindingClicked(Controls::Binding::left);
@@ -127,7 +127,7 @@ void ListInterface::Update()
   }
   else if (controls->IsBindingOnInitialClick(Controls::Binding::escape))
   {
-    Event::events.push_back(menuReturn);
+    Event::events.push(menuReturn);
     curPos = 0;
   }
 
@@ -244,7 +244,7 @@ void OptionsInterface::Update()
 
   Controls* controls = ProgramSettings::GetControls();
   if (controls->IsBindingOnInitialClick(Controls::Binding::escape))
-    Event::events.push_back(menuReturn);
+    Event::events.push(menuReturn);
 
   float percent = bezier.GetValue(timer / 250.0f);
   origin = (1.0f - percent) * start + percent * end;

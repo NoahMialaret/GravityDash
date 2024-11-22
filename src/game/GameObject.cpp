@@ -38,7 +38,7 @@ void GameObject::HandleCollision(Character* character)
   if (!destructable)
   {
     tagEvent.value = character->GetID();
-    Event::events.push_back(tagEvent);
+    Event::events.push(tagEvent);
     return;
   }
   
@@ -55,7 +55,7 @@ void GameObject::ProcessTag()
     return;
 
   tagEvent.value = tag;
-  Event::events.push_back(tagEvent);
+  Event::events.push(tagEvent);
 
   if (destructable)
   {

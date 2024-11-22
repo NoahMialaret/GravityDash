@@ -1,6 +1,8 @@
 #ifndef EVENT_H
 #define EVENT_H
 
+#include <queue>
+
 // Stores a list of runtime game events to be processed in the Program class
 class Event
 {
@@ -60,17 +62,15 @@ public:
   static bool PollEvent(Event& event)
   {
     if (events.size() == 0)
-    {
       return false;
-    }
 
-    event = events[events.size() - 1];
-    events.pop_back();
+    event = events.front();
+    events.pop();
     return true;
   }
 
 public:
-  static std::vector<Event> events;   // Accumulated program events
+  static std::queue<Event> events;   // Accumulated program events
 
   Type type = Type::programClose;
   

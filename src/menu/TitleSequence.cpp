@@ -36,7 +36,7 @@ TitleSequence::TitleSequence()
 
   sf::Vector2i worldSize = int(SCALED_DIM) * sf::Vector2i(16, 8);
   sf::IntRect worldRect(- worldSize / 2, worldSize);
-  world = std::make_unique<World>(worldRect);
+  world = std::make_unique<World>();
 
   timer = 2000;
 }
@@ -86,7 +86,7 @@ void TitleSequence::Update()
       newEvent.type = Event::Type::reloadMenu;
       newEvent.menuType = Event::MenuType::main;
 
-      Event::events.push_back(newEvent);
+      Event::events.push(newEvent);
       return;
     }
   }
