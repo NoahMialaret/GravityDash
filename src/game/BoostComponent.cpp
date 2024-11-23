@@ -1,68 +1,103 @@
 #include "BoostComponent.h"
 
-PlayerBoost::PlayerBoost(sf::Vector2f bottomLeft, int limit)
+BoostComponent::BoostComponent(Game* game, int limit)
   :
-  limit(limit)
+  GameComponent(game),
+  boosts(game->NumCharacters())
 {
-
-  meter = Entity("boost_meter", nullptr, (sf::Vector2i)Textures::textures.at("boost_meter").getSize(), {0.0f, 1.0f});
-  meter.QueueMotion(Curve::linear, 0, Bezier({bottomLeft}));
-  meter.Update();
-  if (bottomLeft.x > 0)
-    meter.FlipX();
-  if (bottomLeft.y > 0)
-    meter.FlipY();
-
-  fill.setFillColor(sf::Color(255, 229, 181));
-  fill.setPosition(bottomLeft + ProgramSettings::gameScale * 
-    sf::Vector2f((bottomLeft.x < 0 ? 1.0f : -1.0f) * 1.0f, (bottomLeft.y < 0 ? -1.0f : 1.0f) * 2.0f));
-  fill.setSize({0.0f, 2.0f * ProgramSettings::gameScale});
-  if (bottomLeft.x > 0)
-    fill.scale({-1.0f, 1.0f});
-  if (bottomLeft.y > 0)
-    fill.scale({1.0f, -1.0f});
+  for (int i = 0; i < boosts.size(); i++)
+    boosts[i] = BoostMeter(game, i, limit);
 }
 
-void PlayerBoost::Update()
+void BoostComponent::Update()
 {
-  if (IsFull())
-    return;
-  
-  timer -= Clock::Delta();
-  
-  if (timer <= 0)
+  for (auto& boost : boosts)
+    boost.Update();
+}
+
+void BoostComponent::Render(sf::RenderWindow* win) const
+{
+  for (auto& boost : boosts)
+    boost.Render(win);
+}
+
+void BoostComponent::ProcessEvents(Event& event)
+{
+  switch (event.type)
   {
-    timer = 0;
+  case Event::Type::boostUsed:
+    boosts[event.value].Clear();
+    break;
+  
+  default:
+    break;
   }
+}
 
-  int width = 30.0f * (float)timer / (float)limit;
+BoostComponent::BoostMeter::BoostMeter(Game *game, int id, int limit)
+  :
+  id(id),
+  limit(limit)
+{
+  Utility::InitSprite(gauge, "boost_meter", ZERO_VECTOR, {1, 1}, {0.5f, 0.0f});
 
+  fill.setFillColor(sf::Color(255, 229, 181));
+  fill.setSize({0.0f, 2.0f * ProgramSettings::gameScale});
+
+  std::function<void(sf::Vector2f)> updatePosFunction = [this](sf::Vector2f pos)
+  {
+    gauge.setPosition(pos);
+    fill.setPosition(pos - sf::Vector2f(gauge.getGlobalBounds().width / 2 - ProgramSettings::gameScale, 0.0f));
+  };
+  game->Attach(World::AttachPoint((int)World::AttachPoint::topLeft + id), updatePosFunction);
+  
+  // Meters placed at the top of the world need to be flipped vertically
+  if (id < 2)
+  {
+    gauge.scale({1.0f, -1.0f});
+    fill.scale({1.0f, -1.0f});
+  }
+}
+
+void BoostComponent::BoostMeter::Update()
+{
+  if (fillAmount >= limit)
+    return;
+
+  // Temp testing code
+  Increment(200);
+  
+  fillAmount = std::max(fillAmount - Clock::Delta(), 0);
+
+  int width = (gauge.getTextureRect().width - 2.0f) * (float)fillAmount / (float)limit;
   fill.setSize(ProgramSettings::gameScale * sf::Vector2f((float)width, 2.0f));
 }
 
-void PlayerBoost::Render(sf::RenderWindow *win) const
+void BoostComponent::BoostMeter::Render(sf::RenderWindow* win) const
 {
   win->draw(fill);
-  meter.Render(win);
+  win->draw(gauge);
 }
 
-void PlayerBoost::Increment(int amount)
+void BoostComponent::BoostMeter::Increment(int amount)
 {
-  timer += amount;
-  if (timer > limit)
+  if (fillAmount >= limit)
+    return;
+
+  fillAmount += amount;
+  if (fillAmount >= limit)
   {
-    timer = limit;
-    fill.setSize(ProgramSettings::gameScale * sf::Vector2f(30.0f, 2.0f));
+    fill.setSize(ProgramSettings::gameScale * sf::Vector2f(gauge.getTextureRect().width - 2.0f, 2.0f));
+    
+    Event event;
+    event.type = Event::Type::boostFull;
+    event.value = id;
+    Event::events.push(event);
   }
 }
 
-void PlayerBoost::Clear()
+void BoostComponent::BoostMeter::Clear()
 {
-  timer = 0;
+  fillAmount = 0;
   fill.setSize({0.0f, 2.0f * ProgramSettings::gameScale});
-}
-
-bool PlayerBoost::IsFull() const
-{
-  return timer >= limit;
 }

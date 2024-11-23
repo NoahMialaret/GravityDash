@@ -6,11 +6,11 @@
 #include "AnimationHandler.h"
 #include "Clock.h"
 #include "Controls.h"
+#include "Event.h"
 #include "Entity.h"
 #include "GameStats.h"
 #include "Number.h"
 #include "Particle.h"
-#include "BoostComponent.h"
 #include "Textures.h"
 #include "Utility.h"
 #include "ProgramSettings.h"
@@ -50,8 +50,10 @@ public:
 
   // Initiates a jump if allowed
   void Jump();
-  // Initiates a super jump if the boost meter is full
+  // Initiates a super jump if available
   void SuperJump();
+  // Enables the ability to do a super jump
+  void EnableSuperJump();
   // Reorientates the player and changes the player's state when the player has landed after jumping
   void Land();
   // Handles the players verticle collision with floors, and lands them from a jump if airborne
@@ -124,8 +126,8 @@ protected:
   int invincibilityTimer = 0; // The timer for how long the player is invincible for
   int stunTimer = 0; // The timer for how long the player is stunned for
 
-  std::unique_ptr<PlayerBoost> boost = nullptr;
-  int boostJumpsRemaining = -1;
+  bool superJumpEnabled = false;
+  int bouncesLeft = -1;
 
   Entity reticle;
   sf::Vector2f reticlePos;

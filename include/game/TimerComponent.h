@@ -14,7 +14,7 @@
 #include <functional>
 #include <iostream>
 
-// A class to display and keep track of the time remaining in a game
+// A GameComponent providing timer functionality, which can be refilled under certain conditions
 class TimerComponent : public GameComponent
 {
 public:

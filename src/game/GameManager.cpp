@@ -61,6 +61,7 @@ Event::GamePreset GameManager::GetPreset() const
 void GameManager::LoadTitlePreset()
 {
   game = std::make_unique<Game>(0, 4);
+  components.push_front(std::make_unique<BoostComponent>(game.get(), 30000));
 }
 
 void GameManager::LoadMinutePreset()
@@ -68,6 +69,7 @@ void GameManager::LoadMinutePreset()
   game = std::make_unique<Game>(1, 0);
 
   components.push_front(std::make_unique<TimerComponent>(game.get(), 5000));
+  components.push_front(std::make_unique<BoostComponent>(game.get(), 30000));
 }
 
 void GameManager::LoadRushPreset()

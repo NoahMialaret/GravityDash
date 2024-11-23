@@ -34,7 +34,7 @@ void Character::Update()
   
   prevPos = pos;
 
-  if (boost != nullptr && boost.get()->IsFull())
+  if (superJumpEnabled)
   {
     if (move)
     {
@@ -124,9 +124,6 @@ void Character::Update()
     vel.y += (isUpright ? 1.0f : -1.0f) * 0.05f * Clock::Delta();
   }
 
-  if (!finalJump && boost != nullptr)
-    boost.get()->Update();
-
   pos += (finalJump ? 0.5f : 1.0f) * (Clock::Delta() / 16.0f) * vel;
 
   entity.Update();
@@ -174,15 +171,8 @@ void Character::Render(sf::RenderWindow *win) const
     }
   }
 
-  if (boost == nullptr)
-    return;
-
-  if (boost.get()->IsFull() && curState <= State::moving && !finalJump)
-  {
+  if (superJumpEnabled && curState <= State::moving && !finalJump)
     reticle.Render(win);
-  }
-
-  boost.get()->Render(win);
 }
 
 void Character::Jump()
@@ -207,16 +197,21 @@ void Character::Jump()
 
 void Character::SuperJump()
 {
-  if (curState >= State::airborne || (boost != nullptr && !boost.get()->IsFull()))
-  {
+  if (curState >= State::airborne || !superJumpEnabled)
     return;
-  }
+
+  superJumpEnabled = false;
+
+  Event event;
+  event.type = Event::Type::boostUsed;
+  event.value = charID;
+  Event::events.push(event);
 
   GameStats::localStats.specials++;
 
   float jumpSpeed = acceleration * 80.0f * (isUpright ? -1.0f : 1.0f);
 
-  boostJumpsRemaining = 5;
+  bouncesLeft = 5;
   vel.y = std::cos(reticleAngle) * jumpSpeed;
   vel.x = std::sin(reticleAngle) * jumpSpeed;
   
@@ -226,6 +221,11 @@ void Character::SuperJump()
   curState = State::airborne;
   
   entity.SetAnimation((int)curState, 20);
+}
+
+void Character::EnableSuperJump()
+{
+  superJumpEnabled = true;
 }
 
 void Character::Land()
@@ -250,11 +250,6 @@ void Character::Land()
     queueFinalJump = false;
   }
 
-  if (boost != nullptr && comboCount >= 2 && boostJumpsRemaining == -1)
-  {
-    boost.get()->Increment(2000);
-  }
-
   if (comboCount >= 3)
   {
     canCollect = true;
@@ -265,7 +260,7 @@ void Character::Land()
     timeBoostCollected = 0;
   }
 
-  boostJumpsRemaining = -1;
+  bouncesLeft = -1;
 
   comboCount = 0;
 
@@ -283,18 +278,17 @@ void Character::FloorCollision(float distance)
 
   if (curState == State::airborne)
   {
-    if (boostJumpsRemaining <= 0)
+    if (bouncesLeft <= 0)
     {
       Land();
       return;
     }
 
-    boostJumpsRemaining--;
+    bouncesLeft--;
 
-    if (boostJumpsRemaining == 0)
+    if (bouncesLeft == 0)
     {
       invincibilityTimer = 2000;
-      boost.get()->Clear();
       Land();
       return;
     }
@@ -317,7 +311,7 @@ void Character::FloorCollision(float distance)
 void Character::WallCollision(float distance)
 {
   pos.x += distance;
-  if (boostJumpsRemaining >= 0)
+  if (bouncesLeft >= 0)
   {
     pos.x += distance;
     vel.x = - vel.x;
@@ -330,7 +324,7 @@ void Character::WallCollision(float distance)
 
 bool Character::Hit(sf::Vector2f entPos)
 {
-  if (invincibilityTimer > 0 || curState >= State::hit || boostJumpsRemaining >= 0 || finalJump)
+  if (invincibilityTimer > 0 || curState >= State::hit || bouncesLeft >= 0 || finalJump)
   {
     return false;
   }
@@ -424,11 +418,6 @@ void Character::IncrementComboCount()
   }
 }
 
-void Character::EnableBoost(sf::Vector2f boostPos)
-{
-  boost = std::make_unique<PlayerBoost>(boostPos);
-}
-
 void Character::LinkScore(GameScore* score)
 {
   gameScore = score;
@@ -458,7 +447,7 @@ int Character::GetID()
 
 void Character::AddNewPoint(sf::Vector2f pos, sf::Vector2f vel)
 {
-  if (boostJumpsRemaining >= 0)
+  if (bouncesLeft >= 0)
   {
     AddNewPoint(1000, pos, vel);
     return;

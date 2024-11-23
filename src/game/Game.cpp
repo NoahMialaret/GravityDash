@@ -129,6 +129,10 @@ void Game::ProcessEvent(Event& event)
     for (auto& object : objects)
       object.get()->Deactivate();
     break;
+
+  case Event::Type::boostFull:
+    characters[event.value].get()->EnableSuperJump();
+    break;
   
   default:
     break;

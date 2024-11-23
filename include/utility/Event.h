@@ -52,7 +52,9 @@ public:
     collisionTimeBonus, // int (charID)
 
     boostFull,    // int (charID)
+    boostUsed,    // int (charID)
     playerLand,   // int (charID)
+    playerCombo,  // pair<int, int> (charID, comboCount)
     timerRefill,  // null
   };
 

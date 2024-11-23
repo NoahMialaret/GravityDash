@@ -3,6 +3,7 @@
 
 #include <SFML/Graphics.hpp>
 
+#include "BoostComponent.h"
 #include "Event.h"
 #include "Game.h"
 #include "GameComponent.h"
