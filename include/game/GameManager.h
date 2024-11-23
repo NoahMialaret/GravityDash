@@ -7,6 +7,7 @@
 #include "Event.h"
 #include "Game.h"
 #include "GameComponent.h"
+#include "ObjectSpawnComponent.h"
 #include "TimerComponent.h"
 
 #include <memory>

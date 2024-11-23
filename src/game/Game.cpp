@@ -79,7 +79,8 @@ void Game::Render(sf::RenderWindow* win) const
 
 void Game::SpawnObject(std::unique_ptr<GameObject> newObject)
 {
-  objects.push_front(std::move(newObject));
+  if (spawnersEnabled)
+    objects.push_front(std::move(newObject));
 }
 
 int Game::NumCharacters() const
@@ -87,7 +88,7 @@ int Game::NumCharacters() const
   return characters.size();
 }
 
-sf::Vector2f Game::GetWorldBounds() const
+const sf::Vector2f& Game::GetWorldBounds() const
 {
   return world.get()->GetBounds();
 }

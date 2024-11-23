@@ -37,7 +37,7 @@ public:
   // Returns the number of characters in the game
   int NumCharacters() const;
   // Returns the bounds of the game world
-  sf::Vector2f GetWorldBounds() const;
+  const sf::Vector2f& GetWorldBounds() const;
   // Attaches given function to the specfied world attachment
   void Attach(World::AttachPoint point, std::function<void(sf::Vector2f)> function);
 

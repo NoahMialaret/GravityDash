@@ -38,7 +38,7 @@ public:
   void Render(sf::RenderWindow* win) const;
 
   // Gets the playable bounds of the game
-  sf::Vector2f GetBounds() const;
+  const sf::Vector2f& GetBounds() const;
   // Gets a pointer to a specified attachment point
   void Attach(AttachPoint point, std::function<void(sf::Vector2f)>& function);
 

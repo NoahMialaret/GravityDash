@@ -68,13 +68,22 @@ void GameManager::LoadMinutePreset()
 {
   game = std::make_unique<Game>(1, 0);
 
-  components.push_front(std::make_unique<TimerComponent>(game.get(), 5000));
+  // components.push_front(std::make_unique<TimerComponent>(game.get(), 60000));
   components.push_front(std::make_unique<BoostComponent>(game.get(), 30000));
+  components.push_front(std::make_unique<ObjectSpawnComponent<MovingTarget>>(game.get(), 100, 100, 0.9f));
+  components.push_front(std::make_unique<ObjectSpawnComponent<Saw>>(game.get(),  1500, 500));
+
 }
 
 void GameManager::LoadRushPreset()
 {
   game = std::make_unique<Game>(1, 0);
+
+  components.push_front(std::make_unique<TimerComponent>(game.get(), 60000));
+  components.push_front(std::make_unique<BoostComponent>(game.get(), 30000));
+  components.push_front(std::make_unique<ObjectSpawnComponent<MovingTarget>>(game.get(), 100, 100, 0.9f));
+  components.push_front(std::make_unique<ObjectSpawnComponent<Saw>>(game.get(),  1500, 500));
+  components.push_front(std::make_unique<ObjectSpawnComponent<TimeBonus>>(game.get(),  5000, 1000));
 }
 
 void GameManager::LoadCoopPreset()

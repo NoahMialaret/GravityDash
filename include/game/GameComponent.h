@@ -12,7 +12,7 @@ public:
   GameComponent(Game* game);
 
   virtual void Update() = 0;
-  virtual void Render(sf::RenderWindow* win) const = 0;
+  virtual void Render(sf::RenderWindow* win) const{};
   virtual void ProcessEvents(Event& event){}
   // Returns game relevant stats specific to this component (e.g. score)
   virtual void GetGameStats(){}

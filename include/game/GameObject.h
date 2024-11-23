@@ -22,7 +22,7 @@ class GameObject
 {
 public:
   // Constructs the object's boundary and entity
-  GameObject(sf::IntRect& worldBorder);
+  GameObject(const sf::Vector2f& worldBounds);
 
   // Updates the objects position and entity
   virtual void Update();
@@ -46,7 +46,7 @@ public:
   bool IsTombstoned() const;
 
 protected:
-  std::pair<int, int> bounds; // Horizontal boundary, objects get tombstoned outside of this
+  const sf::Vector2f& worldBounds;  // World bounds, objects get tombstoned outside of this
   
   Entity entity; // The entity used by the object for rendering and animations
 
@@ -69,7 +69,7 @@ class Saw : public GameObject
 {
 public:
   // Initialises `Saw` with a random position and direction on the top or bottom of the world
-  Saw(sf::IntRect& worldBorder);
+  Saw(const sf::Vector2f& worldBounds);
 
   // Causes the saw to move outside of the game region
   void Deactivate() override;
@@ -83,7 +83,7 @@ class MovingTarget : public GameObject
 {
 public:
   // Initialises `MovingTarget` with a random velocity and vertical position 
-  MovingTarget(sf::IntRect& worldBorder);
+  MovingTarget(const sf::Vector2f& worldBounds);
   // Updates the oscillation of the object
   void Update() override;
 
@@ -98,7 +98,7 @@ class TimeBonus : public GameObject
 {
 public:
   // Initialises `TimeBonus` with a random velocity and vertical position 
-  TimeBonus(sf::IntRect& worldBorder);
+  TimeBonus(const sf::Vector2f& worldBounds);
 };
 
 #endif

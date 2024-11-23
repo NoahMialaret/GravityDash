@@ -5,14 +5,13 @@
 
 #include "Clock.h"
 #include "Event.h"
-#include "Utility.h"
-#include "ProgramSettings.h"
 #include "Game.h"
 #include "GameComponent.h"
+#include "ProgramSettings.h"
+#include "Utility.h"
 #include "World.h"
 
 #include <functional>
-#include <iostream>
 
 // A GameComponent providing timer functionality, which can be refilled under certain conditions
 class TimerComponent : public GameComponent

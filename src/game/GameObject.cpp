@@ -1,14 +1,15 @@
 #include "GameObject.h"
 
-GameObject::GameObject(sf::IntRect& worldBorder)
+GameObject::GameObject(const sf::Vector2f& worldBounds)
   :
-  bounds({worldBorder.left - SCALED_DIM, worldBorder.left + worldBorder.width + SCALED_DIM}),
+  worldBounds(worldBounds),
+  // bounds({worldBorder.left - SCALED_DIM, worldBorder.left + worldBorder.width + SCALED_DIM}),
   entity(Entity("objects"))
 {}
 
 void GameObject::Update()
 {
-  if (pos.x < bounds.first || pos.x > bounds.second)
+  if (pos.x < -(worldBounds.x + SCALED_DIM) || pos.x > worldBounds.x + SCALED_DIM)
     tombstone = true;
 
   if (tombstone)
@@ -94,9 +95,9 @@ void GameObject::Activate()
 // = Saw Class =
 // = --------- =
 
-Saw::Saw(sf::IntRect& worldBorder)
+Saw::Saw(const sf::Vector2f& worldBounds)
   :
-  GameObject(worldBorder)
+  GameObject(worldBounds)
 {
   tagEvent.type = Event::Type::collisionSaw;
 
@@ -114,8 +115,8 @@ Saw::Saw(sf::IntRect& worldBorder)
   int isGoingRight = dist(Utility::rng);
 
   vel = 0.0625f * ProgramSettings::gameScale * (isGoingRight ? 1.0f : -1.0f);
-  pos.x = isGoingRight ? worldBorder.left - posBuffer : worldBorder.left + worldBorder.width + posBuffer;
-  pos.y = isOnTop ? worldBorder.top : worldBorder.top + worldBorder.height;
+  pos.x = (isGoingRight ? -1.0f : 1.0f) * worldBounds.x + posBuffer;
+  pos.y = (isOnTop ? -1.0f : 1.0f) * worldBounds.y;
 }
 
 void Saw::Deactivate()
@@ -135,9 +136,9 @@ void Saw::Activate()
 // = Target Class =
 // = ------------ =
 
-MovingTarget::MovingTarget(sf::IntRect& worldBorder)
+MovingTarget::MovingTarget(const sf::Vector2f& worldBounds)
   :
-  GameObject(worldBorder)
+  GameObject(worldBounds)
 {
   tagEvent.type = Event::Type::collisionTarget;
 
@@ -149,9 +150,11 @@ MovingTarget::MovingTarget(sf::IntRect& worldBorder)
 
   std::uniform_int_distribution xDist(0, 1);
   int isGoingRight = xDist(Utility::rng);
-  pos.x = isGoingRight ? worldBorder.left - posBuffer : worldBorder.left + worldBorder.width + posBuffer;
+  pos.x = (isGoingRight ? -1.0f : 1.0f) * (worldBounds.x + posBuffer);
 
-  std::uniform_int_distribution yDist((worldBorder.top) + int(SCALED_DIM) + posBuffer, -worldBorder.top - (int(SCALED_DIM) + posBuffer));
+  std::uniform_int_distribution yDist(
+    int(SCALED_DIM - worldBounds.y) + posBuffer, 
+    int(worldBounds.y - SCALED_DIM) - posBuffer);
   pos.y = yDist(Utility::rng);
   yBase = pos.y;
 
@@ -178,9 +181,9 @@ void MovingTarget::Update()
 // = TimeBonus Class =
 // = --------------- =
 
-TimeBonus::TimeBonus(sf::IntRect& worldBorder)
+TimeBonus::TimeBonus(const sf::Vector2f& worldBounds)
   :
-  GameObject(worldBorder)
+  GameObject(worldBounds)
 {
   tagEvent.type = Event::Type::collisionTimeBonus;
 
@@ -192,11 +195,13 @@ TimeBonus::TimeBonus(sf::IntRect& worldBorder)
 
   std::uniform_int_distribution xDist(0, 1);
   int isGoingRight = xDist(Utility::rng);
-  pos.x = isGoingRight ? worldBorder.left - posBuffer : worldBorder.left + worldBorder.width + posBuffer;
+  pos.x = (isGoingRight ? -1.0f : 1.0f) * (worldBounds.x + posBuffer);
 
-  std::uniform_int_distribution yDist((worldBorder.top) + int(SCALED_DIM) + posBuffer, -worldBorder.top - (int(SCALED_DIM) + posBuffer));
+  std::uniform_int_distribution yDist(
+    int(SCALED_DIM - worldBounds.y) + posBuffer, 
+    int(worldBounds.y - SCALED_DIM) - posBuffer);
   pos.y = yDist(Utility::rng);
 
   std::uniform_real_distribution<float> floatDist(0.3f, 1.0f);
-  vel = 0.0625 * floatDist(Utility::rng) * ProgramSettings::gameScale * (isGoingRight ? 1.0f : -1.0f);
+  vel = 1.5f * 0.0625f * floatDist(Utility::rng) * ProgramSettings::gameScale * (isGoingRight ? 1.0f : -1.0f);
 }
