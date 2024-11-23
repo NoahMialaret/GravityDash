@@ -40,7 +40,7 @@ public:
   ~Program();
 
 	// Handles SFML events
-	void HandleEvents();
+	void ProcessEvents();
 	// Handles program logic
 	void Update();
 	// Handles graphics rendering

@@ -12,7 +12,7 @@ int main()
 	{
 		//float nextFrameStart = (float)CUR_TIME + (1000.0f / Utility::targetFrameRate);
 
-		program.HandleEvents();
+		program.ProcessEvents();
 		program.Update();
 		program.Render();
 

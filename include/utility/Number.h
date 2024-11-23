@@ -1,128 +1,168 @@
 #ifndef SCORE_H
 #define SCORE_H
 
-#include <SFML/Graphics.hpp>
-
-#include "Bezier.h"
-#include "Clock.h"
-#include "Textures.h"
 #include "Utility.h"
 #include "ProgramSettings.h"
 
-#include <forward_list>
 #include <list>
-#include <string>
-#include <vector>
 
-#define NEGATIVE_SIGN 10
-
-// A class representing the accumulated score accuired during gameplay
+// A templated class which represents a number as a list of digits 
+template<typename Digit>
 class Number
 {
 public:
-  // Constructs a number which is centred at the given position
-  Number(sf::Vector2f centre, sf::Vector2i digitSize, sf::Texture* tex);
-  // Constructs a number with a specified value
-  Number(int startingValue, sf::Vector2f centre, sf::Vector2i digitSize, sf::Texture* tex);
+  // Constructs a number with a given starting value
+  Number(unsigned int startingValue = 0);
 
-  virtual void Update() = 0;
-  // Renders the digits to the screen
-  virtual void Render(sf::RenderWindow* win) const;
+  // Adds `value` to Number
+  void AddValue(int value);
+  // Adds `value` to `digits`
+  static void AddValue(std::list<Digit>& digits, int value);
+  // Zeros out Number
+  void Zero(); 
+  // Zeros out `digits`
+  static void Zero(std::list<Digit>& digits);
+  // Returns the string representation of the number
+  std::string AsString() const;
 
-  // Add a given value to the number, uses Add() and Subtract()
-  void AddPoints(int value);
-  // Returns the number to zero
-  void Zero();
-  // Returns the number as an integer value
-  int GetAsInt() const;
-  // Returns the number as a string
-  std::string GetAsString() const;
-  // Gets the number's centre position
-  sf::Vector2f GetCentre() const;
-
-protected:
-  // Adds a digit to the number
-  void PushBackNumber(int value);
-  // Recentres the digits when a new one is added
-  void Recentre();
-  
+private:
   // Adds a positve value to the number
-  void Add(unsigned int value);
-  // Substracts a value from the number, Number cannot go below 0
-  void Subtract(unsigned int value);
-
-protected:
-  std::vector<sf::Sprite> scoreSprites; // The rendered digits of the number
-  std::vector<int> totalScore;          // The digits of the number
-
-  sf::Texture* tex;
-
-  sf::Vector2i digitSize; // The pixel dimensions of a single digit
-
-  sf::Vector2f centre; // The point where the number is centred on
-
-  bool isNegative = false; // Whether or not the number being stored is negative
-};
-
-// A Number child class that represents the scores that appear when a player hits a target
-class TargetPoints : public Number
-{
-public:
-  TargetPoints(sf::Vector2f centre, sf::Vector2f vel);
-  TargetPoints(int startingValue, sf::Vector2f centre, sf::Vector2f vel);
-
-  void Update() override;
-
-  void SetVelocity(sf::Vector2f newVel);
+  static void Add(std::list<Digit>& digits, unsigned int value);
+  // Substracts a value from the number, Number can't be negative
+  static void Subtract(std::list<Digit>& digits, unsigned int value);
 
 private:
-  sf::Vector2f vel;
-  int timer = 100; // Timer for when to stop moving after spawning if it hasn't been given to a TotalPoints yet
-  bool spawnVelocity = true; // Whether the point is using it's spawn velocity
+  std::list<Digit> digits; // The digits of the number, ordered from most to least significant
 };
 
-// A Number child class that represents the points that appear after combining TargetPoints
-class TotalPoints : public Number
+template <typename Digit>
+inline Number<Digit>::Number(unsigned int startingValue)
 {
-private:
-  enum class State
+  if (startingValue == 0)
   {
-    start,
-    accumulate,
-    total,
-    finish
-  };
+    digits.push_back(Digit(0));
+    return;
+  }
 
-public:
-  TotalPoints(std::forward_list<TargetPoints> targetPoints);
+  Add(digits, startingValue);
+}
 
-  // Updates the sprites to move up the screen
-  void Update() override;
-  void Render(sf::RenderWindow* win) const override;
-
-  bool HasFinished();
-
-private:
-  int prevIndex = 0; // The previous sprite index which was moved up
-  int timer; // How long the number remains before being deleted
-  std::forward_list<TargetPoints> targetPoints;
-  State curState = State::start;
-};
-
-// A Number child class that represents the score accumulated during a game
-class GameScore : public Number
+template <typename Digit>
+void Number<Digit>::AddValue(int value)
 {
-public:
-  GameScore(sf::Vector2f centre);
-  GameScore(int startingValue, sf::Vector2f centre);
+  AddValue(digits, value);
+}
 
-  void Update() override;
-  void Render(sf::RenderWindow* win) const override;
+template <typename Digit>
+inline void Number<Digit>::AddValue(std::list<Digit>& digits, int value)
+{
+  if (value > 0)
+    Add(digits, value);
+  else if (value < 0)
+    Subtract(digits, -value);
+}
 
-  void AddTargetPoints(std::forward_list<TargetPoints>& target); 
+template <typename Digit>
+void Number<Digit>::Zero()
+{
+  Zero(digits);
+}
 
-private:
-  std::list<TotalPoints> totalPoints;
-};
+template <typename Digit>
+inline void Number<Digit>::Zero(std::list<Digit>& digits)
+{
+  digits.clear();
+  digits.push_back(Digit(0));
+}
+
+template <typename Digit>
+inline std::string Number<Digit>::AsString() const
+{
+  std::string num;
+
+  for (auto it = digits.begin(); it != digits.end(); it++)
+  {
+    num.append(std::to_string(int(*it)));
+  }
+
+  return num;
+}
+
+template <typename Digit>
+void Number<Digit>::Add(std::list<Digit>& digits, unsigned int value)
+{
+  bool carry = false;
+  for (auto it = digits.rbegin(); it != digits.rend() && (value != 0 || carry); it++, value /= 10)
+  {
+    int digit = value % 10;
+
+    *it += digit + carry;
+
+    carry = false;
+
+    if ((int)(*it) > 9)
+    {
+      *it -= 10;
+      carry = true;
+    }
+  }
+
+  while (value != 0 || carry)
+  {
+    int digit = value % 10;
+
+    int newDigit = digit + carry;
+
+    carry = false;
+    if (newDigit > 9)
+    {
+      newDigit -= 10;
+      carry = true;
+    }
+
+    digits.push_front(Digit(newDigit));
+
+    value /= 10;
+  }
+}
+
+template <typename Digit>
+void Number<Digit>::Subtract(std::list<Digit>& digits, unsigned int value)
+{
+  bool carry = false;
+  
+  for (auto it = digits.rbegin(); it != digits.rend() && (value != 0 || carry); it++, value /= 10)
+  {
+    int digit = value % 10;
+
+    *it -= digit + carry;
+
+    carry = false;
+
+    if ((int)(*it) < 0)
+    {
+      if (digits.size() == 1)
+      {
+        Zero(digits);
+        return;
+      }
+      *it += 10;
+      carry = true;
+    }
+  }
+
+  if (value != 0 || carry)
+  {
+    Zero(digits);
+    return;
+  }
+
+  for (auto it = digits.begin(); it != digits.end() && *it == 0;)
+    it = digits.erase(it);
+
+  if (digits.empty())
+    Zero(digits);
+}
+
 
 #endif

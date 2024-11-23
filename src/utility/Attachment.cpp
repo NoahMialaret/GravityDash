@@ -32,3 +32,9 @@ void Attachment::Move(sf::Vector2f offset)
   if (isAttached)
     updateAttached(pos);
 }
+
+void Attachment::ForceUpdate()
+{
+  if (isAttached)
+    updateAttached(pos);
+}

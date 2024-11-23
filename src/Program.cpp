@@ -100,7 +100,7 @@ Program::~Program()
 	std::cout << "Program successfully cleaned!\n";
 }
 
-void Program::HandleEvents() 
+void Program::ProcessEvents() 
 {
 	Event event;
 

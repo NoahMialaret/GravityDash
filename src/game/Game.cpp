@@ -98,6 +98,11 @@ void Game::Attach(World::AttachPoint point, std::function<void(sf::Vector2f)> fu
   world.get()->Attach(point, function);
 }
 
+void Game::UpdateAttachment(World::AttachPoint point)
+{
+  world.get()->UpdateAttachment(point);
+}
+
 void Game::CorrectCharacterPos(Character* character)
 {
 	sf::Vector2f playerPos = character->GetPosition();

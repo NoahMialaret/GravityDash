@@ -13,10 +13,13 @@ World::World(sf::Vector2f size)
   attachments[(int)AttachPoint::left]  = Attachment({-bounds.x - outline, 0.0f});
   attachments[(int)AttachPoint::right] = Attachment({bounds.x + outline, 0.0f});
 
-  attachments[(int)AttachPoint::topLeft]     = Attachment({-0.5f * bounds.x, -bounds.y - outline});
-  attachments[(int)AttachPoint::topRight]    = Attachment({0.5f * bounds.x, -bounds.y - outline});
-  attachments[(int)AttachPoint::bottomLeft]  = Attachment({-0.5f * bounds.x, bounds.y + outline});
-  attachments[(int)AttachPoint::bottomRight] = Attachment({0.5f * bounds.x, bounds.y + outline});
+  attachments[(int)AttachPoint::top]    = Attachment({0.0f, -bounds.y - outline});
+  attachments[(int)AttachPoint::bottom] = Attachment({0.0f, bounds.y + outline});
+
+  attachments[(int)AttachPoint::topLeft]     = Attachment({-0.7f * bounds.x, -bounds.y - outline});
+  attachments[(int)AttachPoint::topRight]    = Attachment({0.7f * bounds.x, -bounds.y - outline});
+  attachments[(int)AttachPoint::bottomLeft]  = Attachment({-0.7f * bounds.x, bounds.y + outline});
+  attachments[(int)AttachPoint::bottomRight] = Attachment({0.7f * bounds.x, bounds.y + outline});
 }
 
 void World::Update()
@@ -37,4 +40,9 @@ const sf::Vector2f& World::GetBounds() const
 void World::Attach(AttachPoint point, std::function<void(sf::Vector2f)>& function)
 {
   attachments[(int)point].Attach(function);
+}
+
+void World::UpdateAttachment(World::AttachPoint point)
+{
+  attachments[(int)point].ForceUpdate();
 }

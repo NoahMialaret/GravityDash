@@ -9,7 +9,6 @@
 #include "Event.h"
 #include "Entity.h"
 #include "GameStats.h"
-#include "Number.h"
 #include "Particle.h"
 #include "Textures.h"
 #include "Utility.h"
@@ -80,14 +79,8 @@ public:
   // the player is airborne and is therefore likely travelling faster than the width of its regular hitbox
   std::pair<sf::Vector2f, sf::Vector2f> GetLineHitBox() const;
 
-  // Adds a point to the points linked list
-  void AddNewPoint(sf::Vector2f pos, sf::Vector2f vel);
-  void AddNewPoint(int value, sf::Vector2f pos, sf::Vector2f vel);
   // Increments the combo counter by one
   void IncrementComboCount();
-
-  void EnableBoost(sf::Vector2f boostPos);
-  void LinkScore(GameScore* score);
 
   void IncrementTimeBoost();
   int GetTimeBoost();
@@ -112,9 +105,6 @@ protected:
   State curState = State::idle; // The current state of the player
   bool queueFinalJump = false;
   bool finalJump = false;     // Whether this is the player's last jump
-
-  GameScore* gameScore = nullptr; // A pointer to the total game score, so that points can be added
-  std::forward_list<TargetPoints> targetPoints; // The points that appear when a player hits a target
 
   int comboCount = 0; // The number of consecutive targets destroyed in a jump
 

@@ -22,6 +22,8 @@ public:
   {
     left,
     right,
+    top,
+    bottom,
     topLeft,
     topRight,
     bottomLeft,
@@ -41,6 +43,8 @@ public:
   const sf::Vector2f& GetBounds() const;
   // Gets a pointer to a specified attachment point
   void Attach(AttachPoint point, std::function<void(sf::Vector2f)>& function);
+  // Forces a specified world attachment to update
+  void UpdateAttachment(World::AttachPoint point);
 
 private:
   sf::Vector2f bounds;            // The bounds of the world

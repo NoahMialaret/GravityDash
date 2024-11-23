@@ -23,6 +23,8 @@ public:
   void UpdatePos(sf::Vector2f newPos);
   // Moves the position of the reference and attached object if applicable
   void Move(sf::Vector2f offset);
+  // Forces a call to `updateAttached`
+  void ForceUpdate();
 
 private:
   // Whether an object has been attached

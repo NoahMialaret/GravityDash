@@ -163,14 +163,6 @@ void Character::Render(sf::RenderWindow *win) const
     entity.Render(win);
   }
 
-  if (gameScore != nullptr)
-  {
-    for (auto& point : targetPoints)
-    {
-      point.Render(win);
-    }
-  }
-
   if (superJumpEnabled && curState <= State::moving && !finalJump)
     reticle.Render(win);
 }
@@ -264,12 +256,10 @@ void Character::Land()
 
   comboCount = 0;
 
-  if (gameScore != nullptr)
-  {
-    gameScore->AddTargetPoints(targetPoints);
-  }
-
-  targetPoints.clear();
+  Event event;
+  event.type = Event::Type::playerLand;
+  event.value = charID;
+  Event::events.push(event);
 }
 
 void Character::FloorCollision(float distance)
@@ -352,19 +342,9 @@ bool Character::Hit(sf::Vector2f entPos)
   curState = State::hit;
   entity.SetAnimation((int)curState, 100);
 
-  targetPoints.clear();
   comboCount = 0;
   timeBoostCollected = 0;
   canCollect = false;
-
-  AddNewPoint(-5000, pos, ZERO_VECTOR);
-
-  if (gameScore != nullptr)
-  {
-    gameScore->AddTargetPoints(targetPoints);
-  }
-
-  targetPoints.clear();
 
   return true;
 }
@@ -418,11 +398,6 @@ void Character::IncrementComboCount()
   }
 }
 
-void Character::LinkScore(GameScore* score)
-{
-  gameScore = score;
-}
-
 void Character::IncrementTimeBoost()
 {
   timeBoostCollected++;
@@ -445,27 +420,6 @@ int Character::GetID()
   return charID;
 }
 
-void Character::AddNewPoint(sf::Vector2f pos, sf::Vector2f vel)
-{
-  if (bouncesLeft >= 0)
-  {
-    AddNewPoint(1000, pos, vel);
-    return;
-  }
-  int value = 50 * (int)pow(2, comboCount);
-  if (value >= 25600) // The score from hitting 10th target in a row
-  {
-    value = 25600;
-  }
-
-  AddNewPoint(value, pos, vel);
-}
-
-void Character::AddNewPoint(int value, sf::Vector2f pos, sf::Vector2f vel)
-{
-  targetPoints.emplace_front(TargetPoints((float)value * Utility::scoreMultiplier, pos, vel));
-}
-
 // ------------------
 // Playable Character
 // ------------------
@@ -482,11 +436,6 @@ void PlayableCharacter::Update()
   {
     Character::Update();
     return;
-  }
-
-  for (auto& point : targetPoints)
-  {
-    point.Update();
   }
 
   if (controls->IsBindingOnInitialClick(Controls::Binding::jump) && jumpTimer <= 0)
@@ -518,11 +467,6 @@ void ComputerCharacter::Update()
   {
     Character::Update();
     return;
-  }
-
-  for (auto& point : targetPoints)
-  {
-    point.Update();
   }
   
   std::uniform_int_distribution chance(0, 99);

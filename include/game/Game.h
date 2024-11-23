@@ -40,6 +40,8 @@ public:
   const sf::Vector2f& GetWorldBounds() const;
   // Attaches given function to the specfied world attachment
   void Attach(World::AttachPoint point, std::function<void(sf::Vector2f)> function);
+  // Forces a specified world attachment to update
+  void UpdateAttachment(World::AttachPoint point);
 
 private:
   // Corrects the character positions based on the bouding playable region
