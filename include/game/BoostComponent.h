@@ -51,12 +51,12 @@ public:
   // Constructs a number of `BoostMeters` based on the number of players in the game
   BoostComponent(Game* game, int limit);
 
+  // Processes boost related events, such as if a boost has been consumed by a player
+  void ProcessEvent(Event& event) override;
   // Updates the boost meters
   void Update() override;
   // Renders the boost meters
   void Render(sf::RenderWindow* win) const override;
-  // Processes boost related events, such as if a boost has been consumed by a player
-  void ProcessEvents(Event& event) override;
 
 private:
   std::vector<BoostMeter> boosts; // The boosts, one is stored for each player in the game

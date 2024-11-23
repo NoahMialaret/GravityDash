@@ -174,6 +174,11 @@ void Character::Jump()
     return;
   }
 
+  Event event;
+  event.type = Event::Type::playerJump;
+  event.value = charID;
+  Event::events.push(event);
+
   GameStats::localStats.jumps++;
 
   vel.y = acceleration * 80.0f * (isUpright ? -1.0f : 1.0f);;
@@ -195,7 +200,7 @@ void Character::SuperJump()
   superJumpEnabled = false;
 
   Event event;
-  event.type = Event::Type::boostUsed;
+  event.type = Event::Type::playerSuper;
   event.value = charID;
   Event::events.push(event);
 
@@ -255,11 +260,6 @@ void Character::Land()
   bouncesLeft = -1;
 
   comboCount = 0;
-
-  Event event;
-  event.type = Event::Type::playerLand;
-  event.value = charID;
-  Event::events.push(event);
 }
 
 void Character::FloorCollision(float distance)
@@ -271,6 +271,11 @@ void Character::FloorCollision(float distance)
     if (bouncesLeft <= 0)
     {
       Land();
+      Event event;
+      event.type = Event::Type::playerCombo;
+      event.combo.charID = charID;
+      event.combo.wasSuperJump = false;
+      Event::events.push(event);
       return;
     }
 
@@ -280,6 +285,11 @@ void Character::FloorCollision(float distance)
     {
       invincibilityTimer = 2000;
       Land();
+      Event event;
+      event.type = Event::Type::playerCombo;
+      event.combo.charID = charID;
+      event.combo.wasSuperJump = true;
+      Event::events.push(event);
       return;
     }
 
@@ -318,6 +328,11 @@ bool Character::Hit(sf::Vector2f entPos)
   {
     return false;
   }
+
+  Event event;
+  event.type = Event::Type::playerHit;
+  event.value = charID;
+  Event::events.push(event); 
 
   GameStats::localStats.hits++;
 

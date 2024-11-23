@@ -71,8 +71,12 @@ void Number<Digit>::Zero()
 template <typename Digit>
 inline void Number<Digit>::Zero(std::list<Digit>& digits)
 {
-  digits.clear();
-  digits.push_back(Digit(0));
+  auto it = digits.begin();
+  (*it) = 0;
+  
+  it++;
+  while (it != digits.end())
+    it = digits.erase(it);
 }
 
 template <typename Digit>

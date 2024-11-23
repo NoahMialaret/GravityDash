@@ -27,8 +27,7 @@ void GameObject::HandleCollision(Character* character)
   float squaredThreshold = SCALED_DIM * SCALED_DIM;
 
   // Do a broad check of proximity to prematurely stop calculations if the object is far away
-  if (character->GetCurState() != Character::State::airborne
-    || pos.x + SCALED_DIM < std::min(collision.first.x, collision.second.x) 
+  if (pos.x + SCALED_DIM < std::min(collision.first.x, collision.second.x) 
     || pos.x - SCALED_DIM > std::max(collision.first.x, collision.second.x))
       return ;
   
@@ -38,7 +37,7 @@ void GameObject::HandleCollision(Character* character)
 
   if (!destructable)
   {
-    tagEvent.value = character->GetID();
+    tagEvent.collision = {character->GetID(), pos.x, pos.y};
     Event::events.push(tagEvent);
     return;
   }
@@ -55,7 +54,7 @@ void GameObject::ProcessTag()
   if (tag == -1)
     return;
 
-  tagEvent.value = tag;
+  tagEvent.collision = {tag, pos.x, pos.y};
   Event::events.push(tagEvent);
 
   if (destructable)
@@ -153,8 +152,8 @@ MovingTarget::MovingTarget(const sf::Vector2f& worldBounds)
   pos.x = (isGoingRight ? -1.0f : 1.0f) * (worldBounds.x + posBuffer);
 
   std::uniform_int_distribution yDist(
-    int(SCALED_DIM - worldBounds.y) + posBuffer, 
-    int(worldBounds.y - SCALED_DIM) - posBuffer);
+    int(2 * SCALED_DIM - worldBounds.y), 
+    int(worldBounds.y - 2 * SCALED_DIM));
   pos.y = yDist(Utility::rng);
   yBase = pos.y;
 

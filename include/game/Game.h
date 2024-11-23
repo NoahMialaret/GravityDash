@@ -22,12 +22,12 @@ public:
   // Constructs Game, the game world, and the characters given the number of characters in play
   Game(int numHumans, int numComputers);
 
+  // Processes game related events
+  void ProcessEvent(Event& event);
   // Updates the game world, characters, and objects
   void Update();
   // Renders the game world, characters, and objects
   void Render(sf::RenderWindow* win) const;
-  // Processes game related events
-  void ProcessEvent(Event& event);
 
   // Returns whether or not the game is over
   bool IsGameOver() const;
@@ -50,6 +50,7 @@ private:
 protected:
   std::unique_ptr<World> world = nullptr;                 // The playable region of the game
   std::vector<std::unique_ptr<Character>> characters;     // The characters controlled by users or computers
+  std::vector<int> comboCount;                            // Tracks the combo count of each character
   std::forward_list<std::unique_ptr<GameObject>> objects; // A list of interactable game objects
 
   bool spawnersEnabled = true;  // Whether objects are able to be spawned

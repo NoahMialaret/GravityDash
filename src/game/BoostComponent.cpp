@@ -9,6 +9,24 @@ BoostComponent::BoostComponent(Game* game, int limit)
     boosts[i] = BoostMeter(game, i, limit);
 }
 
+void BoostComponent::ProcessEvent(Event& event)
+{
+  switch (event.type)
+  {
+  case Event::Type::playerSuper:
+    boosts[event.value].Clear();
+    break;
+
+  case Event::Type::playerCombo:
+    if (event.combo.count >= 2 && !event.combo.wasSuperJump)
+      boosts[event.combo.charID].Increment(2000);
+    break;
+  
+  default:
+    break;
+  }
+}
+
 void BoostComponent::Update()
 {
   for (auto& boost : boosts)
@@ -19,19 +37,6 @@ void BoostComponent::Render(sf::RenderWindow* win) const
 {
   for (auto& boost : boosts)
     boost.Render(win);
-}
-
-void BoostComponent::ProcessEvents(Event& event)
-{
-  switch (event.type)
-  {
-  case Event::Type::boostUsed:
-    boosts[event.value].Clear();
-    break;
-  
-  default:
-    break;
-  }
 }
 
 BoostComponent::BoostMeter::BoostMeter(Game *game, int id, int limit)
@@ -63,9 +68,6 @@ void BoostComponent::BoostMeter::Update()
 {
   if (fillAmount >= limit)
     return;
-
-  // Temp testing code
-  Increment(200);
   
   fillAmount = std::max(fillAmount - Clock::Delta(), 0);
 

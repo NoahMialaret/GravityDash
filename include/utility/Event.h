@@ -30,6 +30,20 @@ public:
     null
   };
 
+  struct ComboEvent
+  {
+    int charID;
+    int count;
+    bool wasSuperJump;
+  };
+
+  struct CollisionEvent
+  {
+    int charID;
+    float colX;
+    float colY;
+  };
+
   enum class Type
   {
     programClose,
@@ -50,12 +64,14 @@ public:
     collisionSaw,       // int (charID)
     collisionTarget,    // int (charID)
     collisionTimeBonus, // int (charID)
+    
+    timerRefill,  // null
 
     boostFull,    // int (charID)
-    boostUsed,    // int (charID)
-    playerLand,   // int (charID)
-    playerCombo,  // pair<int, int> (charID, comboCount)
-    timerRefill,  // null
+    playerJump,   // int (charID)
+    playerSuper,  // int (charID)
+    playerCombo,  // ComboEvent
+    playerHit,    // int (charID)
   };
 
   Event() = default;
@@ -79,6 +95,8 @@ public:
   union 
   {
     int value;
+    ComboEvent combo;
+    CollisionEvent collision;
     MenuType menuType;
     GamePreset gamePreset;
   };

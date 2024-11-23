@@ -5,12 +5,52 @@ Game::Game(int numHumans, int numComputers)
   world = std::make_unique<World>();
 
   int numPlayers = std::min(4, numHumans + numComputers);
+  comboCount = std::vector<int>(numPlayers, 0);
   for (int i = 0; i < numPlayers; i++)
   {
     if (i < numHumans)
 		  characters.push_back(std::make_unique<PlayableCharacter>(i, ProgramSettings::GetControls(i)));
     else
       characters.push_back(std::make_unique<ComputerCharacter>(i));
+  }
+}
+
+void Game::ProcessEvent(Event& event)
+{
+  switch (event.type)
+  {
+  case Event::Type::playerJump:
+  case Event::Type::playerSuper:
+  case Event::Type::playerHit:
+    comboCount[event.value] = 0;
+    break;
+    
+  case Event::Type::boostFull:
+    characters[event.value].get()->EnableSuperJump();
+    break;
+
+  case Event::Type::playerCombo:
+    event.combo.count = comboCount[event.value];
+    break;
+
+  case Event::Type::collisionSaw:
+    characters[event.collision.charID].get()->Hit({event.collision.colX, event.collision.colY});
+    
+  case Event::Type::collisionTarget:
+  case Event::Type::collisionTimeBonus:
+    comboCount[event.collision.charID]++;
+    break;
+
+  case Event::Type::gameTimeUp:
+    spawnersEnabled = false;
+    for (auto& character : characters)
+      character.get()->Kill();
+    for (auto& object : objects)
+      object.get()->Deactivate();
+    break;
+  
+  default:
+    break;
   }
 }
 
@@ -122,25 +162,4 @@ void Game::CorrectCharacterPos(Character* character)
 bool Game::IsGameOver() const
 {
 	return gameOver;
-}
-
-void Game::ProcessEvent(Event& event)
-{
-  switch (event.type)
-  {
-  case Event::Type::gameTimeUp:
-    spawnersEnabled = false;
-    for (auto& character : characters)
-      character.get()->Kill();
-    for (auto& object : objects)
-      object.get()->Deactivate();
-    break;
-
-  case Event::Type::boostFull:
-    characters[event.value].get()->EnableSuperJump();
-    break;
-  
-  default:
-    break;
-  }
 }

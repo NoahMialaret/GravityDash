@@ -21,22 +21,47 @@ ScoreComponent::ScoreComponent(Game* game)
   game->Attach(World::AttachPoint::top, updatePosFunction);
 }
 
-void ScoreComponent::ProcessEvents(Event& event)
+void ScoreComponent::ProcessEvent(Event& event)
 {
   switch (event.type)
   {
-  case Event::Type::playerLand:
+  case Event::Type::timerRefill:
+    multiplier += 0.1f;
+
+  case Event::Type::playerCombo:
   {
-    int originalSize = digits.size();
+    if (event.combo.count == 0)
+      break;
 
-    Number<DisplayDigit>::AddValue(digits, 7);
+    int comboValue = 0;
+    if (event.combo.wasSuperJump)
+    {
+      // Each target is worth 1000 points when collected in a super jump
+      comboValue = 1000 * multiplier * event.combo.count;
+      Add(comboValue);
+      break;
+    }
 
-    if (originalSize != digits.size())
-      game->UpdateAttachment(World::AttachPoint::top);
+    // Calculates sum(2^n), each targets value is double the previous one
+    comboValue = std::pow(2, std::min(event.combo.count, 10)) - 1;
+    
+    // Doubling stops after 10 targets to prevent scores getting too large
+    int excess = event.combo.count - 10;
+    if (excess > 0)
+      comboValue += excess * std::pow(2, 10);
+
+    // Each target is worth 50 points
+    comboValue *= 50 * multiplier;
+    Add(comboValue);
 
     break;
   }
-  
+
+  case Event::Type::playerHit:
+    // Saws take away 5000 points
+    Add(-5000 * multiplier);
+    break;
+
   default:
     break;
   }
@@ -51,24 +76,41 @@ void ScoreComponent::Render(sf::RenderWindow* win) const
     digit.Render(win);
 }
 
+void ScoreComponent::Add(int amount)
+{
+  int originalSize = digits.size();
+
+  Number<DisplayDigit>::AddValue(digits, amount);
+
+  if (originalSize != digits.size())
+    game->UpdateAttachment(World::AttachPoint::top);
+}
+
 ScoreComponent::DisplayDigit::DisplayDigit(int digit)
   :
-  digit(digit)
+  digit(std::clamp(digit, 0, 10))
 {
   Utility::InitSprite(sprite, "nums_big", ZERO_VECTOR, {11, 1}, {0.5f, 1.0f});
   UpdateTextureRect();
 }
 
-ScoreComponent::DisplayDigit& ScoreComponent::DisplayDigit::operator+=(const int &rhs)
+ScoreComponent::DisplayDigit& ScoreComponent::DisplayDigit::operator+=(const int& rhs)
 {
   digit += rhs;
   UpdateTextureRect();
   return *this;
 }
 
-ScoreComponent::DisplayDigit& ScoreComponent::DisplayDigit::operator-=(const int &rhs)
+ScoreComponent::DisplayDigit& ScoreComponent::DisplayDigit::operator-=(const int& rhs)
 {
   digit -= rhs;
+  UpdateTextureRect();
+  return *this;
+}
+
+ScoreComponent::DisplayDigit& ScoreComponent::DisplayDigit::operator=(const int& rhs)
+{
+  digit = rhs;
   UpdateTextureRect();
   return *this;
 }

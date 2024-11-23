@@ -50,7 +50,7 @@ void GameManager::ProcessEvents(Event& event)
 {
   game.get()->ProcessEvent(event);
   for (auto& comp : components)
-    comp.get()->ProcessEvents(event);
+    comp.get()->ProcessEvent(event);
 }
 
 Event::GamePreset GameManager::GetPreset() const
@@ -61,29 +61,24 @@ Event::GamePreset GameManager::GetPreset() const
 void GameManager::LoadTitlePreset()
 {
   game = std::make_unique<Game>(0, 4);
-  components.push_front(std::make_unique<BoostComponent>(game.get(), 30000));
+  components.push_front(std::make_unique<ObjectSpawnComponent<MovingTarget>>(game.get(), 200, 100, 0.9f));
 }
 
 void GameManager::LoadMinutePreset()
 {
   game = std::make_unique<Game>(1, 0);
 
-  // components.push_front(std::make_unique<TimerComponent>(game.get(), 60000));
+  components.push_front(std::make_unique<TimerComponent>(game.get(), 60000));
   components.push_front(std::make_unique<BoostComponent>(game.get(), 30000));
-  components.push_front(std::make_unique<ObjectSpawnComponent<MovingTarget>>(game.get(), 100, 100, 0.9f));
+  components.push_front(std::make_unique<ObjectSpawnComponent<MovingTarget>>(game.get(), 150, 100, 0.9f));
   components.push_front(std::make_unique<ObjectSpawnComponent<Saw>>(game.get(), 1500, 500));
   components.push_front(std::make_unique<ScoreComponent>(game.get()));
-
 }
 
 void GameManager::LoadRushPreset()
 {
-  game = std::make_unique<Game>(1, 0);
-
-  components.push_front(std::make_unique<TimerComponent>(game.get(), 60000));
-  components.push_front(std::make_unique<BoostComponent>(game.get(), 30000));
-  components.push_front(std::make_unique<ObjectSpawnComponent<MovingTarget>>(game.get(), 100, 100, 0.9f));
-  components.push_front(std::make_unique<ObjectSpawnComponent<Saw>>(game.get(),  1500, 500));
+  LoadMinutePreset();
+  
   components.push_front(std::make_unique<ObjectSpawnComponent<TimeBonus>>(game.get(),  5000, 1000));
 }
 

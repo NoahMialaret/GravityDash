@@ -28,6 +28,8 @@ private:
     DisplayDigit& operator+=(const int& rhs);
     // Performs `digit` -= `rhs`, and updates the texture rect
     DisplayDigit& operator-=(const int& rhs);
+    // Performs `digit` = `rhs`, and updates the texture rect
+    DisplayDigit& operator=(const int& rhs);
     // Returns `digit` as `DisplayDigits` integer representation
     operator int() const;
 
@@ -53,14 +55,20 @@ public:
   ScoreComponent(Game* game);
 
   // Processes score related events, such as when a player has completed a combo
-  void ProcessEvents(Event& event) override;
+  void ProcessEvent(Event& event) override;
   // Currently Unused
   void Update() override;
   // Renders the digits
   void Render(sf::RenderWindow* win) const override;
 
 private:
+  // Adds `amount` to the score
+  void Add(int amount);
+
+private:
   std::list<DisplayDigit> digits{0}; // A list of drawable digits, from most to least significant
+
+  float multiplier = 1.0f;
 };
 
 #endif
