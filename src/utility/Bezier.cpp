@@ -1,55 +1,51 @@
 #include "Bezier.h"
 
-Bezier::Bezier(std::vector<sf::Vector2f> points)
+Bezier::Bezier(std::queue<sf::Vector2f>& points)
   :
   points(points)
 {
   if (points.empty())
-  {
-    std::cout << "Warning, attempted to make a Bezier with no points!\n";
-    this->points.push_back({0,0});
-  }
+    this->points.push({0.0f, 0.0f});
 }
 
-float Bezier::GetValue(float t, bool invert) const
+Bezier::Bezier(std::vector<sf::Vector2f> points)
 {
-  return GetPoint(t, invert).y;
+  if (points.empty())
+    this->points.push({0.0f, 0.0f});
+
+  for (auto& point : points)
+    this->points.push(point);
 }
 
-sf::Vector2f Bezier::GetPoint(float t, bool invert) const
+float Bezier::GetValue(float t) const
+{
+  return GetPoint(t).y;
+}
+
+sf::Vector2f Bezier::GetPoint(float t) const
 {
   if (t <= 0.0f)
-  {
-    return invert ? points.back() : points.front();
-  }
-  else if (t >= 1.0f)
-  {
-    return invert ? points.front() : points.back();
-  }
+    return points.front();
+  if (t >= 1.0f)
+    return points.back();
 
-  std::queue<sf::Vector2f> subPoints;
-  for (int i = (invert ? points.size() - 1 : 0); 
-      (invert ? i >= 0 : i < points.size()); 
-      (invert ? i-- : i++))
-  {
-    subPoints.push(points[i]);
-  }
+  std::queue<sf::Vector2f> subPoints = points;
 
-  int i = 0;
-  int iMax = subPoints.size() - 1;
+  int edgeIndex = 0;
+  int nextCurveStart = subPoints.size() - 1;
 
   while (subPoints.size() > 1)
   {
     sf::Vector2f temp = subPoints.front();
     subPoints.pop();
-    // A + t(B - A)
+    // For edge (A,B), calculates new point as A + t(B - A)
     subPoints.push(temp + t * (subPoints.front() - temp));
 
-    i++;
-    if (i >= iMax)
+    edgeIndex++;
+    if (edgeIndex >= nextCurveStart) // Processed the last edge in the sub curve
     {
-      iMax--;
-      i = 0;
+      nextCurveStart--;
+      edgeIndex = 0;
       subPoints.pop();
     }
   }

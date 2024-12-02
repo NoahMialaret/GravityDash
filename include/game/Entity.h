@@ -5,9 +5,7 @@
 
 #include "AnimationHandler.h"
 #include "Bezier.h"
-#include "MotionHandler.h"
-#include "RotationHandler.h"
-#include "ScaleHandler.h"
+#include "BezierTransition.h"
 #include "Textures.h"
 #include "Utility.h"
 
@@ -73,16 +71,12 @@ public:
   void SetAnimation(int index, int dur, int loops = ALWAYS, int hold = 0);
 
   // Queues a motion with an offset from the endpoint of that last motion
-  void QueueMotion(Curve curve, float duration, sf::Vector2f offSet);
+  void QueueMotion(Curve curve, float duration, sf::Vector2f offset);
   // Queues a motion between two points
   void QueueMotion(Curve curve, float duration, sf::Vector2f start, sf::Vector2f end);
-  // Queues a motion between any number of points as a curve
-  void QueueMotion(Curve curve, float duration, Bezier points);
 
   // Queues a scale change between two scales
   void QueueScale(Curve curve, float duration, sf::Vector2f start, sf::Vector2f end);
-  // Queues a scale change between any number of scales
-  void QueueScale(Curve curve, float duration, Bezier scales);
 
   // Queues a rotation change
   void QueueRotation(Curve curve, float duration, float start, float end);
@@ -104,11 +98,11 @@ private:
   // The entity's animation handler
   AnimationHandler anim;
   // The entity's motion handler, only gets used if the position isn't coupled
-  MotionHandler motion;
+  BezierTransition<sf::Vector2f> motion;
   // The entity's scale handler, only gets used if the scale isn't coupled
-  ScaleHandler scaleHand;
+  BezierTransition<sf::Vector2f> scaleHand;
   // The entity's rotation handler, only gets used if the rotation isn't coupled
-  RotationHandler rot;
+  BezierTransition<float> rot;
 };
 
 #endif

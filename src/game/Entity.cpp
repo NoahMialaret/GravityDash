@@ -7,10 +7,11 @@ Entity::Entity(const char *textureName, sf::Shader* shader, sf::Vector2i frameSi
   sprite = std::make_unique<sf::Sprite>(Textures::textures.at(textureName));
   sprite.get()->setScale(DEFAULT_SCALE);
 
+  // Temp code
+  position = new ZERO_VECTOR;
+  motion = BezierTransition<sf::Vector2f>(position);
+
   anim = AnimationHandler(sprite.get(), frameSize);
-  motion = MotionHandler(sprite.get());
-  scaleHand = ScaleHandler(sprite.get());
-  rot = RotationHandler(sprite.get());
 
   // Sets the origin to the middle of the rendered sprite
   sf::Vector2f size(sprite.get()->getTextureRect().width, sprite.get()->getTextureRect().height);
@@ -21,6 +22,7 @@ void Entity::CouplePosition(sf::Vector2f *pos)
 {
   position = pos;
   sprite.get()->setPosition(*position);  
+  motion = BezierTransition<sf::Vector2f>(pos);
 }
 
 void Entity::DecouplePosition()
@@ -57,8 +59,7 @@ void Entity::Update()
 {
   anim.Update();
 
-  if (position == nullptr)
-    motion.Update();
+  motion.Update();
 
   if (scale == nullptr)
     scaleHand.Update();
@@ -150,32 +151,22 @@ void Entity::SetAnimation(int index, int dur, int loops, int hold)
   QueueAnimation(index, dur, loops, hold);  
 }
 
-void Entity::QueueMotion(Curve curve, float duration, sf::Vector2f offSet)
+void Entity::QueueMotion(Curve curve, float duration, sf::Vector2f offset)
 {
-  QueueMotion(curve, duration, motion.GetEndPoint(), motion.GetEndPoint() + offSet);
+  motion.Push(curve, duration, offset);
 }
 
 void Entity::QueueMotion(Curve curve, float duration, sf::Vector2f start, sf::Vector2f end)
 {
-  QueueMotion(curve, duration, Bezier({start, end}));
-}
-
-void Entity::QueueMotion(Curve curve, float duration, Bezier points)
-{
-  motion.Queue(curve, duration, points);
+  motion.Push(curve, duration, start, end);
 }
 
 void Entity::QueueScale(Curve curve, float duration, sf::Vector2f start, sf::Vector2f end)
 {
-  QueueScale(curve, duration, Bezier({start, end}));
-}
-
-void Entity::QueueScale(Curve curve, float duration, Bezier scales)
-{
-  scaleHand.Queue(curve, duration, scales);
+  scaleHand.Push(curve, duration, start, end);
 }
 
 void Entity::QueueRotation(Curve curve, float duration, float start, float end)
 {
-  rot.Queue(curve, duration, start, end);
+  rot.Push(curve, duration, start, end);
 }

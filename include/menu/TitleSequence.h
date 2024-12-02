@@ -7,7 +7,7 @@
 #include "Clock.h"
 #include "Entity.h"
 #include "Keyboard.h"
-#include "MotionHandler.h"
+#include "BezierTransition.h"
 #include "Particle.h"
 #include "Textures.h"
 #include "Utility.h"
