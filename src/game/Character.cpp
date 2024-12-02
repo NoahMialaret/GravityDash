@@ -4,21 +4,18 @@
 Character::Character(int charID)
   : 
   charID(charID),
-  acceleration(0.2f * ProgramSettings::gameScale)
+  acceleration(0.2f * ProgramSettings::gameScale),
+  entity("character", &Utility::entShad, {4, 5}),
+  reticle("reticle", nullptr)
 {
   vel.y = 1000.0f;
-  entity = Entity("character");
 
-  entity.CouplePosition(&pos);
+  pos = entity.GetPosition();
 
-  entity.QueueAnimation((int)curState, 150);
+  entity.PushAnimation((int)curState, 150);
 
-  reticle = Entity("reticle", nullptr, (sf::Vector2i)Textures::textures.at("reticle").getSize());
-  reticle.CouplePosition(&reticlePos);
+  reticlePos = reticle.GetPosition();
 }
-
-Character::~Character()
-{}
 
 void Character::Update()
 {
@@ -32,7 +29,7 @@ void Character::Update()
     UpdateVelocity(move);
   }
   
-  prevPos = pos;
+  prevPos = *pos;
 
   if (superJumpEnabled)
   {
@@ -52,7 +49,8 @@ void Character::Update()
       }
     } 
 
-    reticlePos = pos + (isUpright ? -1.0f : 1.0f) * ProgramSettings::gameScale * Utility::spriteDim * 3.0f * sf::Vector2f(std::sin(reticleAngle), std::cos(reticleAngle));
+    *reticlePos = *pos + (isUpright ? -3.0f : 3.0f) * SCALED_DIM 
+      * sf::Vector2f(std::sin(reticleAngle), std::cos(reticleAngle));
     reticle.Update();
   }
 
@@ -88,7 +86,7 @@ void Character::Update()
     if (particleTimer <= 0)
     {
       sf::Vector2f partVel(-move * 0.2f * ProgramSettings::gameScale, (isUpright ? -0.1f : 0.1f) * ProgramSettings::gameScale);
-      Utility::particles.push_front(std::make_unique<Puff>(pos, sf::Vector2f(- (float)move, (isUpright ? -1.0f : 1.0f))));
+      Utility::particles.push_front(std::make_unique<Puff>(*pos, sf::Vector2f(- (float)move, (isUpright ? -1.0f : 1.0f))));
       particleTimer = (finalJump ? 4 : 1) * 150;
     }
     break;
@@ -124,7 +122,7 @@ void Character::Update()
     vel.y += (isUpright ? 1.0f : -1.0f) * 0.05f * Clock::Delta();
   }
 
-  pos += (finalJump ? 0.5f : 1.0f) * (Clock::Delta() / 16.0f) * vel;
+  *pos += (finalJump ? 0.5f : 1.0f) * (Clock::Delta() / 16.0f) * vel;
 
   entity.Update();
 }
@@ -232,10 +230,10 @@ void Character::Land()
   curState = State::idle;
 
   entity.SetAnimation((int)State::airborne + 2, 100, 0, 300);
-  entity.QueueAnimation((int)curState, 150);
+  entity.PushAnimation((int)curState, 150);
   entity.FlipY();
 
-  Utility::particles.push_front(std::make_unique<Dust>(pos, !isUpright));
+  Utility::particles.push_front(std::make_unique<Dust>(*pos, !isUpright));
 
   if (finalJump)
   {
@@ -264,7 +262,7 @@ void Character::Land()
 
 void Character::FloorCollision(float distance)
 {
-  pos.y += distance;
+  pos->y += distance;
 
   if (curState == State::airborne)
   {
@@ -293,7 +291,7 @@ void Character::FloorCollision(float distance)
       return;
     }
 
-    pos.y += distance;
+    pos->y += distance;
     vel.y = -vel.y;
 
     return;
@@ -310,10 +308,10 @@ void Character::FloorCollision(float distance)
 
 void Character::WallCollision(float distance)
 {
-  pos.x += distance;
+  pos->x += distance;
   if (bouncesLeft >= 0)
   {
-    pos.x += distance;
+    pos->x += distance;
     vel.x = - vel.x;
   }
   else
@@ -349,10 +347,12 @@ bool Character::Hit(sf::Vector2f entPos)
   }
 
   // y = ent.y +- sqrt(64*scale-(this.x-ent.x)^2) + for saws on top
-  pos.y = entPos.y + (isUpright ? -1.0f : 1.0f) * std::sqrt(64*ProgramSettings::gameScale*ProgramSettings::gameScale - (pos.x - entPos.x) * (pos.x - entPos.x));
+  pos->y = entPos.y + (isUpright ? -1.0f : 1.0f) 
+    * std::sqrt(64*ProgramSettings::gameScale*ProgramSettings::gameScale 
+    - (pos->x - entPos.x) * (pos->x - entPos.x));
 
   vel.y = (isUpright ? -3.0f : 3.0f);
-  vel.x = (pos.x - entPos.x < 0.0f ? -10.0f : 10.0f);
+  vel.x = (pos->x - entPos.x < 0.0f ? -10.0f : 10.0f);
 
   curState = State::hit;
   entity.SetAnimation((int)curState, 100);
@@ -387,12 +387,12 @@ bool Character::IsFinalJump() const
 
 sf::Vector2f Character::GetPosition() const
 {
-  return pos;
+  return *pos;
 }
 
 void Character::SetPosition(sf::Vector2f& newPos)
 {
-  pos = newPos;
+  *pos = newPos;
 }
 
 sf::FloatRect Character::GetHitBox() const
@@ -402,7 +402,7 @@ sf::FloatRect Character::GetHitBox() const
 
 std::pair<sf::Vector2f, sf::Vector2f> Character::GetLineHitBox() const
 {
-  return std::pair<sf::Vector2f, sf::Vector2f>(prevPos, pos);
+  return std::pair<sf::Vector2f, sf::Vector2f>(prevPos, *pos);
 }
 
 void Character::IncrementComboCount()

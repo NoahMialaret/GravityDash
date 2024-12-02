@@ -1,146 +1,95 @@
 #include "Entity.h"
 
-Entity::Entity(const char *textureName, sf::Shader* shader, sf::Vector2i frameSize, sf::Vector2f origin)
+Entity::Entity(const char* texName, 
+          sf::Shader* shader, 
+          sf::Vector2i numSprites, 
+          sf::Vector2f pos, 
+          sf::Vector2f origin)
   :
-  shader(shader)
+  shader(shader),
+  position(pos),
+  positionTransition(&position),
+  scaleTransition(&scale),
+  rotationTransition(&rotation)
 {
-  sprite = std::make_unique<sf::Sprite>(Textures::textures.at(textureName));
-  sprite.get()->setScale(DEFAULT_SCALE);
+  Utility::InitSprite(sprite, texName, position, numSprites, origin);
 
-  // Temp code
-  position = new ZERO_VECTOR;
-  motion = BezierTransition<sf::Vector2f>(position);
-
-  anim = AnimationHandler(sprite.get(), frameSize);
-
-  // Sets the origin to the middle of the rendered sprite
-  sf::Vector2f size(sprite.get()->getTextureRect().width, sprite.get()->getTextureRect().height);
-  sprite.get()->setOrigin({origin.x * size.x, origin.y * size.y});
+  anim = AnimationHandler(&sprite, numSprites.y, numSprites.x, sprite.getTextureRect().getSize());
 }
 
-void Entity::CouplePosition(sf::Vector2f *pos)
+sf::Vector2f* Entity::GetPosition()
 {
-  position = pos;
-  sprite.get()->setPosition(*position);  
-  motion = BezierTransition<sf::Vector2f>(pos);
+  return &position;
 }
 
-void Entity::DecouplePosition()
+sf::Vector2f* Entity::GetScale()
 {
-  sprite.get()->setPosition(*position);
-  position = nullptr;
+  return &scale;
 }
 
-void Entity::CoupleScale(sf::Vector2f* scale)
+float* Entity::GetRotation()
 {
-  this->scale = scale;
-  sprite.get()->setScale(*scale);  
-}
-
-void Entity::DecoupleScale()
-{
-  sprite.get()->setScale(*position);
-  scale = nullptr;
-}
-
-void Entity::CoupleRotation(float* rot)
-{
-  rotation = rot;
-  sprite.get()->setRotation(*rotation);  
-}
-
-void Entity::DecoupleRotation()
-{
-  sprite.get()->setRotation(*rotation);
-  rotation = nullptr;
+  return &rotation;
 }
 
 void Entity::Update()
 {
   anim.Update();
 
-  motion.Update();
+  positionTransition.Update();
 
-  if (scale == nullptr)
-    scaleHand.Update();
+  scaleTransition.Update();
 
-  if (rotation == nullptr)
-    rot.Update();
+  rotationTransition.Update();
 }
 
 void Entity::Render(sf::RenderWindow *win) const
 {
-  if (position != nullptr)
-    sprite.get()->setPosition(*position);
+    sprite.setPosition(position);
 
-  if (scale != nullptr)
-    sprite.get()->setScale(*scale);
+    sprite.setScale(scale);
 
-  if (rotation != nullptr)
-    sprite.get()->setRotation(*rotation);
+    sprite.setRotation(rotation);
 
   if (shader == nullptr)
   {
-    win->draw(*sprite.get());
+    win->draw(sprite);
     return;
   }
 
-  win->draw(*sprite.get(), shader);
+  win->draw(sprite, shader);
 }
 
 void Entity::FlipX()
 {
-  sprite.get()->scale(sf::Vector2f(-1.0f, 1.0f));
+  scale.x *= -1.0f;
 }
 
 void Entity::FlipY()
 {
-  sprite.get()->scale(sf::Vector2f(1.0f, -1.0f));
+  scale.y *= -1.0f;
 }
 
 void Entity::SetXDir(bool right)
 {
-  float scale = (right ? 1.0f : -1.0f);
-  if (Utility::GetSign(scale) != Utility::GetSign(sprite.get()->getScale().x))
+  float dir = (right ? 1.0f : -1.0f);
+  if (Utility::GetSign(dir) != Utility::GetSign(scale.x))
     FlipX();
 }
 
 void Entity::SetYDir(bool up)
 {
-  float scale = (up ? 1.0f : -1.0f);
-  if (Utility::GetSign(scale) != Utility::GetSign(sprite.get()->getScale().y))
+  float dir = (up ? 1.0f : -1.0f);
+  if (Utility::GetSign(dir) != Utility::GetSign(scale.y))
     FlipY();
-}
-
-sf::Vector2f Entity::GetPosition() const
-{
-  return sprite.get()->getPosition();
-}
-
-sf::Vector2f Entity::GetScale() const
-{
-  return sprite.get()->getScale();
-}
-
-float Entity::GetRotation() const
-{
-  return sprite.get()->getRotation();
-}
-
-void Entity::ClearHandlers()
-{
-  anim.Clear();
-  motion.Clear();
-  scaleHand.Clear();
-  rot.Clear();
 }
 
 sf::FloatRect Entity::HitBox() const
 {
-  return sprite.get()->getGlobalBounds();
+  return sprite.getGlobalBounds();
 }
 
-void Entity::QueueAnimation(int index, int dur, int loops, int hold)
+void Entity::PushAnimation(int index, int dur, int loops, int hold)
 {
   anim.QueueAnimation(index, dur, loops, hold);
 }
@@ -148,25 +97,42 @@ void Entity::QueueAnimation(int index, int dur, int loops, int hold)
 void Entity::SetAnimation(int index, int dur, int loops, int hold)
 {
   anim.Clear();
-  QueueAnimation(index, dur, loops, hold);  
+  PushAnimation(index, dur, loops, hold);  
 }
 
-void Entity::QueueMotion(Curve curve, float duration, sf::Vector2f offset)
+void Entity::ClearTransitions()
 {
-  motion.Push(curve, duration, offset);
+  positionTransition.Clear();
+  scaleTransition.Clear();
+  rotationTransition.Clear();
 }
 
-void Entity::QueueMotion(Curve curve, float duration, sf::Vector2f start, sf::Vector2f end)
+void Entity::PushPositionTransition(Curve curve, float duration, sf::Vector2f offset)
 {
-  motion.Push(curve, duration, start, end);
+  positionTransition.Push(curve, duration, offset);
 }
 
-void Entity::QueueScale(Curve curve, float duration, sf::Vector2f start, sf::Vector2f end)
+void Entity::PushPositionTransition(Curve curve, float duration, sf::Vector2f start, sf::Vector2f end)
 {
-  scaleHand.Push(curve, duration, start, end);
+  positionTransition.Push(curve, duration, start, end);
 }
 
-void Entity::QueueRotation(Curve curve, float duration, float start, float end)
+void Entity::PushScaleTransition(Curve curve, float duration, sf::Vector2f offset)
 {
-  rot.Push(curve, duration, start, end);
+  scaleTransition.Push(curve, duration, offset);
+}
+
+void Entity::PushScaleTransition(Curve curve, float duration, sf::Vector2f start, sf::Vector2f end)
+{
+  scaleTransition.Push(curve, duration, start, end);
+}
+
+void Entity::PushRotationTransition(Curve curve, float duration, float offset)
+{
+  rotationTransition.Push(curve, duration, offset);
+}
+
+void Entity::PushRotationTransition(Curve curve, float duration, float start, float end)
+{
+  rotationTransition.Push(curve, duration, start, end);
 }

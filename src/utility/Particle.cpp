@@ -2,10 +2,9 @@
 
 Particle::Particle(int timer)
   :
-  timer(timer)
-{
-  entity = Entity("particles", nullptr);
-}
+  timer(timer),
+  entity("particles", nullptr, {4, 4})
+{}
 
 bool Particle::HasFinished() const
 {
@@ -40,7 +39,7 @@ Puff::Puff(sf::Vector2f source, sf::Vector2f dir)
   :
   Particle(400)
 {
-  entity.QueueAnimation(PUFF, 100, 0);
+  entity.PushAnimation(PUFF, 100, 0);
 
   if (dir.y > 0)
   {
@@ -50,7 +49,7 @@ Puff::Puff(sf::Vector2f source, sf::Vector2f dir)
   sf::Vector2f end;
   end.x = source.x + dir.x * ProgramSettings::gameScale * Utility::spriteDim;
   end.y = source.y + dir.y * ProgramSettings::gameScale;
-  entity.QueueMotion(Curve::easeIn, 400, source, end);
+  entity.PushPositionTransition(Curve::easeIn, 400, source, end);
 }
 
 // ============
@@ -59,22 +58,21 @@ Puff::Puff(sf::Vector2f source, sf::Vector2f dir)
 
 Dust::Dust(sf::Vector2f source, bool flip)
   :
-  Particle(200)
+  Particle(200),
+  entityMirror("particles", nullptr, {4, 4})
 {
-  entityMirror = Entity("particles", nullptr);
-
   if (flip)
   {
     entity.FlipY();
     entityMirror.FlipY();
   }
 
-  entity.QueueAnimation(DUST, 50, 0);
-  entity.QueueMotion(Curve::easeIn, 200, source, source + sf::Vector2f(SCALED_DIM, 0.0f));
+  entity.PushAnimation(DUST, 50, 0);
+  entity.PushPositionTransition(Curve::easeIn, 200, source, source + sf::Vector2f(SCALED_DIM, 0.0f));
 
   entityMirror.FlipX();
-  entityMirror.QueueAnimation(DUST, 50, 0);
-  entityMirror.QueueMotion(Curve::easeIn, 200, source, source - sf::Vector2f(SCALED_DIM, 0.0f));
+  entityMirror.PushAnimation(DUST, 50, 0);
+  entityMirror.PushPositionTransition(Curve::easeIn, 200, source, source - sf::Vector2f(SCALED_DIM, 0.0f));
 }
 
 void Dust::Update()
@@ -107,8 +105,8 @@ Explosion::Explosion(sf::Vector2f source)
   :
   Particle(100)
 {
-  entity.QueueAnimation(EXPLOSION, 25, 0);
-  entity.QueueMotion(Curve::linear, 0, source, source);
+  entity.PushAnimation(EXPLOSION, 25, 0);
+  entity.PushPositionTransition(Curve::linear, 0, source, source);
 }
 
 // =================
@@ -124,6 +122,6 @@ SpeedLine::SpeedLine(sf::Vector2f start, float speed)
     entity.FlipY();
   }
 
-  entity.QueueAnimation(SPEEDLINE, 100, 0);
-  entity.QueueMotion(Curve::linear, 400, start, start + speed * sf::Vector2f(0.0f, ProgramSettings::gameScale));
+  entity.PushAnimation(SPEEDLINE, 100, 0);
+  entity.PushPositionTransition(Curve::linear, 400, start, start + speed * sf::Vector2f(0.0f, ProgramSettings::gameScale));
 }

@@ -17,25 +17,20 @@ class Entity
 {
 public:
   Entity() = default;
-  // Constructs an entity with a texture, shader, and framesize if given
-  Entity(const char* textureName, sf::Shader* shader = &Utility::entShad, 
-          sf::Vector2i frameSize = {Utility::spriteDim, Utility::spriteDim},
+  // Constructs `Entity` with a sprite using the texture specified at `texName`, 
+  // as well as the shader and the number of sprites in the texture used
+  Entity(const char* texName, 
+          sf::Shader* shader, 
+          sf::Vector2i numSprites = {1, 1}, 
+          sf::Vector2f pos = ZERO_VECTOR, 
           sf::Vector2f origin = {0.5f, 0.5f});
 
-  // Couples the position of the sprite to some external position vector
-  void CouplePosition(sf::Vector2f* pos);
-  // Decouples the sprite's position with the external position
-  void DecouplePosition();
-
-  // Couples the scale of the sprite to some external scale vector
-  void CoupleScale(sf::Vector2f* scale);
-  // Decouples the sprite's scale with the external scale
-  void DecoupleScale();
-
-  // Couples the rotation of the sprite to some external rotation vector
-  void CoupleRotation(float* rot);
-  // Decouples the sprite's rotation with the external rotation
-  void DecoupleRotation();
+  // Gets a pointer to the entity's position
+  sf::Vector2f* GetPosition();
+  // Gets a pointer to the entity's scale
+  sf::Vector2f* GetScale();
+  // Gets a pointer to the entity's rotation
+  float* GetRotation();
 
   // Updates the entity's animation, as well as its position, scale, and rotation
   // with either the respective pointers or handlers 
@@ -52,57 +47,56 @@ public:
   // Sets the entity's X direction to upright if bool is true, upsidedown otherwise
   void SetYDir(bool up);
 
-  // Gets the sprite's position
-  sf::Vector2f GetPosition() const;
-  // Gets the sprite's scale
-  sf::Vector2f GetScale() const;
-  // Gets the sprite's rotation
-  float GetRotation() const;
-
-  // Clears the entity's handlers
-  void ClearHandlers();
-
   // Gets the entity's hitbox based on it's rendering region on the screen
   sf::FloatRect HitBox() const;
 
-  // Queues an animation for the entity
-  void QueueAnimation(int index, int dur, int loops = ALWAYS, int hold = 0);
+
+  // Pushes an animation for the entity
+  void PushAnimation(int index, int dur, int loops = ALWAYS, int hold = 0);
   // Clears the animation queue and replaces it with a new animation
   void SetAnimation(int index, int dur, int loops = ALWAYS, int hold = 0);
 
-  // Queues a motion with an offset from the endpoint of that last motion
-  void QueueMotion(Curve curve, float duration, sf::Vector2f offset);
-  // Queues a motion between two points
-  void QueueMotion(Curve curve, float duration, sf::Vector2f start, sf::Vector2f end);
 
-  // Queues a scale change between two scales
-  void QueueScale(Curve curve, float duration, sf::Vector2f start, sf::Vector2f end);
+  // Clears the all transitions
+  void ClearTransitions();
 
-  // Queues a rotation change
-  void QueueRotation(Curve curve, float duration, float start, float end);
+  // Pushes a position transition from its current rotation to a given offset
+  void PushPositionTransition(Curve curve, float duration, sf::Vector2f offset);
+  // Pushes a position transition between a start and end rotation
+  void PushPositionTransition(Curve curve, float duration, sf::Vector2f start, sf::Vector2f end);
+
+  // Pushes a scale transition from its current rotation to a given offset
+  void PushScaleTransition(Curve curve, float duration, sf::Vector2f offset);
+  // Pushes a scale transition between a start and end rotation
+  void PushScaleTransition(Curve curve, float duration, sf::Vector2f start, sf::Vector2f end);
+
+  // Pushes a rotation transition from its current rotation to a given offset
+  void PushRotationTransition(Curve curve, float duration, float offset);
+  // Pushes a rotation transition between a start and end rotation
+  void PushRotationTransition(Curve curve, float duration, float start, float end);
 
 private:
   // The sprite used by the entity for rendering
-  std::unique_ptr<sf::Sprite> sprite;
+  mutable sf::Sprite sprite;
   
   // The shader used for rendering
   sf::Shader* shader = nullptr;
 
-  // A pointer to an external position vector if the sprite's position has been coupled
-  sf::Vector2f* position = nullptr;
-  // A pointer to an external scale vector if the sprite's scale has been coupled
-  sf::Vector2f* scale = nullptr;
-  // A pointer to an external rotation value if the sprite's rotation has been coupled
-  float* rotation = nullptr;
+  // The entity's position in the game window
+  sf::Vector2f position = ZERO_VECTOR;
+  // The entity's scale
+  sf::Vector2f scale = DEFAULT_SCALE;
+  // The entity's rotation
+  float rotation = 0.0f;
 
   // The entity's animation handler
   AnimationHandler anim;
-  // The entity's motion handler, only gets used if the position isn't coupled
-  BezierTransition<sf::Vector2f> motion;
-  // The entity's scale handler, only gets used if the scale isn't coupled
-  BezierTransition<sf::Vector2f> scaleHand;
-  // The entity's rotation handler, only gets used if the rotation isn't coupled
-  BezierTransition<float> rot;
+  // The entity's smooth motion handler
+  BezierTransition<sf::Vector2f> positionTransition;
+  // The entity's smooth scaling handler
+  BezierTransition<sf::Vector2f> scaleTransition;
+  // The entity's smooth rotation handler
+  BezierTransition<float> rotationTransition;
 };
 
 #endif

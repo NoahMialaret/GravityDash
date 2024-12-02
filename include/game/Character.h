@@ -37,7 +37,6 @@ public:
 public:
   // The constructor which takes an ID and PlayerBoost
   Character(int charID);
-  virtual ~Character();
 
   // Updates the player's state, animation, and position based on player inputs
   virtual void Update();
@@ -90,10 +89,10 @@ public:
 protected:
   int charID = 0;
 
-  // THe character's entity used for animations and rendering
+  // The character's entity used for animations and rendering
   mutable Entity entity;
 
-  sf::Vector2f pos = ZERO_VECTOR;     // The character's position in the game world
+  sf::Vector2f* pos = nullptr;     // The character's position in the game world
   sf::Vector2f prevPos = ZERO_VECTOR; // The character's position on the previous frame, used in hitbox calculations
   sf::Vector2f vel = ZERO_VECTOR;     // The character's velocity
 
@@ -120,7 +119,7 @@ protected:
   int bouncesLeft = -1;
 
   Entity reticle;
-  sf::Vector2f reticlePos;
+  sf::Vector2f* reticlePos = nullptr;
   float reticleAngle = 0.0f;
 
   bool canCollect = false;

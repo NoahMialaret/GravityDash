@@ -97,6 +97,7 @@ void TimerComponent::AddTime(int addition)
 
 void TimerComponent::MoveArrow(sf::Vector2f reference)
 {
-  refillArrow.ClearHandlers();
-  refillArrow.QueueMotion(Curve::easeIn, 1000, refillArrow.GetPosition(), {reference + sf::Vector2f(SCALED_DIM, gauge.getGlobalBounds().height * (0.5f - (float)timeRefill / (float)maxTime))});
+  refillArrow.ClearTransitions();
+  refillArrow.PushPositionTransition(Curve::easeIn, 1000, *refillArrow.GetPosition(), 
+    reference + sf::Vector2f(SCALED_DIM, gauge.getGlobalBounds().height * (0.5f - (float)timeRefill / (float)maxTime)));
 }

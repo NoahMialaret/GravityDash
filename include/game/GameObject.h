@@ -50,7 +50,7 @@ protected:
   
   Entity entity; // The entity used by the object for rendering and animations
 
-  sf::Vector2f pos;       // The objects position in the game world
+  sf::Vector2f* pos = nullptr;       // The objects position in the game world
   float vel = 0.0f;       // The object's horizontal velocity
   bool activated = true;  // Whether the object can move and (potentially) be interactable 
 
