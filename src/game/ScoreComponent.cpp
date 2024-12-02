@@ -27,6 +27,7 @@ void ScoreComponent::ProcessEvent(Event& event)
   {
   case Event::Type::timerRefill:
     multiplier += 0.1f;
+    break;
 
   case Event::Type::playerCombo:
   {

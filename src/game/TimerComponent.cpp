@@ -5,9 +5,10 @@ TimerComponent::TimerComponent(Game* game, int maxTime)
   GameComponent(game),
   timeRemaining(maxTime),
   maxTime(maxTime),
-  boostCount(game->NumCharacters(), 0)
+  boostCount(game->NumCharacters(), 0),
+  arrowYMove(&arrowPos.y)
 {
-  refillArrow = Entity("arrow", nullptr, (sf::Vector2i)Textures::textures.at("arrow").getSize());
+  Utility::InitSprite(refillArrow, "arrow", ZERO_VECTOR);
 
   timeRect = sf::RectangleShape(ProgramSettings::gameScale * sf::Vector2f(4.0f, 60.0f));
   timeRect.setFillColor(sf::Color(255, 229, 181));
@@ -19,9 +20,10 @@ TimerComponent::TimerComponent(Game* game, int maxTime)
   {
     gauge.setPosition(pos);
     timeRect.setPosition(pos + sf::Vector2f(0.0f, 0.5f * gauge.getGlobalBounds().height - ProgramSettings::gameScale));
-    MoveArrow(pos); // TODO: change so only X value is attached
+    arrowPos.x = pos.x + SCALED_DIM;
   };
   game->Attach(World::AttachPoint::right, updatePosFunction);
+  MoveArrow();
 }
 
 void TimerComponent::ProcessEvent(Event &event)
@@ -36,7 +38,7 @@ void TimerComponent::ProcessEvent(Event &event)
     if (event.combo.count >= 3 && boostCount[event.combo.charID] != 0)
     {
       timeRefill = std::min(timeRefill + 5000 * boostCount[event.combo.charID], maxTime);
-      MoveArrow(gauge.getPosition());
+      MoveArrow();
       showArrow = true;
     }
     boostCount[event.combo.charID] = 0;
@@ -52,7 +54,8 @@ void TimerComponent::Update()
   if (done)
     return;
 
-  refillArrow.Update();
+  arrowYMove.Update();
+  refillArrow.setPosition(arrowPos);
 
   timeRemaining -= Clock::Delta();
 
@@ -66,7 +69,7 @@ void TimerComponent::Update()
   {
     timeRemaining = timeRefill;
     timeRefill = 0;
-    MoveArrow(gauge.getPosition());
+    MoveArrow();
     Event event;
     event.type = Event::Type::timerRefill;
     Event::events.push(event);
@@ -86,7 +89,7 @@ void TimerComponent::Render(sf::RenderWindow* win) const
   win->draw(timeRect);
   win->draw(gauge);
   if (!done && showArrow)
-    refillArrow.Render(win);
+    win->draw(refillArrow);
 }
 
 void TimerComponent::AddTime(int addition)
@@ -95,9 +98,9 @@ void TimerComponent::AddTime(int addition)
   timeRect.setSize(ProgramSettings::gameScale * sf::Vector2f(4.0f, (int)((gauge.getTextureRect().height - 1) * timeRemaining / maxTime)));
 }
 
-void TimerComponent::MoveArrow(sf::Vector2f reference)
+void TimerComponent::MoveArrow()
 {
-  refillArrow.ClearTransitions();
-  refillArrow.PushPositionTransition(Curve::easeIn, 1000, *refillArrow.GetPosition(), 
-    reference + sf::Vector2f(SCALED_DIM, gauge.getGlobalBounds().height * (0.5f - (float)timeRefill / (float)maxTime)));
+  arrowYMove.Clear();
+  arrowYMove.Push(Curve::easeIn, 1000, arrowPos.y, 
+    gauge.getPosition().y + gauge.getGlobalBounds().height * (0.5f - (float)timeRefill / (float)maxTime));
 }

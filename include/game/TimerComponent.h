@@ -3,8 +3,8 @@
 
 #include <SFML/Graphics.hpp>
 
+#include "BezierTransition.h"
 #include "Clock.h"
-#include "Entity.h"
 #include "Event.h"
 #include "Game.h"
 #include "GameComponent.h"
@@ -30,14 +30,17 @@ public:
 private:
   // Add or subtracts time from the timer
   void AddTime(int addition);
-  // Causes the arrow to begin moving to an updated position
-  void MoveArrow(sf::Vector2f reference);
+  // Smoothly vertically moves the arrow position based on `timerRefill`
+  void MoveArrow();
 
 private:
   sf::Sprite gauge;             // The sprite for the timer gauge
   sf::RectangleShape timeRect;  // The rectangle used to display how much time is left
-  Entity refillArrow;           // An entity displaying how much `timeRefill` has been accumulated
-  bool showArrow = false;       // Whether `refillArrow` is rendered
+  
+  sf::Sprite refillArrow;             // The sprite used to display how much time boost has been collected
+  sf::Vector2f arrowPos;              // The position of the refill arrow
+  bool showArrow = false;             // Whether `refillArrow` is rendered
+  BezierTransition<float> arrowYMove; // The transition used to smoothly move the arrow up and down
 
   int timeRemaining = 0;  // The amount of time left in the timer (in milliseconds)
   const int maxTime = 0;  // The maximum amount of time the timer can hold (in milliseconds)
