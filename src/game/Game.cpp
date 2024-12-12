@@ -44,7 +44,7 @@ void Game::ProcessEvent(Event& event)
   case Event::Type::gameTimeUp:
     spawnersEnabled = false;
     for (auto& character : characters)
-      character.get()->Kill();
+      character.get()->MakeFinalJump();
     for (auto& object : objects)
       object.get()->Deactivate();
     break;

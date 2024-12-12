@@ -3,145 +3,149 @@
 
 #include <SFML/Graphics.hpp>
 
-#include "AnimationHandler.h"
 #include "Clock.h"
 #include "Controls.h"
 #include "Event.h"
 #include "Entity.h"
-#include "GameStats.h"
 #include "Particle.h"
 #include "Textures.h"
 #include "Utility.h"
 #include "ProgramSettings.h"
 
-#include <forward_list>
 #include <iostream>
 #include <memory>
 #include <string>
 
-// Represents a playable character in the game world which can be controlled with keyboard inputs
+#define IDLE_ANIM 0
+#define WALK_ANIM 1
+#define JUMP_ANIM 2
+#define STUN_ANIM 3
+#define LAND_ANIM 4
+#define REST_ANIM 5
+#define NUM_ANIMS 6
+
+// `Character` represents a game entity controlled by users or 
+//  CPUs to interact with the game and its components
 class Character
 {
 public:
-  // The current state of the player, determines animation and control limitations
+  // The current state of the player, determines animations and behaviours
   enum class State
   {
     idle,
-    moving,
+    moving, // Cannot jump if `curState` any of the below states
     airborne,
-    hit,
     stunned,
     dead
   };
 
 public:
-  // The constructor which takes an ID and PlayerBoost
+  // Constructs `character` and its entities
   Character(int charID);
 
-  // Updates the player's state, animation, and position based on player inputs
+  // Updates the characters's state, animation, position based on its current state
   virtual void Update();
-  // Updates the player's horizontal velocity based on which direction is being held
-  void UpdateVelocity(int dir);
+  // Renders the character's entity and reticle
+  void Render(sf::RenderWindow* win) const;
 
-  // Renders the player's sprite
-  void Render(sf::RenderWindow *win) const;
+  // Corrects position for collisions with floors, and performs landing sequence if required
+  void FloorCollision(float correction);
+  // Corrects position for collisions with walls
+  void WallCollision(float correction);
 
-  // Initiates a jump if allowed
-  void Jump();
-  // Initiates a super jump if available
-  void SuperJump();
-  // Enables the ability to do a super jump
-  void EnableSuperJump();
-  // Reorientates the player and changes the player's state when the player has landed after jumping
-  void Land();
-  // Handles the players verticle collision with floors, and lands them from a jump if airborne
-  void FloorCollision(float distance);
-  // Handles the players horizontal collision with walls
-  void WallCollision(float distance);
+  // Attempts to stun the character given the position of the source, 
+  //  returns `true` if the stun was successful
+  bool Hit(sf::Vector2f source);
+  // Stuns the character and leaves them with one remaining jump
+  void MakeFinalJump();
 
-  // Attempts to damage the player if it is not invincible
-  bool Hit(sf::Vector2f entPos);
-  // Kills the player, leaving them with one final jump
-  void Kill();
-
-  // Returns the players current state
+  // Returns `charID`, the identifier of the character
+  int GetID();
+  // Returns `curState`, the current state of the character
   State GetCurState() const;
-  // Returns whether it is the player's last stand
-  bool IsFinalJump() const;
-  // Returns the player's current sprite position
+  // Returns `*pos`, the characters's current world position
   sf::Vector2f GetPosition() const;
-  // Sets the player's sprite position
-  void SetPosition(sf::Vector2f& newPos);
-  // Returns the player's sprite hitbox
+  // Returns the global bounds of the character's sprite
   sf::FloatRect GetHitBox() const;
-  // Returns a line segment hitbox represented by the player's previous and current position, used for when
-  // the player is airborne and is therefore likely travelling faster than the width of its regular hitbox
+  // Returns a line segment hitbox represented by the character's previous and current position,
+  //  correlates to the region the character occupied between frames
   std::pair<sf::Vector2f, sf::Vector2f> GetLineHitBox() const;
 
-  // Increments the combo counter by one
-  void IncrementComboCount();
-
-  void IncrementTimeBoost();
-  int GetTimeBoost();
-
-  int GetID();
+  // Enables the ability to do a super jump
+  void EnableSuperJump();
 
 protected:
-  int charID = 0;
+  // Updates the character's velocity based on horizontal direction `dir`
+  void UpdateVelocity(int dir);
+  // Updates the reticle's position and entity with reference to the character
+  void UpdateReticle();
 
-  // The character's entity used for animations and rendering
-  mutable Entity entity;
+  // Attempts to cause the character to jump
+  void Jump();
+  // Attempts to cause the character to perform a "super jump"
+  void SuperJump();
+  // Handles animations and other variable management when landing from a jump
+  void Land();
 
-  sf::Vector2f* pos = nullptr;     // The character's position in the game world
-  sf::Vector2f prevPos = ZERO_VECTOR; // The character's position on the previous frame, used in hitbox calculations
-  sf::Vector2f vel = ZERO_VECTOR;     // The character's velocity
+  // Stuns the character, causing them to freeze in place for a short period
+  void Stun();
 
-  int move = 0; // The direction that the character wants to move (i.e. the button a player is pressing)
-  float acceleration = 0; // A modifier that determines how much the player's velocity changes each frame
-
-  bool isUpright = true; // Whether the player is standing upright (i.e. at the bottom of the world) or is upside down
+protected:
+  int charID = 0;  // The identifier used for lookup, colouring, and events
 
   State curState = State::idle; // The current state of the player
-  bool queueFinalJump = false;
-  bool finalJump = false;     // Whether this is the player's last jump
 
-  int comboCount = 0; // The number of consecutive targets destroyed in a jump
+  mutable Entity entity;  // The character's entity used for animations and rendering
 
-  int velTimer = 16; // The timer for when the characters velocity can be updated
-  int jumpTimer = 0; // The timer for when the player can jump
+  sf::Vector2f* pos =    nullptr;     // The character's position in the game world
+  sf::Vector2f prevPos = ZERO_VECTOR; // The character's position on the previous frame, used in hitbox calculations
+  sf::Vector2f vel =     ZERO_VECTOR; // The character's velocity
 
-  int particleTimer = 0; // The timer for how long until the next run particle is spawned
+  int horiDir =        0; // The horizontal direction of movement
+  float acceleration = 0; // How much the velocity changes each frame
+
+  bool isUpright = true;  // Whether the character is standing upright in relation to the window
+  bool grounded = false;
+
+  bool queueFinalJump = false;  // Used to enable the final jump if the character is already mid-jump
+  bool finalJump =      false;  // Whether this is the player's last jump
 
   int invincibilityTimer = 0; // The timer for how long the player is invincible for
-  int stunTimer = 0; // The timer for how long the player is stunned for
+  int runParticleTimer =   0; // The timer for how long until the next run particle is spawned
+  int stunTimer =          0; // The timer for how long the player is stunned for
+  int velTimer =          16; // The timer for when the characters velocity can be updated
 
-  bool superJumpEnabled = false;
-  int bouncesLeft = -1;
+  bool canSuperJump = false;  // Wether the character is able to perform a "super jump"
+  int superBouncesLeft = -1;  // How many bounces are left before the player lands from a "super jump"
 
-  Entity reticle;
-  sf::Vector2f* reticlePos = nullptr;
-  float reticleAngle = 0.0f;
-
-  bool canCollect = false;
-  int timeBoostCollected = 0;
+  Entity reticle;                     // `reticle` is an entity displaying the angle that a "super jump" will travel
+  sf::Vector2f* reticlePos = nullptr; // The position of `reticle`
+  float reticleAngle = 0.0f;          // The angle of `reticle`
 };
 
+// Represents a `Character` class that is controlled by the user
 class PlayableCharacter : public Character
 {
 public:
+  // Construct `PlayableCharacter` with the given controls used for user interfacing
   PlayableCharacter(int charID, Controls* controls);
 
+  // Updates movement information based on the controls being pressed
   void Update() override;
 
 private:
-  Controls* controls; // The keyboard controls for the player
+  Controls* controls; // The mappings used by the user to control the character
 };
 
+// Represents a `Character` class that is controlled by the computer (i.e. random inputs)
 class ComputerCharacter : public Character
 {
 public:
+  // Constructs `ComputerCharacter` by only calling the `Character` contructor
   ComputerCharacter(int charID);
 
+  // Updates movement information based on randomness, with additional weight
+  // to the action already being performed
   void Update() override;
 };
 

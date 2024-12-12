@@ -1,378 +1,200 @@
 #include "Character.h"
 
-
 Character::Character(int charID)
   : 
   charID(charID),
   acceleration(0.2f * ProgramSettings::gameScale),
-  entity("character", &Utility::entShad, {4, 5}),
+  entity("character", &Utility::entShad, {4, NUM_ANIMS}),
   reticle("reticle", nullptr)
 {
   vel.y = 1000.0f;
 
   pos = entity.GetPosition();
-
-  entity.PushAnimation((int)curState, 150);
+  entity.PushAnimation(IDLE_ANIM, 150);
 
   reticlePos = reticle.GetPosition();
 }
 
 void Character::Update()
 {
-  particleTimer -= Clock::Delta();
-  invincibilityTimer -= Clock::Delta();
-  velTimer -= Clock::Delta();
-  jumpTimer -= Clock::Delta();
+  int deltaT = Clock::Delta();
+  if (finalJump)
+    deltaT /= 2;
 
-  while (curState <= State::moving && velTimer <= 0)
-  {
-    UpdateVelocity(move);
-  }
-  
-  prevPos = *pos;
+  runParticleTimer -= deltaT;
+  invincibilityTimer -= deltaT;
+  velTimer -= deltaT;
 
-  if (superJumpEnabled)
-  {
-    if (move)
-    {
-      float m = (float)move * (isUpright ? -1.0f : 1.0f);
-      reticleAngle += m * (2.0f - m * reticleAngle) * (float)Clock::Delta() / 500.0f;
-      reticleAngle = std::clamp(reticleAngle, -1.2f, 1.2f);
-    } 
-    else
-    {
-      float m = - (float)Utility::GetSign(reticleAngle);
-      reticleAngle += m * (fabs(reticleAngle)) * (float)Clock::Delta() / 200.0f;
-      if (Utility::GetSign(reticleAngle) == (int)m)
-      {
-        reticleAngle = 0.0f;
-      }
-    } 
+  while (velTimer <= 0)
+    UpdateVelocity(horiDir);
 
-    *reticlePos = *pos + (isUpright ? -3.0f : 3.0f) * SCALED_DIM 
-      * sf::Vector2f(std::sin(reticleAngle), std::cos(reticleAngle));
-    reticle.Update();
-  }
+  if (canSuperJump)
+    UpdateReticle();
 
   switch (curState)
   {
   case State::idle:
-    if (move == 0)
-    {
+    if (horiDir == 0)
       break;
-    }
 
+    // Transition to moving
     curState = State::moving;
 
-    entity.SetAnimation((int)curState, (finalJump ? 3 : 1) * 100);
-    entity.SetXDir(move == 1);
-
-    particleTimer = (finalJump ? 4 : 1) * 150;
+    entity.SetAnimation(WALK_ANIM, (finalJump ? 2 : 1) * 100);
+    entity.SetXDir(horiDir == 1);
     break;
 
   case State::moving:
-    if (vel == ZERO_VECTOR && move == 0)
+    if (vel.x == 0.0f && horiDir == 0) // Transition to idle
     {
       curState = State::idle;
-      entity.SetAnimation((int)curState, (finalJump ? 2 : 1) * 150);
+      entity.SetAnimation(IDLE_ANIM, (finalJump ? 2 : 1) * 150);
       break;
     }
 
-    if (move != 0)
+    if (horiDir != 0)
+      entity.SetXDir(horiDir == 1);
+
+    if (runParticleTimer <= 0)
     {
-      entity.SetXDir(move == 1);
+      // TODO: Update when particles are redone
+      sf::Vector2f partVel(-horiDir * 0.2f * ProgramSettings::gameScale, (isUpright ? -0.1f : 0.1f) * ProgramSettings::gameScale);
+      Utility::particles.push_front(std::make_unique<Puff>(*pos, sf::Vector2f(- (float)horiDir, (isUpright ? -1.0f : 1.0f))));
+      runParticleTimer = 150;
     }
-
-    if (particleTimer <= 0)
-    {
-      sf::Vector2f partVel(-move * 0.2f * ProgramSettings::gameScale, (isUpright ? -0.1f : 0.1f) * ProgramSettings::gameScale);
-      Utility::particles.push_front(std::make_unique<Puff>(*pos, sf::Vector2f(- (float)move, (isUpright ? -1.0f : 1.0f))));
-      particleTimer = (finalJump ? 4 : 1) * 150;
-    }
-    break;
-
-  case State::airborne:
-    break;
-
-  case State::hit:
     break;
 
   case State::stunned:
-    stunTimer -= Clock::Delta();
-    if (stunTimer <= 0)
-    {
-      curState = State::idle;
-      invincibilityTimer = 3000;
-      entity.SetAnimation((int)curState, (finalJump ? 2 : 1) * 150);
-      reticleAngle = 0.0f;
-      reticle.Update();
-    }
-    break;
+    stunTimer -= deltaT;
+    if (stunTimer > 0)
+      break;
 
-  case State::dead:
+    curState = State::idle;
+    entity.SetAnimation(IDLE_ANIM, (finalJump ? 2 : 1) * 150);
+    if (!finalJump)
+      invincibilityTimer = 3000;
     break;
   
   default:
-    std::cout << "Could not determine Character state (" << (int)curState << ")\n";
     break;
   }
 
-  if (curState != State::airborne)
-  {
-    vel.y += (isUpright ? 1.0f : -1.0f) * 0.05f * Clock::Delta();
-  }
+  prevPos = *pos;
 
-  *pos += (finalJump ? 0.5f : 1.0f) * (Clock::Delta() / 16.0f) * vel;
+  if (curState != State::stunned)
+    *pos += (deltaT / 16.0f) * vel;
 
   entity.Update();
 }
 
-void Character::UpdateVelocity(int dir)
+void Character::Render(sf::RenderWindow* win) const
 {
-  velTimer += 16;
-
-  if (dir != 0 && curState != State::airborne)
-  {
-    vel.x += acceleration * dir;
-    vel.x = std::clamp(vel.x, -acceleration * 8.0f, acceleration * 8.0f);
-    return;
-  }
-
-  if (vel.x > 0.0f)
-  {
-    vel.x -= acceleration;
-  }
-  else if (vel.x < 0.0f)
-  {
-    vel.x += acceleration;
-  }
-
-  if (std::fabs(vel.x) < acceleration)
-  {
-    vel.x = 0.0f;
-  }
-}
-
-void Character::Render(sf::RenderWindow *win) const
-{
+  // TODO: Update when shaders are redone
   Utility::entShad.setUniform("colorID", charID);
   if (invincibilityTimer <= 0 || (Clock::Elapsed() / 64) % 2)
-  {
     entity.Render(win);
-  }
 
-  if (superJumpEnabled && curState <= State::moving && !finalJump)
+  if (canSuperJump && curState <= State::moving && !finalJump)
     reticle.Render(win);
 }
 
-void Character::Jump()
+void Character::FloorCollision(float correction)
 {
-  if (curState >= State::airborne)
+  pos->y += correction;
+
+  if (curState != State::airborne)
   {
+    grounded = true;
+    vel.y = 0.0f;
     return;
   }
 
-  Event event;
-  event.type = Event::Type::playerJump;
-  event.value = charID;
-  Event::events.push(event);
-
-  GameStats::localStats.jumps++;
-
-  vel.y = acceleration * 80.0f * (isUpright ? -1.0f : 1.0f);;
-  vel.x = 0.0f;
-  
-  isUpright = !isUpright;
-  reticleAngle = 0.0f;
-
-  curState = State::airborne;
-  
-  entity.SetAnimation((int)curState, 20);
-}
-
-void Character::SuperJump()
-{
-  if (curState >= State::airborne || !superJumpEnabled)
-    return;
-
-  superJumpEnabled = false;
-
-  Event event;
-  event.type = Event::Type::playerSuper;
-  event.value = charID;
-  Event::events.push(event);
-
-  GameStats::localStats.specials++;
-
-  float jumpSpeed = acceleration * 80.0f * (isUpright ? -1.0f : 1.0f);
-
-  bouncesLeft = 5;
-  vel.y = std::cos(reticleAngle) * jumpSpeed;
-  vel.x = std::sin(reticleAngle) * jumpSpeed;
-  
-  isUpright = !isUpright;
-  reticleAngle = 0.0f;
-
-  curState = State::airborne;
-  
-  entity.SetAnimation((int)curState, 20);
-}
-
-void Character::EnableSuperJump()
-{
-  superJumpEnabled = true;
-}
-
-void Character::Land()
-{
-  vel.y = 0.0f;
-  vel.x = 0.0f;
-  curState = State::idle;
-
-  entity.SetAnimation((int)State::airborne + 2, 100, 0, 300);
-  entity.PushAnimation((int)curState, 150);
-  entity.FlipY();
-
-  Utility::particles.push_front(std::make_unique<Dust>(*pos, !isUpright));
-
-  if (finalJump)
+  if (superBouncesLeft > 0)
   {
-    curState = State::dead;
-  }
-  else if (queueFinalJump)
-  {
-    finalJump = true;
-    queueFinalJump = false;
-  }
-
-  if (comboCount >= 3)
-  {
-    canCollect = true;
-    GameStats::localStats.combos++;
-  }
-  else 
-  {
-    timeBoostCollected = 0;
-  }
-
-  bouncesLeft = -1;
-
-  comboCount = 0;
-}
-
-void Character::FloorCollision(float distance)
-{
-  pos->y += distance;
-
-  if (curState == State::airborne)
-  {
-    if (bouncesLeft <= 0)
-    {
-      Land();
-      Event event;
-      event.type = Event::Type::playerCombo;
-      event.combo.charID = charID;
-      event.combo.wasSuperJump = false;
-      Event::events.push(event);
-      return;
-    }
-
-    bouncesLeft--;
-
-    if (bouncesLeft == 0)
-    {
-      invincibilityTimer = 2000;
-      Land();
-      Event event;
-      event.type = Event::Type::playerCombo;
-      event.combo.charID = charID;
-      event.combo.wasSuperJump = true;
-      Event::events.push(event);
-      return;
-    }
-
-    pos->y += distance;
+    pos->y += correction;
     vel.y = -vel.y;
-
+    superBouncesLeft--;
     return;
   }
-  else if (curState == State::hit)
+
+  Event event;
+  event.type = Event::Type::playerCombo;
+  event.combo.charID = charID;
+  event.combo.wasSuperJump = false;
+
+  if (superBouncesLeft == 0)
   {
-    curState = State::stunned;
-    stunTimer = 1000;
-    vel.x = 0;
+    invincibilityTimer = 2000;
+    superBouncesLeft = -1;
+    event.combo.wasSuperJump = true;
   }
 
-  vel.y = 0.0f;
+  Land();
+  Event::events.push(event);
 }
 
-void Character::WallCollision(float distance)
+void Character::WallCollision(float correction)
 {
-  pos->x += distance;
-  if (bouncesLeft >= 0)
-  {
-    pos->x += distance;
-    vel.x = - vel.x;
-  }
-  else
+  pos->x += correction;
+
+  if (superBouncesLeft < 0)
   {
     vel.x = 0.0f;
+    return;
   }
+
+  pos->x += correction;
+  vel.x = - vel.x;
 }
 
-bool Character::Hit(sf::Vector2f entPos)
+bool Character::Hit(sf::Vector2f source)
 {
-  if (invincibilityTimer > 0 || curState >= State::hit || bouncesLeft >= 0 || finalJump)
-  {
+  if (invincibilityTimer > 0 || curState >= State::stunned || superBouncesLeft >= 0 || finalJump)
     return false;
-  }
+
+  Stun();
+
+  grounded = false;
+
+  entity.SetAnimation(STUN_ANIM, 100);
 
   Event event;
   event.type = Event::Type::playerHit;
   event.value = charID;
   Event::events.push(event); 
 
-  GameStats::localStats.hits++;
+  // y = ent.y +- sqrt(radius^2-(this.x-ent.x)^2)
+  pos->y = source.y + (isUpright ? -1.0f : 1.0f) 
+    * std::sqrt(SCALED_DIM * SCALED_DIM
+    - (pos->x - source.x) * (pos->x - source.x));
 
-  std::cout << "Player has been hit!\n";
+  vel.y = (isUpright ? -3.0f : 3.0f);
+  vel.x = (pos->x < source.x? -10.0f : 10.0f);
 
-  if (curState == State::airborne)
-  {
-    entity.FlipY();
-  }
   if (queueFinalJump)
   {
     queueFinalJump = false;
     finalJump = true;
   }
 
-  // y = ent.y +- sqrt(64*scale-(this.x-ent.x)^2) + for saws on top
-  pos->y = entPos.y + (isUpright ? -1.0f : 1.0f) 
-    * std::sqrt(64*ProgramSettings::gameScale*ProgramSettings::gameScale 
-    - (pos->x - entPos.x) * (pos->x - entPos.x));
-
-  vel.y = (isUpright ? -3.0f : 3.0f);
-  vel.x = (pos->x - entPos.x < 0.0f ? -10.0f : 10.0f);
-
-  curState = State::hit;
-  entity.SetAnimation((int)curState, 100);
-
-  comboCount = 0;
-  timeBoostCollected = 0;
-  canCollect = false;
-
   return true;
 }
 
-void Character::Kill()
+void Character::MakeFinalJump()
 {
-  jumpTimer = 2000;
   if (curState == State::airborne)
   {
     queueFinalJump = true;
     return;
   }
+  
+  Stun();
   finalJump = true;
+}
+
+int Character::GetID()
+{
+  return charID;
 }
 
 Character::State Character::GetCurState() const
@@ -380,24 +202,14 @@ Character::State Character::GetCurState() const
   return curState;
 }
 
-bool Character::IsFinalJump() const
-{
-  return finalJump;
-}
-
 sf::Vector2f Character::GetPosition() const
 {
   return *pos;
 }
 
-void Character::SetPosition(sf::Vector2f& newPos)
-{
-  *pos = newPos;
-}
-
 sf::FloatRect Character::GetHitBox() const
 {
-    return entity.HitBox();
+  return entity.HitBox();
 }
 
 std::pair<sf::Vector2f, sf::Vector2f> Character::GetLineHitBox() const
@@ -405,34 +217,140 @@ std::pair<sf::Vector2f, sf::Vector2f> Character::GetLineHitBox() const
   return std::pair<sf::Vector2f, sf::Vector2f>(prevPos, *pos);
 }
 
-void Character::IncrementComboCount()
+void Character::EnableSuperJump()
 {
-  if (comboCount < 7)
+  canSuperJump = true;
+}
+
+void Character::UpdateVelocity(int dir)
+{
+  velTimer += 16;
+
+  if (curState > State::moving)
+    return;
+
+  vel.y += (isUpright ? 1.0f : -1.0f) * 0.05f * Clock::Delta();
+
+  if (dir != 0 && grounded)
   {
-    comboCount++;
+    vel.x += acceleration * dir;
+    float maxVel = 8.0f * acceleration;
+    vel.x = std::clamp(vel.x, -maxVel, maxVel);
+    return;
+  }
+
+  if (std::fabs(vel.x) < acceleration)
+  {
+    vel.x = 0.0f;
+    return;
+  }
+
+  vel.x += acceleration * (grounded ? 1.0f : 0.2f) * (vel.x > 0 ? -1.0f : 1.0f);
+}
+
+void Character::UpdateReticle()
+{
+  if (horiDir)
+  {
+    float m = (float)horiDir * (isUpright ? -1.0f : 1.0f);
+    reticleAngle += m * (2.0f - m * reticleAngle) * Clock::Delta() / 500.0f;
+    reticleAngle = std::clamp(reticleAngle, -1.2f, 1.2f);
+  } 
+  else
+  {
+    float m = - (float)Utility::GetSign(reticleAngle);
+    reticleAngle += m * (fabs(reticleAngle)) * Clock::Delta() / 200.0f;
+    if (Utility::GetSign(reticleAngle) == (int)m)
+    {
+      reticleAngle = 0.0f;
+    }
+  } 
+
+  *reticlePos = *pos + (isUpright ? -3.0f : 3.0f) * SCALED_DIM 
+    * sf::Vector2f(std::sin(reticleAngle), std::cos(reticleAngle));
+  reticle.Update();
+}
+
+void Character::Jump()
+{
+  if (!grounded)
+    return;
+
+  curState = State::airborne;
+  
+  grounded = false;
+  isUpright = !isUpright;
+  entity.FlipY();
+
+  entity.SetAnimation(JUMP_ANIM, 20);
+
+  vel.y = acceleration * 80.0f * (isUpright ? 1.0f : -1.0f);
+  vel.x = 0.0f;
+
+  reticleAngle = 0.0f;
+
+  Event event;
+  event.type = Event::Type::playerJump;
+  event.value = charID;
+  Event::events.push(event);
+}
+
+void Character::SuperJump()
+{
+  if (!canSuperJump || finalJump || !grounded)
+    return;
+
+  curState = State::airborne;
+
+  grounded = false;
+  isUpright = !isUpright;
+  entity.FlipY();
+
+  canSuperJump = false;
+  superBouncesLeft = 6;
+  
+  entity.SetAnimation(JUMP_ANIM, 20);
+
+  float jumpSpeed = acceleration * 80.0f * (isUpright ? 1.0f : -1.0f);
+
+  vel.y = std::cos(reticleAngle) * jumpSpeed;
+  vel.x = std::sin(reticleAngle) * jumpSpeed;
+  
+  reticleAngle = 0.0f;
+
+  Event event;
+  event.type = Event::Type::playerSuper;
+  event.value = charID;
+  Event::events.push(event);
+}
+
+void Character::Land()
+{
+  curState = finalJump ? State::dead : State::idle;
+
+  grounded = true;
+  vel = ZERO_VECTOR;
+  superBouncesLeft = -1;
+
+  entity.SetAnimation(LAND_ANIM, 100, 0, 300);
+  entity.PushAnimation(finalJump ? REST_ANIM : IDLE_ANIM, 150);
+
+  Utility::particles.push_front(std::make_unique<Dust>(*pos, !isUpright));
+
+  if (queueFinalJump)
+  {
+    finalJump = true;
+    queueFinalJump = false;
+    Stun();
   }
 }
 
-void Character::IncrementTimeBoost()
+void Character::Stun()
 {
-  timeBoostCollected++;
-}
-
-int Character::GetTimeBoost()
-{
-  if (canCollect)
-  {
-    canCollect = false;
-    int temp = timeBoostCollected;
-    timeBoostCollected = 0;
-    return temp;
-  }
-  return 0;
-}
-
-int Character::GetID()
-{
-  return charID;
+  entity.SetAnimation(STUN_ANIM, 100);
+  curState = State::stunned;
+  stunTimer = 1000;
+  grounded = false;
 }
 
 // ------------------
@@ -453,16 +371,13 @@ void PlayableCharacter::Update()
     return;
   }
 
-  if (controls->IsBindingOnInitialClick(Controls::Binding::jump) && jumpTimer <= 0)
-  {
+  if (controls->IsBindingOnInitialClick(Controls::Binding::jump))
     Jump();
-  }
-  else if(controls->IsBindingOnInitialClick(Controls::Binding::special) && !finalJump && jumpTimer <= 0)
-  {
-    SuperJump();
-  }
 
-  move = controls->IsBindingHeld(Controls::Binding::right) - controls->IsBindingHeld(Controls::Binding::left);
+  else if(controls->IsBindingOnInitialClick(Controls::Binding::special))
+    SuperJump();
+
+  horiDir = controls->IsBindingHeld(Controls::Binding::right) - controls->IsBindingHeld(Controls::Binding::left);
 
   Character::Update();
 }
@@ -484,25 +399,14 @@ void ComputerCharacter::Update()
     return;
   }
   
-  std::uniform_int_distribution chance(0, 99);
-  int randomNum = chance(Utility::rng);
+  std::uniform_int_distribution p(0, 99);
+  int rand = p(Utility::rng);
 
-  if (randomNum == 0)
-  {
+  if (rand == 99)
     Jump();
-  }
-  else if (randomNum <= 3)
-  {
-    move = 0;
-  }
-  else if (randomNum > 3 && randomNum <= 6)
-  {
-    move = 1;
-  }
-  else if (randomNum > 6 && randomNum <= 9)
-  {
-    move = -1;
-  }
+  else if (rand / 3 < 3)
+    horiDir = -1 + rand / 3;
+  // Else retain current movement
 
   Character::Update();
 }
