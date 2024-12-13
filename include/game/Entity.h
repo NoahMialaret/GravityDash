@@ -55,6 +55,8 @@ public:
   void PushAnimation(int index, int dur, int loops = ALWAYS, int hold = 0);
   // Clears the animation queue and replaces it with a new animation
   void SetAnimation(int index, int dur, int loops = ALWAYS, int hold = 0);
+  // Clears all animations in the queue
+  void ClearAnimation();
 
 
   // Clears the all transitions

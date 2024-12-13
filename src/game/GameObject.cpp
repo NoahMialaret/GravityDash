@@ -13,10 +13,12 @@ void GameObject::Update()
   if (pos->x < -(worldBounds.x + SCALED_DIM) || pos->x > worldBounds.x + SCALED_DIM)
     tombstone = true;
 
-  if (tombstone)
+  tombstoneTimer -= Clock::Delta();
+
+  if (tombstone && tombstoneTimer <= 0)
     return;
 
-  if (activated)
+  if (activated && !tombstone)
     pos->x += Clock::Delta() * vel;
 
   entity.Update();
@@ -24,6 +26,9 @@ void GameObject::Update()
 
 void GameObject::HandleCollision(Character* character)
 {
+  if (tombstone)
+    return;
+
   std::pair<sf::Vector2f, sf::Vector2f> collision = character->GetLineHitBox();
   float squaredThreshold = SCALED_DIM * SCALED_DIM;
 
@@ -35,13 +40,6 @@ void GameObject::HandleCollision(Character* character)
   float squaredDistance = Utility::GetSquaredDistanceToLineSegment(*pos, collision);
   if (squaredDistance > squaredThreshold)
     return;
-
-  if (!destructable)
-  {
-    tagEvent.collision = {character->GetID(), pos->x, pos->y};
-    Event::events.push(tagEvent);
-    return;
-  }
   
   if (tag != -1 && squaredDistance > tagSquareDist)
     return;
@@ -52,28 +50,21 @@ void GameObject::HandleCollision(Character* character)
 
 void GameObject::ProcessTag()
 {
-  if (tag == -1)
+  if (tag == -1 || tombstone)
     return;
 
   tagEvent.collision = {tag, pos->x, pos->y};
   Event::events.push(tagEvent);
-
-  if (destructable)
-  {
-    tombstone = true;
-    Utility::particles.push_front(std::make_unique<Explosion>(*pos));
-  }
 }
 
 void GameObject::Render(sf::RenderWindow* win) const
 {
-  if (!tombstone)
-    entity.Render(win);
+  entity.Render(win);
 }
 
 bool GameObject::IsTombstoned() const
 {
-  return tombstone;
+  return tombstone && tombstoneTimer <= 0;
 }
 
 sf::Vector2f GameObject::GetPosition()
@@ -116,6 +107,41 @@ Saw::Saw(const sf::Vector2f& worldBounds)
   vel = 0.0625f * ProgramSettings::gameScale * (isGoingRight ? 1.0f : -1.0f);
   pos->x = (isGoingRight ? -1.0f : 1.0f) * worldBounds.x + posBuffer;
   pos->y = (isOnTop ? -1.0f : 1.0f) * worldBounds.y;
+}
+
+void Saw::Update()
+{
+  GameObject::Update();
+
+  if (freezeTimer == -1)
+    return;
+
+  freezeTimer -= Clock::Delta();
+
+  if (freezeTimer <= 0)
+  {
+    Deactivate();
+    freezeTimer = -1;
+  }
+}
+
+void Saw::HandleCollision(Character* character)
+{
+  if (!character->IsInvincible())
+    GameObject::HandleCollision(character);
+}
+
+void Saw::ProcessTag()
+{
+  GameObject::ProcessTag();
+
+  if (tag == -1 || tombstone)
+    return;
+
+  freezeTimer = 1000;
+  tombstoneTimer = 1200;
+  tombstone = true;
+  entity.ClearAnimation();
 }
 
 void Saw::Deactivate()
@@ -173,6 +199,23 @@ void MovingTarget::Update()
   pos->y = yBase + 0.5f * ProgramSettings::gameScale * std::sin(rad);
 }
 
+void MovingTarget::HandleCollision(Character *character)
+{
+  if (character->GetCurState() == Character::State::airborne)
+    GameObject::HandleCollision(character);
+}
+
+void MovingTarget::ProcessTag()
+{
+  GameObject::ProcessTag();
+
+  if (tag == -1 || tombstone)
+    return;
+
+  tombstone = true;
+  Utility::particles.push_front(std::make_unique<Explosion>(*pos));
+}
+
 // = --------------- =
 // = TimeBonus Class =
 // = --------------- =
@@ -199,4 +242,21 @@ TimeBonus::TimeBonus(const sf::Vector2f& worldBounds)
 
   std::uniform_real_distribution<float> floatDist(0.3f, 1.0f);
   vel = 1.5f * 0.0625f * floatDist(Utility::rng) * ProgramSettings::gameScale * (isGoingRight ? 1.0f : -1.0f);
+}
+
+void TimeBonus::HandleCollision(Character *character)
+{
+  if (character->GetCurState() == Character::State::airborne)
+    GameObject::HandleCollision(character);
+}
+
+void TimeBonus::ProcessTag()
+{
+  GameObject::ProcessTag();
+
+  if (tag == -1 || tombstone)
+    return;
+
+  tombstone = true;
+  Utility::particles.push_front(std::make_unique<Explosion>(*pos));
 }

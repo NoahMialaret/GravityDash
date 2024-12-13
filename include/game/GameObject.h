@@ -27,9 +27,9 @@ public:
   // Updates the objects position and entity
   virtual void Update();
   // Checks and handles collision with a character
-  void HandleCollision(Character* character);
+  virtual void HandleCollision(Character* character);
   // Processes the tag and its related event
-  void ProcessTag();
+  virtual void ProcessTag();
 
   // Renders the object
   void Render(sf::RenderWindow *win) const;
@@ -42,7 +42,7 @@ public:
   // Allows the object to move and be interactionable again
   virtual void Activate();
 
-  // Whether the object is set for deletion
+  // Whether the object can be deleted after it has been tombstoned and enough time has passed
   bool IsTombstoned() const;
 
 protected:
@@ -50,13 +50,14 @@ protected:
   
   Entity entity; // The entity used by the object for rendering and animations
 
-  sf::Vector2f* pos = nullptr;       // The objects position in the game world
-  float vel = 0.0f;       // The object's horizontal velocity
-  bool activated = true;  // Whether the object can move and (potentially) be interactable 
+  sf::Vector2f* pos = nullptr;  // The objects position in the game world
+  float vel = 0.0f;             // The object's horizontal velocity
+  bool activated = true;        // Whether the object can move and (potentially) be interactable 
 
   bool destructable = true; // Whether collision with the object destroys it, being non-destructive
                             //    implies multiple collisions can happen simultaneously
   bool tombstone = false;   // Whether the object is set for deletion
+  int tombstoneTimer = -1;  // A timer for when a tombstoned object can be deleted
 
   int tag = -1;         // The charID of the character who tagged this object
   float tagSquareDist;  // The squared distance the character was when tagging
@@ -71,10 +72,20 @@ public:
   // Initialises `Saw` with a random position and direction on the top or bottom of the world
   Saw(const sf::Vector2f& worldBounds);
 
+  // Deactivates the object if a collision has happened and it has been frozen for sufficient time
+  void Update() override;
+  // Only handles collision if the character is not invincible in some form
+  void HandleCollision(Character* character) override;
+  // Tombstones and freezes the object if it was tagged
+  void ProcessTag() override;
+
   // Causes the saw to move outside of the game region
   void Deactivate() override;
   // Moves the saw back into active play
   void Activate() override;
+
+private:
+  int freezeTimer = -1; // Represents how long the saw is frozen for after collision
 };
 
 // The `MovingTarget` is what the player is trying to hit to score points,
@@ -86,6 +97,10 @@ public:
   MovingTarget(const sf::Vector2f& worldBounds);
   // Updates the oscillation of the object
   void Update() override;
+  // Only handles collision with characters that are airborne
+  void HandleCollision(Character* character) override;
+  // Tombstones the object and creates an explosion if it was tagged
+  void ProcessTag() override;
 
 private:
   float oscillationSpeed;  // How fast the object oscillates
@@ -99,6 +114,11 @@ class TimeBonus : public GameObject
 public:
   // Initialises `TimeBonus` with a random velocity and vertical position 
   TimeBonus(const sf::Vector2f& worldBounds);
+
+  // Only handles collision with characters that are airborne
+  void HandleCollision(Character* character) override;
+  // Tombstones the object and creates an explosion if it was tagged
+  void ProcessTag() override;
 };
 
 #endif

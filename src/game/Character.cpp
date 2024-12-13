@@ -202,6 +202,11 @@ Character::State Character::GetCurState() const
   return curState;
 }
 
+bool Character::IsInvincible() const
+{
+  return invincibilityTimer > 0 || curState >= State::stunned || superBouncesLeft >= 0;
+}
+
 sf::Vector2f Character::GetPosition() const
 {
   return *pos;
@@ -347,6 +352,9 @@ void Character::Land()
 
 void Character::Stun()
 {
+  if (curState == State::stunned)
+    return;
+    
   entity.SetAnimation(STUN_ANIM, 100);
   curState = State::stunned;
   stunTimer = 1000;

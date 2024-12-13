@@ -100,6 +100,11 @@ void Entity::SetAnimation(int index, int dur, int loops, int hold)
   PushAnimation(index, dur, loops, hold);  
 }
 
+void Entity::ClearAnimation()
+{
+  anim.Clear();
+}
+
 void Entity::ClearTransitions()
 {
   positionTransition.Clear();

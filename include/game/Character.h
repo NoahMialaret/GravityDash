@@ -63,6 +63,8 @@ public:
   int GetID();
   // Returns `curState`, the current state of the character
   State GetCurState() const;
+  // Returns if the character is invincible or otherwise cannot be hit
+  bool IsInvincible() const;
   // Returns `*pos`, the characters's current world position
   sf::Vector2f GetPosition() const;
   // Returns the global bounds of the character's sprite

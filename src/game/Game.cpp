@@ -34,7 +34,11 @@ void Game::ProcessEvent(Event& event)
     break;
 
   case Event::Type::collisionSaw:
-    characters[event.collision.charID].get()->Hit({event.collision.colX, event.collision.colY});
+  {
+    if (characters[event.collision.charID].get()->Hit({event.collision.colX, event.collision.colY}));
+      comboCount[event.collision.charID] = 0;
+    break;
+  }
     
   case Event::Type::collisionTarget:
   case Event::Type::collisionTimeBonus:
