@@ -35,6 +35,10 @@ GameManager::GameManager(Event::GamePreset preset)
 void GameManager::Update()
 {
   game.get()->Update();
+
+  if (game.get()->IsGameOver())
+    return;
+    
   for (auto& comp : components)
     comp.get()->Update();
 }

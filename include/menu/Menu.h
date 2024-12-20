@@ -3,7 +3,7 @@
 
 #include <SFML/Graphics.hpp>
 
-#include "MenuButton.h"
+#include "StaticButton.h"
 #include "MenuOption.h"
 #include "Game.h"
 #include "MenuInterface.h"

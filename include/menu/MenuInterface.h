@@ -8,7 +8,7 @@
 #include "Controls.h"
 #include "Event.h" 
 #include "GameStats.h"
-#include "MenuButton.h"
+#include "StaticButton.h"
 #include "MenuOption.h"
 #include "Textures.h"
 #include "Utility.h"
@@ -17,18 +17,21 @@
 
 #include <iostream>
 
+// Represents an interface layout that can be interacted with by the user
 class MenuInterface
 {
 public:
+  // Constructs `MenuInterface` with a given event to be called when the menu is escaped from
   MenuInterface(Event menuReturn);
 
-  virtual void Update() = 0;
+  // Pushes the `menuReturn` event if the approriate key is pressed
+  virtual void Update();
+  // Renders interface elements to the screen
   virtual void Render(sf::RenderWindow* win) const = 0;
 
 protected:
-  // int colourCode = 0;
   // sf::Text Title;
-  Event menuReturn;
+  Event menuReturn; // The event that is pushed when 
 };
 
 class TitleInterface : public MenuInterface
@@ -40,41 +43,43 @@ class TitleInterface : public MenuInterface
 #define GRID_HORI 4.5f * float(SCALED_DIM)
 #define GRID_VERT (2.0f * float(SCALED_DIM) - ProgramSettings::gameScale)
 
-class GridInterface : public MenuInterface // Represents a 2 x 3 grid of tiles that can be filled with buttons
+// `GridInterface` specifies a layout where buttons are arranged on a 2 x 3 grid
+class GridInterface : public MenuInterface
 {
 public:
-  GridInterface(int startPos, std::vector<ButtonConfig>& configs, Event menuReturn);
+  // Constructs `GridInterface` given the button to 
+  GridInterface(int initialHighlight, std::vector<StaticButtonInit>& configs, Event menuReturn);
 
   void Update() override;
   void Render(sf::RenderWindow* win) const override;
 
 private:
-  // An invisible indicator as to the specific grid position that is highlighted, used to determine button selection
-  int curPos = 2;
+  int curButton = 2;  // Index to the current as to the specific grid position that 
+                      //  is highlighted, used to determine button selection
 
-  std::vector<std::unique_ptr<MenuButton>> buttons;
-  std::vector<int> buttonPos; // Represents which button occupies which grid space, from top to bottom, left to right
+  std::vector<std::unique_ptr<StaticButton>> buttons; // The buttons that make up the interface
+  std::vector<int> buttonPos;                       // Maps each grid position to a button
 };
 
 class ListInterface : public MenuInterface // Represents a list of small buttons, like the pause menu
 {
 public:
-  ListInterface(std::vector<ButtonConfig>& configs, Event menuReturn);
+  ListInterface(std::vector<StaticButtonInit>& configs, Event menuReturn);
 
   void Update() override;
   void Render(sf::RenderWindow* win) const override;
 
 protected:
   // An invisible indicator as to the specific grid position that is highlighted, used to determine button selection
-  int curPos = 0;
+  int curButton = 0;
 
-  std::vector<std::unique_ptr<MenuButton>> buttons;
+  std::vector<std::unique_ptr<StaticButton>> buttons;
 };
 
 class GameEndInterface : public ListInterface
 {
 public:
-  GameEndInterface(std::vector<ButtonConfig>& configs, Event menuReturn);
+  GameEndInterface(std::vector<StaticButtonInit>& configs, Event menuReturn);
 
   void Render(sf::RenderWindow* win) const override;
 
@@ -128,11 +133,6 @@ private:
   float end = 0.0f;
 
   std::vector<std::unique_ptr<OptionsSubList>> subLists;
-};
-
-class PlayerSelectInterface : public MenuInterface
-{
-
 };
 
 #endif

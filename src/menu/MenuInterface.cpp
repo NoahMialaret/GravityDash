@@ -5,10 +5,17 @@ MenuInterface::MenuInterface(Event menuReturn)
   menuReturn(menuReturn)
 {}
 
-GridInterface::GridInterface(int startPos, std::vector<ButtonConfig>& configs, Event menuReturn)
+void MenuInterface::Update()
+{  
+  Controls* controls = ProgramSettings::GetControls();
+  if (controls->IsBindingOnInitialClick(Controls::Binding::escape))
+    Event::events.push(menuReturn);
+}
+
+GridInterface::GridInterface(int initialHighlight, std::vector<StaticButtonInit>& configs, Event menuReturn)
   :
   MenuInterface(menuReturn),
-  curPos(startPos)
+  curButton(initialHighlight)
 {
   assert (configs.size() > 0);
 
@@ -23,11 +30,11 @@ GridInterface::GridInterface(int startPos, std::vector<ButtonConfig>& configs, E
     if (configs[i].size == 1)
     {
       width += 4.5f;
-      buttons.push_back(std::make_unique<MediumButton>(sf::Vector2f{hori, -GRID_VERT}, configs[i].name, configs[i].event));
+      buttons.push_back(std::make_unique<StaticButton>(sf::Vector2f{hori, -GRID_VERT}, configs[i]));
       if (i + 1 < configs.size() && configs[i + 1].size == 1)
       {
         i++;
-        buttons.push_back(std::make_unique<MediumButton>(sf::Vector2f{hori, GRID_VERT}, configs[i].name, configs[i].event));
+        buttons.push_back(std::make_unique<StaticButton>(sf::Vector2f{hori, GRID_VERT}, configs[i]));
         buttonPos.push_back(i);
       }
       else
@@ -42,18 +49,19 @@ GridInterface::GridInterface(int startPos, std::vector<ButtonConfig>& configs, E
         hori += 0.5f * SCALED_DIM;
 
       buttonPos.push_back(i);
-      buttons.push_back(std::make_unique<LargeButton>(sf::Vector2f{hori, 0}, configs[i].name, configs[i].event));
+      buttons.push_back(std::make_unique<StaticButton>(sf::Vector2f{hori, 0}, configs[i]));
       
       hori += GRID_HORI + 0.5f * SCALED_DIM;
     }
   }
 
+  // Move the buttons into their proper position
   for (auto& button : buttons)
     button.get()->Move(sf::Vector2f(padding - (width * SCALED_DIM) / 2, 0));
 
   assert (buttonPos.size() <= 6);
 
-  buttons[buttonPos[startPos]].get()->ToggleHighlight();
+  buttons[buttonPos[curButton]].get()->ToggleHighlight();
 }
 
 void GridInterface::Update()
@@ -61,35 +69,33 @@ void GridInterface::Update()
   Controls* controls = ProgramSettings::GetControls();
   if (controls->IsBindingOnInitialClick(Controls::Binding::select))
   {
-    buttons[buttonPos[curPos]].get()->Click();
+    buttons[buttonPos[curButton]].get()->Click();
+    return;
   }
-  else if (controls->IsBindingOnInitialClick(Controls::Binding::escape))
-  {
-    Event::events.push(menuReturn);
-  }
+  MenuInterface::Update();
 
   int xMove = controls->IsBindingClicked(Controls::Binding::right) - controls->IsBindingClicked(Controls::Binding::left);
   int yMove = controls->IsBindingClicked(Controls::Binding::down) - controls->IsBindingClicked(Controls::Binding::up);
 
   if ((!xMove && !yMove) ||
-      (curPos <= 1 && xMove < 0) ||
-      (curPos >= buttonPos.size() - 2 && xMove > 0) ||
-      (curPos % 2 == 0 && yMove < 0) ||
-      (curPos % 2 == 1 && yMove > 0)) // If no movement is happening, or movement would be out-of-bounds
+      (curButton <= 1 && xMove < 0) ||
+      (curButton >= buttonPos.size() - 2 && xMove > 0) ||
+      (curButton % 2 == 0 && yMove < 0) ||
+      (curButton % 2 == 1 && yMove > 0)) // If no movement is happening, or movement would be out-of-bounds
     return;
 
-  int newPos = curPos + yMove + xMove * 2;
+  int nextButton = curButton + yMove + xMove * 2;
 
-  if (buttonPos[newPos] == -1)
-    newPos--;
+  if (buttonPos[nextButton] == -1)
+    nextButton--;
 
-  if (buttonPos[curPos] != buttonPos[newPos]) // If it is a different button
+  if (buttonPos[curButton] != buttonPos[nextButton]) // If it is a different button
   {
-    buttons[buttonPos[curPos]].get()->ToggleHighlight();
-    buttons[buttonPos[newPos]].get()->ToggleHighlight();
+    buttons[buttonPos[curButton]].get()->ToggleHighlight();
+    buttons[buttonPos[nextButton]].get()->ToggleHighlight();
   }
 
-  curPos = newPos; 
+  curButton = nextButton; 
 }
 
 void GridInterface::Render(sf::RenderWindow* win) const
@@ -98,7 +104,7 @@ void GridInterface::Render(sf::RenderWindow* win) const
     b.get()->Render(win);
 }
 
-ListInterface::ListInterface(std::vector<ButtonConfig>& configs, Event menuReturn)
+ListInterface::ListInterface(std::vector<StaticButtonInit>& configs, Event menuReturn)
   :
   MenuInterface(menuReturn)
 {
@@ -109,13 +115,13 @@ ListInterface::ListInterface(std::vector<ButtonConfig>& configs, Event menuRetur
 
   for (auto& c : configs)
   {
-    buttons.push_back(std::make_unique<SmallButton>(sf::Vector2f(pos, -pos), c.name, c.event));
+    buttons.push_back(std::make_unique<StaticButton>(sf::Vector2f(pos, -pos), c));
     pos -= offset;
   }
 
   assert (buttons.size() <= 6);
 
-  buttons[curPos].get()->ToggleHighlight();
+  buttons[curButton].get()->ToggleHighlight();
 }
 
 void ListInterface::Update()
@@ -123,12 +129,12 @@ void ListInterface::Update()
   Controls* controls = ProgramSettings::GetControls();
   if (controls->IsBindingOnInitialClick(Controls::Binding::select))
   {
-    buttons[curPos].get()->Click();
+    buttons[curButton].get()->Click();
   }
   else if (controls->IsBindingOnInitialClick(Controls::Binding::escape))
   {
     Event::events.push(menuReturn);
-    curPos = 0;
+    curButton = 0;
   }
 
   int move = controls->IsBindingClicked(Controls::Binding::down) - controls->IsBindingClicked(Controls::Binding::up);
@@ -136,16 +142,16 @@ void ListInterface::Update()
   if (!move)
     return;
 
-  int newPos = curPos + move;
+  int nextButton = curButton + move;
 
-  if (newPos < 0)
-    newPos = buttons.size() - 1;
-  else if (newPos >= buttons.size())
-    newPos = 0;
+  if (nextButton < 0)
+    nextButton = buttons.size() - 1;
+  else if (nextButton >= buttons.size())
+    nextButton = 0;
 
-  buttons[curPos].get()->ToggleHighlight();
-  buttons[newPos].get()->ToggleHighlight();
-  curPos = newPos; 
+  buttons[curButton].get()->ToggleHighlight();
+  buttons[nextButton].get()->ToggleHighlight();
+  curButton = nextButton; 
 }
 
 void ListInterface::Render(sf::RenderWindow *win) const
@@ -154,7 +160,7 @@ void ListInterface::Render(sf::RenderWindow *win) const
     b.get()->Render(win);
 }
 
-GameEndInterface::GameEndInterface(std::vector<ButtonConfig> &configs, Event menuReturn)
+GameEndInterface::GameEndInterface(std::vector<StaticButtonInit> &configs, Event menuReturn)
   :
   ListInterface(configs, menuReturn)
 {

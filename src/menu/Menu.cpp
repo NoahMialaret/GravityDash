@@ -43,7 +43,7 @@ void Menu::LoadMenu(Event::MenuType menuType)
   {
   case Event::MenuType::main:
   {
-    std::vector<ButtonConfig> buttons;
+    std::vector<StaticButtonInit> buttons;
 
     event.type = Event::Type::pushMenu;
     event.menuType = Event::MenuType::score;
@@ -64,7 +64,7 @@ void Menu::LoadMenu(Event::MenuType menuType)
   }
   case Event::MenuType::play:
   {
-    std::vector<ButtonConfig> buttons;
+    std::vector<StaticButtonInit> buttons;
 
     event.type = Event::Type::gameNew;
     event.gamePreset = Event::GamePreset::minute;
@@ -82,7 +82,7 @@ void Menu::LoadMenu(Event::MenuType menuType)
   }
   case Event::MenuType::pause:
   {
-    std::vector<ButtonConfig> buttons;
+    std::vector<StaticButtonInit> buttons;
 
     event.type = Event::Type::resume;
     buttons.push_back({"resume", event, SMALL});
@@ -287,7 +287,7 @@ void Menu::LoadMenu(Event::MenuType menuType)
   {
     Event event;
 
-    std::vector<ButtonConfig> buttons;
+    std::vector<StaticButtonInit> buttons;
 
     event.type = Event::Type::gameReset;
     buttons.push_back({"retry", event, SMALL});
