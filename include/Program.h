@@ -13,8 +13,6 @@
 #include "Utility.h"
 #include "ProgramSettings.h"
 
-#include "TitleSequence.h"
-
 #include <algorithm>
 #include <iostream>
 

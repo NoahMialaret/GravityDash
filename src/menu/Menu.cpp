@@ -58,7 +58,6 @@ void Menu::LoadMenu(Event::MenuType menuType)
     buttons.push_back({"exit", event, MEDIUM});
 
     event.type = Event::Type::programClose;
-    // event.menuType = Event::MenuType::title;
     interface = std::make_unique<GridInterface>(2, buttons, event);
     break;
   }
