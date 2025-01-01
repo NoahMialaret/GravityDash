@@ -31,64 +31,66 @@ public:
 
 protected:
   // sf::Text Title;
-  Event menuReturn; // The event that is pushed when 
-};
-
-class TitleInterface : public MenuInterface
-{
-
+  Event menuReturn; // The event that is pushed when the menu is escaped from
 };
 
 
-#define GRID_HORI 4.5f * float(SCALED_DIM)
-#define GRID_VERT (2.0f * float(SCALED_DIM) - ProgramSettings::gameScale)
+#define GRID_VERT_POS (2.0f * float(SCALED_DIM) - ProgramSettings::gameScale)
 
 // `GridInterface` specifies a layout where buttons are arranged on a 2 x 3 grid
 class GridInterface : public MenuInterface
 {
 public:
-  // Constructs `GridInterface` given the button to 
-  GridInterface(int initialHighlight, std::vector<StaticButtonInit>& configs, Event menuReturn);
+  // Constructs `GridInterface` given a list of buttons to include in the layout
+  GridInterface(int initialHighlight, std::vector<StaticButtonInit>& configs, Event menuReturn, sf::Vector2f centre = ZERO_VECTOR);
 
+  // Updates the currently highlighted button if a direction is pressed by the user
   void Update() override;
+  // Redners the buttons to the screen
   void Render(sf::RenderWindow* win) const override;
 
 private:
-  int curButton = 2;  // Index to the current as to the specific grid position that 
-                      //  is highlighted, used to determine button selection
+  int curButton; // Index that maps to the grid position of the currently highlighted button
 
-  std::vector<std::unique_ptr<StaticButton>> buttons; // The buttons that make up the interface
-  std::vector<int> buttonPos;                       // Maps each grid position to a button
+  std::vector<int> grid;             // Maps each grid position to an index in `buttons`
+  std::vector<StaticButton> buttons; // The buttons that make up the interface
 };
 
+// `ListInterface` specifies a layout where buttons are arranged as a list
 class ListInterface : public MenuInterface // Represents a list of small buttons, like the pause menu
 {
 public:
-  ListInterface(std::vector<StaticButtonInit>& configs, Event menuReturn);
+  // Constructs `ListInterface` given a list of buttons to include in the layout
+  ListInterface(std::vector<StaticButtonInit>& configs, Event menuReturn, sf::Vector2f centre = ZERO_VECTOR);
 
+  // Updates the currently highlighted button if a direction is pressed by the user
   void Update() override;
+  // Redners the buttons to the screen
   void Render(sf::RenderWindow* win) const override;
 
 protected:
-  // An invisible indicator as to the specific grid position that is highlighted, used to determine button selection
-  int curButton = 0;
+  int curButton = 0; // Index to the currently highlighted button
 
-  std::vector<std::unique_ptr<StaticButton>> buttons;
+  std::vector<StaticButton> buttons; // The buttons that make up the interface
 };
 
+// `GameEndInterface` is a type of `ListInterface` shown at the end of a game, and includes game statistics
 class GameEndInterface : public ListInterface
 {
 public:
-  GameEndInterface(std::vector<StaticButtonInit>& configs, Event menuReturn);
+  // Constructs `GameEndInterface` given a list of buttons to include in the layout
+  GameEndInterface(std::vector<StaticButtonInit>& configs, Event menuReturn, sf::Vector2f centre = ZERO_VECTOR);
 
+  // Redners the buttons and stats to the screen
   void Render(sf::RenderWindow* win) const override;
 
 private:
-  std::vector<sf::Text> stats;
-  sf::Text displayTitle;
-  sf::RectangleShape underline;
+  sf::Text displayTitle;        // The title to be displayed above the stats
+  sf::RectangleShape underline; // The underline for the title
+  std::vector<sf::Text> stats;  // A list of text drawables representing the different stats to display
 };
 
+// `OptionsSubList` specifies a layout where buttons are arranged as a list
 class OptionsSubList
 {
 public:
@@ -113,7 +115,8 @@ private:
   std::vector<std::unique_ptr<MenuOption>> options;  
 };
 
-class OptionsInterface : public MenuInterface // For options and custom games
+// `OptionsInterface` specifies a list of option elements seperated into different sublists based on category
+class OptionsInterface : public MenuInterface
 {
 public:
   OptionsInterface(std::vector<std::pair<std::string, std::vector<OptionConfig>>>& configs, Event menuReturn);

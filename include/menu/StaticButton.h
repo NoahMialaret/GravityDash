@@ -31,8 +31,8 @@ struct StaticButtonInit
 class StaticButton
 {
 public:
-  // Constructs `StaticButton` of a specified position, name, size, and click event
-  StaticButton(sf::Vector2f pos, StaticButtonInit& config);
+  // Constructs `StaticButton` with a specified position, name, size, and click event
+  StaticButton(StaticButtonInit& config, sf::Vector2f pos = ZERO_VECTOR);
 
   // Renders the button to the screen
   void Render(sf::RenderWindow* win) const;
@@ -45,6 +45,11 @@ public:
 
   // Toggles whether or not the button should be rendered in its highlighted state
   void ToggleHighlight();
+
+  // Gets the amount of space the button takes up horizontally
+  float GetWidth() const; 
+  // Gets the amount of space the button takes up vertically
+  float GetHeight() const; 
   
 protected:
   sf::Sprite button;    // The sprite used to render the button's background

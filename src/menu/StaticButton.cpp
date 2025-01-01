@@ -1,8 +1,7 @@
 #include "StaticButton.h"
 
-StaticButton::StaticButton(sf::Vector2f pos, StaticButtonInit& config)
-  :
-  clickEvent(config.clickEvent)
+StaticButton::StaticButton(StaticButtonInit &config, sf::Vector2f pos)
+    : clickEvent(config.clickEvent)
 {
   assert(config.size >= SMALL && config.size <= LARGE);
 
@@ -54,4 +53,13 @@ void StaticButton::ToggleHighlight()
   isHighlighted = !isHighlighted;
 
   button.setTextureRect(curRect);
+}
+
+float StaticButton::GetWidth() const
+{
+  return button.getTextureRect().width * ProgramSettings::gameScale;
+}
+float StaticButton::GetHeight() const
+{
+  return button.getTextureRect().height * ProgramSettings::gameScale;
 }

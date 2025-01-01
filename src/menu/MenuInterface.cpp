@@ -12,56 +12,60 @@ void MenuInterface::Update()
     Event::events.push(menuReturn);
 }
 
-GridInterface::GridInterface(int initialHighlight, std::vector<StaticButtonInit>& configs, Event menuReturn)
+
+GridInterface::GridInterface(int initialHighlight, std::vector<StaticButtonInit>& configs, Event menuReturn, sf::Vector2f centre)
   :
   MenuInterface(menuReturn),
   curButton(initialHighlight)
 {
-  assert (configs.size() > 0);
+  assert(configs.size() > 0);
 
-  float hori = 0;
-  float padding = SCALED_DIM * (configs[0].size == 1 ? 2.0f : 2.5f);
-  float width = -0.5f; // The amount of sprite space the buttons take up (including inbetween)
+  const float padding = 0.5f * SCALED_DIM;
+  float horiPos = -padding; // The horizontal position of the next column of buttons
 
   for (int i = 0; i < configs.size(); i++)
   {
-    buttonPos.push_back(i); 
+    grid.push_back(i); 
+    StaticButton button(configs[i]);
 
-    if (configs[i].size == 1)
-    {
-      width += 4.5f;
-      buttons.push_back(std::make_unique<StaticButton>(sf::Vector2f{hori, -GRID_VERT}, configs[i]));
-      if (i + 1 < configs.size() && configs[i + 1].size == 1)
+    horiPos += padding;
+    if (i != 0)
+      horiPos += 0.5f * button.GetWidth(); 
+
+    button.Move({horiPos, configs[i].size != LARGE ? -GRID_VERT_POS : 0.0f});
+    buttons.push_back(button);
+
+    assert(configs[i].size != SMALL);
+    if (configs[i].size == MEDIUM)
+    {      
+      // Checks if there is there another button that can be placed underneath
+      if (i + 1 < configs.size() && configs[i + 1].size == MEDIUM)
       {
         i++;
-        buttons.push_back(std::make_unique<StaticButton>(sf::Vector2f{hori, GRID_VERT}, configs[i]));
-        buttonPos.push_back(i);
+        grid.push_back(i);
+        button = StaticButton(configs[i]);
+        button.Move({horiPos, GRID_VERT_POS});
+        buttons.push_back(button);
       }
       else
-        buttonPos.push_back(-1);
-      hori += GRID_HORI;
+        grid.push_back(-1);
     }
-    else
-    {
-      width += 5.5f;
+    else // LARGE
+      grid.push_back(i);
 
-      if (i != 0)
-        hori += 0.5f * SCALED_DIM;
-
-      buttonPos.push_back(i);
-      buttons.push_back(std::make_unique<StaticButton>(sf::Vector2f{hori, 0}, configs[i]));
-      
-      hori += GRID_HORI + 0.5f * SCALED_DIM;
-    }
+    horiPos += 0.5f * button.GetWidth();
   }
 
-  // Move the buttons into their proper position
+  float offset = 0.5f * horiPos;
+  offset -= 0.25f * buttons[0].GetWidth();
+
+  // Centre the buttons to the middle of the screen
   for (auto& button : buttons)
-    button.get()->Move(sf::Vector2f(padding - (width * SCALED_DIM) / 2, 0));
+    button.Move(centre + sf::Vector2f(-offset, 0));
 
-  assert (buttonPos.size() <= 6);
+  assert (grid.size() <= 6);
 
-  buttons[buttonPos[curButton]].get()->ToggleHighlight();
+  buttons[grid[curButton]].ToggleHighlight();
 }
 
 void GridInterface::Update()
@@ -69,30 +73,34 @@ void GridInterface::Update()
   Controls* controls = ProgramSettings::GetControls();
   if (controls->IsBindingOnInitialClick(Controls::Binding::select))
   {
-    buttons[buttonPos[curButton]].get()->Click();
+    buttons[grid[curButton]].Click();
     return;
   }
   MenuInterface::Update();
 
-  int xMove = controls->IsBindingClicked(Controls::Binding::right) - controls->IsBindingClicked(Controls::Binding::left);
-  int yMove = controls->IsBindingClicked(Controls::Binding::down) - controls->IsBindingClicked(Controls::Binding::up);
+  int xMove = controls->IsBindingClicked(Controls::Binding::right) 
+              - controls->IsBindingClicked(Controls::Binding::left);
+  int yMove = controls->IsBindingClicked(Controls::Binding::down) 
+              - controls->IsBindingClicked(Controls::Binding::up);
 
-  if ((!xMove && !yMove) ||
-      (curButton <= 1 && xMove < 0) ||
-      (curButton >= buttonPos.size() - 2 && xMove > 0) ||
-      (curButton % 2 == 0 && yMove < 0) ||
-      (curButton % 2 == 1 && yMove > 0)) // If no movement is happening, or movement would be out-of-bounds
+  // Returns if no movement is happening, or movement would be out-of-bounds
+  if ((!xMove && !yMove) 
+      || (curButton <= 1 && xMove < 0) 
+      || (curButton >= grid.size() - 2 && xMove > 0)
+      || (curButton % 2 == 0 && yMove < 0) 
+      || (curButton % 2 == 1 && yMove > 0))
     return;
 
-  int nextButton = curButton + yMove + xMove * 2;
+  int nextButton = curButton + yMove + 2 * xMove;
 
-  if (buttonPos[nextButton] == -1)
+  if (grid[nextButton] == -1)
     nextButton--;
 
-  if (buttonPos[curButton] != buttonPos[nextButton]) // If it is a different button
+  // Different button
+  if (grid[curButton] != grid[nextButton])
   {
-    buttons[buttonPos[curButton]].get()->ToggleHighlight();
-    buttons[buttonPos[nextButton]].get()->ToggleHighlight();
+    buttons[grid[curButton]].ToggleHighlight();
+    buttons[grid[nextButton]].ToggleHighlight();
   }
 
   curButton = nextButton; 
@@ -101,27 +109,27 @@ void GridInterface::Update()
 void GridInterface::Render(sf::RenderWindow* win) const
 {
   for (auto& b : buttons)
-    b.get()->Render(win);
+    b.Render(win);
 }
 
-ListInterface::ListInterface(std::vector<StaticButtonInit>& configs, Event menuReturn)
+
+ListInterface::ListInterface(std::vector<StaticButtonInit>& configs, Event menuReturn, sf::Vector2f centre)
   :
   MenuInterface(menuReturn)
 {
-  assert (configs.size() > 0);
-
-  float offset = ProgramSettings::gameScale * (Textures::textures.at("small_button").getSize().y + 2);
-  float pos = offset * (configs.size() - 1) / 2;
+  StaticButton button(configs[0]);
+  float offset = button.GetHeight() + 2.0f * ProgramSettings::gameScale;
+  float pos = 0.5f * offset * (configs.size() - 1);
 
   for (auto& c : configs)
   {
-    buttons.push_back(std::make_unique<StaticButton>(sf::Vector2f(pos, -pos), c));
+    buttons.push_back({c, centre + sf::Vector2f(pos, -pos)});
     pos -= offset;
   }
 
-  assert (buttons.size() <= 6);
+  assert(buttons.size() <= 6);
 
-  buttons[curButton].get()->ToggleHighlight();
+  buttons[curButton].ToggleHighlight();
 }
 
 void ListInterface::Update()
@@ -129,17 +137,16 @@ void ListInterface::Update()
   Controls* controls = ProgramSettings::GetControls();
   if (controls->IsBindingOnInitialClick(Controls::Binding::select))
   {
-    buttons[curButton].get()->Click();
-  }
-  else if (controls->IsBindingOnInitialClick(Controls::Binding::escape))
-  {
-    Event::events.push(menuReturn);
-    curButton = 0;
+    buttons[curButton].Click();
+    return;
   }
 
-  int move = controls->IsBindingClicked(Controls::Binding::down) - controls->IsBindingClicked(Controls::Binding::up);
+  MenuInterface::Update();
 
-  if (!move)
+  int move = controls->IsBindingClicked(Controls::Binding::down) 
+             - controls->IsBindingClicked(Controls::Binding::up);
+
+  if (!move || buttons.size() == 1)
     return;
 
   int nextButton = curButton + move;
@@ -149,29 +156,28 @@ void ListInterface::Update()
   else if (nextButton >= buttons.size())
     nextButton = 0;
 
-  buttons[curButton].get()->ToggleHighlight();
-  buttons[nextButton].get()->ToggleHighlight();
+  buttons[curButton].ToggleHighlight();
+  buttons[nextButton].ToggleHighlight();
   curButton = nextButton; 
 }
 
-void ListInterface::Render(sf::RenderWindow *win) const
+void ListInterface::Render(sf::RenderWindow* win) const
 {
   for (auto& b : buttons)
-    b.get()->Render(win);
+    b.Render(win);
 }
 
-GameEndInterface::GameEndInterface(std::vector<StaticButtonInit> &configs, Event menuReturn)
+
+GameEndInterface::GameEndInterface(std::vector<StaticButtonInit>& configs, Event menuReturn, sf::Vector2f centre)
   :
-  ListInterface(configs, menuReturn)
+  ListInterface(configs, menuReturn, centre)
 {
   for (auto& b : buttons)
-  {
-    b.get()->Move({4.0f * SCALED_DIM, 0});
-  }
+    b.Move({4.0f * SCALED_DIM, 0});
 
-  float yPos = - ProgramSettings::gameScale * (40.0f + (GameStats::localStats.timeBoosts == -1 ? 0.0f : 7.0f)) / 2.0f;
+  float yPos = centre.y - ProgramSettings::gameScale * (40.0f + (GameStats::localStats.timeBoosts == -1 ? 0.0f : 7.0f)) / 2.0f;
 
-  Utility::InitText(displayTitle, Textures::large, "results", {-6.5f * SCALED_DIM, yPos - SCALED_DIM}, {0, 0.0f}, {255, 229, 181});
+  Utility::InitText(displayTitle, Textures::large, "results", {centre.x - 6.5f * SCALED_DIM, yPos - SCALED_DIM}, {0, 0.0f}, {255, 229, 181});
   displayTitle.setOutlineColor({173, 103, 78});
   displayTitle.setOutlineThickness(ProgramSettings::gameScale);
 
@@ -183,7 +189,7 @@ GameEndInterface::GameEndInterface(std::vector<StaticButtonInit> &configs, Event
   float offset = 7 * ProgramSettings::gameScale;
 
   sf::Text text;
-  Utility::InitText(text, Textures::small, "jumps - " + std::to_string(GameStats::localStats.jumps), {-6.0f * SCALED_DIM, yPos + 14.0f * ProgramSettings::gameScale}, {0, 0.0f}, {255, 229, 181});
+  Utility::InitText(text, Textures::small, "jumps - " + std::to_string(GameStats::localStats.jumps), {centre.x - 6.0f * SCALED_DIM, yPos + 14.0f * ProgramSettings::gameScale}, {0, 0.0f}, {255, 229, 181});
   text.setOutlineColor({173, 103, 78});
   text.setOutlineThickness(ProgramSettings::gameScale);
 
@@ -208,7 +214,7 @@ GameEndInterface::GameEndInterface(std::vector<StaticButtonInit> &configs, Event
 
 }
 
-void GameEndInterface::Render(sf::RenderWindow *win) const
+void GameEndInterface::Render(sf::RenderWindow* win) const
 {
   ListInterface::Render(win);
   win->draw(displayTitle);
@@ -351,7 +357,7 @@ void OptionsSubList::Update()
     o.get()->Update();
 }
 
-void OptionsSubList::Render(sf::RenderWindow *win) const
+void OptionsSubList::Render(sf::RenderWindow* win) const
 {
   win->draw(displayTitle);
   win->draw(overline);
