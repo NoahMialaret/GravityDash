@@ -70,7 +70,7 @@ inline void BezierTransition<T>::Update()
   if (transitions.empty() || data == nullptr)
     return;
 
-  timer += Clock::Delta();
+  timer += DELTA_TIME;
 
   while (timer >= transitions.front().duration)
   {

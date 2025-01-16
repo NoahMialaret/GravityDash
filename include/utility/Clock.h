@@ -3,28 +3,40 @@
 
 #include <SFML/Graphics.hpp>
 
-// The clock used by the program to track the amount of time between frames
+#define DELTA_TIME (Clock::GetInstance()->Delta())
+
+// Clock is a global singleton class that tracks the amount of time passed between frames
 class Clock
 {
+private:
+  // Private constructor as only one instance should exist in the program
+  Clock() = default;
+  // The global Clock instance
+  static Clock* instance;
+
 public:
-  // Initialises the lastFrameTime variable
-  static void Init();
-  // Updates the deltaTime variable
-  static void Update();
-  // Gets the amount of time that has passed between frames
-  static int Delta();
+  // Creates and returns the global instance of Clock
+  static Clock* GetInstance();
+  // Delete the Clock instance
+  static void Clean();
+  
+  // Updates the delta time based on when Update was last called
+  void Update();
+
+  // Gets the amount of time that has passed between Update calls (i.e. between frames)
+  int Delta();
   // Gets the elapsed program time
-  static sf::Int32 Elapsed();
+  sf::Int32 Elapsed();
 
   // Sets the speed of the clock
-  static void SetSpeed(float speed);
+  void SetSpeed(float speed);
 
 private:
-  static sf::Clock clock; // The clock used to keep track of the time
-  static sf::Int32 lastFrameTime; // The clock value on the last program frame
+  sf::Clock clock;          // The clock used to keep track of the time
+  sf::Int32 lastFrameTime;  // The elapsed time from when the Update function was last called
 
-  static float clockSpeed; // How fast the clock runs relative to real time
-  static int deltaTime; // The time elapsed between frames
+  float clockSpeed = 1.0f;  // How fast the clock runs relative to real time
+  int deltaTime = 0;        // The time elapsed between frames
 };
 
 #endif

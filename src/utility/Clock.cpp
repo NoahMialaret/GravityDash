@@ -1,13 +1,21 @@
 #include "Clock.h"
 
-sf::Int32 Clock::lastFrameTime = 0;
-float Clock::clockSpeed = 1.0f;
-sf::Clock Clock::clock;
-int Clock::deltaTime = 0;
+Clock* Clock::instance = nullptr;
 
-void Clock::Init()
+Clock* Clock::GetInstance()
 {
-  lastFrameTime = clock.getElapsedTime().asMilliseconds();
+  if (instance == nullptr)
+  {
+    instance = new Clock();
+    instance->lastFrameTime = instance->clock.getElapsedTime().asMilliseconds();
+  }
+  return instance;
+}
+
+void Clock::Clean()
+{
+  if (instance != nullptr)
+    delete instance;
 }
 
 void Clock::Update()

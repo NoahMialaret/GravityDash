@@ -18,7 +18,7 @@ void Particle::Update()
     return;
   }
 
-  timer -= Clock::Delta();
+  timer -= DELTA_TIME;
 
   entity.Update();
 }

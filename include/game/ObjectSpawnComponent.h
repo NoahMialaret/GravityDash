@@ -46,7 +46,7 @@ inline ObjectSpawnComponent<Object>::ObjectSpawnComponent(Game *game, int cooldo
 template <typename Object>
 inline void ObjectSpawnComponent<Object>::Update()
 {
-  timer -= Clock::Delta();
+  timer -= DELTA_TIME;
 
   while (timer < 0)
   {

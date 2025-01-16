@@ -13,13 +13,13 @@ void GameObject::Update()
   if (pos->x < -(worldBounds.x + SCALED_DIM) || pos->x > worldBounds.x + SCALED_DIM)
     tombstone = true;
 
-  tombstoneTimer -= Clock::Delta();
+  tombstoneTimer -= DELTA_TIME;
 
   if (tombstone && tombstoneTimer <= 0)
     return;
 
   if (activated && !tombstone)
-    pos->x += Clock::Delta() * vel;
+    pos->x += DELTA_TIME * vel;
 
   entity.Update();
 }
@@ -116,7 +116,7 @@ void Saw::Update()
   if (freezeTimer == -1)
     return;
 
-  freezeTimer -= Clock::Delta();
+  freezeTimer -= DELTA_TIME;
 
   if (freezeTimer <= 0)
   {
@@ -195,7 +195,7 @@ void MovingTarget::Update()
   if (!activated || tombstone)
     return;
 
-  float rad = (float)Clock::Elapsed() / 1024.0f * oscillationSpeed;
+  float rad = (float)Clock::GetInstance()->Elapsed() / 1024.0f * oscillationSpeed;
   pos->y = yBase + 0.5f * ProgramSettings::gameScale * std::sin(rad);
 }
 

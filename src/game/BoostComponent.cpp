@@ -69,7 +69,7 @@ void BoostComponent::BoostMeter::Update()
   if (fillAmount >= limit)
     return;
   
-  fillAmount = std::max(fillAmount - Clock::Delta(), 0);
+  fillAmount = std::max(fillAmount - DELTA_TIME, 0);
 
   int width = (gauge.getTextureRect().width - 2.0f) * (float)fillAmount / (float)limit;
   fill.setSize(ProgramSettings::gameScale * sf::Vector2f((float)width, 2.0f));

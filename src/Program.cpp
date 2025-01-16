@@ -74,8 +74,6 @@ Program::Program(const char* name)
 
     menu = std::make_unique<Menu>(Event::MenuType::main);
     gameManager = std::make_unique<GameManager>(Event::GamePreset::title);
-
-    Clock::Init();
     
 	std::cout << "Program init done! Starting title sequence...\n";
 	
@@ -96,6 +94,8 @@ Program::~Program()
 
   gameManager = nullptr;
   menu = nullptr;
+
+  Clock::Clean();
 
 	std::cout << "Program successfully cleaned!\n";
 }
@@ -229,7 +229,7 @@ void Program::Update()
 	if (curState == State::notRunning) 
 		return;
 
-  Clock::Update();
+  Clock::GetInstance()->Update();
 
   if (curState != State::paused)
     gameManager.get()->Update();

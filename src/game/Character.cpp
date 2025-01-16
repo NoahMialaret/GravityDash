@@ -17,7 +17,7 @@ Character::Character(int charID)
 
 void Character::Update()
 {
-  int deltaT = Clock::Delta();
+  int deltaT = DELTA_TIME;
   if (finalJump)
     deltaT /= 2;
 
@@ -91,7 +91,7 @@ void Character::Render(sf::RenderWindow* win) const
 {
   // TODO: Update when shaders are redone
   Utility::entShad.setUniform("colorID", charID);
-  if (invincibilityTimer <= 0 || (Clock::Elapsed() / 64) % 2)
+  if (invincibilityTimer <= 0 || (Clock::GetInstance()->Elapsed() / 64) % 2)
     entity.Render(win);
 
   if (canSuperJump && curState <= State::moving && !finalJump)
@@ -234,7 +234,7 @@ void Character::UpdateVelocity(int dir)
   if (curState > State::moving)
     return;
 
-  vel.y += (isUpright ? 1.0f : -1.0f) * 0.05f * Clock::Delta();
+  vel.y += (isUpright ? 1.0f : -1.0f) * 0.05f * DELTA_TIME;
 
   if (dir != 0 && grounded)
   {
@@ -258,13 +258,13 @@ void Character::UpdateReticle()
   if (horiDir)
   {
     float m = (float)horiDir * (isUpright ? -1.0f : 1.0f);
-    reticleAngle += m * (2.0f - m * reticleAngle) * Clock::Delta() / 500.0f;
+    reticleAngle += m * (2.0f - m * reticleAngle) * DELTA_TIME / 500.0f;
     reticleAngle = std::clamp(reticleAngle, -1.2f, 1.2f);
   } 
   else
   {
     float m = - (float)Utility::GetSign(reticleAngle);
-    reticleAngle += m * (fabs(reticleAngle)) * Clock::Delta() / 200.0f;
+    reticleAngle += m * (fabs(reticleAngle)) * DELTA_TIME / 200.0f;
     if (Utility::GetSign(reticleAngle) == (int)m)
     {
       reticleAngle = 0.0f;

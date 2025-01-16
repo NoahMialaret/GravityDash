@@ -26,7 +26,7 @@ void AnimationHandler::Update()
     return;
   }
 
-  frameTimer -= Clock::Delta();
+  frameTimer -= DELTA_TIME;
   while (frameTimer <= 0 && !animations.empty())
   {
     AdvanceFrame();

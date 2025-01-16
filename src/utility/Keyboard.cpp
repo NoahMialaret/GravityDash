@@ -151,7 +151,7 @@ void Keyboard::Key::Update()
   if (state == State::click || state == State::initialClick)
     state = State::hold;
 
-  clickTimer -= Clock::Delta();
+  clickTimer -= DELTA_TIME;
   
   if (clickTimer < 0)
   {

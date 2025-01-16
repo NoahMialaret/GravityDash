@@ -57,7 +57,7 @@ void TimerComponent::Update()
   arrowYMove.Update();
   refillArrow.setPosition(arrowPos);
 
-  timeRemaining -= Clock::Delta();
+  timeRemaining -= DELTA_TIME;
 
   if (timeRemaining > 0)
   {

@@ -252,7 +252,7 @@ OptionsInterface::~OptionsInterface()
 
 void OptionsInterface::Update()
 {
-  timer += Clock::Delta();
+  timer += DELTA_TIME;
 
   Controls* controls = ProgramSettings::GetControls();
   if (controls->IsBindingOnInitialClick(Controls::Binding::escape))
