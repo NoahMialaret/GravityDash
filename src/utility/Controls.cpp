@@ -1,29 +1,29 @@
 #include "Controls.h"
 
-bool KeyboardControls::IsBindingHeld(Binding binding)
+bool KeyboardControls::IsActionHeld(Action action)
 {
-  return Keyboard::IsKeyHeld(keys[(int)binding]);
+  return Keyboard::IsKeyHeld(keys[(int)action]);
 }
 
-bool KeyboardControls::IsBindingOnInitialClick(Binding binding)
+bool KeyboardControls::IsActionOnInitialClick(Action action)
 {
-  return Keyboard::IsKeyOnInitialClick(keys[(int)binding]);
+  return Keyboard::IsKeyOnInitialClick(keys[(int)action]);
 }
 
-bool KeyboardControls::IsBindingClicked(Binding binding)
+bool KeyboardControls::IsActionClicked(Action action)
 {
-  return Keyboard::IsKeyClicked(keys[(int)binding]);
+  return Keyboard::IsKeyClicked(keys[(int)action]);
 }
 
-sf::Keyboard::Key KeyboardControls::GetKeyBinding(Controls::Binding binding) const
+sf::Keyboard::Key KeyboardControls::GetKeyAction(Controls::Action action) const
 {
-  if (binding < (Controls::Binding)0 || binding >= Controls::Binding::end)
+  if (action < (Controls::Action)0 || action >= Controls::Action::end)
     return sf::Keyboard::Unknown;
 
-  return keys[(int)binding];
+  return keys[(int)action];
 }
 
-void KeyboardControls::SetKeyBinding(Controls::Binding binding, sf::Keyboard::Key key)
+void KeyboardControls::SetKeyAction(Controls::Action action, sf::Keyboard::Key key)
 {
-  keys[(int)binding] = key;
+  keys[(int)action] = key;
 }

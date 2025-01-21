@@ -377,13 +377,13 @@ void PlayableCharacter::Update()
     return;
   }
 
-  if (controls->IsBindingOnInitialClick(Controls::Binding::jump))
+  if (controls->IsActionOnInitialClick(Controls::Action::jump))
     Jump();
 
-  else if(controls->IsBindingOnInitialClick(Controls::Binding::special))
+  else if(controls->IsActionOnInitialClick(Controls::Action::special))
     SuperJump();
 
-  horiDir = controls->IsBindingHeld(Controls::Binding::right) - controls->IsBindingHeld(Controls::Binding::left);
+  horiDir = controls->IsActionHeld(Controls::Action::right) - controls->IsActionHeld(Controls::Action::left);
 
   Character::Update();
 }

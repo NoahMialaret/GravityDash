@@ -5,10 +5,12 @@
 
 #include <Keyboard.h>
 
+// The `Controls` class acts as an abstraction of user control by mapping certain bindings to Actions  
 class Controls
 {
 public:
-  enum class Binding
+  // The different Actions that can be binded to
+  enum class Action
   {
     left,
     right,
@@ -25,25 +27,35 @@ public:
   Controls() = default;
   virtual ~Controls() = default;
  
-  virtual bool IsBindingHeld(Binding binding) = 0;  
-  virtual bool IsBindingOnInitialClick(Binding binding) = 0; 
-  virtual bool IsBindingClicked(Binding binding) = 0;  
+  // Returns whether the binding associated with an Action is being held
+  virtual bool IsActionHeld(Action action) = 0;  
+  // Returns whether the binding associated with an Action was the start of an input
+  virtual bool IsActionOnInitialClick(Action action) = 0; 
+  // Returns whether the binding associated with an Action is registered as a click
+  virtual bool IsActionClicked(Action action) = 0;  
 };
 
+// `KeyboardControls` maps a keyboards key-bindings to actions
 class KeyboardControls : public Controls
 {
 public:
   KeyboardControls() = default;
 
-  bool IsBindingHeld(Binding binding) override;  
-  bool IsBindingOnInitialClick(Binding binding) override; 
-  bool IsBindingClicked(Binding binding) override; 
+  // Returns whether the key associated with an Action is being held
+  bool IsActionHeld(Action action) override;  
+  // Returns whether the key associated with an Action was the start of an input
+  bool IsActionOnInitialClick(Action action) override; 
+  // Returns whether the key associated with an Action is registered as a click
+  bool IsActionClicked(Action action) override; 
 
-  sf::Keyboard::Key GetKeyBinding(Controls::Binding binding) const;
-  void SetKeyBinding(Controls::Binding binding, sf::Keyboard::Key key);
+  // Gets the key associated with an Action
+  sf::Keyboard::Key GetKeyAction(Controls::Action action) const;
+  // Sets the binding of a certain Action
+  void SetKeyAction(Controls::Action action, sf::Keyboard::Key key);
 
 private:
-  std::vector<sf::Keyboard::Key> keys = std::vector<sf::Keyboard::Key>((int)Controls::Binding::end, sf::Keyboard::Unknown);
+  // A vector which defines the mapping from keys to actions, where `keys[Action] = Binding`
+  std::vector<sf::Keyboard::Key> keys = std::vector<sf::Keyboard::Key>((int)Controls::Action::end, sf::Keyboard::Unknown);
 };
 
 #endif

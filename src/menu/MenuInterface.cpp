@@ -8,7 +8,7 @@ MenuInterface::MenuInterface(Event menuReturn)
 void MenuInterface::Update()
 {  
   Controls* controls = ProgramSettings::GetControls();
-  if (controls->IsBindingOnInitialClick(Controls::Binding::escape))
+  if (controls->IsActionOnInitialClick(Controls::Action::escape))
     Event::events.push(menuReturn);
 }
 
@@ -71,17 +71,17 @@ GridInterface::GridInterface(int initialHighlight, std::vector<StaticButtonInit>
 void GridInterface::Update()
 {
   Controls* controls = ProgramSettings::GetControls();
-  if (controls->IsBindingOnInitialClick(Controls::Binding::select))
+  if (controls->IsActionOnInitialClick(Controls::Action::select))
   {
     buttons[grid[curButton]].Click();
     return;
   }
   MenuInterface::Update();
 
-  int xMove = controls->IsBindingClicked(Controls::Binding::right) 
-              - controls->IsBindingClicked(Controls::Binding::left);
-  int yMove = controls->IsBindingClicked(Controls::Binding::down) 
-              - controls->IsBindingClicked(Controls::Binding::up);
+  int xMove = controls->IsActionClicked(Controls::Action::right) 
+              - controls->IsActionClicked(Controls::Action::left);
+  int yMove = controls->IsActionClicked(Controls::Action::down) 
+              - controls->IsActionClicked(Controls::Action::up);
 
   // Returns if no movement is happening, or movement would be out-of-bounds
   if ((!xMove && !yMove) 
@@ -135,7 +135,7 @@ ListInterface::ListInterface(std::vector<StaticButtonInit>& configs, Event menuR
 void ListInterface::Update()
 {
   Controls* controls = ProgramSettings::GetControls();
-  if (controls->IsBindingOnInitialClick(Controls::Binding::select))
+  if (controls->IsActionOnInitialClick(Controls::Action::select))
   {
     buttons[curButton].Click();
     return;
@@ -143,8 +143,8 @@ void ListInterface::Update()
 
   MenuInterface::Update();
 
-  int move = controls->IsBindingClicked(Controls::Binding::down) 
-             - controls->IsBindingClicked(Controls::Binding::up);
+  int move = controls->IsActionClicked(Controls::Action::down) 
+             - controls->IsActionClicked(Controls::Action::up);
 
   if (!move || buttons.size() == 1)
     return;
@@ -255,13 +255,13 @@ void OptionsInterface::Update()
   timer += DELTA_TIME;
 
   Controls* controls = ProgramSettings::GetControls();
-  if (controls->IsBindingOnInitialClick(Controls::Binding::escape))
+  if (controls->IsActionOnInitialClick(Controls::Action::escape))
     Event::events.push(menuReturn);
 
   float percent = bezier.GetValue(timer / 250.0f);
   origin = (1.0f - percent) * start + percent * end;
 
-  int move = controls->IsBindingClicked(Controls::Binding::down) - controls->IsBindingClicked(Controls::Binding::up);
+  int move = controls->IsActionClicked(Controls::Action::down) - controls->IsActionClicked(Controls::Action::up);
 
   if (!move)
   {
