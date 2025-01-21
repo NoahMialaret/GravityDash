@@ -99,3 +99,9 @@ void AnimationHandler::QueueAnimation(int index, int dur, int loops, int hold)
   anim.hold = hold;
   QueueAnimation(anim);
 }
+
+void AnimationHandler::ChangeSprite(sf::Sprite *newSprite)
+{
+  sprite = newSprite;
+  SetSpriteRegion();
+}

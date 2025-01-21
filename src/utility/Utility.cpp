@@ -25,6 +25,7 @@ void Utility::Clean()
 {
   if (instance != nullptr)
     delete instance;
+  instance = nullptr;
 }
 
 void Utility::LoadSave(const char *filename)
@@ -141,40 +142,7 @@ float Utility::GetSquaredDistanceToLineSegment(sf::Vector2f centrePos, std::pair
 	return distanceSquared;
 }
 
-void Utility::UpdateParticles()
-{
-  if (particles.empty())
-    return;
-    
-  for (auto prev = particles.before_begin(), cur = particles.begin(); cur != particles.end();)
-  {
-    cur->get()->Update();
-    if (cur->get()->HasFinished())
-    {
-      while (cur != particles.end() && cur->get()->HasFinished())
-      {
-        cur = particles.erase_after(prev);
-      }
-    }
-    else
-    {
-      prev++;
-      cur++;
-    }
-  }
-  
-}
-
-void Utility::RenderParticles(sf::RenderWindow* win)
-{
-
-  for (auto cur = particles.begin(); cur != particles.end(); cur++)
-  {
-    cur->get()->Render(win);
-  }
-}
-
-void Utility::InitSprite(sf::Sprite &sprite, std::string tex, sf::Vector2f pos, sf::Vector2i subTexCount, sf::Vector2f origin)
+void Utility::InitSprite(sf::Sprite& sprite, std::string tex, sf::Vector2f pos, sf::Vector2i subTexCount, sf::Vector2f origin)
 {
   sprite.setScale(DEFAULT_SCALE);
   sprite.setTexture(Textures::textures.at(tex));
@@ -184,7 +152,7 @@ void Utility::InitSprite(sf::Sprite &sprite, std::string tex, sf::Vector2f pos, 
   sprite.setOrigin(sf::Vector2f(origin.x * sprite.getTextureRect().width, origin.y * sprite.getTextureRect().height));
 }
 
-void Utility::InitText(sf::Text &text, sf::Font &font, std::string str, sf::Vector2f pos, sf::Vector2f origin, sf::Color col)
+void Utility::InitText(sf::Text& text, sf::Font& font, std::string str, sf::Vector2f pos, sf::Vector2f origin, sf::Color col)
 {
   text.setPosition(pos);
   text.setString(str);
@@ -203,7 +171,7 @@ void Utility::InitText(sf::Text &text, sf::Font &font, std::string str, sf::Vect
   text.setOrigin(sf::Vector2f(origin.x * text.getLocalBounds().width, origin.y * height - ProgramSettings::gameScale));
 }
 
-void Utility::UpdateText(sf::Text &text, std::string newStr, sf::Vector2f origin)
+void Utility::UpdateText(sf::Text& text, std::string newStr, sf::Vector2f origin)
 {
   text.setString(newStr);
 

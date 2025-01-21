@@ -57,9 +57,7 @@ void Character::Update()
 
     if (runParticleTimer <= 0)
     {
-      // TODO: Update when particles are redone
-      sf::Vector2f partVel(-horiDir * 0.2f * ProgramSettings::gameScale, (isUpright ? -0.1f : 0.1f) * ProgramSettings::gameScale);
-      // Utility::GetInstance()->CreateParticle(std::make_unique<Puff>(*pos, sf::Vector2f(- (float)horiDir, (isUpright ? -1.0f : 1.0f))));
+      ParticleManager::GetInstance()->CreateParticle(Puff(*pos, sf::Vector2f(- (float)horiDir, (isUpright ? -1.0f : 1.0f))));
       runParticleTimer = 150;
     }
     break;
@@ -340,7 +338,7 @@ void Character::Land()
   entity.SetAnimation(LAND_ANIM, 100, 0, 300);
   entity.PushAnimation(finalJump ? REST_ANIM : IDLE_ANIM, 150);
 
-  // Utility::GetInstance()->CreateParticle(std::make_unique<Dust>(*pos, !isUpright));
+  ParticleManager::GetInstance()->CreateParticle(Dust(*pos, !isUpright));
 
   if (queueFinalJump)
   {

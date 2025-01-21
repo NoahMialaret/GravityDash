@@ -13,12 +13,12 @@ private:
   Clock() = default;
   // The global Clock instance
   static Clock* instance;
+  // Delete the Clock instance
+  static void Clean();
 
 public:
   // Creates and returns the global instance of Clock
   static Clock* GetInstance();
-  // Delete the Clock instance
-  static void Clean();
   
   // Updates the delta time based on when Update was last called
   void Update();
@@ -32,6 +32,8 @@ public:
   void SetSpeed(float speed);
 
 private:
+  friend class Program; // Allows program to handle sensitive functions and data member
+
   sf::Clock clock;          // The clock used to keep track of the time
   sf::Int32 lastFrameTime;  // The elapsed time from when the Update function was last called
 

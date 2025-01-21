@@ -44,6 +44,9 @@ public:
   // Pushes the given transition to the queue
   void Push(Transition transition);
 
+  // Updates the underlying pointer to data that is manipulated
+  void ChangeData(T* newData);
+
 private:
   // Processes the current transition based on a given time `t` between 0 and 1
   void Process(float t);
@@ -139,6 +142,12 @@ inline void BezierTransition<T>::Push(Transition transition)
 
   if (transitions.size() == 1)
     timer = 0;
+}
+
+template <typename T>
+inline void BezierTransition<T>::ChangeData(T *newData)
+{
+  data = newData;
 }
 
 #endif

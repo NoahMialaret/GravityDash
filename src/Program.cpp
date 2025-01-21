@@ -90,12 +90,13 @@ Program::~Program()
 
 	window.close();
 
-  Utility::GetInstance()->particles.clear();
 
   gameManager = nullptr;
   menu = nullptr;
 
+  Utility::Clean();
   Clock::Clean();
+  ParticleManager::Clean();
 
 	std::cout << "Program successfully cleaned!\n";
 }
@@ -118,7 +119,7 @@ void Program::ProcessEvents()
 			std::cout << "Create new game event called\n";
       gameManager = std::make_unique<GameManager>(event.gamePreset);
 			menu.get()->ReloadStack(Event::MenuType::pause);
-      Utility::GetInstance()->particles.clear();
+      ParticleManager::Clean();
 			curState = State::gameplay;
 			break;
     }
@@ -159,7 +160,7 @@ void Program::ProcessEvents()
 			std::cout << "Resetting game...\n";
       gameManager = std::make_unique<GameManager>(gameManager.get()->GetPreset());
 			menu.get()->ReloadStack(Event::MenuType::pause);
-      Utility::GetInstance()->particles.clear();
+      ParticleManager::Clean();
 			curState = State::gameplay;
 			break;
     }
@@ -237,7 +238,7 @@ void Program::Update()
   if (curState != State::gameplay)
     menu.get()->Update();
 
-  Utility::GetInstance()->UpdateParticles();
+  ParticleManager::GetInstance()->UpdateParticles();
 
 	Keyboard::Update();
 }
@@ -253,7 +254,7 @@ void Program::Render()
 
   gameManager.get()->Render(&window);
 
-  Utility::GetInstance()->GetInstance()->RenderParticles(&window);
+  ParticleManager::GetInstance()->RenderParticles(&window);
 
   if (curState != State::gameplay)
     menu.get()->Render(&window);

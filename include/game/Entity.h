@@ -25,6 +25,11 @@ public:
           sf::Vector2f pos = ZERO_VECTOR, 
           sf::Vector2f origin = {0.5f, 0.5f});
 
+  Entity(const Entity& rhs);
+  // Entity(Entity&& rhs);
+  Entity& operator=(const Entity& rhs);
+  // Entity& operator=(Entity&& rhs);
+
   // Gets a pointer to the entity's position
   sf::Vector2f* GetPosition();
   // Gets a pointer to the entity's scale

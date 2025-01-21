@@ -35,8 +35,6 @@
 #include <random>
 #include <vector>
 
-class Particle;
-
 struct Utility
 {
 private:
@@ -44,12 +42,12 @@ private:
   Utility() = default;
   // The global Utility instance
   static Utility* instance;
+  // Deletes the Utility instance
+  static void Clean();
 
 public:
   // Creates and returns the global instance of Utility
   static Utility* GetInstance();
-  // Deletes the Utility instance
-  static void Clean();
 
   // Loads save data from disk
   void LoadSave(const char* filename); // TODO: Move to Program
@@ -69,10 +67,6 @@ public:
   // Returns the squared distance from a point to a line segment (represented as two points)
   static float GetSquaredDistanceToLineSegment(sf::Vector2f centrePos, std::pair<sf::Vector2f, sf::Vector2f> lineSegPoints);
 
-  // TODO: Move to dedicated particle manager
-  void UpdateParticles();
-  void RenderParticles(sf::RenderWindow* win);
-
   // Gets the sign of an integer, returns `1` for positive, `-1` for negative, and `0` for zero
   static int GetSign(int num);
   // Gets the sign of a float, returns `1` for positive, `-1` for negative, and `0` for zero
@@ -86,7 +80,7 @@ public:
   static void UpdateText(sf::Text &text, std::string newStr, sf::Vector2f origin = {0.5f, 0.5f});
 
 private:
-  friend class Program;
+  friend class Program; // Allows program to handle sensitive functions and data member
 
   static constexpr int spriteDim = 8; // The dimensions of a typical sprite
 
@@ -94,8 +88,6 @@ private:
 
   sf::Shader entShad;   // The shader used by entites
   sf::Shader worldShad; // The shader used by the game world and other static elements
-
-  std::forward_list<std::unique_ptr<Particle>> particles; // TODO: Move to dedicated manager
 };
 
 #endif

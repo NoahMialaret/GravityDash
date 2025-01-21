@@ -39,6 +39,9 @@ public:
   void QueueAnimation(Animation& anim);
   void QueueAnimation(int index, int dur, int loops = ALWAYS, int hold = 0);
 
+  // Updates the handler's sprite pointer
+  void ChangeSprite(sf::Sprite* newSprite);
+
 private:
   // Advances the animation to the next frame
   void AdvanceFrame();

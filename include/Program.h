@@ -8,7 +8,7 @@
 #include "GameManager.h"
 #include "Keyboard.h"
 #include "Menu.h"
-#include "Particle.h"
+#include "ParticleManager.h"
 #include "Textures.h"
 #include "Utility.h"
 #include "ProgramSettings.h"

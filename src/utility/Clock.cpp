@@ -16,6 +16,7 @@ void Clock::Clean()
 {
   if (instance != nullptr)
     delete instance;
+  instance = nullptr;
 }
 
 void Clock::Update()

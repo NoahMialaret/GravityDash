@@ -213,7 +213,7 @@ void MovingTarget::ProcessTag()
     return;
 
   tombstone = true;
-  // Utility::GetInstance()->CreateParticle(std::make_unique<Explosion>(*pos));
+  ParticleManager::GetInstance()->CreateParticle(Explosion(*pos));
 }
 
 // = --------------- =
@@ -258,5 +258,5 @@ void TimeBonus::ProcessTag()
     return;
 
   tombstone = true;
-  // Utility::GetInstance()->CreateParticle(std::make_unique<Explosion>(*pos));
+  ParticleManager::GetInstance()->CreateParticle(Explosion(*pos));
 }

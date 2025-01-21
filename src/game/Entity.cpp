@@ -17,7 +17,51 @@ Entity::Entity(const char* texName,
   anim = AnimationHandler(&sprite, numSprites.y, numSprites.x, sprite.getTextureRect().getSize());
 }
 
-sf::Vector2f* Entity::GetPosition()
+Entity::Entity(const Entity& rhs)
+{
+  anim = rhs.anim;
+  anim.ChangeSprite(&sprite);
+
+  positionTransition = rhs.positionTransition;
+  positionTransition.ChangeData(&position);
+
+  scaleTransition = rhs.scaleTransition;
+  scaleTransition.ChangeData(&scale);
+
+  rotationTransition = rhs.rotationTransition;
+  rotationTransition.ChangeData(&rotation);
+
+  shader = rhs.shader;
+  position = rhs.position;
+  scale = rhs.scale;
+  rotation = rhs.rotation;
+  sprite = rhs.sprite;
+}
+
+Entity& Entity::operator=(const Entity &rhs)
+{
+  anim = rhs.anim;
+  anim.ChangeSprite(&sprite);
+
+  positionTransition = rhs.positionTransition;
+  positionTransition.ChangeData(&position);
+
+  scaleTransition = rhs.scaleTransition;
+  scaleTransition.ChangeData(&scale);
+
+  rotationTransition = rhs.rotationTransition;
+  rotationTransition.ChangeData(&rotation);
+
+  shader = rhs.shader;
+  position = rhs.position;
+  scale = rhs.scale;
+  rotation = rhs.rotation;
+  sprite = rhs.sprite;
+
+  return *this;
+}
+
+sf::Vector2f *Entity::GetPosition()
 {
   return &position;
 }
