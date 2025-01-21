@@ -47,9 +47,9 @@ Puff::Puff(sf::Vector2f source, sf::Vector2f dir)
   }
 
   sf::Vector2f end;
-  end.x = source.x + dir.x * ProgramSettings::gameScale * Utility::spriteDim;
+  end.x = source.x + dir.x * ProgramSettings::gameScale * Utility::GetInstance()->GetSpriteDim();
   end.y = source.y + dir.y * ProgramSettings::gameScale;
-  entity.PushPositionTransition(Curve::easeIn, 400, source, end);
+  entity.PushPositionTransition(EASE_IN_CURVE, 400, source, end);
 }
 
 // ============
@@ -68,11 +68,11 @@ Dust::Dust(sf::Vector2f source, bool flip)
   }
 
   entity.PushAnimation(DUST, 50, 0);
-  entity.PushPositionTransition(Curve::easeIn, 200, source, source + sf::Vector2f(SCALED_DIM, 0.0f));
+  entity.PushPositionTransition(EASE_IN_CURVE, 200, source, source + sf::Vector2f(SCALED_DIM, 0.0f));
 
   entityMirror.FlipX();
   entityMirror.PushAnimation(DUST, 50, 0);
-  entityMirror.PushPositionTransition(Curve::easeIn, 200, source, source - sf::Vector2f(SCALED_DIM, 0.0f));
+  entityMirror.PushPositionTransition(EASE_IN_CURVE, 200, source, source - sf::Vector2f(SCALED_DIM, 0.0f));
 }
 
 void Dust::Update()
@@ -106,7 +106,7 @@ Explosion::Explosion(sf::Vector2f source)
   Particle(100)
 {
   entity.PushAnimation(EXPLOSION, 25, 0);
-  entity.PushPositionTransition(Curve::linear, 0, source, source);
+  entity.PushPositionTransition(LINEAR_CURVE, 0, source, source);
 }
 
 // =================
@@ -123,5 +123,5 @@ SpeedLine::SpeedLine(sf::Vector2f start, float speed)
   }
 
   entity.PushAnimation(SPEEDLINE, 100, 0);
-  entity.PushPositionTransition(Curve::linear, 400, start, start + speed * sf::Vector2f(0.0f, ProgramSettings::gameScale));
+  entity.PushPositionTransition(LINEAR_CURVE, 400, start, start + speed * sf::Vector2f(0.0f, ProgramSettings::gameScale));
 }

@@ -112,32 +112,32 @@ void Entity::ClearTransitions()
   rotationTransition.Clear();
 }
 
-void Entity::PushPositionTransition(Curve curve, float duration, sf::Vector2f offset)
+void Entity::PushPositionTransition(Bezier curve, float duration, sf::Vector2f offset)
 {
   positionTransition.Push(curve, duration, offset);
 }
 
-void Entity::PushPositionTransition(Curve curve, float duration, sf::Vector2f start, sf::Vector2f end)
+void Entity::PushPositionTransition(Bezier curve, float duration, sf::Vector2f start, sf::Vector2f end)
 {
   positionTransition.Push(curve, duration, start, end);
 }
 
-void Entity::PushScaleTransition(Curve curve, float duration, sf::Vector2f offset)
+void Entity::PushScaleTransition(Bezier curve, float duration, sf::Vector2f offset)
 {
   scaleTransition.Push(curve, duration, offset);
 }
 
-void Entity::PushScaleTransition(Curve curve, float duration, sf::Vector2f start, sf::Vector2f end)
+void Entity::PushScaleTransition(Bezier curve, float duration, sf::Vector2f start, sf::Vector2f end)
 {
   scaleTransition.Push(curve, duration, start, end);
 }
 
-void Entity::PushRotationTransition(Curve curve, float duration, float offset)
+void Entity::PushRotationTransition(Bezier curve, float duration, float offset)
 {
   rotationTransition.Push(curve, duration, offset);
 }
 
-void Entity::PushRotationTransition(Curve curve, float duration, float start, float end)
+void Entity::PushRotationTransition(Bezier curve, float duration, float start, float end)
 {
   rotationTransition.Push(curve, duration, start, end);
 }

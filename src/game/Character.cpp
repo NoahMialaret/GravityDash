@@ -4,7 +4,7 @@ Character::Character(int charID)
   : 
   charID(charID),
   acceleration(0.2f * ProgramSettings::gameScale),
-  entity("character", &Utility::entShad, {4, NUM_ANIMS}),
+  entity("character", &Utility::GetInstance()->GetEntityShader(), {4, NUM_ANIMS}),
   reticle("reticle", nullptr)
 {
   vel.y = 1000.0f;
@@ -59,7 +59,7 @@ void Character::Update()
     {
       // TODO: Update when particles are redone
       sf::Vector2f partVel(-horiDir * 0.2f * ProgramSettings::gameScale, (isUpright ? -0.1f : 0.1f) * ProgramSettings::gameScale);
-      Utility::particles.push_front(std::make_unique<Puff>(*pos, sf::Vector2f(- (float)horiDir, (isUpright ? -1.0f : 1.0f))));
+      // Utility::GetInstance()->CreateParticle(std::make_unique<Puff>(*pos, sf::Vector2f(- (float)horiDir, (isUpright ? -1.0f : 1.0f))));
       runParticleTimer = 150;
     }
     break;
@@ -90,7 +90,7 @@ void Character::Update()
 void Character::Render(sf::RenderWindow* win) const
 {
   // TODO: Update when shaders are redone
-  Utility::entShad.setUniform("colorID", charID);
+  Utility::GetInstance()->GetEntityShader().setUniform("colorID", charID);
   if (invincibilityTimer <= 0 || (Clock::GetInstance()->Elapsed() / 64) % 2)
     entity.Render(win);
 
@@ -263,9 +263,9 @@ void Character::UpdateReticle()
   } 
   else
   {
-    float m = - (float)Utility::GetSign(reticleAngle);
+    float m = - (float)Utility::GetInstance()->GetSign(reticleAngle);
     reticleAngle += m * (fabs(reticleAngle)) * DELTA_TIME / 200.0f;
-    if (Utility::GetSign(reticleAngle) == (int)m)
+    if (Utility::GetInstance()->GetSign(reticleAngle) == (int)m)
     {
       reticleAngle = 0.0f;
     }
@@ -340,7 +340,7 @@ void Character::Land()
   entity.SetAnimation(LAND_ANIM, 100, 0, 300);
   entity.PushAnimation(finalJump ? REST_ANIM : IDLE_ANIM, 150);
 
-  Utility::particles.push_front(std::make_unique<Dust>(*pos, !isUpright));
+  // Utility::GetInstance()->CreateParticle(std::make_unique<Dust>(*pos, !isUpright));
 
   if (queueFinalJump)
   {
@@ -408,7 +408,7 @@ void ComputerCharacter::Update()
   }
   
   std::uniform_int_distribution p(0, 99);
-  int rand = p(Utility::rng);
+  int rand = p(Utility::GetInstance()->GetRNG());
 
   if (rand == 99)
     Jump();

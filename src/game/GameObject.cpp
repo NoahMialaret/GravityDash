@@ -3,7 +3,7 @@
 GameObject::GameObject(const sf::Vector2f& worldBounds)
   :
   worldBounds(worldBounds),
-  entity("objects", &Utility::entShad, {4, 4})
+  entity("objects", &Utility::GetInstance()->GetEntityShader(), {4, 4})
 {
   pos = entity.GetPosition();
 }
@@ -37,7 +37,7 @@ void GameObject::HandleCollision(Character* character)
     || pos->x - SCALED_DIM > std::max(collision.first.x, collision.second.x))
       return ;
   
-  float squaredDistance = Utility::GetSquaredDistanceToLineSegment(*pos, collision);
+  float squaredDistance = Utility::GetInstance()->GetSquaredDistanceToLineSegment(*pos, collision);
   if (squaredDistance > squaredThreshold)
     return;
   
@@ -101,8 +101,8 @@ Saw::Saw(const sf::Vector2f& worldBounds)
 
   std::uniform_int_distribution dist(0, 1);
 
-  int isOnTop = dist(Utility::rng);
-  int isGoingRight = dist(Utility::rng);
+  int isOnTop = dist(Utility::GetInstance()->GetRNG());
+  int isGoingRight = dist(Utility::GetInstance()->GetRNG());
 
   vel = 0.0625f * ProgramSettings::gameScale * (isGoingRight ? 1.0f : -1.0f);
   pos->x = (isGoingRight ? -1.0f : 1.0f) * worldBounds.x + posBuffer;
@@ -146,7 +146,7 @@ void Saw::ProcessTag()
 
 void Saw::Deactivate()
 {
-  entity.PushPositionTransition(Curve::linear, 200, (pos->y < 0 ? -1.0f : 1.0f) * sf::Vector2f(0.0f, SCALED_DIM));
+  entity.PushPositionTransition(LINEAR_CURVE, 200, (pos->y < 0 ? -1.0f : 1.0f) * sf::Vector2f(0.0f, SCALED_DIM));
   GameObject::Deactivate();
 }
 
@@ -171,17 +171,17 @@ MovingTarget::MovingTarget(const sf::Vector2f& worldBounds)
 	int posBuffer = SCALED_DIM / 2;
 
   std::uniform_int_distribution xDist(0, 1);
-  int isGoingRight = xDist(Utility::rng);
+  int isGoingRight = xDist(Utility::GetInstance()->GetRNG());
   pos->x = (isGoingRight ? -1.0f : 1.0f) * (worldBounds.x + posBuffer);
 
   std::uniform_int_distribution yDist(
     int(2 * SCALED_DIM - worldBounds.y), 
     int(worldBounds.y - 2 * SCALED_DIM));
-  pos->y = yDist(Utility::rng);
+  pos->y = yDist(Utility::GetInstance()->GetRNG());
   yBase = pos->y;
 
   std::uniform_real_distribution<float> floatDist(0.3f, 1.0f);
-  vel = 0.0625 * floatDist(Utility::rng) * ProgramSettings::gameScale * (isGoingRight ? 1.0f : -1.0f);
+  vel = 0.0625 * floatDist(Utility::GetInstance()->GetRNG()) * ProgramSettings::gameScale * (isGoingRight ? 1.0f : -1.0f);
   oscillationSpeed = 64.0f * vel;
   
   if (!isGoingRight)
@@ -213,7 +213,7 @@ void MovingTarget::ProcessTag()
     return;
 
   tombstone = true;
-  Utility::particles.push_front(std::make_unique<Explosion>(*pos));
+  // Utility::GetInstance()->CreateParticle(std::make_unique<Explosion>(*pos));
 }
 
 // = --------------- =
@@ -232,16 +232,16 @@ TimeBonus::TimeBonus(const sf::Vector2f& worldBounds)
 	int posBuffer = SCALED_DIM / 2;
 
   std::uniform_int_distribution xDist(0, 1);
-  int isGoingRight = xDist(Utility::rng);
+  int isGoingRight = xDist(Utility::GetInstance()->GetRNG());
   pos->x = (isGoingRight ? -1.0f : 1.0f) * (worldBounds.x + posBuffer);
 
   std::uniform_int_distribution yDist(
     int(SCALED_DIM - worldBounds.y) + posBuffer, 
     int(worldBounds.y - SCALED_DIM) - posBuffer);
-  pos->y = yDist(Utility::rng);
+  pos->y = yDist(Utility::GetInstance()->GetRNG());
 
   std::uniform_real_distribution<float> floatDist(0.3f, 1.0f);
-  vel = 1.5f * 0.0625f * floatDist(Utility::rng) * ProgramSettings::gameScale * (isGoingRight ? 1.0f : -1.0f);
+  vel = 1.5f * 0.0625f * floatDist(Utility::GetInstance()->GetRNG()) * ProgramSettings::gameScale * (isGoingRight ? 1.0f : -1.0f);
 }
 
 void TimeBonus::HandleCollision(Character *character)
@@ -258,5 +258,5 @@ void TimeBonus::ProcessTag()
     return;
 
   tombstone = true;
-  Utility::particles.push_front(std::make_unique<Explosion>(*pos));
+  // Utility::GetInstance()->CreateParticle(std::make_unique<Explosion>(*pos));
 }

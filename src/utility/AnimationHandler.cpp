@@ -73,8 +73,8 @@ void AnimationHandler::AdvanceFrame()
 
 void AnimationHandler::SetSpriteRegion()
 {
-  frameRect.top = animations.front().index * (int)Utility::spriteDim;
-  frameRect.left = frameIndex * (int)Utility::spriteDim;
+  frameRect.top = animations.front().index * frameRect.width;
+  frameRect.left = frameIndex * frameRect.height;
   sprite->setTextureRect(frameRect);
 }
 

@@ -2,14 +2,20 @@
 #define UTILITY_H
 
 // The zero vector, used to set default values
-#define ZERO_VECTOR sf::Vector2f(0.0f, 0.0f)
-// The ingame pixel dimensions of a sprite
-#define SCALED_DIM (ProgramSettings::gameScale * Utility::spriteDim)
-// The default scale used by sprites
-#define DEFAULT_SCALE sf::Vector2f(ProgramSettings::gameScale, ProgramSettings::gameScale)
-// Used to set the origin of a sprite to its centre
-#define CENTRED_ORIGIN (0.5f * sf::Vector2f(Utility::spriteDim, Utility::spriteDim))
+#define ZERO_VECTOR (sf::Vector2f(0.0f, 0.0f))
+// The dimensions of a typical sprite when rendered to the screen
+#define SCALED_DIM (ProgramSettings::gameScale * Utility::GetInstance()->GetSpriteDim())
+// The default scale used by most sprites
+#define DEFAULT_SCALE (sf::Vector2f(ProgramSettings::gameScale, ProgramSettings::gameScale))
 
+// Linear bezier curve that increases at a constant rate
+#define LINEAR_CURVE   (Bezier({{0, 0},{1,1}}))
+// Ease-In bezier curve decays rapidly before tapering out
+#define EASE_IN_CURVE  (Bezier({{0, 0},{0,1},{1, 1}}))
+// Ease-Out bezier grows slowly before growing expontentially
+#define EASE_OUT_CURVE (Bezier({{0, 0},{1,0},{1, 1}}))
+
+// The path to the file that stores save data
 #define SAVE_FILE "files/save.json"
 
 #include <SFML/Graphics.hpp>
@@ -31,61 +37,65 @@
 
 class Particle;
 
-enum class Curve
-{
-  linear,
-  easeIn,
-  easeOut
-};
-
 struct Utility
 {
+private:
+  // Private constructor as only one instance should exist in the program
+  Utility() = default;
+  // The global Utility instance
+  static Utility* instance;
+
 public:
+  // Creates and returns the global instance of Utility
+  static Utility* GetInstance();
+  // Deletes the Utility instance
+  static void Clean();
+
   // Loads save data from disk
-  static void LoadSave(const char* filename);
-  // Saves data to disk
-  static void SaveData(const char* filename);
+  void LoadSave(const char* filename); // TODO: Move to Program
+  // Writes save data to disk
+  void SaveData(const char* filename); // TODO: Move to Program
 
-  // Converts interger numbers into a string
-	static std::string IntToString(int number, int minDigits = 0);
+  // Returns the typical dimensions of a sprite
+  int GetSpriteDim() const;
+  // Returns a reference to the RNG used throughout the program
+  std::mt19937& GetRNG();
 
-  // Gets the sign of a number
-  static int GetSign(int num);
-  static int GetSign(float num);
+  // Returns a reference to the shaders associated with program entities
+  sf::Shader& GetEntityShader();
+  // Returns a reference to the shaders associated with the background world and other static elements
+  sf::Shader& GetWorldShader();
 
-  // Given a point and a line segment defined by two points, return whether the point is less than a tile's distance away
+  // Returns the squared distance from a point to a line segment (represented as two points)
   static float GetSquaredDistanceToLineSegment(sf::Vector2f centrePos, std::pair<sf::Vector2f, sf::Vector2f> lineSegPoints);
 
-  // Render debug sprites
-  static void Render(sf::RenderWindow* win);
+  // TODO: Move to dedicated particle manager
+  void UpdateParticles();
+  void RenderParticles(sf::RenderWindow* win);
 
-  // Removes all debug sprites
-  static void FlushDebugSprites();
+  // Gets the sign of an integer, returns `1` for positive, `-1` for negative, and `0` for zero
+  static int GetSign(int num);
+  // Gets the sign of a float, returns `1` for positive, `-1` for negative, and `0` for zero
+  static int GetSign(float num);
 
-  static void UpdateParticles();
-  static void RenderParticles(sf::RenderWindow* win);
-
-  static void InitSprite(sf::Sprite& sprite, std::string tex, sf::Vector2f pos, sf::Vector2i subRect = {1, 1}, sf::Vector2f origin = {0.5f, 0.5f});
+  // Initialises Sprite objects using the name of its texture, its position, the number of sub-textures that are contained, and the relative origin of the sprite (ranging from `0` - `1`) 
+  static void InitSprite(sf::Sprite& sprite, std::string tex, sf::Vector2f pos, sf::Vector2i subTexCount = {1, 1}, sf::Vector2f origin = {0.5f, 0.5f});
+  // Initialises Text objects using a reference to its font, the text to display, its position, its relative origin (ranging from `0` to `1`), its colour 
   static void InitText(sf::Text& text, sf::Font& font, std::string str, sf::Vector2f pos, sf::Vector2f origin = {0.5f, 0.5f}, sf::Color col = {173, 103, 78});
+  // Updates a Text object's new relative origin when its display text changes
   static void UpdateText(sf::Text &text, std::string newStr, sf::Vector2f origin = {0.5f, 0.5f});
 
-public:
+private:
+  friend class Program;
+
   static constexpr int spriteDim = 8; // The dimensions of a typical sprite
 
-  static std::mt19937 rng;    // Used for random number generation
+  std::mt19937 rng; // The random number generator used throughout the program
 
-  static std::vector<Bezier> curves; // The bezier curves used by handlers for smooth transitions
+  sf::Shader entShad;   // The shader used by entites
+  sf::Shader worldShad; // The shader used by the game world and other static elements
 
-  // Debug
-  static sf::Sprite debugSprite;              // The sprite used for rendering debug positions on the screen
-  static std::vector<sf::Vector2f> debugPos;  // Holds all the saved debug sprite positions
-
-  static sf::Shader entShad;
-  static sf::Shader worldShad;
-
-  static std::forward_list<std::unique_ptr<Particle>> particles;
-
-  static float scoreMultiplier;
+  std::forward_list<std::unique_ptr<Particle>> particles; // TODO: Move to dedicated manager
 };
 
 #endif

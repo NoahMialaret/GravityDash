@@ -29,7 +29,7 @@ StaticButton::StaticButton(StaticButtonInit &config, sf::Vector2f pos)
 
 void StaticButton::Render(sf::RenderWindow *win) const
 {
-  win->draw(button, &Utility::worldShad);
+  win->draw(button, &Utility::GetInstance()->GetWorldShader());
   win->draw(displayName);
 }
 

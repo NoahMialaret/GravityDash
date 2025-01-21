@@ -18,7 +18,7 @@ public:
   // A transition defines how a given data type should change between two values 
   struct Transition
   {
-    Curve curve;    // The curve used to define the motion from `start` to `end`
+    Bezier curve;    // The curve used to define the motion from `start` to `end`
     int duration;   // The duration the transition lasts for
     T start;        // The starting value of the transition, i.e. when time is 0
     T end;          // The end value of the transition, i.e. when time is 1
@@ -38,9 +38,9 @@ public:
   void ProcessAll();
 
   // Pushes a transition to the queue, as an offset of the current value stored at `data`
-  void Push(Curve curve, int duration, T offset);
+  void Push(Bezier curve, int duration, T offset);
   // Pushes a transition to the queue given the curve, duration, start, and end value of the transition
-  void Push(Curve curve, int duration, T start, T end);
+  void Push(Bezier curve, int duration, T start, T end);
   // Pushes the given transition to the queue
   void Push(Transition transition);
 
@@ -106,7 +106,7 @@ inline void BezierTransition<T>::Process(float t)
 {
   Transition cur = transitions.front();
 
-  float p = Utility::curves[(int)cur.curve].GetValue(t);
+  float p = cur.curve.GetValue(t);
   *data = cur.start + p * (cur.end - cur.start);
 }
 
@@ -121,13 +121,13 @@ inline void BezierTransition<T>::ProcessAndPop()
 }
 
 template <typename T>
-inline void BezierTransition<T>::Push(Curve curve, int duration, T offset)
+inline void BezierTransition<T>::Push(Bezier curve, int duration, T offset)
 {
   Push(curve, duration, *data, *data + offset);
 }
 
 template <typename T>
-inline void BezierTransition<T>::Push(Curve curve, int duration, T start, T end)
+inline void BezierTransition<T>::Push(Bezier curve, int duration, T start, T end)
 {
   Push({curve, duration, start, end});
 }

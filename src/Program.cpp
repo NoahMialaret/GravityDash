@@ -4,7 +4,7 @@ std::queue<Event> Event::events;
 
 Program::Program(const char* name)
 {
-  Utility::LoadSave(SAVE_FILE);
+  Utility::GetInstance()->LoadSave(SAVE_FILE);
 
 	std::cout << "--=== Program Init ===--\n"  << "Initialising SFML Window...\n";
 
@@ -58,17 +58,17 @@ Program::Program(const char* name)
       std::cout << "\tShaders are not available on this hardware!\n";
     }
 
-    if (!Utility::entShad.loadFromFile("assets/vert.vs", "assets/frag.fs"))
+    if (!Utility::GetInstance()->entShad.loadFromFile("assets/vert.vs", "assets/frag.fs"))
     {
       std::cout << "ERROR\n";
     }
-    Utility::entShad.setUniform("texture", sf::Shader::CurrentTexture);
+    Utility::GetInstance()->entShad.setUniform("texture", sf::Shader::CurrentTexture);
 
-    if (!Utility::worldShad.loadFromFile("assets/vert.vs", "assets/bg.fs"))
+    if (!Utility::GetInstance()->worldShad.loadFromFile("assets/vert.vs", "assets/bg.fs"))
     {
       std::cout << "ERROR\n";
     }
-    Utility::worldShad.setUniform("texture", sf::Shader::CurrentTexture);
+    Utility::GetInstance()->worldShad.setUniform("texture", sf::Shader::CurrentTexture);
 
 	std::cout << "Initialising Program objects...\n";
 
@@ -84,13 +84,13 @@ Program::Program(const char* name)
 
 Program::~Program()
 {
-  Utility::SaveData(SAVE_FILE);
+  Utility::GetInstance()->SaveData(SAVE_FILE);
 
 	std::cout << "Cleaning program...\n";
 
 	window.close();
 
-  Utility::particles.clear();
+  Utility::GetInstance()->particles.clear();
 
   gameManager = nullptr;
   menu = nullptr;
@@ -118,7 +118,7 @@ void Program::ProcessEvents()
 			std::cout << "Create new game event called\n";
       gameManager = std::make_unique<GameManager>(event.gamePreset);
 			menu.get()->ReloadStack(Event::MenuType::pause);
-      Utility::particles.clear();
+      Utility::GetInstance()->particles.clear();
 			curState = State::gameplay;
 			break;
     }
@@ -159,7 +159,7 @@ void Program::ProcessEvents()
 			std::cout << "Resetting game...\n";
       gameManager = std::make_unique<GameManager>(gameManager.get()->GetPreset());
 			menu.get()->ReloadStack(Event::MenuType::pause);
-      Utility::particles.clear();
+      Utility::GetInstance()->particles.clear();
 			curState = State::gameplay;
 			break;
     }
@@ -201,7 +201,7 @@ void Program::ProcessEvents()
 			// 	break;
 
 			// case sf::Keyboard::Tab:
-			// 	Utility::FlushDebugSprites();
+			// 	Utility::GetInstance()->FlushDebugSprites();
 			// 	break;
 
 			case sf::Keyboard::R:
@@ -237,7 +237,7 @@ void Program::Update()
   if (curState != State::gameplay)
     menu.get()->Update();
 
-  Utility::UpdateParticles();
+  Utility::GetInstance()->UpdateParticles();
 
 	Keyboard::Update();
 }
@@ -253,7 +253,7 @@ void Program::Render()
 
   gameManager.get()->Render(&window);
 
-  Utility::RenderParticles(&window);
+  Utility::GetInstance()->GetInstance()->RenderParticles(&window);
 
   if (curState != State::gameplay)
     menu.get()->Render(&window);
@@ -275,8 +275,6 @@ void Program::Render()
 	// default:
 	// 	break;
 	// }
-
-	Utility::Render(&window);
 
 	window.display();	
 }

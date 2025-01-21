@@ -1,28 +1,35 @@
 #include "Utility.h"
 #include "Particle.h"
 
-std::mt19937 Utility::rng = std::mt19937(std::random_device()());
+Utility* Utility::instance = nullptr;
 
-std::vector<Bezier> Utility::curves =
+// std::mt19937 Utility::rng = ;
+
+// sf::Shader Utility::entShad;
+// sf::Shader Utility::worldShad;
+
+// std::forward_list<std::unique_ptr<Particle>> Utility::particles;
+
+Utility* Utility::GetInstance()
 {
-  Bezier({{0, 0},{1,1}}),
-  Bezier({{0, 0},{0,1},{1, 1}}),
-  Bezier({{0, 0},{1,0},{1, 1}})
-};
+  if (instance == nullptr)
+  {
+    instance = new Utility();
+    std::mt19937(std::random_device()());
+  }
 
-sf::Sprite Utility::debugSprite;
-std::vector<sf::Vector2f> Utility::debugPos;
+  return instance;
+}
 
-sf::Shader Utility::entShad;
-sf::Shader Utility::worldShad;
-
-std::forward_list<std::unique_ptr<Particle>> Utility::particles;
-
-float Utility::scoreMultiplier = 1.0f;
-
-void Utility::LoadSave(const char* filename)
+void Utility::Clean()
 {
+  if (instance != nullptr)
+    delete instance;
+}
 
+void Utility::LoadSave(const char *filename)
+{
+  
   try
   {
     std::ifstream file(filename);
@@ -59,32 +66,24 @@ void Utility::SaveData(const char* filename)
   std::cout << "Data saved!\n";
 }
 
-std::string Utility::IntToString(int number, int minDigits)
+int Utility::GetSpriteDim() const
 {
-	// The int represented by a string in reverse
-	std::string RevInt;
+  return spriteDim;
+}
 
-	while (number >= 10) 
-	{
-		RevInt.push_back((number % 10) + 48);
-		number = number / 10; 
-	}
-	RevInt.push_back(number + 48);
+std::mt19937& Utility::GetRNG()
+{
+  return rng;
+}
 
-	while (RevInt.size() < minDigits)
-	{
-		RevInt.push_back('0');
-	}
+sf::Shader& Utility::GetEntityShader()
+{
+  return entShad;
+}
 
-	std::string stringedInt = "";
-
-	for (auto i = RevInt.end(); i != RevInt.begin();)
-	{
-		i--;
-		stringedInt.push_back(*i);
-	}
-
-	return stringedInt;
+sf::Shader& Utility::GetWorldShader()
+{
+  return worldShad;
 }
 
 int Utility::GetSign(int num)
@@ -142,21 +141,6 @@ float Utility::GetSquaredDistanceToLineSegment(sf::Vector2f centrePos, std::pair
 	return distanceSquared;
 }
 
-void Utility::Render(sf::RenderWindow* win)
-{
-	for(auto& pos : debugPos)
-	{
-		debugSprite.setPosition(pos);
-		win->draw(debugSprite);
-	}
-}
-
-void Utility::FlushDebugSprites()
-{
-	std::cout << "Clearing debug sprites...\n";
-	debugPos.clear();
-}
-
 void Utility::UpdateParticles()
 {
   if (particles.empty())
@@ -190,13 +174,13 @@ void Utility::RenderParticles(sf::RenderWindow* win)
   }
 }
 
-void Utility::InitSprite(sf::Sprite &sprite, std::string tex, sf::Vector2f pos, sf::Vector2i subRect, sf::Vector2f origin)
+void Utility::InitSprite(sf::Sprite &sprite, std::string tex, sf::Vector2f pos, sf::Vector2i subTexCount, sf::Vector2f origin)
 {
   sprite.setScale(DEFAULT_SCALE);
   sprite.setTexture(Textures::textures.at(tex));
   sprite.setPosition(pos);
   sf::Vector2i texSize = (sf::Vector2i)Textures::textures.at(tex).getSize();
-  sprite.setTextureRect({0, 0, texSize.x / subRect.x, texSize.y / subRect.y});
+  sprite.setTextureRect({0, 0, texSize.x / subTexCount.x, texSize.y / subTexCount.y});
   sprite.setOrigin(sf::Vector2f(origin.x * sprite.getTextureRect().width, origin.y * sprite.getTextureRect().height));
 }
 

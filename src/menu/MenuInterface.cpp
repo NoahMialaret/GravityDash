@@ -228,7 +228,7 @@ void GameEndInterface::Render(sf::RenderWindow* win) const
 OptionsInterface::OptionsInterface(std::vector<std::pair<std::string, std::vector<OptionConfig>>>& configs, Event menuReturn)
   :
   MenuInterface(menuReturn),
-  bezier(Utility::curves[(int)Curve::easeIn])
+  bezier(EASE_IN_CURVE)
 {
   origin = 0.0f;
 

@@ -99,7 +99,7 @@ void ToggleOption::Update()
 void ToggleOption::Render(sf::RenderWindow* win) const
 {
   MenuOption::Render(win);
-  win->draw(toggleSprite, &Utility::worldShad);
+  win->draw(toggleSprite, &Utility::GetInstance()->GetWorldShader());
 }
 
 RangeOption::RangeOption(std::string name, Event action, float* origin, float offset, OptionConfig::Range config)

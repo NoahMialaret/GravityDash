@@ -63,19 +63,19 @@ public:
   void ClearTransitions();
 
   // Pushes a position transition from its current rotation to a given offset
-  void PushPositionTransition(Curve curve, float duration, sf::Vector2f offset);
+  void PushPositionTransition(Bezier curve, float duration, sf::Vector2f offset);
   // Pushes a position transition between a start and end rotation
-  void PushPositionTransition(Curve curve, float duration, sf::Vector2f start, sf::Vector2f end);
+  void PushPositionTransition(Bezier curve, float duration, sf::Vector2f start, sf::Vector2f end);
 
   // Pushes a scale transition from its current rotation to a given offset
-  void PushScaleTransition(Curve curve, float duration, sf::Vector2f offset);
+  void PushScaleTransition(Bezier curve, float duration, sf::Vector2f offset);
   // Pushes a scale transition between a start and end rotation
-  void PushScaleTransition(Curve curve, float duration, sf::Vector2f start, sf::Vector2f end);
+  void PushScaleTransition(Bezier curve, float duration, sf::Vector2f start, sf::Vector2f end);
 
   // Pushes a rotation transition from its current rotation to a given offset
-  void PushRotationTransition(Curve curve, float duration, float offset);
+  void PushRotationTransition(Bezier curve, float duration, float offset);
   // Pushes a rotation transition between a start and end rotation
-  void PushRotationTransition(Curve curve, float duration, float start, float end);
+  void PushRotationTransition(Bezier curve, float duration, float start, float end);
 
 private:
   // The sprite used by the entity for rendering

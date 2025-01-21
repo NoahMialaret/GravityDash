@@ -53,8 +53,8 @@ inline void ObjectSpawnComponent<Object>::Update()
     std::uniform_int_distribution variance(-cooldownVar, cooldownVar);
     std::uniform_real_distribution<float> poll;
 
-    timer += cooldown + variance(Utility::rng);
-    if (poll(Utility::rng) < probability)
+    timer += cooldown + variance(Utility::GetInstance()->GetRNG());
+    if (poll(Utility::GetInstance()->GetRNG()) < probability)
       game->SpawnObject(std::make_unique<Object>(game->GetWorldBounds()));
   }
 }

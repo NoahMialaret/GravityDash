@@ -101,6 +101,6 @@ void TimerComponent::AddTime(int addition)
 void TimerComponent::MoveArrow()
 {
   arrowYMove.Clear();
-  arrowYMove.Push(Curve::easeIn, 1000, arrowPos.y, 
+  arrowYMove.Push(EASE_IN_CURVE, 1000, arrowPos.y, 
     gauge.getPosition().y + gauge.getGlobalBounds().height * (0.5f - (float)timeRefill / (float)maxTime));
 }

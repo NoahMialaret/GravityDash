@@ -29,7 +29,7 @@ void World::Update()
 
 void World::Render(sf::RenderWindow* win) const
 {
-  win->draw(renderRect, &Utility::worldShad);
+  win->draw(renderRect, &Utility::GetInstance()->GetWorldShader());
 }
 
 const sf::Vector2f& World::GetBounds() const
