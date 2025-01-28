@@ -1,6 +1,6 @@
 #include "Menu.h"
 
-Menu::Menu(Event::MenuType startMenu)
+Menu::Menu(Type startMenu)
 {
   Push(startMenu);
 }
@@ -15,7 +15,7 @@ void Menu::Render(sf::RenderWindow* win) const
   interface.get()->Render(win);
 }
 
-void Menu::ReloadStack(Event::MenuType menuType)
+void Menu::ReloadStack(Type menuType)
 {
   while(!menuStack.empty())
     menuStack.pop();
@@ -23,7 +23,7 @@ void Menu::ReloadStack(Event::MenuType menuType)
   Push(menuType);
 }
 
-void Menu::Push(Event::MenuType menuType)
+void Menu::Push(Type menuType)
 {
   menuStack.push(menuType);
   LoadMenu(menuType);
@@ -36,23 +36,23 @@ void Menu::Return()
   LoadMenu(menuStack.top());
 }
 
-void Menu::LoadMenu(Event::MenuType menuType)
+void Menu::LoadMenu(Type menuType)
 {
   Event event;
   switch (menuType)
   {
-  case Event::MenuType::main:
+  case Type::main:
   {
     std::vector<StaticButtonInit> buttons;
 
     event.type = Event::Type::pushMenu;
-    event.menuType = Event::MenuType::score;
+    event.data.value = (int)Type::score;
     buttons.push_back({"score", event, MEDIUM});
-    event.menuType = Event::MenuType::options;
+    event.data.value = (int)Type::options;
     buttons.push_back({"opts.", event, MEDIUM});
-    event.menuType = Event::MenuType::play;
+    event.data.value = (int)Type::play;
     buttons.push_back({"play", event, LARGE});
-    event.menuType = Event::MenuType::stats;
+    event.data.value = (int)Type::stats;
     buttons.push_back({"stats", event, MEDIUM});
     event.type = Event::Type::programClose;
     buttons.push_back({"exit", event, MEDIUM});
@@ -61,25 +61,25 @@ void Menu::LoadMenu(Event::MenuType menuType)
     interface = std::make_unique<GridInterface>(2, buttons, event);
     break;
   }
-  case Event::MenuType::play:
+  case Type::play:
   {
     std::vector<StaticButtonInit> buttons;
 
     event.type = Event::Type::gameNew;
-    event.gamePreset = Event::GamePreset::minute;
+    event.data.value = (int)GameManager::Preset::minute;
     buttons.push_back({"1min", event, LARGE});
-    event.gamePreset = Event::GamePreset::rush;
+    event.data.value = (int)GameManager::Preset::rush;
     buttons.push_back({"rush", event, LARGE});
-    event.gamePreset = Event::GamePreset::coop;
+    event.data.value = (int)GameManager::Preset::coop;
     buttons.push_back({"co-op", event, MEDIUM});
-    event.gamePreset = Event::GamePreset::vs;
+    event.data.value = (int)GameManager::Preset::vs;
     buttons.push_back({"vs.", event, MEDIUM});
 
     event.type = Event::Type::menuReturn;
     interface = std::make_unique<GridInterface>(2, buttons, event);
     break;
   }
-  case Event::MenuType::pause:
+  case Type::pause:
   {
     std::vector<StaticButtonInit> buttons;
 
@@ -90,7 +90,7 @@ void Menu::LoadMenu(Event::MenuType menuType)
     buttons.push_back({"retry", event, SMALL});
 
     event.type = Event::Type::pushMenu;
-    event.menuType = Event::MenuType::options;
+    event.data.value = (int)Type::options;
     buttons.push_back({"opts.", event, SMALL});
 
     event.type = Event::Type::gameExit;
@@ -101,7 +101,7 @@ void Menu::LoadMenu(Event::MenuType menuType)
 
     break;
   }
-  case Event::MenuType::options:
+  case Type::options:
   {
     std::vector<std::pair<std::string, std::vector<OptionConfig>>> options;
 
@@ -207,7 +207,7 @@ void Menu::LoadMenu(Event::MenuType menuType)
     interface = std::make_unique<OptionsInterface>(options, event);
     break;
   }
-  case Event::MenuType::stats:
+  case Type::stats:
   {
     std::vector<std::pair<std::string, std::vector<OptionConfig>>> options;
 
@@ -234,7 +234,7 @@ void Menu::LoadMenu(Event::MenuType menuType)
     interface = std::make_unique<OptionsInterface>(options, event);
     break;
   }
-  case Event::MenuType::score:
+  case Type::score:
   {
     std::vector<std::pair<std::string, std::vector<OptionConfig>>> options;
 
@@ -282,7 +282,7 @@ void Menu::LoadMenu(Event::MenuType menuType)
     interface = std::make_unique<OptionsInterface>(options, event);
     break;
   }
-  case Event::MenuType::gameEnd:
+  case Type::gameEnd:
   {
     Event event;
 

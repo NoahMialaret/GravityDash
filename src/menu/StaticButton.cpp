@@ -41,7 +41,7 @@ void StaticButton::Move(sf::Vector2f offset)
 
 void StaticButton::Click() const
 {
-  Event::events.push(clickEvent);
+  PUSH_EVENT(clickEvent);
 }
 
 void StaticButton::ToggleHighlight()

@@ -53,8 +53,8 @@ void GameObject::ProcessTag()
   if (tag == -1 || tombstone)
     return;
 
-  tagEvent.collision = {tag, pos->x, pos->y};
-  Event::events.push(tagEvent);
+  tagEvent.data.collision = {tag, pos->x, pos->y};
+  PUSH_EVENT(tagEvent);
 }
 
 void GameObject::Render(sf::RenderWindow* win) const

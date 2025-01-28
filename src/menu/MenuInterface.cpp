@@ -9,7 +9,7 @@ void MenuInterface::Update()
 {  
   Controls* controls = ProgramSettings::GetControls();
   if (controls->IsActionOnInitialClick(Controls::Action::escape))
-    Event::events.push(menuReturn);
+    PUSH_EVENT(menuReturn);
 }
 
 
@@ -256,7 +256,7 @@ void OptionsInterface::Update()
 
   Controls* controls = ProgramSettings::GetControls();
   if (controls->IsActionOnInitialClick(Controls::Action::escape))
-    Event::events.push(menuReturn);
+    PUSH_EVENT(menuReturn);
 
   float percent = bezier.GetValue(timer / 250.0f);
   origin = (1.0f - percent) * start + percent * end;

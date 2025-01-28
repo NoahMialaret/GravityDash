@@ -14,12 +14,12 @@ void BoostComponent::ProcessEvent(Event& event)
   switch (event.type)
   {
   case Event::Type::playerSuper:
-    boosts[event.value].Clear();
+    boosts[event.data.value].Clear();
     break;
 
   case Event::Type::playerCombo:
-    if (event.combo.count >= 2 && !event.combo.wasSuperJump)
-      boosts[event.combo.charID].Increment(2000);
+    if (event.data.combo.count >= 2 && !event.data.combo.wasSuperJump)
+      boosts[event.data.combo.charID].Increment(2000);
     break;
   
   default:
@@ -91,10 +91,7 @@ void BoostComponent::BoostMeter::Increment(int amount)
   {
     fill.setSize(ProgramSettings::gameScale * sf::Vector2f(gauge.getTextureRect().width - 2.0f, 2.0f));
     
-    Event event;
-    event.type = Event::Type::boostFull;
-    event.value = id;
-    Event::events.push(event);
+    PUSH_EVENT(Event::Type::boostFull, {.value = id});
   }
 }
 

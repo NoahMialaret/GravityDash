@@ -1,28 +1,28 @@
 #include "GameManager.h"
 
-GameManager::GameManager(Event::GamePreset preset)
+GameManager::GameManager(Preset preset)
   :
   preset(preset)
 {
   switch (preset)
   {
-  case Event::GamePreset::title:
+  case Preset::title:
     LoadTitlePreset();
     break;
 
-  case Event::GamePreset::minute:
+  case Preset::minute:
     LoadMinutePreset();
     break;
 
-  case Event::GamePreset::rush:
+  case Preset::rush:
     LoadRushPreset();
     break;
   
-  case Event::GamePreset::coop:
+  case Preset::coop:
     LoadCoopPreset();
     break;
   
-  case Event::GamePreset::vs:
+  case Preset::vs:
     LoadVsPreset();
     break;
   
@@ -57,7 +57,7 @@ void GameManager::ProcessEvents(Event& event)
     comp.get()->ProcessEvent(event);
 }
 
-Event::GamePreset GameManager::GetPreset() const
+GameManager::Preset GameManager::GetPreset() const
 {
   return preset;
 }

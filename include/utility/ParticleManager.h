@@ -29,7 +29,7 @@ public:
   void CreateParticle(P particle);
   
 private:
-  friend class Program; // Allows Program to handle sensitive functions and data members
+  friend class Program; // Allows `Program` to handle sensitive functions and data members
 
   std::forward_list<std::unique_ptr<Particle>> particles; // The list of currently active particles 
 };

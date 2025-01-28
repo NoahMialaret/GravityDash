@@ -31,23 +31,23 @@ void ScoreComponent::ProcessEvent(Event& event)
 
   case Event::Type::playerCombo:
   {
-    if (event.combo.count == 0)
+    if (event.data.combo.count == 0)
       break;
 
     int comboValue = 0;
-    if (event.combo.wasSuperJump)
+    if (event.data.combo.wasSuperJump)
     {
       // Each target is worth 1000 points when collected in a super jump
-      comboValue = 1000 * multiplier * event.combo.count;
+      comboValue = 1000 * multiplier * event.data.combo.count;
       Add(comboValue);
       break;
     }
 
     // Calculates sum(2^n), each targets value is double the previous one
-    comboValue = std::pow(2, std::min(event.combo.count, 10)) - 1;
+    comboValue = std::pow(2, std::min(event.data.combo.count, 10)) - 1;
     
     // Doubling stops after 10 targets to prevent scores getting too large
-    int excess = event.combo.count - 10;
+    int excess = event.data.combo.count - 10;
     if (excess > 0)
       comboValue += excess * std::pow(2, 10);
 

@@ -31,17 +31,18 @@ void TimerComponent::ProcessEvent(Event &event)
   switch (event.type)
   {
   case Event::Type::collisionTimeBonus:
-    boostCount[event.collision.charID]++;
+    boostCount[event.data.collision.charID]++;
     break;
 
   case Event::Type::playerCombo:
-    if (event.combo.count >= 3 && boostCount[event.combo.charID] != 0)
+    if (event.data.combo.count >= 3 
+        && boostCount[event.data.combo.charID] != 0)
     {
-      timeRefill = std::min(timeRefill + 5000 * boostCount[event.combo.charID], maxTime);
+      timeRefill = std::min(timeRefill + 5000 * boostCount[event.data.combo.charID], maxTime);
       MoveArrow();
       showArrow = true;
     }
-    boostCount[event.combo.charID] = 0;
+    boostCount[event.data.combo.charID] = 0;
     break;
   
   default:
@@ -70,18 +71,17 @@ void TimerComponent::Update()
     timeRemaining = timeRefill;
     timeRefill = 0;
     MoveArrow();
-    Event event;
-    event.type = Event::Type::timerRefill;
-    Event::events.push(event);
+
+    PUSH_EVENT(Event::Type::timerRefill);
+    
     return;
   }
   
   timeRect.setSize(ZERO_VECTOR);
   timeRemaining = 0;
-  Event event;
-  event.type = Event::Type::gameTimeUp;
-  Event::events.push(event);
   done = true;
+
+  PUSH_EVENT(Event::Type::gameTimeUp);
 }
 
 void TimerComponent::Render(sf::RenderWindow* win) const

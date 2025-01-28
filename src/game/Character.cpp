@@ -115,20 +115,15 @@ void Character::FloorCollision(float correction)
     return;
   }
 
-  Event event;
-  event.type = Event::Type::playerCombo;
-  event.combo.charID = charID;
-  event.combo.wasSuperJump = false;
+  PUSH_EVENT(Event::Type::playerCombo, {.combo = {charID, superBouncesLeft >= 0}});
 
   if (superBouncesLeft == 0)
   {
     invincibilityTimer = 2000;
     superBouncesLeft = -1;
-    event.combo.wasSuperJump = true;
   }
 
   Land();
-  Event::events.push(event);
 }
 
 void Character::WallCollision(float correction)
@@ -156,10 +151,7 @@ bool Character::Hit(sf::Vector2f source)
 
   entity.SetAnimation(STUN_ANIM, 100);
 
-  Event event;
-  event.type = Event::Type::playerHit;
-  event.value = charID;
-  Event::events.push(event); 
+  PUSH_EVENT(Event::Type::playerHit, {.value = charID});
 
   // y = ent.y +- sqrt(radius^2-(this.x-ent.x)^2)
   pos->y = source.y + (isUpright ? -1.0f : 1.0f) 
@@ -292,10 +284,7 @@ void Character::Jump()
 
   reticleAngle = 0.0f;
 
-  Event event;
-  event.type = Event::Type::playerJump;
-  event.value = charID;
-  Event::events.push(event);
+  PUSH_EVENT(Event::Type::playerJump, {.value = charID});
 }
 
 void Character::SuperJump()
@@ -321,10 +310,7 @@ void Character::SuperJump()
   
   reticleAngle = 0.0f;
 
-  Event event;
-  event.type = Event::Type::playerSuper;
-  event.value = charID;
-  Event::events.push(event);
+  PUSH_EVENT(Event::Type::playerSuper, {.value = charID});
 }
 
 void Character::Land()

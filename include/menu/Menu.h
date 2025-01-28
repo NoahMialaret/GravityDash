@@ -3,13 +3,14 @@
 
 #include <SFML/Graphics.hpp>
 
-#include "StaticButton.h"
-#include "MenuOption.h"
-#include "Game.h"
-#include "MenuInterface.h"
-#include "Utility.h"
 #include "Event.h"
+#include "Game.h"
+#include "GameManager.h"
+#include "MenuInterface.h"
+#include "MenuOption.h"
 #include "ProgramSettings.h"
+#include "StaticButton.h"
+#include "Utility.h"
 
 #include <memory>
 #include <stack>
@@ -18,21 +19,35 @@
 class Menu
 {
 public:
-  Menu(Event::MenuType startMenu = Event::MenuType::title);
+  // The different menus that can be interfaced by the user, determines layout and functionality
+  enum class Type
+  {
+    gameEnd,
+    main,
+    options,
+    pause,
+    play,
+    score,
+    stats,
+    title
+  };
+
+public:
+  Menu(Type startMenu = Type::title);
   
   void Update();
   void Render(sf::RenderWindow* win) const;
 
-  void ReloadStack(Event::MenuType menuType); 
-  void Push(Event::MenuType menuType); 
+  void ReloadStack(Type menuType); 
+  void Push(Type menuType); 
   void Return();
 
 private:
-  void LoadMenu(Event::MenuType menuType);
+  void LoadMenu(Type menuType);
 
 private:
   std::unique_ptr<MenuInterface> interface = nullptr;
-  std::stack<Event::MenuType> menuStack;
+  std::stack<Type> menuStack;
 };
 
 #endif

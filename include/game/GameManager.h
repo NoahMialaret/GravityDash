@@ -18,8 +18,20 @@
 class GameManager
 {
 public:
+  // The different preset options to create a game with, determines which components are used
+  enum class Preset
+  {
+    title,
+    minute,
+    rush,
+    coop,
+    vs,
+    null
+  };
+
+public:
   // Initialises the game and its components using a preset
-  GameManager(Event::GamePreset preset);
+  GameManager(Preset preset);
 
   // Updates the game and its components
   void Update();
@@ -30,7 +42,7 @@ public:
   void ProcessEvents(Event& event);
 
   // Returns the preset used to initialise the game
-  Event::GamePreset GetPreset() const;
+  Preset GetPreset() const;
 
 private:
   // Loads the game configuration used as background on menus
@@ -45,7 +57,7 @@ private:
   void LoadVsPreset();
 
 private:
-  Event::GamePreset preset; // The preset used to create the game, also used for statistics
+  Preset preset; // The preset used to create the game, also used for statistics
 
   std::unique_ptr<Game> game; // The main game class, holds game critical components like players and game objects
   std::forward_list<std::unique_ptr<GameComponent>> components; // Holds non-critical, modular components to extend game functionality

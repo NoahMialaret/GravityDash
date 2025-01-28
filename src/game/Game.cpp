@@ -22,27 +22,27 @@ void Game::ProcessEvent(Event& event)
   case Event::Type::playerJump:
   case Event::Type::playerSuper:
   case Event::Type::playerHit:
-    comboCount[event.value] = 0;
+    comboCount[event.data.value] = 0;
     break;
     
   case Event::Type::boostFull:
-    characters[event.value].get()->EnableSuperJump();
+    characters[event.data.value].get()->EnableSuperJump();
     break;
 
   case Event::Type::playerCombo:
-    event.combo.count = comboCount[event.value];
+    event.data.combo.count = comboCount[event.data.value];
     break;
 
   case Event::Type::collisionSaw:
   {
-    if (characters[event.collision.charID].get()->Hit({event.collision.colX, event.collision.colY}));
-      comboCount[event.collision.charID] = 0;
+    if (characters[event.data.collision.charID].get()->Hit({event.data.collision.colX, event.data.collision.colY}));
+      comboCount[event.data.collision.charID] = 0;
     break;
   }
     
   case Event::Type::collisionTarget:
   case Event::Type::collisionTimeBonus:
-    comboCount[event.collision.charID]++;
+    comboCount[event.data.collision.charID]++;
     break;
 
   case Event::Type::gameTimeUp:
@@ -102,12 +102,7 @@ void Game::Update()
   }
 
   if (gameOver)
-  {
-    objects.clear();
-    Event event;
-    event.type = Event::Type::gameDone;
-    Event::events.push(event);
-  }
+    PUSH_EVENT(Event::Type::gameDone);
 }
 
 void Game::Render(sf::RenderWindow* win) const

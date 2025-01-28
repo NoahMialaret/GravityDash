@@ -35,6 +35,7 @@
 #include <random>
 #include <vector>
 
+// `Utility` is a global singleton class used to access commonly used functions and variables
 struct Utility
 {
 private:
@@ -80,7 +81,7 @@ public:
   static void UpdateText(sf::Text &text, std::string newStr, sf::Vector2f origin = {0.5f, 0.5f});
 
 private:
-  friend class Program; // Allows program to handle sensitive functions and data member
+  friend class Program; // Allows `Program` to handle sensitive functions and data member
 
   static constexpr int spriteDim = 8; // The dimensions of a typical sprite
 

@@ -1,7 +1,5 @@
 #include "Program.h"
 
-std::queue<Event> Event::events;
-
 Program::Program(const char* name)
 {
   Utility::GetInstance()->LoadSave(SAVE_FILE);
@@ -72,8 +70,8 @@ Program::Program(const char* name)
 
 	std::cout << "Initialising Program objects...\n";
 
-    menu = std::make_unique<Menu>(Event::MenuType::main);
-    gameManager = std::make_unique<GameManager>(Event::GamePreset::title);
+    menu = std::make_unique<Menu>(Menu::Type::main);
+    gameManager = std::make_unique<GameManager>(GameManager::Preset::title);
     
 	std::cout << "Program init done! Starting title sequence...\n";
 	
@@ -90,22 +88,25 @@ Program::~Program()
 
 	window.close();
 
-
   gameManager = nullptr;
   menu = nullptr;
 
   Utility::Clean();
   Clock::Clean();
   ParticleManager::Clean();
+  EventManager::Clean();
 
 	std::cout << "Program successfully cleaned!\n";
 }
 
 void Program::ProcessEvents() 
 {
+	if (curState == State::notRunning) 
+		return;
+
 	Event event;
 
-	while (Event::PollEvent(event))
+	while (EventManager::GetInstance()->PollEvent(event))
 	{
 		switch (event.type)
 		{
@@ -117,8 +118,8 @@ void Program::ProcessEvents()
 		case Event::Type::gameNew:
     {
 			std::cout << "Create new game event called\n";
-      gameManager = std::make_unique<GameManager>(event.gamePreset);
-			menu.get()->ReloadStack(Event::MenuType::pause);
+      gameManager = std::make_unique<GameManager>((GameManager::Preset)event.data.value);
+			menu.get()->ReloadStack(Menu::Type::pause);
       ParticleManager::Clean();
 			curState = State::gameplay;
 			break;
@@ -133,11 +134,11 @@ void Program::ProcessEvents()
       break;
 
     case Event::Type::reloadMenu:
-      menu.get()->ReloadStack(event.menuType);
+      menu.get()->ReloadStack((Menu::Type)event.data.value);
       break;
       
     case Event::Type::pushMenu:
-      menu.get()->Push(event.menuType);
+      menu.get()->Push((Menu::Type)event.data.value);
       break;
     
     case Event::Type::menuReturn:
@@ -145,13 +146,13 @@ void Program::ProcessEvents()
       break;
 
     case Event::Type::gameExit:
-      gameManager = std::make_unique<GameManager>(Event::GamePreset::title);
-			menu.get()->ReloadStack(Event::MenuType::main);
+      gameManager = std::make_unique<GameManager>(GameManager::Preset::title);
+			menu.get()->ReloadStack(Menu::Type::main);
       curState = State::mainMenu;
       break;
 
     case Event::Type::gameDone:
-      menu.get()->ReloadStack(Event::MenuType::gameEnd);
+      menu.get()->ReloadStack(Menu::Type::gameEnd);
       curState = State::mainMenu;
       break;
 
@@ -159,7 +160,7 @@ void Program::ProcessEvents()
     {
 			std::cout << "Resetting game...\n";
       gameManager = std::make_unique<GameManager>(gameManager.get()->GetPreset());
-			menu.get()->ReloadStack(Event::MenuType::pause);
+			menu.get()->ReloadStack(Menu::Type::pause);
       ParticleManager::Clean();
 			curState = State::gameplay;
 			break;
@@ -207,8 +208,8 @@ void Program::ProcessEvents()
 
 			case sf::Keyboard::R:
 				std::cout << "Restarting Game!\n";
-        gameManager = std::make_unique<GameManager>(Event::GamePreset::title);
-        menu = std::make_unique<Menu>(Event::MenuType::main); // change to title
+        gameManager = std::make_unique<GameManager>(GameManager::Preset::title);
+        menu = std::make_unique<Menu>(Menu::Type::main); // change to title
 				curState = State::mainMenu;
 				break;
 			
