@@ -95,6 +95,7 @@ Program::~Program()
   Clock::Clean();
   ParticleManager::Clean();
   EventManager::Clean();
+  Keyboard::Clean();
 
 	std::cout << "Program successfully cleaned!\n";
 }
@@ -214,7 +215,7 @@ void Program::ProcessEvents()
 				break;
 			
 			default:
-				Keyboard::AddKeyPress(SFMLevent.key.code);
+				Keyboard::GetInstance()->AddKeyPress(SFMLevent.key.code);
 				break;
 			}
 
@@ -241,7 +242,7 @@ void Program::Update()
 
   ParticleManager::GetInstance()->UpdateParticles();
 
-	Keyboard::Update();
+	Keyboard::GetInstance()->Update();
 }
 
 void Program::Render()

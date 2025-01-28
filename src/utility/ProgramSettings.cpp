@@ -162,14 +162,14 @@ void ProgramSettings::LoadControls(nlohmann::json& controls, int player)
 {
   KeyboardControls* pControls = player == 1 ? &p1Controls : &p2Controls;
 
-  pControls->SetKeyAction(Controls::Action::left,     Keyboard::GetKeyCodeFromString(controls["left"]));
-  pControls->SetKeyAction(Controls::Action::right,    Keyboard::GetKeyCodeFromString(controls["right"]));
-  pControls->SetKeyAction(Controls::Action::up,       Keyboard::GetKeyCodeFromString(controls["up"]));
-  pControls->SetKeyAction(Controls::Action::down,     Keyboard::GetKeyCodeFromString(controls["down"]));
-  pControls->SetKeyAction(Controls::Action::select,   Keyboard::GetKeyCodeFromString(controls["select"]));
-  pControls->SetKeyAction(Controls::Action::escape,   Keyboard::GetKeyCodeFromString(controls["escape"]));
-  pControls->SetKeyAction(Controls::Action::jump,     Keyboard::GetKeyCodeFromString(controls["jump"]));
-  pControls->SetKeyAction(Controls::Action::special,  Keyboard::GetKeyCodeFromString(controls["special"]));
+  pControls->SetKeyAction(Controls::Action::left,     Keyboard::GetInstance()->GetKeyCodeFromString(controls["left"]));
+  pControls->SetKeyAction(Controls::Action::right,    Keyboard::GetInstance()->GetKeyCodeFromString(controls["right"]));
+  pControls->SetKeyAction(Controls::Action::up,       Keyboard::GetInstance()->GetKeyCodeFromString(controls["up"]));
+  pControls->SetKeyAction(Controls::Action::down,     Keyboard::GetInstance()->GetKeyCodeFromString(controls["down"]));
+  pControls->SetKeyAction(Controls::Action::select,   Keyboard::GetInstance()->GetKeyCodeFromString(controls["select"]));
+  pControls->SetKeyAction(Controls::Action::escape,   Keyboard::GetInstance()->GetKeyCodeFromString(controls["escape"]));
+  pControls->SetKeyAction(Controls::Action::jump,     Keyboard::GetInstance()->GetKeyCodeFromString(controls["jump"]));
+  pControls->SetKeyAction(Controls::Action::special,  Keyboard::GetInstance()->GetKeyCodeFromString(controls["special"]));
 }
 
 void ProgramSettings::SaveControls(nlohmann::json& save, int player)
@@ -177,13 +177,13 @@ void ProgramSettings::SaveControls(nlohmann::json& save, int player)
   KeyboardControls* pControls = player == 1 ? &p1Controls : &p2Controls;
 
   save["multiplayer"]["p" + std::to_string(player) + "Controls"] = {
-    {"left",    Keyboard::GetStringFromKeyCode(pControls->GetKeyAction(Controls::Action::left))},
-    {"right",   Keyboard::GetStringFromKeyCode(pControls->GetKeyAction(Controls::Action::right))},
-    {"up",      Keyboard::GetStringFromKeyCode(pControls->GetKeyAction(Controls::Action::up))},
-    {"down",    Keyboard::GetStringFromKeyCode(pControls->GetKeyAction(Controls::Action::down))},
-    {"select",  Keyboard::GetStringFromKeyCode(pControls->GetKeyAction(Controls::Action::select))},
-    {"escape",  Keyboard::GetStringFromKeyCode(pControls->GetKeyAction(Controls::Action::escape))},
-    {"jump",    Keyboard::GetStringFromKeyCode(pControls->GetKeyAction(Controls::Action::jump))},
-    {"special", Keyboard::GetStringFromKeyCode(pControls->GetKeyAction(Controls::Action::special))},
+    {"left",    Keyboard::GetInstance()->GetStringFromKeyCode(pControls->GetKeyAction(Controls::Action::left))},
+    {"right",   Keyboard::GetInstance()->GetStringFromKeyCode(pControls->GetKeyAction(Controls::Action::right))},
+    {"up",      Keyboard::GetInstance()->GetStringFromKeyCode(pControls->GetKeyAction(Controls::Action::up))},
+    {"down",    Keyboard::GetInstance()->GetStringFromKeyCode(pControls->GetKeyAction(Controls::Action::down))},
+    {"select",  Keyboard::GetInstance()->GetStringFromKeyCode(pControls->GetKeyAction(Controls::Action::select))},
+    {"escape",  Keyboard::GetInstance()->GetStringFromKeyCode(pControls->GetKeyAction(Controls::Action::escape))},
+    {"jump",    Keyboard::GetInstance()->GetStringFromKeyCode(pControls->GetKeyAction(Controls::Action::jump))},
+    {"special", Keyboard::GetInstance()->GetStringFromKeyCode(pControls->GetKeyAction(Controls::Action::special))},
   };
 }

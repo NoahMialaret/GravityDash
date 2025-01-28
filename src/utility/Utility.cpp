@@ -3,13 +3,6 @@
 
 Utility* Utility::instance = nullptr;
 
-// std::mt19937 Utility::rng = ;
-
-// sf::Shader Utility::entShad;
-// sf::Shader Utility::worldShad;
-
-// std::forward_list<std::unique_ptr<Particle>> Utility::particles;
-
 Utility* Utility::GetInstance()
 {
   if (instance == nullptr)

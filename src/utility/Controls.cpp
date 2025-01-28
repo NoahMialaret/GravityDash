@@ -2,17 +2,17 @@
 
 bool KeyboardControls::IsActionHeld(Action action)
 {
-  return Keyboard::IsKeyHeld(keys[(int)action]);
+  return IS_KEY_HELD(keys[(int)action]);
 }
 
 bool KeyboardControls::IsActionOnInitialClick(Action action)
 {
-  return Keyboard::IsKeyOnInitialClick(keys[(int)action]);
+  return IS_KEY_INITIAL(keys[(int)action]);
 }
 
 bool KeyboardControls::IsActionClicked(Action action)
 {
-  return Keyboard::IsKeyClicked(keys[(int)action]);
+  return IS_KEY_CLICKED(keys[(int)action]);
 }
 
 sf::Keyboard::Key KeyboardControls::GetKeyAction(Controls::Action action) const

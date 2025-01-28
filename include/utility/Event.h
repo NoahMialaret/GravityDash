@@ -114,7 +114,7 @@ public:
   void PushEvent(Event event);
 
 private:
-  friend class Program; // Allows `Program` to handle sensitive functions and data member
+  friend class Program; // Allows `Program` to handle sensitive functions and data members
 
   std::queue<Event> events; // The `Event` queue that is polled from
 };

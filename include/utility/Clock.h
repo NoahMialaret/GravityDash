@@ -32,7 +32,7 @@ public:
   void SetSpeed(float speed);
 
 private:
-  friend class Program; // Allows `Program` to handle sensitive functions and data member
+  friend class Program; // Allows `Program` to handle sensitive functions and data members
 
   sf::Clock clock;          // The clock used to keep track of the time
   sf::Int32 lastFrameTime;  // The elapsed time from when the Update function was last called

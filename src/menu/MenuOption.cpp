@@ -182,7 +182,7 @@ ControlOption::ControlOption(std::string name, Event action, float* origin, floa
   :
   MenuOption(name, action, origin, offset)
 {  
-  Utility::InitText(curKey, Textures::small, Keyboard::GetStringFromKeyCode(config.init), {CONFIG_MENU_MARGIN - 2 * ProgramSettings::gameScale, *origin + offset}, {1.0f, 0.5f}, {255, 229, 181});
+  Utility::InitText(curKey, Textures::small, Keyboard::GetInstance()->GetStringFromKeyCode(config.init), {CONFIG_MENU_MARGIN - 2 * ProgramSettings::gameScale, *origin + offset}, {1.0f, 0.5f}, {255, 229, 181});
   
   float width = curKey.getGlobalBounds().getSize().x;
   keyBg = RoundedRect(curKey.getPosition() + sf::Vector2f(-width / 2.0f, -ProgramSettings::gameScale), sf::Vector2f(width + 4.0f * ProgramSettings::gameScale, 6.0f * ProgramSettings::gameScale), {173, 103, 78});
