@@ -3,7 +3,7 @@
 GameObject::GameObject(const sf::Vector2f& worldBounds)
   :
   worldBounds(worldBounds),
-  entity("objects", &Utility::GetInstance()->GetEntityShader(), {4, 4})
+  entity("objects", {4, 4})
 {
   pos = entity.GetPosition();
 }

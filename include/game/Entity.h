@@ -6,7 +6,7 @@
 #include "AnimationHandler.h"
 #include "Bezier.h"
 #include "BezierTransition.h"
-#include "Textures.h"
+#include "AssetManager.h"
 #include "Utility.h"
 
 #include <memory>
@@ -20,7 +20,6 @@ public:
   // Constructs `Entity` with a sprite using the texture specified at `texName`, 
   // as well as the shader and the number of sprites in the texture used
   Entity(const char* texName, 
-          sf::Shader* shader, 
           sf::Vector2i numSprites = {1, 1}, 
           sf::Vector2f pos = ZERO_VECTOR, 
           sf::Vector2f origin = {0.5f, 0.5f});
@@ -85,9 +84,6 @@ public:
 private:
   // The sprite used by the entity for rendering
   mutable sf::Sprite sprite;
-  
-  // The shader used for rendering
-  sf::Shader* shader = nullptr;
 
   // The entity's position in the game window
   sf::Vector2f position = ZERO_VECTOR;

@@ -1,12 +1,10 @@
 #include "Entity.h"
 
 Entity::Entity(const char* texName, 
-          sf::Shader* shader, 
           sf::Vector2i numSprites, 
           sf::Vector2f pos, 
           sf::Vector2f origin)
   :
-  shader(shader),
   position(pos),
   positionTransition(&position),
   scaleTransition(&scale),
@@ -31,7 +29,6 @@ Entity::Entity(const Entity& rhs)
   rotationTransition = rhs.rotationTransition;
   rotationTransition.ChangeData(&rotation);
 
-  shader = rhs.shader;
   position = rhs.position;
   scale = rhs.scale;
   rotation = rhs.rotation;
@@ -52,7 +49,6 @@ Entity& Entity::operator=(const Entity &rhs)
   rotationTransition = rhs.rotationTransition;
   rotationTransition.ChangeData(&rotation);
 
-  shader = rhs.shader;
   position = rhs.position;
   scale = rhs.scale;
   rotation = rhs.rotation;
@@ -61,7 +57,7 @@ Entity& Entity::operator=(const Entity &rhs)
   return *this;
 }
 
-sf::Vector2f *Entity::GetPosition()
+sf::Vector2f* Entity::GetPosition()
 {
   return &position;
 }
@@ -89,19 +85,13 @@ void Entity::Update()
 
 void Entity::Render(sf::RenderWindow *win) const
 {
-    sprite.setPosition(position);
+  sprite.setPosition(position);
 
-    sprite.setScale(scale);
+  sprite.setScale(scale);
 
-    sprite.setRotation(rotation);
+  sprite.setRotation(rotation);
 
-  if (shader == nullptr)
-  {
-    win->draw(sprite);
-    return;
-  }
-
-  win->draw(sprite, shader);
+  win->draw(sprite, &ENTITY_SHADER);
 }
 
 void Entity::FlipX()

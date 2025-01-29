@@ -42,32 +42,12 @@ Program::Program(const char* name)
 
   // Textures and Shaders
 
-    Textures::LoadTextures();
-
-    sf::Image icon;
-    if (!icon.loadFromFile("assets/icon.png"))
+    if (GET_TEXTURE("icon").getSize() != sf::Vector2u(0, 0))
     {
-      std::cout << "Error loading icon!\n";
+      sf::Image icon = GET_TEXTURE("icon").copyToImage();
+      window.setIcon(icon.getSize().x, icon.getSize().y, icon.getPixelsPtr());
     }
-    window.setIcon(icon.getSize().x, icon.getSize().y, icon.getPixelsPtr());
-
-    if (!sf::Shader::isAvailable())
-    {
-      std::cout << "\tShaders are not available on this hardware!\n";
-    }
-
-    if (!Utility::GetInstance()->entShad.loadFromFile("assets/vert.vs", "assets/frag.fs"))
-    {
-      std::cout << "ERROR\n";
-    }
-    Utility::GetInstance()->entShad.setUniform("texture", sf::Shader::CurrentTexture);
-
-    if (!Utility::GetInstance()->worldShad.loadFromFile("assets/vert.vs", "assets/bg.fs"))
-    {
-      std::cout << "ERROR\n";
-    }
-    Utility::GetInstance()->worldShad.setUniform("texture", sf::Shader::CurrentTexture);
-
+    
 	std::cout << "Initialising Program objects...\n";
 
     menu = std::make_unique<Menu>(Menu::Type::main);
@@ -96,6 +76,7 @@ Program::~Program()
   ParticleManager::Clean();
   EventManager::Clean();
   Keyboard::Clean();
+  AssetManager::Clean();
 
 	std::cout << "Program successfully cleaned!\n";
 }

@@ -4,8 +4,8 @@ Character::Character(int charID)
   : 
   charID(charID),
   acceleration(0.2f * ProgramSettings::gameScale),
-  entity("character", &Utility::GetInstance()->GetEntityShader(), {4, NUM_ANIMS}),
-  reticle("reticle", nullptr)
+  entity("character", {4, NUM_ANIMS}),
+  reticle("reticle")
 {
   vel.y = 1000.0f;
 
@@ -88,7 +88,7 @@ void Character::Update()
 void Character::Render(sf::RenderWindow* win) const
 {
   // TODO: Update when shaders are redone
-  Utility::GetInstance()->GetEntityShader().setUniform("colorID", charID);
+  // Utility::GetInstance()->GetEntityShader().setUniform("colorID", charID);
   if (invincibilityTimer <= 0 || (Clock::GetInstance()->Elapsed() / 64) % 2)
     entity.Render(win);
 

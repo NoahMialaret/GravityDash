@@ -9,7 +9,6 @@
 #include "Entity.h"
 #include "Particle.h"
 #include "ParticleManager.h"
-#include "Textures.h"
 #include "Utility.h"
 #include "ProgramSettings.h"
 

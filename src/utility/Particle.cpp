@@ -3,7 +3,7 @@
 Particle::Particle(int timer)
   :
   timer(timer),
-  entity("particles", nullptr, {4, 4})
+  entity("particles", {4, 4})
 {}
 
 bool Particle::HasFinished() const
@@ -59,7 +59,7 @@ Puff::Puff(sf::Vector2f source, sf::Vector2f dir)
 Dust::Dust(sf::Vector2f source, bool flip)
   :
   Particle(200),
-  entityMirror("particles", nullptr, {4, 4})
+  entityMirror("particles", {4, 4})
 {
   if (flip)
   {

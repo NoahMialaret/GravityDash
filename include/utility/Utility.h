@@ -25,7 +25,7 @@
 #include "GameStats.h"
 #include "ProgramSettings.h"
 #include "Stats.h"
-#include "Textures.h"
+#include "AssetManager.h"
 
 #include <forward_list>
 #include <fstream>
@@ -86,9 +86,6 @@ private:
   static constexpr int spriteDim = 8; // The dimensions of a typical sprite
 
   std::mt19937 rng; // The random number generator used throughout the program
-
-  sf::Shader entShad;   // The shader used by entites
-  sf::Shader worldShad; // The shader used by the game world and other static elements
 };
 
 #endif

@@ -177,7 +177,7 @@ GameEndInterface::GameEndInterface(std::vector<StaticButtonInit>& configs, Event
 
   float yPos = centre.y - ProgramSettings::gameScale * (40.0f + (GameStats::localStats.timeBoosts == -1 ? 0.0f : 7.0f)) / 2.0f;
 
-  Utility::InitText(displayTitle, Textures::large, "results", {centre.x - 6.5f * SCALED_DIM, yPos - SCALED_DIM}, {0, 0.0f}, {255, 229, 181});
+  Utility::InitText(displayTitle, LARGE_FONT, "results", {centre.x - 6.5f * SCALED_DIM, yPos - SCALED_DIM}, {0, 0.0f}, {255, 229, 181});
   displayTitle.setOutlineColor({173, 103, 78});
   displayTitle.setOutlineThickness(ProgramSettings::gameScale);
 
@@ -189,7 +189,7 @@ GameEndInterface::GameEndInterface(std::vector<StaticButtonInit>& configs, Event
   float offset = 7 * ProgramSettings::gameScale;
 
   sf::Text text;
-  Utility::InitText(text, Textures::small, "jumps - " + std::to_string(GameStats::localStats.jumps), {centre.x - 6.0f * SCALED_DIM, yPos + 14.0f * ProgramSettings::gameScale}, {0, 0.0f}, {255, 229, 181});
+  Utility::InitText(text, SMALL_FONT, "jumps - " + std::to_string(GameStats::localStats.jumps), {centre.x - 6.0f * SCALED_DIM, yPos + 14.0f * ProgramSettings::gameScale}, {0, 0.0f}, {255, 229, 181});
   text.setOutlineColor({173, 103, 78});
   text.setOutlineThickness(ProgramSettings::gameScale);
 
@@ -302,7 +302,7 @@ OptionsSubList::OptionsSubList(std::string& title, std::vector<OptionConfig>& co
 {
   assert (configs.size() > 0);
 
-  Utility::InitText(displayTitle, Textures::large, title, {0, *origin + yPos - SCALED_DIM - ProgramSettings::gameScale});
+  Utility::InitText(displayTitle, LARGE_FONT, title, {0, *origin + yPos - SCALED_DIM - ProgramSettings::gameScale});
 
   float width = displayTitle.getLocalBounds().width / ProgramSettings::gameScale + 4;
 

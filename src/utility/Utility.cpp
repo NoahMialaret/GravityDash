@@ -70,16 +70,6 @@ std::mt19937& Utility::GetRNG()
   return rng;
 }
 
-sf::Shader& Utility::GetEntityShader()
-{
-  return entShad;
-}
-
-sf::Shader& Utility::GetWorldShader()
-{
-  return worldShad;
-}
-
 int Utility::GetSign(int num)
 {
 	if (num > 0)
@@ -138,9 +128,9 @@ float Utility::GetSquaredDistanceToLineSegment(sf::Vector2f centrePos, std::pair
 void Utility::InitSprite(sf::Sprite& sprite, std::string tex, sf::Vector2f pos, sf::Vector2i subTexCount, sf::Vector2f origin)
 {
   sprite.setScale(DEFAULT_SCALE);
-  sprite.setTexture(Textures::textures.at(tex));
+  sprite.setTexture(GET_TEXTURE(tex));
   sprite.setPosition(pos);
-  sf::Vector2i texSize = (sf::Vector2i)Textures::textures.at(tex).getSize();
+  sf::Vector2i texSize = (sf::Vector2i)GET_TEXTURE(tex).getSize();
   sprite.setTextureRect({0, 0, texSize.x / subTexCount.x, texSize.y / subTexCount.y});
   sprite.setOrigin(sf::Vector2f(origin.x * sprite.getTextureRect().width, origin.y * sprite.getTextureRect().height));
 }
@@ -154,9 +144,9 @@ void Utility::InitText(sf::Text& text, sf::Font& font, std::string str, sf::Vect
   text.setFont(font);
 
   float height = ProgramSettings::gameScale;
-  if (&font == &Textures::small)
+  if (&font == &SMALL_FONT)
     height *= 4.0f;
-  else if (&font == &Textures::medium)
+  else if (&font == &MEDIUM_FONT)
     height *= 5.0f;
   else // large
     height *= 6.0f;
@@ -169,9 +159,9 @@ void Utility::UpdateText(sf::Text& text, std::string newStr, sf::Vector2f origin
   text.setString(newStr);
 
   float height = ProgramSettings::gameScale;
-  if (text.getFont() == &Textures::small)
+  if (text.getFont() == &SMALL_FONT)
     height *= 4.0f;
-  else if (text.getFont() == &Textures::medium)
+  else if (text.getFont() == &MEDIUM_FONT)
     height *= 5.0f;
   else // large
     height *= 6.0f;

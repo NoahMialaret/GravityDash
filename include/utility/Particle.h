@@ -6,7 +6,6 @@
 #include "AnimationHandler.h"
 #include "Clock.h"
 #include "Entity.h"
-#include "Textures.h"
 #include "ProgramSettings.h"
 
 #include <iostream>

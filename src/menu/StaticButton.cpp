@@ -9,17 +9,17 @@ StaticButton::StaticButton(StaticButtonInit &config, sf::Vector2f pos)
   switch (config.size)
   {
   case SMALL:
-    Utility::InitText(displayName, Textures::small, config.name, pos + SMALL_TEXT_OFFSET);
+    Utility::InitText(displayName, SMALL_FONT, config.name, pos + SMALL_TEXT_OFFSET);
     texName = "small_button";
     break;
 
   case MEDIUM:
-    Utility::InitText(displayName, Textures::small, config.name, pos + MEDIUM_TEXT_OFFSET);
+    Utility::InitText(displayName, SMALL_FONT, config.name, pos + MEDIUM_TEXT_OFFSET);
     texName = "medium_button";
     break;
 
   case LARGE:
-    Utility::InitText(displayName, Textures::large, config.name, pos + LARGE_TEXT_OFFSET);
+    Utility::InitText(displayName, LARGE_FONT, config.name, pos + LARGE_TEXT_OFFSET);
     texName = "large_button";
     break;
   }
@@ -29,7 +29,7 @@ StaticButton::StaticButton(StaticButtonInit &config, sf::Vector2f pos)
 
 void StaticButton::Render(sf::RenderWindow *win) const
 {
-  win->draw(button, &Utility::GetInstance()->GetWorldShader());
+  win->draw(button, &WORLD_SHADER);
   win->draw(displayName);
 }
 

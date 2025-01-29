@@ -4,7 +4,7 @@
 #include <SFML/Graphics.hpp>
 
 #include "Event.h"
-#include "Textures.h"
+#include "AssetManager.h"
 #include "Utility.h"
 #include "ProgramSettings.h"
 
