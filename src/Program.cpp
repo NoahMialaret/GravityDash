@@ -7,10 +7,11 @@ Program::Program(const char* name)
 	std::cout << "--=== Program Init ===--\n"  << "Initialising SFML Window...\n";
 
 		sf::VideoMode desktop = sf::VideoMode::getDesktopMode();	
-		sf::Vector2f minWindowSize(160, 90);
+		sf::Vector2f minWindowSize(160, 90); // Window has a 16:9 aspect ratio
 		sf::Vector2f windowSize = minWindowSize;
 		int scale = 1;
 
+    // Creates a window that is at least half the size of the desktop
 		while (windowSize.x < desktop.width / 2 && windowSize.y < desktop.height / 2)
 		{
 			windowSize += minWindowSize;
@@ -26,6 +27,7 @@ Program::Program(const char* name)
 
 		window.create(sf::VideoMode(windowSize.x, windowSize.y), name, sf::Style::Close);
 
+    // Sets the window to be the middle of the desktop
 		window.setPosition(sf::Vector2i((desktop.width - window.getSize().x) / 2, (desktop.height - window.getSize().y) / 2));
 
 		window.setKeyRepeatEnabled(false);
@@ -92,63 +94,59 @@ void Program::ProcessEvents()
 	{
 		switch (event.type)
 		{
-		case Event::Type::programClose:
-			std::cout << "Quit button has been pressed, closing game...\n";
+		case Event::Type::programClose: // Window close (from menu)
+			std::cout << "Menu quit button has been pressed, closing program...\n";
 			curState = State::notRunning;
 			return;
 
-		case Event::Type::gameNew:
-    {
-			std::cout << "Create new game event called\n";
+		case Event::Type::gameNew: // New game
+			std::cout << "Initialising new game...\n";
       gameManager = std::make_unique<GameManager>((GameManager::Preset)event.data.value);
 			menu.get()->ReloadStack(Menu::Type::pause);
       ParticleManager::Clean();
 			curState = State::gameplay;
 			break;
-    }
 
-    case Event::Type::pause:
+    case Event::Type::pause: // Pause
       curState = State::paused;
       break;
 
-    case Event::Type::resume:
+    case Event::Type::resume: // Resume
       curState = State::gameplay;
       break;
 
-    case Event::Type::reloadMenu:
+    case Event::Type::reloadMenu: // New menu
       menu.get()->ReloadStack((Menu::Type)event.data.value);
       break;
       
-    case Event::Type::pushMenu:
+    case Event::Type::pushMenu: // Go to menu
       menu.get()->Push((Menu::Type)event.data.value);
       break;
     
-    case Event::Type::menuReturn:
+    case Event::Type::menuReturn: // Return to previous menu
       menu.get()->Return();
       break;
 
-    case Event::Type::gameExit:
+    case Event::Type::gameExit: // Exit game
       gameManager = std::make_unique<GameManager>(GameManager::Preset::title);
 			menu.get()->ReloadStack(Menu::Type::main);
       curState = State::mainMenu;
       break;
 
-    case Event::Type::gameDone:
+    case Event::Type::gameDone: // Game has concluded
       menu.get()->ReloadStack(Menu::Type::gameEnd);
       curState = State::mainMenu;
       break;
 
-    case Event::Type::gameReset:
-    {
+    case Event::Type::gameReset: // Game is restarted (with the same preset)
 			std::cout << "Resetting game...\n";
       gameManager = std::make_unique<GameManager>(gameManager.get()->GetPreset());
 			menu.get()->ReloadStack(Menu::Type::pause);
       ParticleManager::Clean();
 			curState = State::gameplay;
 			break;
-    }
 		
-		default:
+		default: // Game related event
       gameManager.get()->ProcessEvents(event);
 			break;
 		}
@@ -160,46 +158,25 @@ void Program::ProcessEvents()
 	{
 		switch (SFMLevent.type) 
 		{
-		case sf::Event::Closed:
-			std::cout << "Window close event called.\n";
+		case sf::Event::Closed: // Window close (from window)
+			std::cout << "Window close button has been clicked, closing program...\n";
 			curState = State::notRunning;
       return;
-		
-		case sf::Event::LostFocus:
-			//Pause();
-			break;
 
-		case sf::Event::KeyPressed:
+		case sf::Event::KeyPressed: // Key is pressed
 			switch (SFMLevent.key.code) 
 			{
-      //   if (curState == State::mainMenu)
-      //   {
-      //     std::cout << "Quit button has been pressed, closing game...\n";
-      //     ProgramExit();          
-      //   }
-			// 	if (curState == State::startMenu)
-			// 	{
-			// 		// mainMenu.get()->Return();
-			// 	}
-			// 	// if gameplay, pause
-			// 	break;
-
-			// case sf::Keyboard::Tab:
-			// 	Utility::GetInstance()->FlushDebugSprites();
-			// 	break;
-
-			case sf::Keyboard::R:
-				std::cout << "Restarting Game!\n";
+			case sf::Keyboard::R: // Quick restart (for debugging)
+				std::cout << "Restarting Program!\n";
         gameManager = std::make_unique<GameManager>(GameManager::Preset::title);
-        menu = std::make_unique<Menu>(Menu::Type::main); // change to title
+        menu = std::make_unique<Menu>(Menu::Type::main);
 				curState = State::mainMenu;
 				break;
 			
-			default:
+			default: // Add key to keymap
 				Keyboard::GetInstance()->AddKeyPress(SFMLevent.key.code);
 				break;
 			}
-
 			break;
 
 		default:
@@ -229,11 +206,11 @@ void Program::Update()
 void Program::Render()
 {
 	window.clear(sf::Color(230, 176, 138));
-	//window.clear(sf::Color(255, 229, 181));
-  // if (curState != State::titleSequence)
 
 	if (curState == State::notRunning) 
 		return;
+
+  // Rendering order: Game -> Particles -> Menu
 
   gameManager.get()->Render(&window);
 
@@ -241,24 +218,6 @@ void Program::Render()
 
   if (curState != State::gameplay)
     menu.get()->Render(&window);
-
-	// switch (curState)
-	// {
-  // case State::titleSequence:
-  //   title.get()->Render(&window);
-  //   break;
-
-	// case State::startMenu:
-	// 	mainMenu.get()->Render(&window);
-	// 	break;
-
-	// case State::gameplay:
-	// 	game.get()->Render(&window);
-	// 	break;
-
-	// default:
-	// 	break;
-	// }
 
 	window.display();	
 }
