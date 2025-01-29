@@ -83,7 +83,7 @@ void ScoreComponent::Add(int amount)
 
   Number<DisplayDigit>::AddValue(digits, amount);
 
-  if (originalSize != digits.size())
+  if (originalSize != (int)digits.size())
     game->UpdateAttachment(World::AttachPoint::top);
 }
 

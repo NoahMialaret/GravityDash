@@ -35,7 +35,7 @@ void Game::ProcessEvent(Event& event)
 
   case Event::Type::collisionSaw:
   {
-    if (characters[event.data.collision.charID].get()->Hit({event.data.collision.colX, event.data.collision.colY}));
+    if (characters[event.data.collision.charID].get()->Hit({event.data.collision.colX, event.data.collision.colY}))
       comboCount[event.data.collision.charID] = 0;
     break;
   }

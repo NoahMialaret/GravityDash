@@ -5,7 +5,7 @@ BoostComponent::BoostComponent(Game* game, int limit)
   GameComponent(game),
   boosts(game->NumCharacters())
 {
-  for (int i = 0; i < boosts.size(); i++)
+  for (int i = 0; i < (int)boosts.size(); i++)
     boosts[i] = BoostMeter(game, i, limit);
 }
 

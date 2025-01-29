@@ -2,8 +2,8 @@
 
 Particle::Particle(int timer)
   :
-  timer(timer),
-  entity("particles", {4, 4})
+  entity("particles", {4, 4}),
+  timer(timer)
 {}
 
 bool Particle::HasFinished() const

@@ -80,7 +80,7 @@ void Stats::InsertHighScore(HighScoreModes mode, int score)
     break;
   }
 
-  for (int i = 0; i < highScore->size(); i++)
+  for (int i = 0; i < (int)highScore->size(); i++)
   {
     if (score > (*highScore)[i])
     {

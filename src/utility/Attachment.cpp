@@ -7,8 +7,8 @@ Attachment::Attachment(sf::Vector2f pos)
 
 Attachment::Attachment(sf::Vector2f pos, std::function<void(sf::Vector2f)>& updateFunction)
   :
-  pos(pos),
   isAttached(true),
+  pos(pos),
   updateAttached(updateFunction)
 {}
 

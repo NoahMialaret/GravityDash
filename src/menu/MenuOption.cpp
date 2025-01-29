@@ -6,8 +6,8 @@ MenuOption* MenuOption::curHighlight = nullptr;
 MenuOption::MenuOption(std::string name, Event action, float* origin, float offset)
   :
   action(action),
-  origin(origin),
-  vertOffset(offset)
+  vertOffset(offset),
+  origin(origin)
 {
   Utility::InitText(displayName, SMALL_FONT, name, {-CONFIG_MENU_MARGIN, *origin + offset}, {0, 0.5f});
 }
@@ -165,7 +165,7 @@ void SelectionOption::Update()
   index += delta;
   if (index < 0)
     index = selections.size() - 1;
-  else if (index >= selections.size())
+  else if (index >= (int)selections.size())
     index = 0;
 
   Utility::UpdateText(displaySelection, "{" + selections[index] + "}", {1.0f, 0.5f});

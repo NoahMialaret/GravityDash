@@ -23,7 +23,7 @@ GridInterface::GridInterface(int initialHighlight, std::vector<StaticButtonInit>
   const float padding = 0.5f * SCALED_DIM;
   float horiPos = -padding; // The horizontal position of the next column of buttons
 
-  for (int i = 0; i < configs.size(); i++)
+  for (int i = 0; i < (int)configs.size(); i++)
   {
     grid.push_back(i); 
     StaticButton button(configs[i]);
@@ -39,7 +39,7 @@ GridInterface::GridInterface(int initialHighlight, std::vector<StaticButtonInit>
     if (configs[i].size == MEDIUM)
     {      
       // Checks if there is there another button that can be placed underneath
-      if (i + 1 < configs.size() && configs[i + 1].size == MEDIUM)
+      if (i + 1 < (int)configs.size() && configs[i + 1].size == MEDIUM)
       {
         i++;
         grid.push_back(i);
@@ -86,7 +86,7 @@ void GridInterface::Update()
   // Returns if no movement is happening, or movement would be out-of-bounds
   if ((!xMove && !yMove) 
       || (curButton <= 1 && xMove < 0) 
-      || (curButton >= grid.size() - 2 && xMove > 0)
+      || (curButton >= (int)grid.size() - 2 && xMove > 0)
       || (curButton % 2 == 0 && yMove < 0) 
       || (curButton % 2 == 1 && yMove > 0))
     return;
@@ -153,7 +153,7 @@ void ListInterface::Update()
 
   if (nextButton < 0)
     nextButton = buttons.size() - 1;
-  else if (nextButton >= buttons.size())
+  else if (nextButton >= (int)buttons.size())
     nextButton = 0;
 
   buttons[curButton].ToggleHighlight();
@@ -275,7 +275,7 @@ void OptionsInterface::Update()
     curIndex += move;
     if (curIndex < 0)
       curIndex = subLists.size() - 1;
-    else if (curIndex >= subLists.size())
+    else if (curIndex >= (int)subLists.size())
       curIndex = 0;
 
     subLists[curIndex].get()->GoTo(move == 1 ? 0 : -1);
@@ -377,7 +377,7 @@ void OptionsSubList::GoTo(int index)
 
 bool OptionsSubList::Move(int move)
 {
-  if (curIndex + move < 0 || curIndex + move >= options.size())
+  if (curIndex + move < 0 || curIndex + move >= (int)options.size())
     return false;
 
   curIndex += move;

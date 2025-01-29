@@ -3,8 +3,8 @@
 Character::Character(int charID)
   : 
   charID(charID),
-  acceleration(0.2f * ProgramSettings::gameScale),
   entity("character", {4, NUM_ANIMS}),
+  acceleration(0.2f * ProgramSettings::gameScale),
   reticle("reticle")
 {
   vel.y = 1000.0f;
@@ -115,7 +115,7 @@ void Character::FloorCollision(float correction)
     return;
   }
 
-  PUSH_EVENT(Event::Type::playerCombo, {.combo = {charID, superBouncesLeft >= 0}});
+  PUSH_EVENT(Event::Type::playerCombo, {.combo = {charID, superBouncesLeft >= 0, 0}});
 
   if (superBouncesLeft == 0)
   {

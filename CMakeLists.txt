@@ -12,6 +12,7 @@ file(GLOB SOURCES "src/*.cpp" "src/*/*.cpp")
 
 add_executable(gravDash.app ${SOURCES})
 
+target_compile_options(gravDash.app PRIVATE -Wall -Wextra -Wpedantic)
 target_link_libraries(gravDash.app PRIVATE sfml-graphics sfml-window sfml-system)
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})

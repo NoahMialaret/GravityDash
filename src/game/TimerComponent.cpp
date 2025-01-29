@@ -3,10 +3,10 @@
 TimerComponent::TimerComponent(Game* game, int maxTime)
   :
   GameComponent(game),
+  arrowYMove(&arrowPos.y),
   timeRemaining(maxTime),
   maxTime(maxTime),
-  boostCount(game->NumCharacters(), 0),
-  arrowYMove(&arrowPos.y)
+  boostCount(game->NumCharacters(), 0)
 {
   Utility::InitSprite(refillArrow, "arrow");
 
