@@ -23,7 +23,6 @@ void Utility::Clean()
 
 void Utility::LoadSave(const char *filename)
 {
-  
   try
   {
     std::ifstream file(filename);
@@ -88,83 +87,70 @@ int Utility::GetSign(float num)
   return 0;
 }
 
-float Utility::GetSquaredDistanceToLineSegment(sf::Vector2f centrePos, std::pair<sf::Vector2f, sf::Vector2f> lineSegPoints)
+float Utility::GetSquaredDistanceToLineSegment(sf::Vector2f point, LineSegment line)
 {
   // If the both points in the line segment are bascially identical, treat them as the same point
-  if (abs(lineSegPoints.first.x - lineSegPoints.second.x) < 1.0f && abs(lineSegPoints.first.y - lineSegPoints.second.y) < 1.0f)
+  if (abs(line.start.x - line.end.x) < 1.0f 
+      && abs(line.start.y - line.end.y) < 1.0f)
   {
-    return std::pow(lineSegPoints.first.x - centrePos.x, 2.0f) + std::pow(lineSegPoints.first.y - centrePos.y, 2.0f);
+    return std::pow(line.start.x - point.x, 2.0f) 
+           + std::pow(line.start.y - point.y, 2.0f);
   }
 
-	sf::Vector2f lineSeg = lineSegPoints.second - lineSegPoints.first;
-	sf::Vector2f firstToCentre = centrePos - lineSegPoints.first;
-	sf::Vector2f secondToCentre = centrePos - lineSegPoints.second;
+	sf::Vector2f lineSeg = line.end - line.start;
+	sf::Vector2f pointToStart = point - line.start;
+	sf::Vector2f pointToEnd = point - line.end;
 
-	float dotProdFirst = lineSeg.x * firstToCentre.x + lineSeg.y * firstToCentre.y;
-	float dotProdSecond = lineSeg.x * secondToCentre.x + lineSeg.y * secondToCentre.y;
+	float startDotProd = lineSeg.x * pointToStart.x + lineSeg.y * pointToStart.y;
+	float endDotProd = lineSeg.x * pointToEnd.x + lineSeg.y * pointToEnd.y;
 
 	float distanceSquared = 0.0f;
 
-	if (dotProdSecond > 0.0f) // Projection of dot products are in the same direction
+	if (endDotProd > 0.0f) // Projection of dot products are in the same direction
 	{
-		distanceSquared = std::pow(lineSegPoints.second.x - centrePos.x, 2.0f) 
-			+ std::pow(lineSegPoints.second.y - centrePos.y, 2.0f);
+		distanceSquared = std::pow(line.end.x - point.x, 2.0f) 
+			+ std::pow(line.end.y - point.y, 2.0f);
 	}
-	else if (dotProdFirst < 0.0f) // Projection of dot products are in the opposite direction
+	else if (startDotProd < 0.0f) // Projection of dot products are in the opposite direction
 	{
-		distanceSquared = std::pow(lineSegPoints.first.x - centrePos.x, 2.0f) 
-			+ std::pow(lineSegPoints.first.y - centrePos.y, 2.0f);
+		distanceSquared = std::pow(line.start.x - point.x, 2.0f) 
+			+ std::pow(line.start.y - point.y, 2.0f);
 	}
 	else // Projection of dot products are in different directions
 	{
 		float lineSegDistSquared = lineSeg.x * lineSeg.x + lineSeg.y * lineSeg.y;
-		float crossProd = (lineSeg.x * firstToCentre.y - lineSeg.y * firstToCentre.x);
+		float crossProd = (lineSeg.x * pointToStart.y - lineSeg.y * pointToStart.x);
 		distanceSquared = (crossProd * crossProd) / (lineSegDistSquared);
 	}
 
 	return distanceSquared;
 }
 
-void Utility::InitSprite(sf::Sprite& sprite, std::string tex, sf::Vector2f pos, sf::Vector2i subTexCount, sf::Vector2f origin)
+void Utility::InitSprite(sf::Sprite& sprite, std::string tex, sf::Vector2i subTexCount, sf::Vector2f origin)
 {
   sprite.setScale(DEFAULT_SCALE);
   sprite.setTexture(GET_TEXTURE(tex));
-  sprite.setPosition(pos);
-  sf::Vector2i texSize = (sf::Vector2i)GET_TEXTURE(tex).getSize();
-  sprite.setTextureRect({0, 0, texSize.x / subTexCount.x, texSize.y / subTexCount.y});
-  sprite.setOrigin(sf::Vector2f(origin.x * sprite.getTextureRect().width, origin.y * sprite.getTextureRect().height));
+  sf::Vector2i texSize(GET_TEXTURE(tex).getSize());
+  sprite.setTextureRect({0, 0, texSize.x / subTexCount.x, 
+                               texSize.y / subTexCount.y});
+  sprite.setOrigin({origin.x * sprite.getTextureRect().width, 
+                    origin.y * sprite.getTextureRect().height});
 }
 
-void Utility::InitText(sf::Text& text, sf::Font& font, std::string str, sf::Vector2f pos, sf::Vector2f origin, sf::Color col)
+void Utility::InitText(sf::Text& text, const sf::Font& font, std::string str, sf::Vector2f pos, sf::Vector2f origin, sf::Color col)
 {
   text.setPosition(pos);
-  text.setString(str);
   text.setCharacterSize(SCALED_DIM);
   text.setFillColor(col);
   text.setFont(font);
 
-  float height = ProgramSettings::gameScale;
-  if (&font == &SMALL_FONT)
-    height *= 4.0f;
-  else if (&font == &MEDIUM_FONT)
-    height *= 5.0f;
-  else // large
-    height *= 6.0f;
-
-  text.setOrigin(sf::Vector2f(origin.x * text.getLocalBounds().width, origin.y * height - ProgramSettings::gameScale));
+  UpdateText(text, str, origin);
 }
 
 void Utility::UpdateText(sf::Text& text, std::string newStr, sf::Vector2f origin)
 {
   text.setString(newStr);
 
-  float height = ProgramSettings::gameScale;
-  if (text.getFont() == &SMALL_FONT)
-    height *= 4.0f;
-  else if (text.getFont() == &MEDIUM_FONT)
-    height *= 5.0f;
-  else // large
-    height *= 6.0f;
-
-  text.setOrigin(sf::Vector2f(origin.x * text.getLocalBounds().width, origin.y * height - ProgramSettings::gameScale));
+  text.setOrigin({origin.x * text.getLocalBounds().width, 
+                  origin.y * text.getLocalBounds().height - ProgramSettings::gameScale});
 }

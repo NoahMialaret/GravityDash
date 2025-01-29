@@ -10,7 +10,8 @@ Entity::Entity(const char* texName,
   scaleTransition(&scale),
   rotationTransition(&rotation)
 {
-  Utility::InitSprite(sprite, texName, position, numSprites, origin);
+  Utility::InitSprite(sprite, texName, numSprites, origin);
+  sprite.setPosition(position);
 
   anim = AnimationHandler(&sprite, numSprites.y, numSprites.x, sprite.getTextureRect().getSize());
 }

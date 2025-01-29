@@ -8,13 +8,13 @@ TimerComponent::TimerComponent(Game* game, int maxTime)
   boostCount(game->NumCharacters(), 0),
   arrowYMove(&arrowPos.y)
 {
-  Utility::InitSprite(refillArrow, "arrow", ZERO_VECTOR);
+  Utility::InitSprite(refillArrow, "arrow");
 
   timeRect = sf::RectangleShape(ProgramSettings::gameScale * sf::Vector2f(4.0f, 60.0f));
   timeRect.setFillColor(sf::Color(255, 229, 181));
   timeRect.setScale(sf::Vector2f(1.0f, -1.0f));
 
-  Utility::InitSprite(gauge, "timer", ZERO_VECTOR, {1, 1}, {0.0f, 0.5f});
+  Utility::InitSprite(gauge, "timer", {1, 1}, {0.0f, 0.5f});
 
   std::function<void(sf::Vector2f)> updatePosFunction = [this](sf::Vector2f pos)
   {

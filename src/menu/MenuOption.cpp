@@ -72,7 +72,8 @@ ToggleOption::ToggleOption(std::string name, Event action, float* origin, float 
   MenuOption(name, action, origin, offset),
   toggle(config.init)
 {
-  Utility::InitSprite(toggleSprite, "toggle", {CONFIG_MENU_MARGIN, *origin + offset}, {2, 1}, {1.0f, 0.5f});
+  Utility::InitSprite(toggleSprite, "toggle", {2, 1}, {1.0f, 0.5f});
+  toggleSprite.setPosition({CONFIG_MENU_MARGIN, *origin + offset});
 
   if (config.init)
   {

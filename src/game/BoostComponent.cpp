@@ -44,7 +44,7 @@ BoostComponent::BoostMeter::BoostMeter(Game *game, int id, int limit)
   id(id),
   limit(limit)
 {
-  Utility::InitSprite(gauge, "boost_meter", ZERO_VECTOR, {1, 1}, {0.5f, 0.0f});
+  Utility::InitSprite(gauge, "boost_meter", {1, 1}, {0.5f, 0.0f});
 
   fill.setFillColor(sf::Color(255, 229, 181));
   fill.setSize({0.0f, 2.0f * ProgramSettings::gameScale});

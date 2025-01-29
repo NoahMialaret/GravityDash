@@ -24,7 +24,8 @@ StaticButton::StaticButton(StaticButtonInit &config, sf::Vector2f pos)
     break;
   }
 
-  Utility::InitSprite(button, texName, pos, {2, 1});
+  Utility::InitSprite(button, texName, {2, 1});
+  button.setPosition(pos);
 }
 
 void StaticButton::Render(sf::RenderWindow *win) const

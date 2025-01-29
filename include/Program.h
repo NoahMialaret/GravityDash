@@ -1,11 +1,7 @@
 #ifndef PROGRAM_H
 #define PROGRAM_H
 
-// The path to the file that stores save data
-#define SAVE_FILE "files/save.json"
-
 #include <SFML/Graphics.hpp>
-#include <nlohmann/json.hpp>
 
 #include "Clock.h"
 #include "Event.h"

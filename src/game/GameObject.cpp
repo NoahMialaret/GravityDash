@@ -29,15 +29,15 @@ void GameObject::HandleCollision(Character* character)
   if (tombstone)
     return;
 
-  std::pair<sf::Vector2f, sf::Vector2f> collision = character->GetLineHitBox();
+  Utility::LineSegment line = character->GetLineHitBox();
   float squaredThreshold = SCALED_DIM * SCALED_DIM;
 
   // Do a broad check of proximity to prematurely stop calculations if the object is far away
-  if (pos->x + SCALED_DIM < std::min(collision.first.x, collision.second.x) 
-    || pos->x - SCALED_DIM > std::max(collision.first.x, collision.second.x))
-      return ;
+  if (pos->x + SCALED_DIM < std::min(line.start.x, line.end.x) 
+    || pos->x - SCALED_DIM > std::max(line.start.x, line.end.x))
+      return;
   
-  float squaredDistance = Utility::GetInstance()->GetSquaredDistanceToLineSegment(*pos, collision);
+  float squaredDistance = Utility::GetInstance()->GetSquaredDistanceToLineSegment(*pos, line);
   if (squaredDistance > squaredThreshold)
     return;
   

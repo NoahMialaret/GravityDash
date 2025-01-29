@@ -71,7 +71,7 @@ public:
   sf::FloatRect GetHitBox() const;
   // Returns a line segment hitbox represented by the character's previous and current position,
   //  correlates to the region the character occupied between frames
-  std::pair<sf::Vector2f, sf::Vector2f> GetLineHitBox() const;
+  Utility::LineSegment GetLineHitBox() const;
 
   // Enables the ability to do a super jump
   void EnableSuperJump();

@@ -91,7 +91,7 @@ ScoreComponent::DisplayDigit::DisplayDigit(int digit)
   :
   digit(std::clamp(digit, 0, 10))
 {
-  Utility::InitSprite(sprite, "nums_big", ZERO_VECTOR, {11, 1}, {0.5f, 1.0f});
+  Utility::InitSprite(sprite, "nums_big", {11, 1}, {0.5f, 1.0f});
   UpdateTextureRect();
 }
 

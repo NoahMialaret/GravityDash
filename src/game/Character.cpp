@@ -207,9 +207,9 @@ sf::FloatRect Character::GetHitBox() const
   return entity.HitBox();
 }
 
-std::pair<sf::Vector2f, sf::Vector2f> Character::GetLineHitBox() const
+Utility::LineSegment Character::GetLineHitBox() const
 {
-  return std::pair<sf::Vector2f, sf::Vector2f>(prevPos, *pos);
+  return {prevPos, *pos};
 }
 
 void Character::EnableSuperJump()
