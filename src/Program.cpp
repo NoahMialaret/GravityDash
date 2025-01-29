@@ -1,18 +1,17 @@
 #include "Program.h"
 
-std::vector<Event> Event::events;
-
 Program::Program(const char* name)
 {
-  Utility::LoadSave(SAVE_FILE);
+  Utility::GetInstance()->LoadSave(SAVE_FILE);
 
 	std::cout << "--=== Program Init ===--\n"  << "Initialising SFML Window...\n";
 
 		sf::VideoMode desktop = sf::VideoMode::getDesktopMode();	
-		sf::Vector2f minWindowSize(160, 90);
+		sf::Vector2f minWindowSize(160, 90); // Window has a 16:9 aspect ratio
 		sf::Vector2f windowSize = minWindowSize;
 		int scale = 1;
 
+    // Creates a window that is at least half the size of the desktop
 		while (windowSize.x < desktop.width / 2 && windowSize.y < desktop.height / 2)
 		{
 			windowSize += minWindowSize;
@@ -28,6 +27,7 @@ Program::Program(const char* name)
 
 		window.create(sf::VideoMode(windowSize.x, windowSize.y), name, sf::Style::Close);
 
+    // Sets the window to be the middle of the desktop
 		window.setPosition(sf::Vector2i((desktop.width - window.getSize().x) / 2, (desktop.height - window.getSize().y) / 2));
 
 		window.setKeyRepeatEnabled(false);
@@ -44,38 +44,16 @@ Program::Program(const char* name)
 
   // Textures and Shaders
 
-    Textures::LoadTextures();
-
-    sf::Image icon;
-    if (!icon.loadFromFile("assets/icon.png"))
+    if (GET_TEXTURE("icon").getSize() != sf::Vector2u(0, 0))
     {
-      std::cout << "Error loading icon!\n";
+      sf::Image icon = GET_TEXTURE("icon").copyToImage();
+      window.setIcon(icon.getSize().x, icon.getSize().y, icon.getPixelsPtr());
     }
-    window.setIcon(icon.getSize().x, icon.getSize().y, icon.getPixelsPtr());
-
-    if (!sf::Shader::isAvailable())
-    {
-      std::cout << "\tShaders are not available on this hardware!\n";
-    }
-
-    if (!Utility::entShad.loadFromFile("assets/vert.vs", "assets/frag.fs"))
-    {
-      std::cout << "ERROR\n";
-    }
-    Utility::entShad.setUniform("texture", sf::Shader::CurrentTexture);
-
-    if (!Utility::worldShad.loadFromFile("assets/vert.vs", "assets/bg.fs"))
-    {
-      std::cout << "ERROR\n";
-    }
-    Utility::worldShad.setUniform("texture", sf::Shader::CurrentTexture);
-
+    
 	std::cout << "Initialising Program objects...\n";
 
-    menu = std::make_unique<Menu>(Event::MenuType::main);
-    LoadMenuGame();
-
-    Clock::Init();
+    menu = std::make_unique<Menu>(Menu::Type::main);
+    gameManager = std::make_unique<GameManager>(GameManager::Preset::title);
     
 	std::cout << "Program init done! Starting title sequence...\n";
 	
@@ -86,116 +64,90 @@ Program::Program(const char* name)
 
 Program::~Program()
 {
-  Utility::SaveData(SAVE_FILE);
+  Utility::GetInstance()->SaveData(SAVE_FILE);
 
 	std::cout << "Cleaning program...\n";
 
 	window.close();
 
-  Utility::particles.clear();
-
-  game = nullptr;
+  gameManager = nullptr;
   menu = nullptr;
+
+  Utility::Clean();
+  Clock::Clean();
+  ParticleManager::Clean();
+  EventManager::Clean();
+  Keyboard::Clean();
+  AssetManager::Clean();
 
 	std::cout << "Program successfully cleaned!\n";
 }
 
-void Program::HandleEvents() 
+void Program::ProcessEvents() 
 {
+	if (curState == State::notRunning) 
+		return;
+
 	Event event;
 
-	while (Event::PollEvent(event))
+	while (EventManager::GetInstance()->PollEvent(event))
 	{
 		switch (event.type)
 		{
-		case Event::Type::programClose:
-			std::cout << "Quit button has been pressed, closing game...\n";
+		case Event::Type::programClose: // Window close (from menu)
+			std::cout << "Menu quit button has been pressed, closing program...\n";
 			curState = State::notRunning;
 			return;
 
-		case Event::Type::loadNewGame:
-    {
-			std::cout << "Create new game event called\n";
-      switch (event.gameConfig.type)
-      {
-      case Event::GameConfig::Type::title:
-        game = std::make_unique<Game>(event.gameConfig);
-        break;
-      case Event::GameConfig::Type::min:
-        game = std::make_unique<Min>(event.gameConfig);
-        break;
-      case Event::GameConfig::Type::rush:
-        game = std::make_unique<Rush>(event.gameConfig);
-        break;
-      default:
-        std::cout << "Could not determine the game mode!\n";
-        // mainMenu = std::make_unique<MainMenu>();
-        continue;
-      }
-			menu.get()->ReloadStack(Event::MenuType::pause);
-      Utility::particles.clear();
+		case Event::Type::gameNew: // New game
+			std::cout << "Initialising new game...\n";
+      gameManager = std::make_unique<GameManager>((GameManager::Preset)event.data.value);
+			menu.get()->ReloadStack(Menu::Type::pause);
+      ParticleManager::Clean();
 			curState = State::gameplay;
 			break;
-    }
 
-    case Event::Type::pause:
+    case Event::Type::pause: // Pause
       curState = State::paused;
       break;
 
-    case Event::Type::resumePlay:
+    case Event::Type::resume: // Resume
       curState = State::gameplay;
       break;
 
-    case Event::Type::reloadMenu:
-      menu.get()->ReloadStack(event.menuType);
+    case Event::Type::reloadMenu: // New menu
+      menu.get()->ReloadStack((Menu::Type)event.data.value);
       break;
       
-    case Event::Type::pushMenu:
-      menu.get()->Push(event.menuType);
+    case Event::Type::pushMenu: // Go to menu
+      menu.get()->Push((Menu::Type)event.data.value);
       break;
     
-    case Event::Type::menuReturn:
+    case Event::Type::menuReturn: // Return to previous menu
       menu.get()->Return();
       break;
 
-    case Event::Type::exitGame:
-      LoadMenuGame();
-			menu.get()->ReloadStack(Event::MenuType::main);
+    case Event::Type::gameExit: // Exit game
+      gameManager = std::make_unique<GameManager>(GameManager::Preset::title);
+			menu.get()->ReloadStack(Menu::Type::main);
       curState = State::mainMenu;
       break;
 
-    case Event::Type::gameDone:
-      menu.get()->ReloadStack(Event::MenuType::gameEnd);
+    case Event::Type::gameDone: // Game has concluded
+      menu.get()->ReloadStack(Menu::Type::gameEnd);
       curState = State::mainMenu;
       break;
 
-    case Event::Type::restartGame:
-    {
+    case Event::Type::gameReset: // Game is restarted (with the same preset)
 			std::cout << "Resetting game...\n";
-      Event::GameConfig config = game.get()->GetConfig();
-      switch (config.type)
-      {
-      case Event::GameConfig::Type::title:
-        game = std::make_unique<Game>(config);
-        break;
-      case Event::GameConfig::Type::min:
-        game = std::make_unique<Min>(config);
-        break;
-      case Event::GameConfig::Type::rush:
-        game = std::make_unique<Rush>(config);
-        break;
-      default:
-        std::cout << "Could not determine the game mode!\n";
-        continue;
-      }
-			menu.get()->ReloadStack(Event::MenuType::pause);
-      Utility::particles.clear();
+      gameManager = std::make_unique<GameManager>(gameManager.get()->GetPreset());
+			menu.get()->ReloadStack(Menu::Type::pause);
+      ParticleManager::Clean();
 			curState = State::gameplay;
 			break;
-    }
 		
-		default:
-			std::cout << "Event type could not be determined.\n";
+		default: // Game related event
+      gameManager.get()->ProcessEvents(event);
 			break;
 		}
 	}
@@ -206,46 +158,25 @@ void Program::HandleEvents()
 	{
 		switch (SFMLevent.type) 
 		{
-		case sf::Event::Closed:
-			std::cout << "Window close event called.\n";
+		case sf::Event::Closed: // Window close (from window)
+			std::cout << "Window close button has been clicked, closing program...\n";
 			curState = State::notRunning;
       return;
-		
-		case sf::Event::LostFocus:
-			//Pause();
-			break;
 
-		case sf::Event::KeyPressed:
+		case sf::Event::KeyPressed: // Key is pressed
 			switch (SFMLevent.key.code) 
 			{
-      //   if (curState == State::mainMenu)
-      //   {
-      //     std::cout << "Quit button has been pressed, closing game...\n";
-      //     ProgramExit();          
-      //   }
-			// 	if (curState == State::startMenu)
-			// 	{
-			// 		// mainMenu.get()->Return();
-			// 	}
-			// 	// if gameplay, pause
-			// 	break;
-
-			// case sf::Keyboard::Tab:
-			// 	Utility::FlushDebugSprites();
-			// 	break;
-
-			case sf::Keyboard::R:
-				std::cout << "Restarting Game!\n";
-        LoadMenuGame();
-        menu = std::make_unique<Menu>(Event::MenuType::main); // change to title
+			case sf::Keyboard::R: // Quick restart (for debugging)
+				std::cout << "Restarting Program!\n";
+        gameManager = std::make_unique<GameManager>(GameManager::Preset::title);
+        menu = std::make_unique<Menu>(Menu::Type::main);
 				curState = State::mainMenu;
 				break;
 			
-			default:
-				Keyboard::AddKeyPress(SFMLevent.key.code);
+			default: // Add key to keymap
+				Keyboard::GetInstance()->AddKeyPress(SFMLevent.key.code);
 				break;
 			}
-
 			break;
 
 		default:
@@ -259,52 +190,34 @@ void Program::Update()
 	if (curState == State::notRunning) 
 		return;
 
-  Clock::Update();
+  Clock::GetInstance()->Update();
 
   if (curState != State::paused)
-    game.get()->Update();
+    gameManager.get()->Update();
 
   if (curState != State::gameplay)
     menu.get()->Update();
 
-  Utility::UpdateParticles();
+  ParticleManager::GetInstance()->UpdateParticles();
 
-	Keyboard::Update();
+	Keyboard::GetInstance()->Update();
 }
 
 void Program::Render()
 {
 	window.clear(sf::Color(230, 176, 138));
-	//window.clear(sf::Color(255, 229, 181));
-  // if (curState != State::titleSequence)
 
 	if (curState == State::notRunning) 
 		return;
 
-  game.get()->Render(&window);
+  // Rendering order: Game -> Particles -> Menu
+
+  gameManager.get()->Render(&window);
+
+  ParticleManager::GetInstance()->RenderParticles(&window);
 
   if (curState != State::gameplay)
     menu.get()->Render(&window);
-
-	// switch (curState)
-	// {
-  // case State::titleSequence:
-  //   title.get()->Render(&window);
-  //   break;
-
-	// case State::startMenu:
-	// 	mainMenu.get()->Render(&window);
-	// 	break;
-
-	// case State::gameplay:
-	// 	game.get()->Render(&window);
-	// 	break;
-
-	// default:
-	// 	break;
-	// }
-
-	Utility::Render(&window);
 
 	window.display();	
 }
@@ -312,15 +225,4 @@ void Program::Render()
 Program::State Program::GetCurState() const 
 {
 	return curState;
-}
-
-void Program::LoadMenuGame()
-{
-  Event::GameConfig config;
-  config.numPlayers = 0;
-  config.numComputers = 4;
-  config.sawFrequency = 0;
-  config.targetSpawnChance = 90;
-
-  game = std::make_unique<Game>(config);
 }

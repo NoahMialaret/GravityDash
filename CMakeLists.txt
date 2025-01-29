@@ -7,11 +7,12 @@ enable_testing()
 SET(CMAKE_CXX_STANDARD 20)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ../bin/)
-include_directories(include)
-file(GLOB SOURCES "src/*.cpp")
+include_directories(include include/game include/handlers include/menu include/utility)
+file(GLOB SOURCES "src/*.cpp" "src/*/*.cpp")
 
 add_executable(gravDash.app ${SOURCES})
 
+target_compile_options(gravDash.app PRIVATE -Wall -Wextra -Wpedantic)
 target_link_libraries(gravDash.app PRIVATE sfml-graphics sfml-window sfml-system)
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
