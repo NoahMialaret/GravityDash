@@ -113,7 +113,7 @@ void GridInterface::Render(sf::RenderWindow* win) const
 }
 
 
-ListInterface::ListInterface(std::vector<StaticButtonInit>& configs, Event menuReturn, sf::Vector2f centre)
+VerticalInterface::VerticalInterface(std::vector<StaticButtonInit>& configs, Event menuReturn, sf::Vector2f centre)
   :
   MenuInterface(menuReturn)
 {
@@ -132,7 +132,7 @@ ListInterface::ListInterface(std::vector<StaticButtonInit>& configs, Event menuR
   buttons[curButton].ToggleHighlight();
 }
 
-void ListInterface::Update()
+void VerticalInterface::Update()
 {
   Controls* controls = ProgramSettings::GetControls();
   if (controls->IsActionOnInitialClick(Controls::Action::select))
@@ -161,7 +161,7 @@ void ListInterface::Update()
   curButton = nextButton; 
 }
 
-void ListInterface::Render(sf::RenderWindow* win) const
+void VerticalInterface::Render(sf::RenderWindow* win) const
 {
   for (auto& b : buttons)
     b.Render(win);
@@ -170,7 +170,7 @@ void ListInterface::Render(sf::RenderWindow* win) const
 
 GameEndInterface::GameEndInterface(std::vector<StaticButtonInit>& configs, Event menuReturn, sf::Vector2f centre)
   :
-  ListInterface(configs, menuReturn, centre)
+  VerticalInterface(configs, menuReturn, centre)
 {
   for (auto& b : buttons)
     b.Move({4.0f * SCALED_DIM, 0});
@@ -216,7 +216,7 @@ GameEndInterface::GameEndInterface(std::vector<StaticButtonInit>& configs, Event
 
 void GameEndInterface::Render(sf::RenderWindow* win) const
 {
-  ListInterface::Render(win);
+  VerticalInterface::Render(win);
   win->draw(displayTitle);
   win->draw(underline);
   for (auto& s : stats)
@@ -225,7 +225,7 @@ void GameEndInterface::Render(sf::RenderWindow* win) const
 
 
 
-OptionsInterface::OptionsInterface(std::vector<std::pair<std::string, std::vector<OptionConfig>>>& configs, Event menuReturn)
+ListInterface::ListInterface(std::vector<std::pair<std::string, std::vector<OptionConfig>>>& configs, Event menuReturn)
   :
   MenuInterface(menuReturn),
   bezier(EASE_IN_CURVE)
@@ -235,22 +235,22 @@ OptionsInterface::OptionsInterface(std::vector<std::pair<std::string, std::vecto
   float yPos = 0.0f;
   for (auto& c : configs)
   {
-    subLists.push_back(std::make_unique<OptionsSubList>(c.first, c.second, &origin, yPos));
+    subLists.push_back(std::make_unique<SubList>(c.first, c.second, &origin, yPos));
     yPos += (c.second.size() + 2) * SCALED_DIM;
   }
 
   subLists[0].get()->GoTo(0);
   timer = 0.0f;
   start = origin;
-  end = - MenuOption::curHighlight->GetOffset();
+  end = - ListItem::curHighlight->GetOffset();
 }
 
-OptionsInterface::~OptionsInterface()
+ListInterface::~ListInterface()
 {
-  MenuOption::curHighlight = nullptr;
+  ListItem::curHighlight = nullptr;
 }
 
-void OptionsInterface::Update()
+void ListInterface::Update()
 {
   timer += DELTA_TIME;
 
@@ -283,19 +283,19 @@ void OptionsInterface::Update()
 
   timer = 0.0f;
   start = origin;
-  end = - MenuOption::curHighlight->GetOffset();
+  end = - ListItem::curHighlight->GetOffset();
   
   for (auto& l : subLists)
     l.get()->Update();
 }
 
-void OptionsInterface::Render(sf::RenderWindow* win) const
+void ListInterface::Render(sf::RenderWindow* win) const
 {
   for (auto& l : subLists)
     l.get()->Render(win);
 }
 
-OptionsSubList::OptionsSubList(std::string& title, std::vector<OptionConfig>& configs, float* origin, float yPos)
+SubList::SubList(std::string& title, std::vector<OptionConfig>& configs, float* origin, float yPos)
   :
   origin(origin),
   vertOffset(yPos)
@@ -347,7 +347,7 @@ OptionsSubList::OptionsSubList(std::string& title, std::vector<OptionConfig>& co
   }
 }
 
-void OptionsSubList::Update()
+void SubList::Update()
 {
   displayTitle.setPosition({0, *origin + vertOffset - SCALED_DIM - ProgramSettings::gameScale});
   overline.setPosition({0, *origin + vertOffset});
@@ -357,7 +357,7 @@ void OptionsSubList::Update()
     o.get()->Update();
 }
 
-void OptionsSubList::Render(sf::RenderWindow* win) const
+void SubList::Render(sf::RenderWindow* win) const
 {
   win->draw(displayTitle);
   win->draw(overline);
@@ -367,7 +367,7 @@ void OptionsSubList::Render(sf::RenderWindow* win) const
     o.get()->Render(win);
 }
 
-void OptionsSubList::GoTo(int index)
+void SubList::GoTo(int index)
 {
   curIndex = index;
   if (curIndex == -1)
@@ -375,7 +375,7 @@ void OptionsSubList::GoTo(int index)
   options[curIndex].get()->SetHighlight();
 }
 
-bool OptionsSubList::Move(int move)
+bool SubList::Move(int move)
 {
   if (curIndex + move < 0 || curIndex + move >= (int)options.size())
     return false;

@@ -63,10 +63,10 @@ struct OptionConfig
   };
 };
 
-class MenuOption
+class ListItem
 {
 public:
-  MenuOption(std::string name, Event action, float* origin, float offset);
+  ListItem(std::string name, Event action, float* origin, float offset);
 
   virtual void Update();
   virtual void Render(sf::RenderWindow* win) const;
@@ -78,7 +78,7 @@ public:
   float GetOffset() const;
 
 public:
-  static MenuOption* curHighlight;
+  static ListItem* curHighlight;
   
 protected:
   sf::Text displayName;
@@ -94,7 +94,7 @@ protected:
   bool isActive = false;
 };
 
-class StaticText : public MenuOption
+class StaticText : public ListItem
 {
 public:
   StaticText(std::string name, Event action, float* origin, float offset, OptionConfig::StaticText config);
@@ -106,7 +106,7 @@ private:
   sf::Text staticText;
 };
 
-class ToggleOption : public MenuOption
+class ToggleOption : public ListItem
 {
 public:
   ToggleOption(std::string name, Event action, float* origin, float offset, OptionConfig::Toggle config);
@@ -119,7 +119,7 @@ private:
   sf::Sprite toggleSprite;
 };
 
-class RangeOption : public MenuOption
+class RangeOption : public ListItem
 {
 public:
   RangeOption(std::string name, Event action, float* origin, float offset, OptionConfig::Range config);
@@ -134,7 +134,7 @@ private:
   sf::Text displayRange;
 };
 
-class SelectionOption : public MenuOption
+class SelectionOption : public ListItem
 {
 public:
   SelectionOption(std::string name, Event action, float* origin, float offset, OptionConfig::Selection config);
@@ -148,7 +148,7 @@ private:
   sf::Text displaySelection;
 };
 
-class ControlOption : public MenuOption
+class ControlOption : public ListItem
 {
 public:
   ControlOption(std::string name, Event action, float* origin, float offset, OptionConfig::Control config);

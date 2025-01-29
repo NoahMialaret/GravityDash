@@ -97,7 +97,7 @@ void Menu::LoadMenu(Type menuType)
     buttons.push_back({"quit", event, SMALL});
 
     event.type = Event::Type::resume;
-    interface = std::make_unique<ListInterface>(buttons, event);
+    interface = std::make_unique<VerticalInterface>(buttons, event);
 
     break;
   }
@@ -204,7 +204,7 @@ void Menu::LoadMenu(Type menuType)
     options[4].second.push_back(option);
 
     event.type = Event::Type::menuReturn;
-    interface = std::make_unique<OptionsInterface>(options, event);
+    interface = std::make_unique<ListInterface>(options, event);
     break;
   }
   case Type::stats:
@@ -231,7 +231,7 @@ void Menu::LoadMenu(Type menuType)
     options[0].second.push_back(option);
 
     event.type = Event::Type::menuReturn;
-    interface = std::make_unique<OptionsInterface>(options, event);
+    interface = std::make_unique<ListInterface>(options, event);
     break;
   }
   case Type::score:
@@ -279,7 +279,7 @@ void Menu::LoadMenu(Type menuType)
     options[2].second.push_back(option);
 
     event.type = Event::Type::menuReturn;
-    interface = std::make_unique<OptionsInterface>(options, event);
+    interface = std::make_unique<ListInterface>(options, event);
     break;
   }
   case Type::gameEnd:

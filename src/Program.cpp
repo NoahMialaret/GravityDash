@@ -172,6 +172,15 @@ void Program::ProcessEvents()
         menu = std::make_unique<Menu>(Menu::Type::main);
 				curState = State::mainMenu;
 				break;
+
+      case sf::Keyboard::Escape:
+      {
+        if (curState == State::gameplay)
+        {
+          curState = State::paused;
+          break;
+        }
+      }
 			
 			default: // Add key to keymap
 				Keyboard::GetInstance()->AddKeyPress(SFMLevent.key.code);

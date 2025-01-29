@@ -1,9 +1,9 @@
-#include "MenuOption.h"
+#include "ListItem.h"
 
-RoundedRect MenuOption::highlightBg = RoundedRect({0,0}, {2.0f * CONFIG_MENU_MARGIN + 2.0f * ProgramSettings::gameScale, 6 * ProgramSettings::gameScale}, sf::Color(245, 204, 164));
-MenuOption* MenuOption::curHighlight = nullptr;
+RoundedRect ListItem::highlightBg = RoundedRect({0,0}, {2.0f * CONFIG_MENU_MARGIN + 2.0f * ProgramSettings::gameScale, 6 * ProgramSettings::gameScale}, sf::Color(245, 204, 164));
+ListItem* ListItem::curHighlight = nullptr;
 
-MenuOption::MenuOption(std::string name, Event action, float* origin, float offset)
+ListItem::ListItem(std::string name, Event action, float* origin, float offset)
   :
   action(action),
   vertOffset(offset),
@@ -12,7 +12,7 @@ MenuOption::MenuOption(std::string name, Event action, float* origin, float offs
   Utility::InitText(displayName, SMALL_FONT, name, {-CONFIG_MENU_MARGIN, *origin + offset}, {0, 0.5f});
 }
 
-void MenuOption::Update()
+void ListItem::Update()
 {
   displayName.setPosition(displayName.getPosition().x, *origin + vertOffset);
 
@@ -21,7 +21,7 @@ void MenuOption::Update()
   // bezier
 }
 
-void MenuOption::Render(sf::RenderWindow* win) const
+void ListItem::Render(sf::RenderWindow* win) const
 {
   if (isHighlighted)
     highlightBg.Render(win);
@@ -29,7 +29,7 @@ void MenuOption::Render(sf::RenderWindow* win) const
   win->draw(displayName);
 }
 
-void MenuOption::SetHighlight()
+void ListItem::SetHighlight()
 {
   if (curHighlight != nullptr)
     curHighlight->isHighlighted = false;
@@ -38,19 +38,19 @@ void MenuOption::SetHighlight()
   isHighlighted = true;
 }
 
-bool MenuOption::IsActive()
+bool ListItem::IsActive()
 {
   return isActive;
 }
 
-float MenuOption::GetOffset() const
+float ListItem::GetOffset() const
 {
   return vertOffset;
 }
 
 StaticText::StaticText(std::string name, Event action, float *origin, float offset, OptionConfig::StaticText config)
   :
-  MenuOption(name, action, origin, offset)
+  ListItem(name, action, origin, offset)
 {
   Utility::InitText(staticText, SMALL_FONT, *config.text, {CONFIG_MENU_MARGIN, *origin + offset}, {1.0f, 0.5f});
 }
@@ -58,18 +58,18 @@ StaticText::StaticText(std::string name, Event action, float *origin, float offs
 void StaticText::Update()
 {
   staticText.setPosition(staticText.getPosition().x, *origin + vertOffset);
-  MenuOption::Update();
+  ListItem::Update();
 }
 
 void StaticText::Render(sf::RenderWindow *win) const
 {
-  MenuOption::Render(win);
+  ListItem::Render(win);
   win->draw(staticText);
 }
 
 ToggleOption::ToggleOption(std::string name, Event action, float* origin, float offset, OptionConfig::Toggle config)
   :
-  MenuOption(name, action, origin, offset),
+  ListItem(name, action, origin, offset),
   toggle(config.init)
 {
   Utility::InitSprite(toggleSprite, "toggle", {2, 1}, {1.0f, 0.5f});
@@ -85,7 +85,7 @@ ToggleOption::ToggleOption(std::string name, Event action, float* origin, float 
 
 void ToggleOption::Update()
 {
-  MenuOption::Update();
+  ListItem::Update();
   toggleSprite.setPosition(toggleSprite.getPosition().x, *origin + vertOffset);
   if (!isHighlighted || !ProgramSettings::GetControls()->IsActionOnInitialClick(Controls::Action::select))
     return;
@@ -99,13 +99,13 @@ void ToggleOption::Update()
 
 void ToggleOption::Render(sf::RenderWindow* win) const
 {
-  MenuOption::Render(win);
+  ListItem::Render(win);
   win->draw(toggleSprite, &WORLD_SHADER);
 }
 
 RangeOption::RangeOption(std::string name, Event action, float* origin, float offset, OptionConfig::Range config)
   :
-  MenuOption(name, action, origin, offset),
+  ListItem(name, action, origin, offset),
   value(config.init),
   min(config.min),
   max(config.max)
@@ -115,7 +115,7 @@ RangeOption::RangeOption(std::string name, Event action, float* origin, float of
 
 void RangeOption::Update()
 {
-  MenuOption::Update();
+  ListItem::Update();
   displayRange.setPosition(displayRange.getPosition().x, *origin + vertOffset);
 
   if (!isHighlighted)
@@ -136,13 +136,13 @@ void RangeOption::Update()
 
 void RangeOption::Render(sf::RenderWindow *win) const
 {
-  MenuOption::Render(win);
+  ListItem::Render(win);
   win->draw(displayRange);
 }
 
 SelectionOption::SelectionOption(std::string name, Event action, float* origin, float offset, OptionConfig::Selection config)
   :
-  MenuOption(name, action, origin, offset),
+  ListItem(name, action, origin, offset),
   index(config.initIndex),
   selections(*config.selections)
 {
@@ -150,7 +150,7 @@ SelectionOption::SelectionOption(std::string name, Event action, float* origin, 
 }
 void SelectionOption::Update()
 {
-  MenuOption::Update();
+  ListItem::Update();
   displaySelection.setPosition(displaySelection.getPosition().x, *origin + vertOffset);
 
   if (!isHighlighted)
@@ -175,13 +175,13 @@ void SelectionOption::Update()
 
 void SelectionOption::Render(sf::RenderWindow *win) const
 {
-  MenuOption::Render(win);
+  ListItem::Render(win);
   win->draw(displaySelection);
 }
 
 ControlOption::ControlOption(std::string name, Event action, float* origin, float offset, OptionConfig::Control config)
   :
-  MenuOption(name, action, origin, offset)
+  ListItem(name, action, origin, offset)
 {  
   Utility::InitText(curKey, SMALL_FONT, Keyboard::GetInstance()->GetStringFromKeyCode(config.init), {CONFIG_MENU_MARGIN - 2 * ProgramSettings::gameScale, *origin + offset}, {1.0f, 0.5f}, {255, 229, 181});
   
@@ -191,7 +191,7 @@ ControlOption::ControlOption(std::string name, Event action, float* origin, floa
  
 void ControlOption::Update()
 {
-  MenuOption::Update();
+  ListItem::Update();
   curKey.setPosition(curKey.getPosition().x, *origin + vertOffset);
   keyBg.SetVertical(*origin + vertOffset);
   // if (!Keyboard::keysPressed.empty())
@@ -205,7 +205,7 @@ void ControlOption::Update()
 
 void ControlOption::Render(sf::RenderWindow* win) const
 {
-  MenuOption::Render(win);
+  ListItem::Render(win);
   keyBg.Render(win);
   win->draw(curKey);
 }

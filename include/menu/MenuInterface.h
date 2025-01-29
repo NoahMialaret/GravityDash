@@ -9,7 +9,7 @@
 #include "Event.h" 
 #include "GameStats.h"
 #include "StaticButton.h"
-#include "MenuOption.h"
+#include "ListItem.h"
 #include "AssetManager.h"
 #include "Utility.h"
 #include "ProgramSettings.h"
@@ -56,12 +56,12 @@ private:
   std::vector<StaticButton> buttons; // The buttons that make up the interface
 };
 
-// `ListInterface` specifies a layout where buttons are arranged as a list
-class ListInterface : public MenuInterface // Represents a list of small buttons, like the pause menu
+// `VerticalInterface` specifies a layout where buttons are arranged vertically, such as the pause menu
+class VerticalInterface : public MenuInterface
 {
 public:
-  // Constructs `ListInterface` given a list of buttons to include in the layout
-  ListInterface(std::vector<StaticButtonInit>& configs, Event menuReturn, sf::Vector2f centre = ZERO_VECTOR);
+  // Constructs `VerticalInterface` given a list of buttons to include in the layout
+  VerticalInterface(std::vector<StaticButtonInit>& configs, Event menuReturn, sf::Vector2f centre = ZERO_VECTOR);
 
   // Updates the currently highlighted button if a direction is pressed by the user
   void Update() override;
@@ -74,8 +74,8 @@ protected:
   std::vector<StaticButton> buttons; // The buttons that make up the interface
 };
 
-// `GameEndInterface` is a type of `ListInterface` shown at the end of a game, and includes game statistics
-class GameEndInterface : public ListInterface
+// `GameEndInterface` is a type of `VerticalInterface` shown at the end of a game, and includes game statistics
+class GameEndInterface : public VerticalInterface
 {
 public:
   // Constructs `GameEndInterface` given a list of buttons to include in the layout
@@ -90,11 +90,11 @@ private:
   std::vector<sf::Text> stats;  // A list of text drawables representing the different stats to display
 };
 
-// `OptionsSubList` specifies a layout where buttons are arranged as a list
-class OptionsSubList
+// `SubList` specifies a layout where buttons are arranged as a list
+class SubList
 {
 public:
-  OptionsSubList(std::string& title, std::vector<OptionConfig>& configs, float* origin, float yPos);
+  SubList(std::string& title, std::vector<OptionConfig>& configs, float* origin, float yPos);
 
   void Update();
   void Render(sf::RenderWindow* win) const;
@@ -112,15 +112,15 @@ private:
   sf::RectangleShape overline;
   sf::RectangleShape underline;
 
-  std::vector<std::unique_ptr<MenuOption>> options;  
+  std::vector<std::unique_ptr<ListItem>> options;  
 };
 
-// `OptionsInterface` specifies a list of option elements seperated into different sublists based on category
-class OptionsInterface : public MenuInterface
+// `ListInterface` specifies a list of ListItems seperated into different sublists based on category
+class ListInterface : public MenuInterface
 {
 public:
-  OptionsInterface(std::vector<std::pair<std::string, std::vector<OptionConfig>>>& configs, Event menuReturn);
-  ~OptionsInterface();
+  ListInterface(std::vector<std::pair<std::string, std::vector<OptionConfig>>>& configs, Event menuReturn);
+  ~ListInterface();
 
   void Update() override;
   void Render(sf::RenderWindow* win) const override;
@@ -135,7 +135,7 @@ private:
   float start = 0.0f;
   float end = 0.0f;
 
-  std::vector<std::unique_ptr<OptionsSubList>> subLists;
+  std::vector<std::unique_ptr<SubList>> subLists;
 };
 
 #endif
