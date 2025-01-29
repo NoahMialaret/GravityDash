@@ -224,7 +224,7 @@ void Character::UpdateVelocity(int dir)
   if (curState > State::moving)
     return;
 
-  vel.y += (isUpright ? 1.0f : -1.0f) * 0.05f * DELTA_TIME;
+  vel.y += 0.8f * (isUpright ? 1.0f : -1.0f);
 
   if (dir != 0 && grounded)
   {
@@ -390,15 +390,21 @@ void ComputerCharacter::Update()
     Character::Update();
     return;
   }
-  
-  std::uniform_int_distribution p(0, 99);
-  int rand = p(Utility::GetInstance()->GetRNG());
 
-  if (rand == 99)
-    Jump();
-  else if (rand / 3 < 3)
-    horiDir = -1 + rand / 3;
-  // Else retain current movement
+  decisionTimer -= DELTA_TIME;
+  
+  while (decisionTimer <= 0)
+  {
+    decisionTimer += 16;
+    std::uniform_int_distribution p(0, 99);
+    int rand = p(Utility::GetInstance()->GetRNG());
+
+    if (rand == 99)
+      Jump();
+    else if (rand / 3 < 3)
+      horiDir = -1 + rand / 3;
+    // Else retain current movement
+  }
 
   Character::Update();
 }

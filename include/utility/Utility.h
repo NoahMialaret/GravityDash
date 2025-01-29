@@ -1,25 +1,7 @@
 #ifndef UTILITY_H
 #define UTILITY_H
 
-// The zero vector, used to set default values
-#define ZERO_VECTOR (sf::Vector2f(0.0f, 0.0f))
-// The dimensions of a typical sprite when rendered to the screen
-#define SCALED_DIM (ProgramSettings::gameScale * Utility::GetInstance()->GetSpriteDim())
-// The default scale used by most sprites
-#define DEFAULT_SCALE (sf::Vector2f(ProgramSettings::gameScale, ProgramSettings::gameScale))
-
-// Linear bezier curve that increases at a constant rate
-#define LINEAR_CURVE   (Bezier({{0, 0},{1,1}}))
-// Ease-In bezier curve decays rapidly before tapering out
-#define EASE_IN_CURVE  (Bezier({{0, 0},{0,1},{1, 1}}))
-// Ease-Out bezier grows slowly before growing expontentially
-#define EASE_OUT_CURVE (Bezier({{0, 0},{1,0},{1, 1}}))
-
-// The path to the file that stores save data
-#define SAVE_FILE "files/save.json"
-
 #include <SFML/Graphics.hpp>
-#include <nlohmann/json.hpp>
 
 #include "Bezier.h"
 #include "GameStats.h"
@@ -34,6 +16,20 @@
 #include <sstream>
 #include <random>
 #include <vector>
+
+// The zero vector, used to set default values
+#define ZERO_VECTOR (sf::Vector2f(0.0f, 0.0f))
+// The dimensions of a typical sprite when rendered to the screen
+#define SCALED_DIM (ProgramSettings::gameScale * Utility::GetInstance()->GetSpriteDim())
+// The default scale used by most sprites
+#define DEFAULT_SCALE (sf::Vector2f(ProgramSettings::gameScale, ProgramSettings::gameScale))
+
+// Linear bezier curve that increases at a constant rate
+#define LINEAR_CURVE   (Bezier({{0, 0},{1,1}}))
+// Ease-In bezier curve decays rapidly before tapering out
+#define EASE_IN_CURVE  (Bezier({{0, 0},{0,1},{1, 1}}))
+// Ease-Out bezier grows slowly before growing expontentially
+#define EASE_OUT_CURVE (Bezier({{0, 0},{1,0},{1, 1}}))
 
 // `Utility` is a global singleton class used to access commonly used functions and variables
 struct Utility
@@ -59,11 +55,6 @@ public:
   int GetSpriteDim() const;
   // Returns a reference to the RNG used throughout the program
   std::mt19937& GetRNG();
-
-  // Returns a reference to the shaders associated with program entities
-  sf::Shader& GetEntityShader();
-  // Returns a reference to the shaders associated with the background world and other static elements
-  sf::Shader& GetWorldShader();
 
   // Returns the squared distance from a point to a line segment (represented as two points)
   static float GetSquaredDistanceToLineSegment(sf::Vector2f centrePos, std::pair<sf::Vector2f, sf::Vector2f> lineSegPoints);

@@ -33,7 +33,7 @@ public:
   enum class State
   {
     idle,
-    moving, // Cannot jump if `curState` any of the below states
+    moving, // Cannot jump if `curState` is any of the below states
     airborne,
     stunned,
     dead
@@ -149,6 +149,9 @@ public:
   // Updates movement information based on randomness, with additional weight
   // to the action already being performed
   void Update() override;
+
+private:
+  int decisionTimer = 16; // The time until the computer can make another decision
 };
 
 #endif
