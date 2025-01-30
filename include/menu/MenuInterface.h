@@ -3,18 +3,20 @@
 
 #include <SFML/Graphics.hpp>
 
-#include "assert.h"
+#include "AssetManager.h"
+#include "Attachment.h"
+#include "Bezier.h"
+#include "BezierTransition.h"
 #include "Clock.h"
 #include "Controls.h"
 #include "Event.h" 
 #include "GameStats.h"
-#include "StaticButton.h"
 #include "ListItem.h"
-#include "AssetManager.h"
-#include "Utility.h"
 #include "ProgramSettings.h"
-#include "Keyboard.h"
+#include "StaticButton.h"
+#include "Utility.h"
 
+#include <assert.h>
 #include <iostream>
 
 // Represents an interface layout that can be interacted with by the user
@@ -91,51 +93,69 @@ private:
 };
 
 // `SubList` specifies a layout where buttons are arranged as a list
-class SubList
+// class SubList
+// {
+// public:
+//   SubList(std::string& title, std::vector<OptionConfig>& configs, float* origin, float yPos);
+
+//   void Update();
+//   void Render(sf::RenderWindow* win) const;
+
+//   void GoTo(int index);
+//   bool Move(int move);
+
+// private:
+//   int curIndex = 0;
+
+//   float* origin;
+//   float vertOffset = 0.0f;
+
+
+//   std::vector<std::unique_ptr<ListItem>> options;  
+// };
+
+class Header
 {
 public:
-  SubList(std::string& title, std::vector<OptionConfig>& configs, float* origin, float yPos);
+  Header(std::string text, float vertOffset);
 
-  void Update();
   void Render(sf::RenderWindow* win) const;
 
-  void GoTo(int index);
-  bool Move(int move);
+  void SetPosition(sf::Vector2f pos);
 
 private:
-  int curIndex = 0;
-
-  float* origin;
-  float vertOffset = 0.0f;
-
   sf::Text displayTitle;
   sf::RectangleShape overline;
   sf::RectangleShape underline;
 
-  std::vector<std::unique_ptr<ListItem>> options;  
+  float vertOffset;
 };
 
 // `ListInterface` specifies a list of ListItems seperated into different sublists based on category
 class ListInterface : public MenuInterface
 {
 public:
-  ListInterface(std::vector<std::pair<std::string, std::vector<OptionConfig>>>& configs, Event menuReturn);
-  ~ListInterface();
+  ListInterface(std::vector<std::pair<std::string, Interactable*>>& inters, std::vector<std::pair<int, std::string>>& headers, Event menuReturn);
 
   void Update() override;
   void Render(sf::RenderWindow* win) const override;
 
 private:
+  void UpdateAllPositions();
+
+private:
   int curIndex = 0;
 
-  Bezier bezier;
-  float timer = 0.0f;
+  sf::Vector2f origin;
 
-  float origin;
-  float start = 0.0f;
-  float end = 0.0f;
+  BezierTransition<sf::Vector2f> translation;
 
-  std::vector<std::unique_ptr<SubList>> subLists;
+  RoundedRect highlight;
+
+  // float timer = 0.0f;
+
+  std::vector<ListItem> list;
+  std::vector<Header> headers;
 };
 
 #endif

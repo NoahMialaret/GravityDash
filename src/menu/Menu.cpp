@@ -103,183 +103,201 @@ void Menu::LoadMenu(Type menuType)
   }
   case Type::options:
   {
-    std::vector<std::pair<std::string, std::vector<OptionConfig>>> options;
+    // std::vector<std::pair<std::string, std::vector<OptionConfig>>> options;
 
-    event.type = Event::Type::gameExit;
+    // event.type = Event::Type::gameExit;
 
     std::vector<std::string> colours{"green", "orange", "purple"};
 
-    // Video
-    options.push_back({"video", {}});
-    OptionConfig option = {"auto-scale", event, OptionConfig::Type::toggle};
-    option.toggle = {true};
-    options[0].second.push_back(option);
+    std::vector<std::pair<std::string, Interactable*>> interactables =
+    {
+      {"Temp", new Static(12390)},
+      {"auto-scale", new Toggle(false)},
+      {"scale", new Range(6, 1, 32)},
+      {"Colour", new Selection(1, colours)},
+      {"Select", new Control((int)sf::Keyboard::Key::Space)},
+    };
 
-    option = {"scale", event, OptionConfig::Type::range};
-    option.range = {(int)ProgramSettings::gameScale, 1, 32};
-    options[0].second.push_back(option);
-
-    option = {"fullscreen", event, OptionConfig::Type::toggle};
-    option.toggle = {false};
-    options[0].second.push_back(option);
-
-    option = {"colour", event, OptionConfig::Type::selection};
-    option.selection = {0, &colours};
-    options[0].second.push_back(option);
-
-    // Audio
-    options.push_back({"audio", {}});
-    option = {"sfx", event, OptionConfig::Type::range};
-    option.range = {6, 0, 10};
-    options[1].second.push_back(option);
-
-    option = {"music", event, OptionConfig::Type::range};
-    option.range = {8, 0, 10};
-    options[1].second.push_back(option);
+    std::vector<std::pair<int, std::string>> headers =
+    {
+      {0, "Video"},
+      {2, "Other Stuff"}
+    };
     
-    // Controls
-    options.push_back({"controls", {}});
-    option = {"left", event, OptionConfig::Type::control};
-    option.control = {sf::Keyboard::Key::A};
-    options[2].second.push_back(option);
-    option = {"right", event, OptionConfig::Type::control};
-    option.control = {sf::Keyboard::Key::D};
-    options[2].second.push_back(option);
-    option = {"up", event, OptionConfig::Type::control};
-    option.control = {sf::Keyboard::Key::W};
-    options[2].second.push_back(option);
-    option = {"down", event, OptionConfig::Type::control};
-    option.control = {sf::Keyboard::Key::S};
-    options[2].second.push_back(option);
-    option = {"jump", event, OptionConfig::Type::control};
-    option.control = {sf::Keyboard::Key::Space};
-    options[2].second.push_back(option);
-    option = {"select", event, OptionConfig::Type::control};
-    option.control = {sf::Keyboard::Key::Space};
-    options[2].second.push_back(option);
-    option = {"special", event, OptionConfig::Type::control};
-    option.control = {sf::Keyboard::Key::LShift};
-    options[2].second.push_back(option);
-    option = {"return", event, OptionConfig::Type::control};
-    option.control = {sf::Keyboard::Key::Escape};
-    options[2].second.push_back(option);
-
-    // Multiplayer
-    options.push_back({"multiplayer", {}});
-    option = {"p1 colour", event, OptionConfig::Type::selection};
-    option.selection = {0, &colours};
-    options[3].second.push_back(option);
-    option = {"p2 colour", event, OptionConfig::Type::selection};
-    option.selection = {0, &colours};
-    options[3].second.push_back(option);
-    option = {"p2 left", event, OptionConfig::Type::control};
-    option.control = {sf::Keyboard::Key::A};
-    options[3].second.push_back(option);
-    option = {"p2 right", event, OptionConfig::Type::control};
-    option.control = {sf::Keyboard::Key::D};
-    options[3].second.push_back(option);
-    option = {"p2 jump", event, OptionConfig::Type::control};
-    option.control = {sf::Keyboard::Key::W};
-    options[3].second.push_back(option);
-    option = {"p2 special", event, OptionConfig::Type::control};
-    option.control = {sf::Keyboard::Key::S};
-    options[3].second.push_back(option);
-    
-    // Accessibility
-    options.push_back({"accessibility", {}});
-    option = {"colour help", event, OptionConfig::Type::toggle};
-    option.toggle = {false};
-    options[4].second.push_back(option);
-    option = {"world", event, OptionConfig::Type::selection};
-    option.selection = {0, &colours};
-    options[4].second.push_back(option);
-    option = {"player", event, OptionConfig::Type::selection};
-    option.selection = {0, &colours};
-    options[4].second.push_back(option);
-    option = {"targets", event, OptionConfig::Type::selection};
-    option.selection = {0, &colours};
-    options[4].second.push_back(option);
-    option = {"saws", event, OptionConfig::Type::selection};
-    option.selection = {0, &colours};
-    options[4].second.push_back(option);
-
     event.type = Event::Type::menuReturn;
-    interface = std::make_unique<ListInterface>(options, event);
+    interface = std::make_unique<ListInterface>(interactables, headers, event);
+
+    // Video
+    // options.push_back({"video", {}});
+    // OptionConfig option = {"auto-scale", event, OptionConfig::Type::toggle};
+    // option.toggle = {true};
+    // options[0].second.push_back(option);
+
+    // option = {"scale", event, OptionConfig::Type::range};
+    // option.range = {(int)ProgramSettings::gameScale, 1, 32};
+    // options[0].second.push_back(option);
+
+    // option = {"fullscreen", event, OptionConfig::Type::toggle};
+    // option.toggle = {false};
+    // options[0].second.push_back(option);
+
+    // option = {"colour", event, OptionConfig::Type::selection};
+    // option.selection = {0, &colours};
+    // options[0].second.push_back(option);
+
+    // // Audio
+    // options.push_back({"audio", {}});
+    // option = {"sfx", event, OptionConfig::Type::range};
+    // option.range = {6, 0, 10};
+    // options[1].second.push_back(option);
+
+    // option = {"music", event, OptionConfig::Type::range};
+    // option.range = {8, 0, 10};
+    // options[1].second.push_back(option);
+    
+    // // Controls
+    // options.push_back({"controls", {}});
+    // option = {"left", event, OptionConfig::Type::control};
+    // option.control = {sf::Keyboard::Key::A};
+    // options[2].second.push_back(option);
+    // option = {"right", event, OptionConfig::Type::control};
+    // option.control = {sf::Keyboard::Key::D};
+    // options[2].second.push_back(option);
+    // option = {"up", event, OptionConfig::Type::control};
+    // option.control = {sf::Keyboard::Key::W};
+    // options[2].second.push_back(option);
+    // option = {"down", event, OptionConfig::Type::control};
+    // option.control = {sf::Keyboard::Key::S};
+    // options[2].second.push_back(option);
+    // option = {"jump", event, OptionConfig::Type::control};
+    // option.control = {sf::Keyboard::Key::Space};
+    // options[2].second.push_back(option);
+    // option = {"select", event, OptionConfig::Type::control};
+    // option.control = {sf::Keyboard::Key::Space};
+    // options[2].second.push_back(option);
+    // option = {"special", event, OptionConfig::Type::control};
+    // option.control = {sf::Keyboard::Key::LShift};
+    // options[2].second.push_back(option);
+    // option = {"return", event, OptionConfig::Type::control};
+    // option.control = {sf::Keyboard::Key::Escape};
+    // options[2].second.push_back(option);
+
+    // // Multiplayer
+    // options.push_back({"multiplayer", {}});
+    // option = {"p1 colour", event, OptionConfig::Type::selection};
+    // option.selection = {0, &colours};
+    // options[3].second.push_back(option);
+    // option = {"p2 colour", event, OptionConfig::Type::selection};
+    // option.selection = {0, &colours};
+    // options[3].second.push_back(option);
+    // option = {"p2 left", event, OptionConfig::Type::control};
+    // option.control = {sf::Keyboard::Key::A};
+    // options[3].second.push_back(option);
+    // option = {"p2 right", event, OptionConfig::Type::control};
+    // option.control = {sf::Keyboard::Key::D};
+    // options[3].second.push_back(option);
+    // option = {"p2 jump", event, OptionConfig::Type::control};
+    // option.control = {sf::Keyboard::Key::W};
+    // options[3].second.push_back(option);
+    // option = {"p2 special", event, OptionConfig::Type::control};
+    // option.control = {sf::Keyboard::Key::S};
+    // options[3].second.push_back(option);
+    
+    // // Accessibility
+    // options.push_back({"accessibility", {}});
+    // option = {"colour help", event, OptionConfig::Type::toggle};
+    // option.toggle = {false};
+    // options[4].second.push_back(option);
+    // option = {"world", event, OptionConfig::Type::selection};
+    // option.selection = {0, &colours};
+    // options[4].second.push_back(option);
+    // option = {"player", event, OptionConfig::Type::selection};
+    // option.selection = {0, &colours};
+    // options[4].second.push_back(option);
+    // option = {"targets", event, OptionConfig::Type::selection};
+    // option.selection = {0, &colours};
+    // options[4].second.push_back(option);
+    // option = {"saws", event, OptionConfig::Type::selection};
+    // option.selection = {0, &colours};
+    // options[4].second.push_back(option);
+
+    // event.type = Event::Type::menuReturn;
+    // interface = std::make_unique<ListInterface>(options, event);
     break;
   }
   case Type::stats:
   {
-    std::vector<std::pair<std::string, std::vector<OptionConfig>>> options;
+    // std::vector<std::pair<std::string, std::vector<OptionConfig>>> options;
 
-    event.type = Event::Type::gameExit;
+    // event.type = Event::Type::gameExit;
 
-    // Stats
-    options.push_back({"statistics", {}});
-    OptionConfig option = {"jumps", event, OptionConfig::Type::stat};
-    std::string tmp = std::to_string(56);
-    option.statText = {&tmp};
-    options[0].second.push_back(option);
+    // // Stats
+    // options.push_back({"statistics", {}});
+    // OptionConfig option = {"jumps", event, OptionConfig::Type::stat};
+    // std::string tmp = std::to_string(56);
+    // option.statText = {&tmp};
+    // options[0].second.push_back(option);
 
-    option = {"specials", event, OptionConfig::Type::stat};
-    option.statText = {&tmp};
-    options[0].second.push_back(option);
-    option = {"hits", event, OptionConfig::Type::stat};
-    option.statText = {&tmp};
-    options[0].second.push_back(option);
-    option = {"games played", event, OptionConfig::Type::stat};
-    option.statText = {&tmp};
-    options[0].second.push_back(option);
+    // option = {"specials", event, OptionConfig::Type::stat};
+    // option.statText = {&tmp};
+    // options[0].second.push_back(option);
+    // option = {"hits", event, OptionConfig::Type::stat};
+    // option.statText = {&tmp};
+    // options[0].second.push_back(option);
+    // option = {"games played", event, OptionConfig::Type::stat};
+    // option.statText = {&tmp};
+    // options[0].second.push_back(option);
 
-    event.type = Event::Type::menuReturn;
-    interface = std::make_unique<ListInterface>(options, event);
+    // event.type = Event::Type::menuReturn;
+    // interface = std::make_unique<ListInterface>(options, event);
     break;
   }
   case Type::score:
   {
-    std::vector<std::pair<std::string, std::vector<OptionConfig>>> options;
+    // std::vector<std::pair<std::string, std::vector<OptionConfig>>> options;
 
     event.type = Event::Type::gameExit;
 
     // 1-min
-    options.push_back({"1-minute", {}});
-    OptionConfig option = {"1st", event, OptionConfig::Type::stat};
-    std::string tmp = std::to_string(56);
-    option.statText = {&tmp};
-    options[0].second.push_back(option);
+    // options.push_back({"1-minute", {}});
+    // OptionConfig option = {"1st", event, OptionConfig::Type::stat};
+    // std::string tmp = std::to_string(56);
+    // option.statText = {&tmp};
+    // options[0].second.push_back(option);
 
-    option = {"2nd", event, OptionConfig::Type::stat};
-    option.statText = {&tmp};
-    options[0].second.push_back(option);
-    option = {"3rd", event, OptionConfig::Type::stat};
-    option.statText = {&tmp};
-    options[0].second.push_back(option);
+    // option = {"2nd", event, OptionConfig::Type::stat};
+    // option.statText = {&tmp};
+    // options[0].second.push_back(option);
+    // option = {"3rd", event, OptionConfig::Type::stat};
+    // option.statText = {&tmp};
+    // options[0].second.push_back(option);
 
-    // Rush
-    options.push_back({"Rush", {}});
-    option = {"1st", event, OptionConfig::Type::stat};
-    option.statText = {&tmp};
-    options[1].second.push_back(option);
-    option = {"2nd", event, OptionConfig::Type::stat};
-    option.statText = {&tmp};
-    options[1].second.push_back(option);
-    option = {"3rd", event, OptionConfig::Type::stat};
-    option.statText = {&tmp};
-    options[1].second.push_back(option);
+    // // Rush
+    // options.push_back({"Rush", {}});
+    // option = {"1st", event, OptionConfig::Type::stat};
+    // option.statText = {&tmp};
+    // options[1].second.push_back(option);
+    // option = {"2nd", event, OptionConfig::Type::stat};
+    // option.statText = {&tmp};
+    // options[1].second.push_back(option);
+    // option = {"3rd", event, OptionConfig::Type::stat};
+    // option.statText = {&tmp};
+    // options[1].second.push_back(option);
 
-    // Co-op
-    options.push_back({"Co-op", {}});
-    option = {"1st", event, OptionConfig::Type::stat};
-    option.statText = {&tmp};
-    options[2].second.push_back(option);
-    option = {"2nd", event, OptionConfig::Type::stat};
-    option.statText = {&tmp};
-    options[2].second.push_back(option);
-    option = {"3rd", event, OptionConfig::Type::stat};
-    option.statText = {&tmp};
-    options[2].second.push_back(option);
+    // // Co-op
+    // options.push_back({"Co-op", {}});
+    // option = {"1st", event, OptionConfig::Type::stat};
+    // option.statText = {&tmp};
+    // options[2].second.push_back(option);
+    // option = {"2nd", event, OptionConfig::Type::stat};
+    // option.statText = {&tmp};
+    // options[2].second.push_back(option);
+    // option = {"3rd", event, OptionConfig::Type::stat};
+    // option.statText = {&tmp};
+    // options[2].second.push_back(option);
 
-    event.type = Event::Type::menuReturn;
-    interface = std::make_unique<ListInterface>(options, event);
+    // event.type = Event::Type::menuReturn;
+    // interface = std::make_unique<ListInterface>(options, event);
     break;
   }
   case Type::gameEnd:
