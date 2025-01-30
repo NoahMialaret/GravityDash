@@ -49,6 +49,16 @@ Keyboard *Keyboard::GetInstance()
   return instance;
 }
 
+int Keyboard::GetKeyCodeAtHead() const
+{
+  if (activeKeys.empty())
+    return -1;
+
+  return activeKeys.front().state == Key::State::initialClick 
+          ? (int)activeKeys.front().keyCode 
+          : -1;
+}
+
 bool Keyboard::IsKeyHeld(sf::Keyboard::Key keyCode) const
 {
   const Key* key = GetKey(keyCode);

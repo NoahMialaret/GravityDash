@@ -71,6 +71,9 @@ public:
   // Creates and returns the global instance of Keyboard
   static Keyboard* GetInstance();
 
+  // Returns the keycode of the key that is at the head of the active Key list, returns `-1` if no Keys are presents
+  int GetKeyCodeAtHead() const;
+
   // Checks whether a Key is being held
   bool IsKeyHeld(sf::Keyboard::Key keyCode) const;
   // Checks whether a Key has become active within the last update cycle

@@ -33,6 +33,12 @@ public:
     float colY;
   };
 
+  struct UpdateSettingsEvent
+  {
+    const char* name;
+    int value;
+  };
+
   enum class Type
   {
     programClose, // null
@@ -65,6 +71,9 @@ public:
     playerSuper,  // int (`charID`)
     playerHit,    // int (`charID`)
     playerCombo,  // `ComboEvent`
+
+    // Settings events
+    updateSettings, // `UpdateSetting`
   };
 
   // The different formats the `data` member can take
@@ -73,6 +82,7 @@ public:
     int value;
     ComboEvent combo;
     CollisionEvent collision;
+    UpdateSettingsEvent updateSettings;
   };
 
   Event() = default;
