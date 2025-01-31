@@ -3,282 +3,179 @@
 
 #include "SFML/Graphics.hpp"
 
+#include "AssetManager.h"
 #include "Controls.h"
 #include "Event.h"
-#include "AssetManager.h"
-#include "Utility.h"
-#include "RoundedRect.h"
-#include "ProgramSettings.h"
 #include "Keyboard.h"
+#include "ProgramSettings.h"
+#include "RoundedRect.h"
+#include "Utility.h"
 
 #include <string>
 #include <vector>
 
+// The left and right margin offset of the list, essentially dictates the width of each ListItem
 #define LIST_MARGIN (5 * SCALED_DIM)
 
-// struct OptionConfig
-// {
-//   struct StaticText
-//   {
-//     std::string* text;
-//   };
-//   struct Toggle
-//   {
-//     bool init;
-//   };
-//   struct Range
-//   {
-//     int init;
-//     int min;
-//     int max;
-//   };
-//   struct Selection
-//   {
-//     int initIndex;
-//     std::vector<std::string>* selections;
-//   };
-//   struct Control
-//   {
-//     sf::Keyboard::Key init;
-//   };
-//   enum class Type
-//   {
-//     stat,
-//     toggle,
-//     range,
-//     selection,
-//     control
-//   };
-
-//   std::string name;
-//   Event event;
-//   Type type;
-//   union
-//   {
-//     StaticText statText;
-//     Toggle toggle;
-//     Range range;
-//     Selection selection;
-//     Control control;
-//   };
-// };
-
+// `Interactable` is a UI element that provides the user with some form of interaction to perform configurations
 class Interactable
 {
 public:
+  // Constructs Interactable given an initial value
   Interactable(int value);
 
-  // Returns `true` when the interaction has finished
+  // Allows the user to interact with the Interactable, returns `true` if the interaction has finished
   virtual bool Update() = 0;
+  // Renders Interactable elements to the screen
   virtual void Render(sf::RenderWindow* win) const = 0;
 
+  // Returns the value represented by the Interactable
   int GetValue() const;
 
+  // Sets the position of graphical UI elements to the position provided
   virtual void SetPosition(sf::Vector2f& pos) = 0;
 
 protected:
-  int value = -1;
-  int backup = -1;
+  int value = -1;   // The value of the Interactable, this is the value that is configured by the user
+  int backup = -1;  // A backup of the value, this is used when the user cancels an interaction without saving a new value
 };
 
+// `Static` is a `Interactable` which does not actually provide any interactablitly, instead only displaying some static text
 class Static : public Interactable
 {
 public:
+  // Constructs Static with some value, this is the static value that is displayed to the user
   Static(int value);
 
-  // Returns `true` immediately as there is no interaction to be had
+  // Returns `true` if the interaction has finished. This always returns `true` immediately
   bool Update() override;
+  // Renders the static text to the screen
   void Render(sf::RenderWindow* win) const override;
 
+  // Sets the position of the static text to some new position
   void SetPosition(sf::Vector2f& pos) override;
 
 private:
-  sf::Text staticText;
+  sf::Text staticText;  // The static graphical representation of the Static's value
 };
 
+// `Toggle` is an `Interactable` which acts as a boolean toggle, which can either be 'off' or 'on'
 class Toggle : public Interactable
 {
 public:
-  Toggle(int isToggled);
+  // Constructs Toggle with an intial toggle state
+  Toggle(bool isToggled);
 
+  // Returns `true` if the interaction has finished. This toggles the toggle and returns `true` immediately after
   bool Update() override;
+  // Renders the toggle sprite to the screen
   void Render(sf::RenderWindow* win) const override;
 
+  // Sets the position of the toggle sprite to some new position
   void SetPosition(sf::Vector2f& pos) override;
 
 private:
-  sf::Sprite toggleSprite;
+  sf::Sprite toggleSprite;  // The sprite used to represent the toggle status of Toggle
 };
 
+// `Range` is an `Interactable` whose value can range from some minimum to some maximum
 class Range : public Interactable
 {
 public:
+  // Constructs Range given some value, and the bounds this value can take
   Range(int value, int min, int max);
 
+  // Increments the value based on if the user presses the left or right button. Returns `true` if the interaction has finished
   bool Update() override;
+  // Renders the display text to the screen
   void Render(sf::RenderWindow* win) const override;
-
+  
+  // Sets the position of the display text to some new position
   void SetPosition(sf::Vector2f& pos) override;
 
 private:
-  int min = -1;
-  int max = -1;
-  sf::Text rangeText;
+  int min = -1; // The minimum bounds of the value
+  int max = -1; // The maximum bounds of the value
+
+  sf::Text rangeText; // The graphical representation of the current value
 };
 
+// `Selection` is an `Interactable` which allows the selection of some option given a list of available options
 class Selection : public Interactable
 {
 public:
+  // Constructs Selection given an initial index (this is the value used by the Interactable), and the list of available selections
   Selection(int index, std::vector<std::string>& selections);
 
+  // Increments the index and subsequent selection based on if the user presses the left or right button. Returns `true` if the interaction has finished
   bool Update() override;
+  // Renders the display text to the screen
   void Render(sf::RenderWindow* win) const override;
 
+  // Sets the position of the display text to some new position
   void SetPosition(sf::Vector2f& pos) override;
 
 private:
-  std::vector<std::string> selections;
-  sf::Text selectionText;
+  std::vector<std::string> selections; // The array of selections that can be chosen from
+
+  sf::Text selectionText; // The graphical representation of the current selection
 };
 
+// `Control` is an `Interactable` which allows configuration of keybindings
 class Control : public Interactable
 {
 public:
-  Control(int keyCode);
+  // Constructs Control given an intial key code
+  Control(sf::Keyboard::Key keyCode);
 
+  // Awaits for a key to be pressed, updates the stored keybind when one is pressed and returns `true` to signify the interaction has finished
   bool Update() override;
+  // Renders the keybinding to the screen
   void Render(sf::RenderWindow* win) const override;
 
+  // Sets the position of the keybinding text to some new position
   void SetPosition(sf::Vector2f& pos) override;
 
 private:
-  RoundedRect keyBg;
-  sf::Text controlText;
+  RoundedRect keyBg;    // The background rectangle to display behind the text
+  sf::Text controlText; // The text used to represent which key is currently binded
 };
 
+// `ListItem` represents a UI element apart of a larger list that can be interacted with by the user 
 class ListItem
 {
 public:
+  // Constructs ListItem given its display name, the vertical offset from the origin of the list, and its Interactable
   ListItem(std::string name, float vertOffset, Interactable* interactable);
 
+  // Allows the user to interact with the ListItem if it is active
   bool Update();
+  // Renders the display text and Interactable to the screen
   void Render(sf::RenderWindow* win) const;
 
+  // Returns whether the ListItem is active or not
   bool IsActive() const;
 
-  void SetPosition(sf::Vector2f pos);
+  // Sets the position of the ListItem given an origin
+  void SetPosition(sf::Vector2f origin);
+  // Returns the vertical offset of the listItem from the origin
   float GetVerticalOffset() const;
 
 private:
+  // The interactable used to allow interactions with the ListItem
   std::unique_ptr<Interactable> interactable = nullptr;
 
+  // The event pushed when interacting with the ListItem
   Event event;
 
+  // The name to display to describe what the ListItem represents to the user
   sf::Text displayName;
 
+  // Whether the ListItem is interactable or not
   bool isActive = false;
 
+  // The vertical positional offset of the ListItem with reference to some origin position 
   float vertOffset = 0.0f;
-
 };
-
-// `ListItem` is a base class which is used to represent an user configurable list menu item 
-// class ListItem
-// {
-// public:
-//   // Constructs ListItem with its identifier/display name
-//   ListItem(std::string name);
-
-//   virtual void Update();
-//   virtual void Render(sf::RenderWindow* win) const;
-
-//   void ToggleHighlight();
-//   bool IsActive();
-
-//   void SetOffset(float offset);
-//   virtual void SetPosition(sf::Vector2f pos);
-
-// // public:
-// //   static ListItem* curHighlight;
-  
-// protected:
-//   sf::Text displayName;
-//   // static RoundedRect highlightBg;
-
-//   bool isHighlighted = false;
-
-//   Event action;
-
-//   float vertOffset = 0.0f;
-
-//   bool isActive = false;
-// };
-
-// class StaticText : public ListItem
-// {
-// public:
-//   StaticText(std::string name, std::string text);
-
-//   void Update() override;
-//   void Render(sf::RenderWindow* win) const override;
-
-// private:
-//   sf::Text staticText;
-// };
-
-// class ToggleOption : public ListItem
-// {
-// public:
-//   ToggleOption(std::string name, bool init);
-
-//   void Update() override;
-//   void Render(sf::RenderWindow* win) const override;
-
-// private:
-//   bool toggle = false;
-//   sf::Sprite toggleSprite;
-// };
-
-// class RangeOption : public ListItem
-// {
-// public:
-//   RangeOption(std::string name, int val, int min, int max);
-
-//   void Update() override;
-//   void Render(sf::RenderWindow* win) const override;
-
-// private:
-//   int value = 0;
-//   int min = 0;
-//   int max = 0;
-//   sf::Text displayRange;
-// };
-
-// class SelectionOption : public ListItem
-// {
-// public:
-//   SelectionOption(std::string name, int index, std::vector<std::string> selections);
-
-//   void Update() override;
-//   void Render(sf::RenderWindow* win) const override;
-
-// private:
-//   int index;
-//   std::vector<std::string> selections;
-//   sf::Text selectionDisplay;
-// };
-
-// class ControlOption : public ListItem
-// {
-// public:
-//   ControlOption(std::string name, sf::Keyboard::Key key);
-
-//   void Update() override;
-//   void Render(sf::RenderWindow* win) const override;
-
-// private:
-//   RoundedRect keyBg;
-//   sf::Text curKey;
-// };
 
 #endif

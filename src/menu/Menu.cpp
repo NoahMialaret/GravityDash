@@ -115,7 +115,7 @@ void Menu::LoadMenu(Type menuType)
       {"auto-scale", new Toggle(false)},
       {"scale", new Range(6, 1, 32)},
       {"Colour", new Selection(1, colours)},
-      {"Select", new Control((int)sf::Keyboard::Key::Space)},
+      {"Select", new Control(sf::Keyboard::Key::Space)},
     };
 
     std::vector<std::pair<int, std::string>> headers =

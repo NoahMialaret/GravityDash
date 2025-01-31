@@ -37,7 +37,7 @@ void Static::SetPosition(sf::Vector2f& pos)
 
 
 
-Toggle::Toggle(int isToggled)
+Toggle::Toggle(bool isToggled)
   :
   Interactable(isToggled)
 {
@@ -95,7 +95,7 @@ bool Range::Update()
   }
 
   int delta = ProgramSettings::GetControls()->IsActionClicked(Controls::Action::right)
-     - ProgramSettings::GetControls()->IsActionClicked(Controls::Action::left);
+            - ProgramSettings::GetControls()->IsActionClicked(Controls::Action::left);
   
   if (!delta || value + delta > max || value + delta < min)
     return false;
@@ -170,16 +170,17 @@ void Selection::SetPosition(sf::Vector2f& pos)
 
 
 
-Control::Control(int keyCode)
+Control::Control(sf::Keyboard::Key keyCode)
   :
-  Interactable(keyCode)
+  Interactable((int)keyCode)
 {
-  Utility::InitText(controlText, SMALL_FONT, Keyboard::GetInstance()->GetStringFromKeyCode((sf::Keyboard::Key)keyCode), 
+  Utility::InitText(controlText, SMALL_FONT, Keyboard::GetInstance()->GetStringFromKeyCode(keyCode), 
                     ZERO_VECTOR, {1.0f, 0.5f}, {255, 229, 181});
   
   float width = controlText.getGlobalBounds().getSize().x;
-  keyBg = RoundedRect(controlText.getPosition() + sf::Vector2f(-width / 2.0f, -ProgramSettings::gameScale), sf::Vector2f(width + 4.0f * ProgramSettings::gameScale, 6.0f * ProgramSettings::gameScale), {173, 103, 78});
-  // keyBg.SetHorizontal(controlText.getPosition().x - width / 2.0f);
+  keyBg = RoundedRect(controlText.getPosition() + sf::Vector2f(-width / 2.0f, -ProgramSettings::gameScale), 
+                      sf::Vector2f(width + 4.0f * ProgramSettings::gameScale, 6.0f * ProgramSettings::gameScale), 
+                      {173, 103, 78});
 }
 
 bool Control::Update()
@@ -260,13 +261,14 @@ bool ListItem::IsActive() const
   return isActive;
 }
 
-void ListItem::SetPosition(sf::Vector2f pos)
+void ListItem::SetPosition(sf::Vector2f origin)
 {
-  pos.y += vertOffset;
-  pos.x -= LIST_MARGIN;
-  displayName.setPosition(pos);
-  pos.x += 2 * LIST_MARGIN;
-  interactable.get()->SetPosition(pos);
+  origin.y += vertOffset;
+  origin.x -= LIST_MARGIN; // Left margin
+  displayName.setPosition(origin);
+
+  origin.x += 2 * LIST_MARGIN; // Right margin
+  interactable.get()->SetPosition(origin);
 }
 
 float ListItem::GetVerticalOffset() const

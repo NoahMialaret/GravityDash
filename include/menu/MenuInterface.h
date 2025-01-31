@@ -7,7 +7,6 @@
 #include "Attachment.h"
 #include "Bezier.h"
 #include "BezierTransition.h"
-#include "Clock.h"
 #include "Controls.h"
 #include "Event.h" 
 #include "GameStats.h"
@@ -36,7 +35,7 @@ protected:
   Event menuReturn; // The event that is pushed when the menu is escaped from
 };
 
-
+// The vertical offset of the top and bottom row from the centre of the grid
 #define GRID_VERT_POS (2.0f * float(SCALED_DIM) - ProgramSettings::gameScale)
 
 // `GridInterface` specifies a layout where buttons are arranged on a 2 x 3 grid
@@ -92,70 +91,54 @@ private:
   std::vector<sf::Text> stats;  // A list of text drawables representing the different stats to display
 };
 
-// `SubList` specifies a layout where buttons are arranged as a list
-// class SubList
-// {
-// public:
-//   SubList(std::string& title, std::vector<OptionConfig>& configs, float* origin, float yPos);
-
-//   void Update();
-//   void Render(sf::RenderWindow* win) const;
-
-//   void GoTo(int index);
-//   bool Move(int move);
-
-// private:
-//   int curIndex = 0;
-
-//   float* origin;
-//   float vertOffset = 0.0f;
-
-
-//   std::vector<std::unique_ptr<ListItem>> options;  
-// };
-
+// The `Header` class is a graphical class used by `ListInterface` to display header text along with an under/over-line
 class Header
 {
 public:
+  // Constructs Header given its text and the vertical offset from some origin
   Header(std::string text, float vertOffset);
 
+  // Render the Header to the screen
   void Render(sf::RenderWindow* win) const;
 
+  // Sets the position the Header's text and lines
   void SetPosition(sf::Vector2f pos);
 
 private:
-  sf::Text displayTitle;
-  sf::RectangleShape overline;
-  sf::RectangleShape underline;
+  sf::Text displayTitle;        // The graphical text portion of the Header
+  sf::RectangleShape overline;  // The Header's overline, which appears above the text
+  sf::RectangleShape underline; // The Header's underline, which appears below the text
 
-  float vertOffset;
+  float vertOffset; // The vertical offset of the Header from some origin
 };
 
-// `ListInterface` specifies a list of ListItems seperated into different sublists based on category
+// `ListInterface` represents a menu layout composed of a list of `ListItem`s with different sections defined by a list of `Header`s
 class ListInterface : public MenuInterface
 {
 public:
+  // Constructs `ListInterface` given a vector of `{name, Interactable}` pairs used to initialise ListItems, a vector of `{index, name}` pairs for the headers, and the event to be called when returning from the menu
   ListInterface(std::vector<std::pair<std::string, Interactable*>>& inters, std::vector<std::pair<int, std::string>>& headers, Event menuReturn);
 
+  // Updates which ListItem is highlighted or interacts with the current ListItem based on user inputs
   void Update() override;
+  // Renders the ListItems and Headers to the screen
   void Render(sf::RenderWindow* win) const override;
 
 private:
+  // Updates the position of all ListItems and Headers
   void UpdateAllPositions();
 
 private:
-  int curIndex = 0;
+  std::vector<ListItem> list;   // The vector of ListItems
+  std::vector<Header> headers;  // The vector of Headers
 
-  sf::Vector2f origin;
+  int curIndex = 0; // The index of the current ListItem in `list`
 
-  BezierTransition<sf::Vector2f> translation;
+  sf::Vector2f origin; // The origin that all ListItems and Headers base their position off of
 
-  RoundedRect highlight;
+  BezierTransition<sf::Vector2f> translation; // Used to allow smooth scrolling between ListItems
 
-  // float timer = 0.0f;
-
-  std::vector<ListItem> list;
-  std::vector<Header> headers;
+  RoundedRect highlight;  // The highlight used to display which ListItem is active
 };
 
 #endif

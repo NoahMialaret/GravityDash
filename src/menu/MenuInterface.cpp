@@ -225,217 +225,6 @@ void GameEndInterface::Render(sf::RenderWindow* win) const
 
 
 
-ListInterface::ListInterface(std::vector<std::pair<std::string, Interactable*>>& inters, std::vector<std::pair<int, std::string>>& headers, Event menuReturn)
-  :
-  MenuInterface(menuReturn),
-  translation(&origin),
-  highlight({{0,0}, {2.0f * LIST_MARGIN + 2.0f * ProgramSettings::gameScale, 6 * ProgramSettings::gameScale}, sf::Color(245, 204, 164)})
-{
-  origin = ZERO_VECTOR;
-
-  float offset = 0;
-
-  int headerI = 0;
-
-  for (int i = 0; i < (int)inters.size(); i++)
-  {
-    if (headerI < (int)headers.size() && headers[headerI].first == i)
-    {
-      offset += SCALED_DIM;
-      this->headers.push_back(Header(headers[headerI].second, offset));
-      offset += SCALED_DIM;
-      headerI++;
-    }
-
-    list.push_back(ListItem(inters[i].first, offset, inters[i].second));
-    offset += SCALED_DIM;
-  }
-
-  origin.y = -list[curIndex].GetVerticalOffset();
-  UpdateAllPositions();
-  // translation.Push(EASE_IN_CURVE, 250, origin, {origin.x, -list[curIndex].GetVerticalOffset()});
-  // translation
-
-  // float yPos = 0.0f;
-  // for (auto& sub : config)
-  // {
-  //   subLists.push_back({c.first, c.second, &origin, yPos});
-  //   yPos += (c.second.size() + 2) * SCALED_DIM;
-  // }
-
-  // subLists[0].get()->GoTo(0);
-  // timer = 0.0f;
-  // start = origin;
-  // end = - ListItem::curHighlight->GetOffset();
-}
-
-void ListInterface::Update()
-{
-  // timer += DELTA_TIME;
-  if (translation.Update())
-    UpdateAllPositions();
-
-  if (list[curIndex].Update())
-  {
-    highlight.SetColour(sf::Color(230, 176, 138));
-    return;
-  }
-
-  Controls* controls = ProgramSettings::GetControls();
-  if (controls->IsActionOnInitialClick(Controls::Action::escape))
-    PUSH_EVENT(menuReturn);
-
-  highlight.SetColour(sf::Color(245, 204, 164));
-
-  // float percent = bezier.GetValue(timer / 250.0f);
-  // origin = (1.0f - percent) * start + percent * end;
-
-  int move = controls->IsActionClicked(Controls::Action::down) - controls->IsActionClicked(Controls::Action::up);
-
-  if (!move)
-    return;
-
-  curIndex += move;
-  if (curIndex < 0)
-    curIndex = list.size() - 1;
-  else if (curIndex >= (int)list.size())
-    curIndex = 0;
-
-  translation.Clear();
-  translation.Push(EASE_IN_CURVE, 250, origin, {origin.x, -list[curIndex].GetVerticalOffset()});
-
-  // if (!subLists[curIndex].get()->Move(move))
-  // {
-  //   curIndex += move;
-  //   if (curIndex < 0)
-  //     curIndex = subLists.size() - 1;
-  //   else if (curIndex >= (int)subLists.size())
-  //     curIndex = 0;
-
-  //   subLists[curIndex].get()->GoTo(move == 1 ? 0 : -1);
-  // }
-
-  // timer = 0.0f;
-  // start = origin;
-  // end = - ListItem::curHighlight->GetOffset();
-  
-  // for (auto& l : subLists)
-  //   l.get()->Update();
-}
-
-void ListInterface::Render(sf::RenderWindow* win) const
-{
-  highlight.Render(win);
-
-  for (auto& item : list)
-    item.Render(win);
-  
-  for (auto& header : headers)
-    header.Render(win);
-}
-
-void ListInterface::UpdateAllPositions()
-{
-  for (auto& item : list)
-    item.SetPosition(origin);
-  
-  for (auto& header : headers)
-    header.SetPosition(origin);
-
-  highlight.SetVertical(origin.y + list[curIndex].GetVerticalOffset());
-}
-
-// SubList::SubList(std::string& title, std::vector<OptionConfig>& configs, float* origin, float yPos)
-//   :
-//   origin(origin),
-//   vertOffset(yPos)
-// {
-//   assert (configs.size() > 0);
-
-//   Utility::InitText(displayTitle, LARGE_FONT, title, {0, *origin + yPos - SCALED_DIM - ProgramSettings::gameScale});
-
-//   float width = displayTitle.getLocalBounds().width / ProgramSettings::gameScale + 4;
-
-//   overline.setFillColor({173, 103, 78});
-//   overline.setSize(sf::Vector2f(width, 1.0f));
-//   overline.setScale(DEFAULT_SCALE);
-//   overline.setPosition({0, *origin + yPos});
-//   overline.setOrigin({width / 2.0f, 5.0f});
-
-//   underline.setFillColor({173, 103, 78});
-//   underline.setSize(sf::Vector2f(width, 1.0f));
-//   underline.setScale(DEFAULT_SCALE);
-//   underline.setPosition({0, *origin + yPos});
-//   underline.setOrigin({width / 2.0f, - 4.0f});
-
-//   yPos += 1.25f * SCALED_DIM;
-
-//   for (auto& c : configs)
-//   {
-//     switch (c.type)
-//     {
-//     case OptionConfig::Type::stat:
-//       options.push_back(std::make_unique<StaticText>(c.name, c.event, origin, yPos, c.statText));
-//       break;
-//     case OptionConfig::Type::toggle:
-//       options.push_back(std::make_unique<ToggleOption>(c.name, c.event, origin, yPos, c.toggle));
-//       break;
-//     case OptionConfig::Type::range:
-//       options.push_back(std::make_unique<RangeOption>(c.name, c.event, origin, yPos, c.range));
-//       break;
-//     case OptionConfig::Type::selection:
-//       options.push_back(std::make_unique<SelectionOption>(c.name, c.event, origin, yPos, c.selection));
-//       break;
-//     case OptionConfig::Type::control:
-//       options.push_back(std::make_unique<ControlOption>(c.name, c.event, origin, yPos, c.control));
-//       break;
-    
-//     default:
-//       break;
-//     }
-//     yPos += SCALED_DIM;
-//   }
-// }
-
-// void SubList::Update()
-// {
-//   displayTitle.setPosition({0, *origin + vertOffset - SCALED_DIM - ProgramSettings::gameScale});
-//   overline.setPosition({0, *origin + vertOffset});
-//   underline.setPosition({0, *origin + vertOffset});
-
-//   for (auto& o : options)
-//     o.get()->Update();
-// }
-
-// void SubList::Render(sf::RenderWindow* win) const
-// {
-//   win->draw(displayTitle);
-//   win->draw(overline);
-//   win->draw(underline);
-
-//   for (auto& o : options)
-//     o.get()->Render(win);
-// }
-
-// void SubList::GoTo(int index)
-// {
-//   curIndex = index;
-//   if (curIndex == -1)
-//     curIndex = options.size() - 1;
-//   options[curIndex].get()->SetHighlight();
-// }
-
-// bool SubList::Move(int move)
-// {
-//   if (curIndex + move < 0 || curIndex + move >= (int)options.size())
-//     return false;
-
-//   curIndex += move;
-//   options[curIndex].get()->SetHighlight();
-
-//   return true;
-// }
-
 Header::Header(std::string text, float vertOffset)
   :
   vertOffset(vertOffset)
@@ -471,4 +260,90 @@ void Header::SetPosition(sf::Vector2f pos)
 
   pos.y += - SCALED_DIM - ProgramSettings::gameScale;
   displayTitle.setPosition(pos);
+}
+
+
+
+ListInterface::ListInterface(std::vector<std::pair<std::string, Interactable*>>& inters, std::vector<std::pair<int, std::string>>& headers, Event menuReturn)
+  :
+  MenuInterface(menuReturn),
+  translation(&origin),
+  highlight({{0,0}, {2.0f * LIST_MARGIN + 2.0f * ProgramSettings::gameScale, 6 * ProgramSettings::gameScale}, sf::Color(245, 204, 164)})
+{
+  origin = ZERO_VECTOR;
+
+  float offset = 0;
+
+  int headerI = 0;
+
+  for (int i = 0; i < (int)inters.size(); i++)
+  {
+    if (headerI < (int)headers.size() && headers[headerI].first == i)
+    {
+      offset += SCALED_DIM;
+      this->headers.push_back(Header(headers[headerI].second, offset));
+      offset += SCALED_DIM;
+      headerI++;
+    }
+
+    list.push_back(ListItem(inters[i].first, offset, inters[i].second));
+    offset += SCALED_DIM;
+  }
+
+  origin.y = -list[curIndex].GetVerticalOffset();
+  UpdateAllPositions();
+}
+
+void ListInterface::Update()
+{
+  if (translation.Update())
+    UpdateAllPositions();
+
+  if (list[curIndex].Update())
+  {
+    highlight.SetColour(sf::Color(230, 176, 138));
+    return;
+  }
+
+  Controls* controls = ProgramSettings::GetControls();
+  if (controls->IsActionOnInitialClick(Controls::Action::escape))
+    PUSH_EVENT(menuReturn);
+
+  highlight.SetColour(sf::Color(245, 204, 164));
+
+  int move = controls->IsActionClicked(Controls::Action::down) - controls->IsActionClicked(Controls::Action::up);
+
+  if (!move)
+    return;
+
+  curIndex += move;
+  if (curIndex < 0)
+    curIndex = list.size() - 1;
+  else if (curIndex >= (int)list.size())
+    curIndex = 0;
+
+  translation.Clear();
+  translation.Push(EASE_IN_CURVE, 250, origin, {origin.x, -list[curIndex].GetVerticalOffset()});
+}
+
+void ListInterface::Render(sf::RenderWindow* win) const
+{
+  highlight.Render(win);
+
+  for (auto& item : list)
+    item.Render(win);
+  
+  for (auto& header : headers)
+    header.Render(win);
+}
+
+void ListInterface::UpdateAllPositions()
+{
+  for (auto& item : list)
+    item.SetPosition(origin);
+  
+  for (auto& header : headers)
+    header.SetPosition(origin);
+
+  highlight.SetVertical(origin.y + list[curIndex].GetVerticalOffset());
 }
