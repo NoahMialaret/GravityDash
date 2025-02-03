@@ -57,6 +57,13 @@ void RoundedRect::SetDim(sf::Vector2f newDim)
   right.setOrigin(0, right.getGlobalBounds().height / 2);
 }
 
+void RoundedRect::SetColour(sf::Color col)
+{
+  main.setFillColor(col);
+  left.setFillColor(col);
+  right.setFillColor(col);
+}
+
 void RoundedRect::Render(sf::RenderWindow* win) const
 {
   win->draw(main);

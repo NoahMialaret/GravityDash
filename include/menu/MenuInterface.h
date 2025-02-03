@@ -3,18 +3,19 @@
 
 #include <SFML/Graphics.hpp>
 
-#include "assert.h"
-#include "Clock.h"
+#include "AssetManager.h"
+#include "Attachment.h"
+#include "Bezier.h"
+#include "BezierTransition.h"
 #include "Controls.h"
 #include "Event.h" 
 #include "GameStats.h"
-#include "StaticButton.h"
-#include "MenuOption.h"
-#include "AssetManager.h"
-#include "Utility.h"
+#include "ListItem.h"
 #include "ProgramSettings.h"
-#include "Keyboard.h"
+#include "StaticButton.h"
+#include "Utility.h"
 
+#include <assert.h>
 #include <iostream>
 
 // Represents an interface layout that can be interacted with by the user
@@ -34,7 +35,7 @@ protected:
   Event menuReturn; // The event that is pushed when the menu is escaped from
 };
 
-
+// The vertical offset of the top and bottom row from the centre of the grid
 #define GRID_VERT_POS (2.0f * float(SCALED_DIM) - ProgramSettings::gameScale)
 
 // `GridInterface` specifies a layout where buttons are arranged on a 2 x 3 grid
@@ -56,12 +57,12 @@ private:
   std::vector<StaticButton> buttons; // The buttons that make up the interface
 };
 
-// `ListInterface` specifies a layout where buttons are arranged as a list
-class ListInterface : public MenuInterface // Represents a list of small buttons, like the pause menu
+// `VerticalInterface` specifies a layout where buttons are arranged vertically, such as the pause menu
+class VerticalInterface : public MenuInterface
 {
 public:
-  // Constructs `ListInterface` given a list of buttons to include in the layout
-  ListInterface(std::vector<StaticButtonInit>& configs, Event menuReturn, sf::Vector2f centre = ZERO_VECTOR);
+  // Constructs `VerticalInterface` given a list of buttons to include in the layout
+  VerticalInterface(std::vector<StaticButtonInit>& configs, Event menuReturn, sf::Vector2f centre = ZERO_VECTOR);
 
   // Updates the currently highlighted button if a direction is pressed by the user
   void Update() override;
@@ -74,8 +75,8 @@ protected:
   std::vector<StaticButton> buttons; // The buttons that make up the interface
 };
 
-// `GameEndInterface` is a type of `ListInterface` shown at the end of a game, and includes game statistics
-class GameEndInterface : public ListInterface
+// `GameEndInterface` is a type of `VerticalInterface` shown at the end of a game, and includes game statistics
+class GameEndInterface : public VerticalInterface
 {
 public:
   // Constructs `GameEndInterface` given a list of buttons to include in the layout
@@ -90,52 +91,54 @@ private:
   std::vector<sf::Text> stats;  // A list of text drawables representing the different stats to display
 };
 
-// `OptionsSubList` specifies a layout where buttons are arranged as a list
-class OptionsSubList
+// The `Header` class is a graphical class used by `ListInterface` to display header text along with an under/over-line
+class Header
 {
 public:
-  OptionsSubList(std::string& title, std::vector<OptionConfig>& configs, float* origin, float yPos);
+  // Constructs Header given its text and the vertical offset from some origin
+  Header(std::string text, float vertOffset);
 
-  void Update();
+  // Render the Header to the screen
   void Render(sf::RenderWindow* win) const;
 
-  void GoTo(int index);
-  bool Move(int move);
+  // Sets the position the Header's text and lines
+  void SetPosition(sf::Vector2f pos);
 
 private:
-  int curIndex = 0;
+  sf::Text displayTitle;        // The graphical text portion of the Header
+  sf::RectangleShape overline;  // The Header's overline, which appears above the text
+  sf::RectangleShape underline; // The Header's underline, which appears below the text
 
-  float* origin;
-  float vertOffset = 0.0f;
-
-  sf::Text displayTitle;
-  sf::RectangleShape overline;
-  sf::RectangleShape underline;
-
-  std::vector<std::unique_ptr<MenuOption>> options;  
+  float vertOffset; // The vertical offset of the Header from some origin
 };
 
-// `OptionsInterface` specifies a list of option elements seperated into different sublists based on category
-class OptionsInterface : public MenuInterface
+// `ListInterface` represents a menu layout composed of a list of `ListItem`s with different sections defined by a list of `Header`s
+class ListInterface : public MenuInterface
 {
 public:
-  OptionsInterface(std::vector<std::pair<std::string, std::vector<OptionConfig>>>& configs, Event menuReturn);
-  ~OptionsInterface();
+  // Constructs `ListInterface` given a vector of `{name, Interactable}` pairs used to initialise ListItems, a vector of `{index, name}` pairs for the headers, and the event to be called when returning from the menu
+  ListInterface(std::vector<std::pair<std::string, Interactable*>>& inters, std::vector<std::pair<int, std::string>>& headers, Event menuReturn);
 
+  // Updates which ListItem is highlighted or interacts with the current ListItem based on user inputs
   void Update() override;
+  // Renders the ListItems and Headers to the screen
   void Render(sf::RenderWindow* win) const override;
 
 private:
-  int curIndex = 0;
+  // Updates the position of all ListItems and Headers
+  void UpdateAllPositions();
 
-  Bezier bezier;
-  float timer = 0.0f;
+private:
+  std::vector<ListItem> list;   // The vector of ListItems
+  std::vector<Header> headers;  // The vector of Headers
 
-  float origin;
-  float start = 0.0f;
-  float end = 0.0f;
+  int curIndex = 0; // The index of the current ListItem in `list`
 
-  std::vector<std::unique_ptr<OptionsSubList>> subLists;
+  sf::Vector2f origin; // The origin that all ListItems and Headers base their position off of
+
+  BezierTransition<sf::Vector2f> translation; // Used to allow smooth scrolling between ListItems
+
+  RoundedRect highlight;  // The highlight used to display which ListItem is active
 };
 
 #endif

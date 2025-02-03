@@ -17,6 +17,7 @@ public:
   void SetHorizontal(float horiPos);
   void Move(sf::Vector2f offset);
   void SetDim(sf::Vector2f newDim);
+  void SetColour(sf::Color col);
 
   void Render(sf::RenderWindow* win) const;
 

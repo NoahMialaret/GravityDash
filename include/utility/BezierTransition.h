@@ -30,7 +30,7 @@ public:
   BezierTransition(T* data);
 
   // Updates `timer` and processes any active transitions
-  void Update();
+  bool Update();
 
   // Clears all the transitions *without processing them*
   void Clear();
@@ -68,10 +68,10 @@ inline BezierTransition<T>::BezierTransition(T* data)
 {}
 
 template <typename T>
-inline void BezierTransition<T>::Update()
+inline bool BezierTransition<T>::Update()
 {
   if (transitions.empty() || data == nullptr)
-    return;
+    return false;
 
   timer += DELTA_TIME;
 
@@ -79,10 +79,11 @@ inline void BezierTransition<T>::Update()
   {
     ProcessAndPop();
     if (transitions.empty())
-      return;
+      return true;
   }
 
   Process(float(timer) / float(transitions.front().duration));
+  return true;
 }
 
 template <typename T>

@@ -15,15 +15,15 @@ bool KeyboardControls::IsActionClicked(Action action)
   return IS_KEY_CLICKED(keys[(int)action]);
 }
 
-sf::Keyboard::Key KeyboardControls::GetKeyAction(Controls::Action action) const
+int KeyboardControls::GetAction(Controls::Action action) const
 {
   if (action < (Controls::Action)0 || action >= Controls::Action::end)
     return sf::Keyboard::Unknown;
 
-  return keys[(int)action];
+  return (int)keys[(int)action];
 }
 
-void KeyboardControls::SetKeyAction(Controls::Action action, sf::Keyboard::Key key)
+void KeyboardControls::SetAction(Controls::Action action, int key)
 {
-  keys[(int)action] = key;
+  keys[(int)action] = (sf::Keyboard::Key)key;
 }
