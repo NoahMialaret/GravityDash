@@ -108,10 +108,12 @@ void Program::ProcessEvents()
 			break;
 
     case Event::Type::pause: // Pause
+      menu.get()->Push(Menu::Type::pause);
       curState = State::paused;
       break;
 
     case Event::Type::resume: // Resume
+      menu.get()->Return();
       curState = State::gameplay;
       break;
 
@@ -177,9 +179,11 @@ void Program::ProcessEvents()
       {
         if (curState == State::gameplay)
         {
+          menu.get()->Push(Menu::Type::pause);
           curState = State::paused;
           break;
         }
+        [[fallthrough]];
       }
 			
 			default: // Add key to keymap

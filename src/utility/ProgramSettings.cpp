@@ -36,23 +36,23 @@ void ProgramSettings::Init()
   p1Colour = Colours::brown;
   p2Colour = Colours::brown;
   
-  p1Controls.SetKeyAction(Controls::Action::left,     sf::Keyboard::A);
-  p1Controls.SetKeyAction(Controls::Action::right,    sf::Keyboard::D);
-  p1Controls.SetKeyAction(Controls::Action::up,       sf::Keyboard::W);
-  p1Controls.SetKeyAction(Controls::Action::down,     sf::Keyboard::S);
-  p1Controls.SetKeyAction(Controls::Action::jump,     sf::Keyboard::Space);
-  p1Controls.SetKeyAction(Controls::Action::select,   sf::Keyboard::Space);
-  p1Controls.SetKeyAction(Controls::Action::special,  sf::Keyboard::LShift);
-  p1Controls.SetKeyAction(Controls::Action::escape,   sf::Keyboard::Escape);
+  p1Controls.SetAction(Controls::Action::left,     (int)sf::Keyboard::A);
+  p1Controls.SetAction(Controls::Action::right,    (int)sf::Keyboard::D);
+  p1Controls.SetAction(Controls::Action::up,       (int)sf::Keyboard::W);
+  p1Controls.SetAction(Controls::Action::down,     (int)sf::Keyboard::S);
+  p1Controls.SetAction(Controls::Action::jump,     (int)sf::Keyboard::Space);
+  p1Controls.SetAction(Controls::Action::select,   (int)sf::Keyboard::Space);
+  p1Controls.SetAction(Controls::Action::special,  (int)sf::Keyboard::LShift);
+  p1Controls.SetAction(Controls::Action::escape,   (int)sf::Keyboard::Escape);
   
-  p2Controls.SetKeyAction(Controls::Action::left,     sf::Keyboard::Left);
-  p2Controls.SetKeyAction(Controls::Action::right,    sf::Keyboard::Right);
-  p2Controls.SetKeyAction(Controls::Action::up,       sf::Keyboard::Up);
-  p2Controls.SetKeyAction(Controls::Action::down,     sf::Keyboard::Down);
-  p2Controls.SetKeyAction(Controls::Action::jump,     sf::Keyboard::Up);
-  p2Controls.SetKeyAction(Controls::Action::select,   sf::Keyboard::PageUp);
-  p2Controls.SetKeyAction(Controls::Action::special,  sf::Keyboard::RShift);
-  p2Controls.SetKeyAction(Controls::Action::escape,   sf::Keyboard::PageDown);
+  p2Controls.SetAction(Controls::Action::left,     (int)sf::Keyboard::Left);
+  p2Controls.SetAction(Controls::Action::right,    (int)sf::Keyboard::Right);
+  p2Controls.SetAction(Controls::Action::up,       (int)sf::Keyboard::Up);
+  p2Controls.SetAction(Controls::Action::down,     (int)sf::Keyboard::Down);
+  p2Controls.SetAction(Controls::Action::jump,     (int)sf::Keyboard::Up);
+  p2Controls.SetAction(Controls::Action::select,   (int)sf::Keyboard::PageUp);
+  p2Controls.SetAction(Controls::Action::special,  (int)sf::Keyboard::RShift);
+  p2Controls.SetAction(Controls::Action::escape,   (int)sf::Keyboard::PageDown);
 
   useAccessibilityColours = false;;
   accessibilityWorldColour = Colours::brown;
@@ -162,14 +162,14 @@ void ProgramSettings::LoadControls(nlohmann::json& controls, int player)
 {
   KeyboardControls* pControls = player == 1 ? &p1Controls : &p2Controls;
 
-  pControls->SetKeyAction(Controls::Action::left,     Keyboard::GetInstance()->GetKeyCodeFromString(controls["left"]));
-  pControls->SetKeyAction(Controls::Action::right,    Keyboard::GetInstance()->GetKeyCodeFromString(controls["right"]));
-  pControls->SetKeyAction(Controls::Action::up,       Keyboard::GetInstance()->GetKeyCodeFromString(controls["up"]));
-  pControls->SetKeyAction(Controls::Action::down,     Keyboard::GetInstance()->GetKeyCodeFromString(controls["down"]));
-  pControls->SetKeyAction(Controls::Action::select,   Keyboard::GetInstance()->GetKeyCodeFromString(controls["select"]));
-  pControls->SetKeyAction(Controls::Action::escape,   Keyboard::GetInstance()->GetKeyCodeFromString(controls["escape"]));
-  pControls->SetKeyAction(Controls::Action::jump,     Keyboard::GetInstance()->GetKeyCodeFromString(controls["jump"]));
-  pControls->SetKeyAction(Controls::Action::special,  Keyboard::GetInstance()->GetKeyCodeFromString(controls["special"]));
+  pControls->SetAction(Controls::Action::left,     (int)Keyboard::GetInstance()->GetKeyCodeFromString(controls["left"]));
+  pControls->SetAction(Controls::Action::right,    (int)Keyboard::GetInstance()->GetKeyCodeFromString(controls["right"]));
+  pControls->SetAction(Controls::Action::up,       (int)Keyboard::GetInstance()->GetKeyCodeFromString(controls["up"]));
+  pControls->SetAction(Controls::Action::down,     (int)Keyboard::GetInstance()->GetKeyCodeFromString(controls["down"]));
+  pControls->SetAction(Controls::Action::select,   (int)Keyboard::GetInstance()->GetKeyCodeFromString(controls["select"]));
+  pControls->SetAction(Controls::Action::escape,   (int)Keyboard::GetInstance()->GetKeyCodeFromString(controls["escape"]));
+  pControls->SetAction(Controls::Action::jump,     (int)Keyboard::GetInstance()->GetKeyCodeFromString(controls["jump"]));
+  pControls->SetAction(Controls::Action::special,  (int)Keyboard::GetInstance()->GetKeyCodeFromString(controls["special"]));
 }
 
 void ProgramSettings::SaveControls(nlohmann::json& save, int player)
@@ -177,13 +177,13 @@ void ProgramSettings::SaveControls(nlohmann::json& save, int player)
   KeyboardControls* pControls = player == 1 ? &p1Controls : &p2Controls;
 
   save["multiplayer"]["p" + std::to_string(player) + "Controls"] = {
-    {"left",    Keyboard::GetInstance()->GetStringFromKeyCode(pControls->GetKeyAction(Controls::Action::left))},
-    {"right",   Keyboard::GetInstance()->GetStringFromKeyCode(pControls->GetKeyAction(Controls::Action::right))},
-    {"up",      Keyboard::GetInstance()->GetStringFromKeyCode(pControls->GetKeyAction(Controls::Action::up))},
-    {"down",    Keyboard::GetInstance()->GetStringFromKeyCode(pControls->GetKeyAction(Controls::Action::down))},
-    {"select",  Keyboard::GetInstance()->GetStringFromKeyCode(pControls->GetKeyAction(Controls::Action::select))},
-    {"escape",  Keyboard::GetInstance()->GetStringFromKeyCode(pControls->GetKeyAction(Controls::Action::escape))},
-    {"jump",    Keyboard::GetInstance()->GetStringFromKeyCode(pControls->GetKeyAction(Controls::Action::jump))},
-    {"special", Keyboard::GetInstance()->GetStringFromKeyCode(pControls->GetKeyAction(Controls::Action::special))},
+    {"left",    Keyboard::GetInstance()->GetStringFromKeyCode((sf::Keyboard::Key)pControls->GetAction(Controls::Action::left))},
+    {"right",   Keyboard::GetInstance()->GetStringFromKeyCode((sf::Keyboard::Key)pControls->GetAction(Controls::Action::right))},
+    {"up",      Keyboard::GetInstance()->GetStringFromKeyCode((sf::Keyboard::Key)pControls->GetAction(Controls::Action::up))},
+    {"down",    Keyboard::GetInstance()->GetStringFromKeyCode((sf::Keyboard::Key)pControls->GetAction(Controls::Action::down))},
+    {"select",  Keyboard::GetInstance()->GetStringFromKeyCode((sf::Keyboard::Key)pControls->GetAction(Controls::Action::select))},
+    {"escape",  Keyboard::GetInstance()->GetStringFromKeyCode((sf::Keyboard::Key)pControls->GetAction(Controls::Action::escape))},
+    {"jump",    Keyboard::GetInstance()->GetStringFromKeyCode((sf::Keyboard::Key)pControls->GetAction(Controls::Action::jump))},
+    {"special", Keyboard::GetInstance()->GetStringFromKeyCode((sf::Keyboard::Key)pControls->GetAction(Controls::Action::special))},
   };
 }

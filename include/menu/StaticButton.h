@@ -19,7 +19,7 @@
 #define MEDIUM_TEXT_OFFSET ProgramSettings::gameScale * sf::Vector2f(-2.5f, 6.0f)
 #define LARGE_TEXT_OFFSET ProgramSettings::gameScale * sf::Vector2f(-2.5f, 5.0f)
 
-// `ButtonConfig` stores the confguration variables used when initialising a `StaticButton`
+// `StaticButtonInit` stores the confguration variables used when initialising a `StaticButton`
 struct StaticButtonInit
 {
   std::string name;

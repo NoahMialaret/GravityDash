@@ -13,31 +13,31 @@ int Interactable::GetValue() const
 
 
 
-Static::Static(int value)
+StaticInteractable::StaticInteractable(int value)
   :
   Interactable(value)
 {
   Utility::InitText(staticText, SMALL_FONT, std::to_string(value), ZERO_VECTOR, {1.0f, 0.5f});
 }
 
-bool Static::Update()
+bool StaticInteractable::Update()
 {
   return true;
 }
 
-void Static::Render(sf::RenderWindow* win) const
+void StaticInteractable::Render(sf::RenderWindow* win) const
 {
   win->draw(staticText);
 }
 
-void Static::SetPosition(sf::Vector2f& pos)
+void StaticInteractable::SetPosition(sf::Vector2f& pos)
 {
   staticText.setPosition(pos);
 }
 
 
 
-Toggle::Toggle(bool isToggled)
+ToggleInteractable::ToggleInteractable(bool isToggled)
   :
   Interactable(isToggled)
 {
@@ -48,7 +48,7 @@ Toggle::Toggle(bool isToggled)
   toggleSprite.setTextureRect(rect);
 }
 
-bool Toggle::Update()
+bool ToggleInteractable::Update()
 {
   value = !value;
 
@@ -59,19 +59,19 @@ bool Toggle::Update()
   return true;
 }
 
-void Toggle::Render(sf::RenderWindow* win) const
+void ToggleInteractable::Render(sf::RenderWindow* win) const
 {
   win->draw(toggleSprite, &WORLD_SHADER);
 }
 
-void Toggle::SetPosition(sf::Vector2f& pos)
+void ToggleInteractable::SetPosition(sf::Vector2f& pos)
 {
   toggleSprite.setPosition(pos);
 }
 
 
 
-Range::Range(int value, int min, int max)
+RangeInteractable::RangeInteractable(int value, int min, int max)
   :
   Interactable(std::clamp(value, min, max)),
   min(min),
@@ -80,7 +80,7 @@ Range::Range(int value, int min, int max)
   Utility::InitText(rangeText, SMALL_FONT, "{" + std::to_string(std::clamp(value, min, max)) + "}", ZERO_VECTOR, {1.0f, 0.5f});
 }
 
-bool Range::Update()
+bool RangeInteractable::Update()
 {
   if (ProgramSettings::GetControls()->IsActionOnInitialClick(Controls::Action::select))
   {
@@ -107,19 +107,19 @@ bool Range::Update()
   return false;
 }
 
-void Range::Render(sf::RenderWindow* win) const
+void RangeInteractable::Render(sf::RenderWindow* win) const
 {
   win->draw(rangeText);
 }
 
-void Range::SetPosition(sf::Vector2f& pos)
+void RangeInteractable::SetPosition(sf::Vector2f& pos)
 {
   rangeText.setPosition(pos);
 }
 
 
 
-Selection::Selection(int index, std::vector<std::string>& selections)
+SelectionInteractable::SelectionInteractable(int index, std::vector<std::string>& selections)
   :
   Interactable(std::clamp(index, 0, (int)selections.size() - 1)),
   selections(selections)
@@ -127,7 +127,7 @@ Selection::Selection(int index, std::vector<std::string>& selections)
   Utility::InitText(selectionText, SMALL_FONT, "{" + selections[std::clamp(index, 0, (int)selections.size())] + "}", ZERO_VECTOR, {1.0f, 0.5f});
 }
 
-bool Selection::Update()
+bool SelectionInteractable::Update()
 {
   if (ProgramSettings::GetControls()->IsActionOnInitialClick(Controls::Action::select))
   {
@@ -158,19 +158,19 @@ bool Selection::Update()
   return false;
 }
 
-void Selection::Render(sf::RenderWindow* win) const
+void SelectionInteractable::Render(sf::RenderWindow* win) const
 {
   win->draw(selectionText);
 }
 
-void Selection::SetPosition(sf::Vector2f& pos)
+void SelectionInteractable::SetPosition(sf::Vector2f& pos)
 {
   selectionText.setPosition(pos);
 }
 
 
 
-Control::Control(sf::Keyboard::Key keyCode)
+KeybindInteractable::KeybindInteractable(sf::Keyboard::Key keyCode)
   :
   Interactable((int)keyCode)
 {
@@ -183,13 +183,13 @@ Control::Control(sf::Keyboard::Key keyCode)
                       {173, 103, 78});
 }
 
-bool Control::Update()
+bool KeybindInteractable::Update()
 {
-  int keyCode = Keyboard::GetInstance()->GetKeyCodeAtHead();
-  if (keyCode == -1)
+  sf::Keyboard::Key keyCode = Keyboard::GetInstance()->GetKeyAtHead();
+  if (keyCode == sf::Keyboard::Unknown)
     return false;
 
-  std::string codeString = Keyboard::GetInstance()->GetStringFromKeyCode((sf::Keyboard::Key)keyCode);
+  std::string codeString = Keyboard::GetInstance()->GetStringFromKeyCode(keyCode);
   if (codeString == "NULL")
     return false;
 
@@ -201,13 +201,13 @@ bool Control::Update()
   return true;
 }
 
-void Control::Render(sf::RenderWindow* win) const
+void KeybindInteractable::Render(sf::RenderWindow* win) const
 {
   keyBg.Render(win);
   win->draw(controlText);
 }
 
-void Control::SetPosition(sf::Vector2f& pos)
+void KeybindInteractable::SetPosition(sf::Vector2f& pos)
 {
   pos.x -= 2 * ProgramSettings::gameScale;
   float width = controlText.getGlobalBounds().getSize().x;
@@ -223,7 +223,7 @@ ListItem::ListItem(std::string name, float vertOffset, Interactable* interactabl
   event({Event::Type::updateSettings, Event::Data{.updateSettings = {name.c_str(), -1}}}),
   vertOffset(vertOffset)
 {
-  Utility::InitText(displayName, SMALL_FONT, name, ZERO_VECTOR, {0, 0.5f});
+  Utility::InitText(displayName, SMALL_FONT, name, ZERO_VECTOR, {0.0f, 0.5f});
 
   this->interactable = std::unique_ptr<Interactable>(interactable);
 }

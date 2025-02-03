@@ -25,7 +25,6 @@ public:
 
 public:
   Controls() = default;
-  virtual ~Controls() = default;
  
   // Returns whether the binding associated with an Action is being held
   virtual bool IsActionHeld(Action action) = 0;  
@@ -33,6 +32,11 @@ public:
   virtual bool IsActionOnInitialClick(Action action) = 0; 
   // Returns whether the binding associated with an Action is registered as a click
   virtual bool IsActionClicked(Action action) = 0;  
+
+  // Gets the binding associated with an Action
+  virtual int GetAction(Action action) const = 0;
+  // Sets the binding of a certain Action
+  virtual void SetAction(Action action, int binding) = 0;
 };
 
 // `KeyboardControls` maps a keyboards key-bindings to actions
@@ -49,9 +53,9 @@ public:
   bool IsActionClicked(Action action) override; 
 
   // Gets the key associated with an Action
-  sf::Keyboard::Key GetKeyAction(Controls::Action action) const;
-  // Sets the binding of a certain Action
-  void SetKeyAction(Controls::Action action, sf::Keyboard::Key key);
+  int GetAction(Action action) const override;
+  // Sets the key binding of a certain Action
+  void SetAction(Action action, int key) override;
 
 private:
   // A vector which defines the mapping from keys to actions, where `keys[Action] = Binding`

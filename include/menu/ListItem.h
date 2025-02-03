@@ -40,12 +40,12 @@ protected:
   int backup = -1;  // A backup of the value, this is used when the user cancels an interaction without saving a new value
 };
 
-// `Static` is a `Interactable` which does not actually provide any interactablitly, instead only displaying some static text
-class Static : public Interactable
+// `StaticInteractable` is a `Interactable` which does not actually provide any interactablitly, instead only displaying some static text
+class StaticInteractable : public Interactable
 {
 public:
-  // Constructs Static with some value, this is the static value that is displayed to the user
-  Static(int value);
+  // Constructs StaticInteractable with some value, this is the static value that is displayed to the user
+  StaticInteractable(int value);
 
   // Returns `true` if the interaction has finished. This always returns `true` immediately
   bool Update() override;
@@ -56,15 +56,15 @@ public:
   void SetPosition(sf::Vector2f& pos) override;
 
 private:
-  sf::Text staticText;  // The static graphical representation of the Static's value
+  sf::Text staticText;  // The static graphical representation of the StaticInteractable's value
 };
 
-// `Toggle` is an `Interactable` which acts as a boolean toggle, which can either be 'off' or 'on'
-class Toggle : public Interactable
+// `ToggleInteractable` is an `Interactable` which acts as a boolean toggle, which can either be 'off' or 'on'
+class ToggleInteractable : public Interactable
 {
 public:
-  // Constructs Toggle with an intial toggle state
-  Toggle(bool isToggled);
+  // Constructs ToggleInteractable with an intial toggle state
+  ToggleInteractable(bool isToggled);
 
   // Returns `true` if the interaction has finished. This toggles the toggle and returns `true` immediately after
   bool Update() override;
@@ -75,15 +75,15 @@ public:
   void SetPosition(sf::Vector2f& pos) override;
 
 private:
-  sf::Sprite toggleSprite;  // The sprite used to represent the toggle status of Toggle
+  sf::Sprite toggleSprite;  // The sprite used to represent the toggle status of ToggleInteractable
 };
 
-// `Range` is an `Interactable` whose value can range from some minimum to some maximum
-class Range : public Interactable
+// `RangeInteractable` is an `Interactable` whose value can range from some minimum to some maximum
+class RangeInteractable : public Interactable
 {
 public:
-  // Constructs Range given some value, and the bounds this value can take
-  Range(int value, int min, int max);
+  // Constructs RangeInteractable given some value, and the bounds this value can take
+  RangeInteractable(int value, int min, int max);
 
   // Increments the value based on if the user presses the left or right button. Returns `true` if the interaction has finished
   bool Update() override;
@@ -100,12 +100,12 @@ private:
   sf::Text rangeText; // The graphical representation of the current value
 };
 
-// `Selection` is an `Interactable` which allows the selection of some option given a list of available options
-class Selection : public Interactable
+// `SelectionInteractable` is an `Interactable` which allows the selection of some option given a list of available options
+class SelectionInteractable : public Interactable
 {
 public:
-  // Constructs Selection given an initial index (this is the value used by the Interactable), and the list of available selections
-  Selection(int index, std::vector<std::string>& selections);
+  // Constructs SelectionInteractable given an initial index (this is the value used by the Interactable), and the list of available selections
+  SelectionInteractable(int index, std::vector<std::string>& selections);
 
   // Increments the index and subsequent selection based on if the user presses the left or right button. Returns `true` if the interaction has finished
   bool Update() override;
@@ -121,12 +121,12 @@ private:
   sf::Text selectionText; // The graphical representation of the current selection
 };
 
-// `Control` is an `Interactable` which allows configuration of keybindings
-class Control : public Interactable
+// `KeybindInteractable` is an `Interactable` which allows configuration of keybindings
+class KeybindInteractable : public Interactable
 {
 public:
-  // Constructs Control given an intial key code
-  Control(sf::Keyboard::Key keyCode);
+  // Constructs KeybindInteractable given an intial key code
+  KeybindInteractable(sf::Keyboard::Key keyCode);
 
   // Awaits for a key to be pressed, updates the stored keybind when one is pressed and returns `true` to signify the interaction has finished
   bool Update() override;
