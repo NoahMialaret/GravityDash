@@ -147,6 +147,11 @@ void Program::ProcessEvents()
       ParticleManager::Clean();
 			curState = State::gameplay;
 			break;
+
+    case Event::Type::updateSettings:
+      Settings::GetInstance()->SetSetting((Settings::Setting)event.data.updateSettings.setting, 
+                                          event.data.updateSettings.value);
+      break;
 		
 		default: // Game related event
       gameManager.get()->ProcessEvents(event);

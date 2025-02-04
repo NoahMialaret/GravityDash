@@ -35,7 +35,7 @@ public:
 
   struct UpdateSettingsEvent
   {
-    const char* name;
+    int setting;
     int value;
   };
 
@@ -74,6 +74,8 @@ public:
 
     // Settings events
     updateSettings, // `UpdateSetting`
+
+    null, // null
   };
 
   // The different formats the `data` member can take
@@ -95,7 +97,7 @@ public:
   {}
 
 public:
-  Type type = Type::programClose; // What this event signifies
+  Type type = Type::null; // What this event signifies
 
   Data data; // The Event's data, having the format not match what is expected from `type` is ill-informed
 };
