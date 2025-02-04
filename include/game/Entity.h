@@ -88,7 +88,7 @@ private:
   // The entity's position in the game window
   sf::Vector2f position = ZERO_VECTOR;
   // The entity's scale
-  sf::Vector2f scale = DEFAULT_SCALE;
+  sf::Vector2f scale = {1.0f, 1.0f};
   // The entity's rotation
   float rotation = 0.0f;
 

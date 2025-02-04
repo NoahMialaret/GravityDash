@@ -10,7 +10,7 @@ GameObject::GameObject(const sf::Vector2f& worldBounds)
 
 void GameObject::Update()
 {
-  if (pos->x < -(worldBounds.x + SCALED_DIM) || pos->x > worldBounds.x + SCALED_DIM)
+  if (pos->x < -(worldBounds.x + SPRITE_DIM) || pos->x > worldBounds.x + SPRITE_DIM)
     tombstone = true;
 
   tombstoneTimer -= DELTA_TIME;
@@ -30,11 +30,11 @@ void GameObject::HandleCollision(Character* character)
     return;
 
   Utility::LineSegment line = character->GetLineHitBox();
-  float squaredThreshold = SCALED_DIM * SCALED_DIM;
+  float squaredThreshold = SPRITE_DIM * SPRITE_DIM;
 
   // Do a broad check of proximity to prematurely stop calculations if the object is far away
-  if (pos->x + SCALED_DIM < std::min(line.start.x, line.end.x) 
-    || pos->x - SCALED_DIM > std::max(line.start.x, line.end.x))
+  if (pos->x + SPRITE_DIM < std::min(line.start.x, line.end.x) 
+    || pos->x - SPRITE_DIM > std::max(line.start.x, line.end.x))
       return;
   
   float squaredDistance = Utility::GetInstance()->GetSquaredDistanceToLineSegment(*pos, line);
@@ -97,14 +97,14 @@ Saw::Saw(const sf::Vector2f& worldBounds)
   entity.PushAnimation(0, 50);
 
   // buffer between the centre and edge of the object
-	int posBuffer = SCALED_DIM / 2;
+	int posBuffer = SPRITE_DIM / 2;
 
   std::uniform_int_distribution dist(0, 1);
 
   int isOnTop = dist(Utility::GetInstance()->GetRNG());
   int isGoingRight = dist(Utility::GetInstance()->GetRNG());
 
-  vel = 0.0625f * FSCALE * (isGoingRight ? 1.0f : -1.0f);
+  vel = 0.0625f * (isGoingRight ? 1.0f : -1.0f);
   pos->x = (isGoingRight ? -1.0f : 1.0f) * worldBounds.x + posBuffer;
   pos->y = (isOnTop ? -1.0f : 1.0f) * worldBounds.y;
 }
@@ -146,7 +146,7 @@ void Saw::ProcessTag()
 
 void Saw::Deactivate()
 {
-  entity.PushPositionTransition(LINEAR_CURVE, 200, (pos->y < 0 ? -1.0f : 1.0f) * sf::Vector2f(0.0f, SCALED_DIM));
+  entity.PushPositionTransition(LINEAR_CURVE, 200, (pos->y < 0 ? -1.0f : 1.0f) * sf::Vector2f(0.0f, SPRITE_DIM));
   GameObject::Deactivate();
 }
 
@@ -168,20 +168,20 @@ MovingTarget::MovingTarget(const sf::Vector2f& worldBounds)
   entity.PushAnimation(1, 50);
 
   // buffer between the centre and edge of the object
-	int posBuffer = SCALED_DIM / 2;
+	int posBuffer = SPRITE_DIM / 2;
 
   std::uniform_int_distribution xDist(0, 1);
   int isGoingRight = xDist(Utility::GetInstance()->GetRNG());
   pos->x = (isGoingRight ? -1.0f : 1.0f) * (worldBounds.x + posBuffer);
 
   std::uniform_int_distribution yDist(
-    int(2 * SCALED_DIM - worldBounds.y), 
-    int(worldBounds.y - 2 * SCALED_DIM));
+    int(2 * SPRITE_DIM - worldBounds.y), 
+    int(worldBounds.y - 2 * SPRITE_DIM));
   pos->y = yDist(Utility::GetInstance()->GetRNG());
   yBase = pos->y;
 
   std::uniform_real_distribution<float> floatDist(0.3f, 1.0f);
-  vel = 0.0625 * floatDist(Utility::GetInstance()->GetRNG()) * FSCALE * (isGoingRight ? 1.0f : -1.0f);
+  vel = 0.0625 * floatDist(Utility::GetInstance()->GetRNG()) * (isGoingRight ? 1.0f : -1.0f);
   oscillationSpeed = 64.0f * vel;
   
   if (!isGoingRight)
@@ -195,8 +195,8 @@ void MovingTarget::Update()
   if (!activated || tombstone)
     return;
 
-  float rad = (float)Clock::GetInstance()->Elapsed() / 1024.0f * oscillationSpeed;
-  pos->y = yBase + 0.5f * FSCALE * std::sin(rad);
+  float rad = 6.0f * (float)Clock::GetInstance()->Elapsed() / 1024.0f * oscillationSpeed;
+  pos->y = yBase + 0.5f * std::sin(rad);
 }
 
 void MovingTarget::HandleCollision(Character *character)
@@ -229,19 +229,19 @@ TimeBonus::TimeBonus(const sf::Vector2f& worldBounds)
   entity.PushAnimation(2, 50);
 
   // buffer between the centre and edge of the object
-	int posBuffer = SCALED_DIM / 2;
+	int posBuffer = SPRITE_DIM / 2;
 
   std::uniform_int_distribution xDist(0, 1);
   int isGoingRight = xDist(Utility::GetInstance()->GetRNG());
   pos->x = (isGoingRight ? -1.0f : 1.0f) * (worldBounds.x + posBuffer);
 
   std::uniform_int_distribution yDist(
-    int(SCALED_DIM - worldBounds.y) + posBuffer, 
-    int(worldBounds.y - SCALED_DIM) - posBuffer);
+    int(SPRITE_DIM - worldBounds.y) + posBuffer, 
+    int(worldBounds.y - SPRITE_DIM) - posBuffer);
   pos->y = yDist(Utility::GetInstance()->GetRNG());
 
   std::uniform_real_distribution<float> floatDist(0.3f, 1.0f);
-  vel = 1.5f * 0.0625f * floatDist(Utility::GetInstance()->GetRNG()) * FSCALE * (isGoingRight ? 1.0f : -1.0f);
+  vel = 1.5f * 0.0625f * floatDist(Utility::GetInstance()->GetRNG()) * (isGoingRight ? 1.0f : -1.0f);
 }
 
 void TimeBonus::HandleCollision(Character *character)

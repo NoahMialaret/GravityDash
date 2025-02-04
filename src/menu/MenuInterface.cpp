@@ -19,7 +19,7 @@ GridInterface::GridInterface(int initialHighlight, std::vector<StaticButtonInit>
 {
   assert(configs.size() > 0);
 
-  const float padding = 0.5f * SCALED_DIM;
+  const float padding = 0.5f * SPRITE_DIM;
   float horiPos = -padding; // The horizontal position of the next column of buttons
 
   for (int i = 0; i < (int)configs.size(); i++)
@@ -116,8 +116,8 @@ VerticalInterface::VerticalInterface(std::vector<StaticButtonInit>& configs, Eve
   MenuInterface(menuReturn)
 {
   StaticButton button(configs[0]);
-  float offset = button.GetHeight() + 2.0f * FSCALE;
-  float pos = 0.5f * offset * (configs.size() - 1);
+  float offset = button.GetHeight() + 2.0f;
+  float pos = 0.5f * offset * (float)(configs.size() - 1);
 
   for (auto& c : configs)
   {
@@ -170,54 +170,54 @@ GameEndInterface::GameEndInterface(std::vector<StaticButtonInit>& configs, Event
   VerticalInterface(configs, menuReturn, centre)
 {
   for (auto& b : buttons)
-    b.Move({4.0f * SCALED_DIM, 0});
+    b.Move({4.0f * SPRITE_DIM, 0});
 
-  float yPos = centre.y - FSCALE * (40.0f + (GameStats::localStats.timeBoosts == -1 ? 0.0f : 7.0f)) / 2.0f;
+  float yPos = centre.y - (40.0f + (GameStats::localStats.timeBoosts == -1 ? 0.0f : 7.0f)) / 2.0f;
 
-  Utility::InitText(displayTitle, LARGE_FONT, "results", {centre.x - 6.5f * SCALED_DIM, yPos - SCALED_DIM}, {0, 0.0f}, {255, 229, 181});
-  displayTitle.setOutlineColor({173, 103, 78});
-  displayTitle.setOutlineThickness(FSCALE);
+  Utility::InitText(displayTitle, LARGE_FONT, "results", 
+                    {centre.x - 6.5f * SPRITE_DIM, yPos - SPRITE_DIM}, 
+                    {0.0f, 0.0f}, {255, 229, 181});
+  displayTitle.drawable.setOutlineColor({173, 103, 78});
+  displayTitle.drawable.setOutlineThickness(1.0f);
 
   underline.setFillColor({173, 103, 78});
-  underline.setSize(sf::Vector2f(displayTitle.getLocalBounds().width / FSCALE + 6, 1.0f));
-  underline.setScale(DEFAULT_SCALE);
-  underline.setPosition(displayTitle.getPosition() + FSCALE * sf::Vector2f(-3.0f, 17.0f));
+  underline.setSize(sf::Vector2f(displayTitle.drawable.getLocalBounds().width + 6, 1.0f));
+  underline.setPosition(displayTitle.drawable.getPosition() + sf::Vector2f(-3.0f, 17.0f));
 
-  float offset = 7 * FSCALE;
+  float offset = 7;
 
-  sf::Text text;
-  Utility::InitText(text, SMALL_FONT, "jumps - " + std::to_string(GameStats::localStats.jumps), {centre.x - 6.0f * SCALED_DIM, yPos + 14.0f * FSCALE}, {0, 0.0f}, {255, 229, 181});
-  text.setOutlineColor({173, 103, 78});
-  text.setOutlineThickness(FSCALE);
+  Text text;
+  Utility::InitText(text, SMALL_FONT, "jumps - " + std::to_string(GameStats::localStats.jumps), {centre.x - 6.0f * SPRITE_DIM, yPos + 14.0f}, {0, 0.0f}, {255, 229, 181});
+  text.drawable.setOutlineColor({173, 103, 78});
+  text.drawable.setOutlineThickness(1.0f);
 
   this->stats.push_back(text);
 
-  text.setString("hits - " + std::to_string(GameStats::localStats.hits));
-  text.move({0.0f, offset});
+  text.drawable.setString("hits - " + std::to_string(GameStats::localStats.hits));
+  text.drawable.move({0.0f, offset});
   this->stats.push_back(text);
-  text.setString("specials - " + std::to_string(GameStats::localStats.specials));
-  text.move({0.0f, offset});
+  text.drawable.setString("specials - " + std::to_string(GameStats::localStats.specials));
+  text.drawable.move({0.0f, offset});
   this->stats.push_back(text);
-  text.setString("3+ combos - " + std::to_string(GameStats::localStats.combos));
-  text.move({0.0f, offset});
+  text.drawable.setString("3+ combos - " + std::to_string(GameStats::localStats.combos));
+  text.drawable.move({0.0f, offset});
   this->stats.push_back(text);
 
   if (GameStats::localStats.timeBoosts == -1)
     return;
 
-  text.setString("cycles - " + std::to_string(GameStats::localStats.timeBoosts));
-  text.move({0.0f, offset});
+  text.drawable.setString("cycles - " + std::to_string(GameStats::localStats.timeBoosts));
+  text.drawable.move({0.0f, offset});
   this->stats.push_back(text);
-
 }
 
 void GameEndInterface::Render(sf::RenderWindow* win) const
 {
   VerticalInterface::Render(win);
-  win->draw(displayTitle);
-  win->draw(underline);
+  Utility::RenderTextWithScale(win, displayTitle, nullptr);
+  Utility::RenderRectWithScale(win, underline, nullptr);
   for (auto& s : stats)
-    win->draw(s);
+    Utility::RenderTextWithScale(win, s, nullptr);
 }
 
 
@@ -228,35 +228,33 @@ Header::Header(std::string text, float vertOffset)
 {
   Utility::InitText(displayTitle, LARGE_FONT, text, ZERO_VECTOR);
 
-  float width = displayTitle.getLocalBounds().width / FSCALE + 4;
+  float width = displayTitle.drawable.getLocalBounds().width + 4;
 
   overline.setFillColor({173, 103, 78});
   overline.setSize(sf::Vector2f(width, 1.0f));
-  overline.setScale(DEFAULT_SCALE);
   overline.setOrigin({width / 2.0f, 5.0f});
 
   underline.setFillColor({173, 103, 78});
   underline.setSize(sf::Vector2f(width, 1.0f));
-  underline.setScale(DEFAULT_SCALE);
   underline.setOrigin({width / 2.0f, - 4.0f});
 }
 
 void Header::Render(sf::RenderWindow* win) const
 {
-  win->draw(displayTitle);
-  win->draw(overline);
-  win->draw(underline);
+  Utility::RenderTextWithScale(win, displayTitle, nullptr);
+  Utility::RenderRectWithScale(win, overline, nullptr);
+  Utility::RenderRectWithScale(win, underline, nullptr);
 }
 
 void Header::SetPosition(sf::Vector2f pos)
 {
-  pos.y += vertOffset - FSCALE;
+  pos.y += vertOffset - 1.0f;
 
   underline.setPosition(pos);
   overline.setPosition(pos);
 
-  pos.y += - SCALED_DIM - FSCALE;
-  displayTitle.setPosition(pos);
+  pos.y += - SPRITE_DIM - 1.0f;
+  displayTitle.drawable.setPosition(pos);
 }
 
 
@@ -265,7 +263,7 @@ ListInterface::ListInterface(std::vector<std::pair<std::string, Interactable*>>&
   :
   MenuInterface(menuReturn),
   translation(&origin),
-  highlight({{0,0}, {2.0f * LIST_MARGIN + 2.0f * FSCALE, 6.0f * FSCALE}, sf::Color(245, 204, 164)})
+  highlight({{0,0}, {2.0f * LIST_MARGIN + 2.0f, 6.0f}, sf::Color(245, 204, 164)})
 {
   origin = ZERO_VECTOR;
 
@@ -277,14 +275,14 @@ ListInterface::ListInterface(std::vector<std::pair<std::string, Interactable*>>&
   {
     if (headerI < (int)headers.size() && headers[headerI].first == i)
     {
-      offset += SCALED_DIM;
+      offset += SPRITE_DIM;
       this->headers.push_back(Header(headers[headerI].second, offset));
-      offset += SCALED_DIM;
+      offset += SPRITE_DIM;
       headerI++;
     }
 
     list.push_back(ListItem(inters[i].first, offset, inters[i].second));
-    offset += SCALED_DIM;
+    offset += SPRITE_DIM;
   }
 
   origin.y = -list[curIndex].GetVerticalOffset();

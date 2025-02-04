@@ -178,8 +178,8 @@ MenuInterface* Menu::LoadMenu(Type menuType)
   {
     std::vector<StaticButtonInit> buttons =
     {
-      {"retry",       {Event::Type::gameReset}, SMALL},
-      {"main menu",   {Event::Type::gameExit},  SMALL}
+      {"retry", {Event::Type::gameReset}, SMALL},
+      {"leave", {Event::Type::gameExit},  SMALL}
     };
 
     event.type = Event::Type::gameExit;

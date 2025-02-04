@@ -2,12 +2,12 @@
 
 World::World(sf::Vector2f size)
   :
-  bounds(0.5f * SCALED_DIM * size)
+  bounds(0.5f * SPRITE_DIM * size)
 {
-  float outline = FSCALE;
+  float outline = 1.0f;
   // TODO: fix world rendering
-  renderRect = sf::RectangleShape((float)SCALED_DIM * size);
-  renderRect.setOrigin(0.5f * SCALED_DIM * size);
+  renderRect = sf::RectangleShape((float)SPRITE_DIM * size);
+  renderRect.setOrigin(0.5f * SPRITE_DIM * size);
   renderRect.setOutlineThickness(outline);
 
   attachments[(int)AttachPoint::left]  = Attachment({-bounds.x - outline, 0.0f});
@@ -29,7 +29,8 @@ void World::Update()
 
 void World::Render(sf::RenderWindow* win) const
 {
-  win->draw(renderRect, &WORLD_SHADER);
+  Utility::RenderRectWithScale(win, renderRect, &WORLD_SHADER);
+  // win->draw(renderRect, &WORLD_SHADER);
 }
 
 const sf::Vector2f& World::GetBounds() const

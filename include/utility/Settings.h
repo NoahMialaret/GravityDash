@@ -5,13 +5,14 @@
 #include <nlohmann/json.hpp>
 
 #include "Controls.h"
+#include "Event.h"
 #include "Keyboard.h"
 
 #include <iostream>
 #include <memory>
 
 // Shortcut to obtain the program rendering scale
-#define SCALE (Settings::GetInstance()->GetSetting(Settings::Setting::scale))
+#define SCALE (Settings::GetInstance()->GetScale())
 // Shortcut to obtain the program rendering scale cast to float
 #define FSCALE ((float)SCALE)
 // Shortcut to access a given `setting`
@@ -95,6 +96,8 @@ public:
   // Sets the value of an associated setting
   void SetSetting(Setting setting, int val);
 
+  int GetScale() const;
+
   // Returns whether the key associated with an Action is being held for a given player
   bool IsActionOnInitialClick(Controls::Action action, int player = 0);
   // Returns whether the key associated with an Action was the start of an input for a given player
@@ -119,10 +122,12 @@ private:
   // The stores the values for the various program settings, it maps from the `Setting` enum class
   std::vector<int> settings;
 
-  // UNUSED: The maximum number of program cycles that can happen per second 
-  static constexpr float targetFrameRate = 60.0f;
+  // The scale associated with the auto-scaling
+  int autoScaleVal = -1;
+  // The maximum number of program cycles that can happen per second 
+  static constexpr unsigned int targetFrameRate = 60;
   // The dimensions of the program window
-  sf::Vector2f windowDim;
+  sf::Vector2u windowDim;
 
   // The controls associated with the first player, used by default for menuing
   std::unique_ptr<Controls> p1Controls;

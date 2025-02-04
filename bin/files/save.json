@@ -33,7 +33,7 @@
       }
     },
     "video": {
-      "autoScale": 1,
+      "autoScale": 0,
       "colour": 0,
       "fullscreen": 0,
       "scale": 6

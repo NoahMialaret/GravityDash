@@ -15,11 +15,18 @@ public:
   GameComponent(Game* game);
 
   // Processes relevent events
-  virtual void ProcessEvent(Event& event){};
+  virtual void ProcessEvent(Event& event)
+  {
+    switch (event.type)
+    {    
+    default:
+      break;
+    }
+  }
   // Updates functionality
   virtual void Update() = 0;
   // Renders drawables
-  virtual void Render(sf::RenderWindow* win) const{};
+  virtual void Render(sf::RenderWindow* win) const {win->getSize();}
   // Returns user relevent game statistics
   virtual void GetGameStats(){}
 

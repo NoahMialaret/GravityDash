@@ -40,8 +40,8 @@ private:
   private:
     int id = 0; // The id, corresponds to a character's charID  
 
-    sf::Sprite gauge;         // The gauge of the meter
-    sf::RectangleShape fill;  // A rectangle displaying how full the meter is
+    mutable sf::Sprite gauge;         // The gauge of the meter
+    mutable sf::RectangleShape fill;  // A rectangle displaying how full the meter is
 
     int fillAmount = 0; // How full the meter is in milliseconds
     int limit = 0;      // The max limit of the meter in milliseconds

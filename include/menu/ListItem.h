@@ -15,7 +15,7 @@
 #include <vector>
 
 // The left and right margin offset of the list, essentially dictates the width of each ListItem
-#define LIST_MARGIN (5 * SCALED_DIM)
+#define LIST_MARGIN (5 * SPRITE_DIM)
 
 // `Interactable` is a UI element that provides the user with some form of interaction to perform configurations
 class Interactable
@@ -62,7 +62,7 @@ public:
   void SetPosition(sf::Vector2f& pos) override;
 
 private:
-  sf::Text staticText;  // The static graphical representation of the StaticInteractable's value
+  mutable Text staticText;  // The static graphical representation of the StaticInteractable's value
 };
 
 // `ToggleInteractable` is an `Interactable` which acts as a boolean toggle, which can either be 'off' or 'on'
@@ -86,7 +86,7 @@ private:
   void UpdateSprite();
 
 private:
-  sf::Sprite toggleSprite;  // The sprite used to represent the toggle status of ToggleInteractable
+  mutable sf::Sprite toggleSprite;  // The sprite used to represent the toggle status of ToggleInteractable
 };
 
 // `RangeInteractable` is an `Interactable` whose value can range from some minimum to some maximum
@@ -111,7 +111,7 @@ private:
   int min = -1; // The minimum bounds of the value
   int max = -1; // The maximum bounds of the value
 
-  sf::Text rangeText; // The graphical representation of the current value
+  mutable Text rangeText; // The graphical representation of the current value
 };
 
 // `SelectionInteractable` is an `Interactable` which allows the selection of some option given a list of available options
@@ -135,7 +135,7 @@ public:
 private:
   std::vector<std::string> selections; // The array of selections that can be chosen from
 
-  sf::Text selectionText; // The graphical representation of the current selection
+  mutable Text selectionText; // The graphical representation of the current selection
 };
 
 // `KeybindInteractable` is an `Interactable` which allows configuration of keybindings
@@ -157,8 +157,8 @@ public:
   void SetPosition(sf::Vector2f& pos) override;
 
 private:
-  RoundedRect keyBg;    // The background rectangle to display behind the text
-  sf::Text controlText; // The text used to represent which key is currently binded
+  mutable RoundedRect keyBg;    // The background rectangle to display behind the text
+  mutable Text controlText; // The text used to represent which key is currently binded
 };
 
 // `ListItem` represents a UI element apart of a larger list that can be interacted with by the user 
@@ -186,7 +186,7 @@ private:
   std::unique_ptr<Interactable> interactable = nullptr;
 
   // The name to display to describe what the ListItem represents to the user
-  sf::Text displayName;
+  mutable Text displayName;
 
   // Whether the ListItem is interactable or not
   bool isActive = false;

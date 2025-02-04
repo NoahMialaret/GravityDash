@@ -148,7 +148,7 @@ void Game::UpdateAttachment(World::AttachPoint point)
 void Game::CorrectCharacterPos(Character* character)
 {
 	sf::Vector2f playerPos = character->GetPosition();
-	float posBuffer = 0.5f * SCALED_DIM;
+	float posBuffer = 0.5f * SPRITE_DIM;
 
 	sf::Vector2f bounds = world.get()->GetBounds();
 

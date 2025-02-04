@@ -154,7 +154,28 @@ int Settings::GetSetting(Setting setting) const
 
 void Settings::SetSetting(Setting setting, int val)
 {
+  if (settings[(int)setting] == val)
+    return;
+
   settings[(int)setting] = val;
+
+  if ((setting >= Setting::left && setting <= Setting::escape) 
+      || (setting >= Setting::p2Left && setting <= Setting::p2Special))
+    InitControls();
+
+  else if (setting == Setting::autoScale && autoScaleVal != settings[(int)Setting::scale])
+    PUSH_EVENT(Event::Type::updateScale);
+  else if (setting == Setting::scale && !settings[(int)Setting::autoScale])
+    PUSH_EVENT(Event::Type::updateScale);
+
+  else if (setting == Setting::fullscreen)
+    PUSH_EVENT(Event::Type::fullscreen);
+
+}
+
+int Settings::GetScale() const
+{
+  return settings[(int)Setting::autoScale] ? autoScaleVal : settings[(int)Setting::scale];
 }
 
 bool Settings::IsActionOnInitialClick(Controls::Action action, int player)

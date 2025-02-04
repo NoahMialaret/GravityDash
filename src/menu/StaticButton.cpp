@@ -30,14 +30,14 @@ StaticButton::StaticButton(StaticButtonInit &config, sf::Vector2f pos)
 
 void StaticButton::Render(sf::RenderWindow *win) const
 {
-  win->draw(button, &WORLD_SHADER);
-  win->draw(displayName);
+  Utility::RenderSpriteWithScale(win, button, &WORLD_SHADER);
+  Utility::RenderTextWithScale(win, displayName, nullptr);
 }
 
 void StaticButton::Move(sf::Vector2f offset)
 {
   button.move(offset);
-  displayName.move(offset);
+  displayName.drawable.move(offset);
 }
 
 void StaticButton::Click() const
@@ -58,9 +58,9 @@ void StaticButton::ToggleHighlight()
 
 float StaticButton::GetWidth() const
 {
-  return button.getTextureRect().width * FSCALE;
+  return button.getTextureRect().width;
 }
 float StaticButton::GetHeight() const
 {
-  return button.getTextureRect().height * FSCALE;
+  return button.getTextureRect().height;
 }

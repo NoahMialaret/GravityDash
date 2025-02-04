@@ -15,9 +15,9 @@
 #define MEDIUM 1
 #define LARGE 2
 
-#define SMALL_TEXT_OFFSET FSCALE * sf::Vector2f(0.0f, -0.5f)
-#define MEDIUM_TEXT_OFFSET FSCALE * sf::Vector2f(-2.5f, 6.0f)
-#define LARGE_TEXT_OFFSET FSCALE * sf::Vector2f(-2.5f, 5.0f)
+#define SMALL_TEXT_OFFSET   sf::Vector2f(0.0f, -0.5f)
+#define MEDIUM_TEXT_OFFSET  sf::Vector2f(-2.5f, 6.0f)
+#define LARGE_TEXT_OFFSET   sf::Vector2f(-2.5f, 5.0f)
 
 // `StaticButtonInit` stores the confguration variables used when initialising a `StaticButton`
 struct StaticButtonInit
@@ -52,8 +52,8 @@ public:
   float GetHeight() const; 
   
 protected:
-  sf::Sprite button;    // The sprite used to render the button's background
-  sf::Text displayName; // The drawable used to render the button's name
+  mutable sf::Sprite button;    // The sprite used to render the button's background
+  mutable Text displayName; // The drawable used to render the button's name
 
   Event clickEvent; // The event associated with clicking the button
 

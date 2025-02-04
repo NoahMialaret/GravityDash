@@ -37,12 +37,12 @@ bool StaticInteractable::Update()
 
 void StaticInteractable::Render(sf::RenderWindow* win) const
 {
-  win->draw(staticText);
+  Utility::RenderTextWithScale(win, staticText, nullptr);
 }
 
 void StaticInteractable::SetPosition(sf::Vector2f& pos)
 {
-  staticText.setPosition(pos);
+  staticText.drawable.setPosition(pos);
 }
 
 
@@ -61,7 +61,7 @@ ToggleInteractable::ToggleInteractable(Settings::Setting setting)
   Interactable(setting)
 {
   Utility::InitSprite(toggleSprite, "toggle", {2, 1}, {1.0f, 0.5f});
-  
+
   UpdateSprite();
 }
 
@@ -78,7 +78,7 @@ bool ToggleInteractable::Update()
 
 void ToggleInteractable::Render(sf::RenderWindow* win) const
 {
-  win->draw(toggleSprite, &WORLD_SHADER);
+  Utility::RenderSpriteWithScale(win, toggleSprite, &WORLD_SHADER);
 }
 
 void ToggleInteractable::SetPosition(sf::Vector2f& pos)
@@ -124,7 +124,7 @@ bool RangeInteractable::Update()
   if (Settings::GetInstance()->IsActionOnInitialClick(Controls::Action::escape))
   {
     *value = backup;
-    Utility::UpdateText(rangeText, "{" + std::to_string(*value) + "}", {1.0f, 0.5f});
+    rangeText.drawable.setString("{" + std::to_string(*value) + "}");
     return true;
   }
 
@@ -136,7 +136,7 @@ bool RangeInteractable::Update()
   
   *value += delta;
   
-  Utility::UpdateText(rangeText, "{" + std::to_string(*value) + "}", {1.0f, 0.5f});
+  rangeText.drawable.setString("{" + std::to_string(*value) + "}");
 
   PUSH_EVENT(event);
 
@@ -145,12 +145,12 @@ bool RangeInteractable::Update()
 
 void RangeInteractable::Render(sf::RenderWindow* win) const
 {
-  win->draw(rangeText);
+  Utility::RenderTextWithScale(win, rangeText, nullptr);
 }
 
 void RangeInteractable::SetPosition(sf::Vector2f& pos)
 {
-  rangeText.setPosition(pos);
+  rangeText.drawable.setPosition(pos);
 }
 
 
@@ -182,7 +182,7 @@ bool SelectionInteractable::Update()
   if (Settings::GetInstance()->IsActionOnInitialClick(Controls::Action::escape))
   {
     *value = backup;
-    Utility::UpdateText(selectionText, "{" + selections[*value] + "}", {1.0f, 0.5f});
+    selectionText.drawable.setString("{" + selections[*value] + "}");
     return true;
   }
 
@@ -198,7 +198,7 @@ bool SelectionInteractable::Update()
   else if (*value >= (int)selections.size())
     *value = 0;
   
-  Utility::UpdateText(selectionText, "{" + selections[*value] + "}", {1.0f, 0.5f});
+  selectionText.drawable.setString("{" + selections[*value] + "}");
 
   PUSH_EVENT(event);
 
@@ -207,12 +207,12 @@ bool SelectionInteractable::Update()
 
 void SelectionInteractable::Render(sf::RenderWindow* win) const
 {
-  win->draw(selectionText);
+  Utility::RenderTextWithScale(win, selectionText, nullptr);
 }
 
 void SelectionInteractable::SetPosition(sf::Vector2f& pos)
 {
-  selectionText.setPosition(pos);
+  selectionText.drawable.setPosition(pos);
 }
 
 
@@ -224,9 +224,9 @@ KeybindInteractable::KeybindInteractable(sf::Keyboard::Key keyCode, Event::Type 
   Utility::InitText(controlText, SMALL_FONT, Keyboard::GetInstance()->GetStringFromKeyCode(keyCode), 
                     ZERO_VECTOR, {1.0f, 0.5f}, {255, 229, 181});
   
-  float width = controlText.getGlobalBounds().getSize().x;
-  keyBg = RoundedRect(controlText.getPosition() + sf::Vector2f(-width / 2.0f, -FSCALE), 
-                      sf::Vector2f(width + 4.0f * FSCALE, 6.0f * FSCALE), 
+  float width = controlText.drawable.getGlobalBounds().getSize().x;
+  keyBg = RoundedRect(controlText.drawable.getPosition() + sf::Vector2f(-width / 2.0f, -1.0f), 
+                      sf::Vector2f(width + 4.0f, 6.0f), 
                       {173, 103, 78});
 }
 
@@ -237,9 +237,9 @@ KeybindInteractable::KeybindInteractable(Settings::Setting setting)
   Utility::InitText(controlText, SMALL_FONT, Keyboard::GetInstance()->GetStringFromKeyCode((sf::Keyboard::Key)(*value)), 
                     ZERO_VECTOR, {1.0f, 0.5f}, {255, 229, 181});
   
-  float width = controlText.getGlobalBounds().getSize().x;
-  keyBg = RoundedRect(controlText.getPosition() + sf::Vector2f(-width / 2.0f, -FSCALE), 
-                      sf::Vector2f(width + 4.0f * FSCALE, 6.0f * FSCALE), 
+  float width = controlText.drawable.getGlobalBounds().getSize().x;
+  keyBg = RoundedRect(controlText.drawable.getPosition() + sf::Vector2f(-width / 2.0f, -1.0f), 
+                      sf::Vector2f(width + 4.0f, 6.0f), 
                       {173, 103, 78});
 }
 
@@ -255,10 +255,10 @@ bool KeybindInteractable::Update()
 
   *value = (int)keyCode;
 
-  Utility::UpdateText(controlText, codeString, {1.0f, 0.5f});
-  float width = controlText.getGlobalBounds().getSize().x;
-  keyBg.SetHorizontal(controlText.getPosition().x - width / 2.0f);
-  keyBg.SetDim(sf::Vector2f(width + 4.0f * FSCALE, 6.0f * FSCALE));
+  controlText.drawable.setString(codeString);
+  float width = controlText.drawable.getGlobalBounds().getSize().x;
+  keyBg.SetHorizontal(controlText.drawable.getPosition().x - width / 2.0f);
+  keyBg.SetDim(sf::Vector2f(width + 4.0f, 6.0f));
 
   PUSH_EVENT(event);
   
@@ -268,16 +268,16 @@ bool KeybindInteractable::Update()
 void KeybindInteractable::Render(sf::RenderWindow* win) const
 {
   keyBg.Render(win);
-  win->draw(controlText);
+  Utility::RenderTextWithScale(win, controlText, nullptr);
 }
 
 void KeybindInteractable::SetPosition(sf::Vector2f& pos)
 {
-  pos.x -= 2 * FSCALE;
-  float width = controlText.getGlobalBounds().getSize().x;
-  keyBg.SetHorizontal(controlText.getPosition().x - width / 2.0f);
+  pos.x -= 2.0f;
+  float width = controlText.drawable.getGlobalBounds().getSize().x;
+  keyBg.SetHorizontal(controlText.drawable.getPosition().x - width / 2.0f);
   keyBg.SetVertical(pos.y);
-  controlText.setPosition(pos);
+  controlText.drawable.setPosition(pos);
 }
 
 
@@ -311,7 +311,7 @@ bool ListItem::Update()
 
 void ListItem::Render(sf::RenderWindow *win) const
 {
-  win->draw(displayName);
+  Utility::RenderTextWithScale(win, displayName, nullptr);
   interactable.get()->Render(win);
 }
 
@@ -324,7 +324,7 @@ void ListItem::SetPosition(sf::Vector2f origin)
 {
   origin.y += vertOffset;
   origin.x -= LIST_MARGIN; // Left margin
-  displayName.setPosition(origin);
+  displayName.drawable.setPosition(origin);
 
   origin.x += 2 * LIST_MARGIN; // Right margin
   interactable.get()->SetPosition(origin);

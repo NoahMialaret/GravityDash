@@ -74,6 +74,8 @@ public:
 
     // Settings events
     updateSettings, // `UpdateSetting`
+    updateScale,    // null
+    fullscreen,     // null
 
     null, // null
   };

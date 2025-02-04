@@ -18,6 +18,8 @@
 
 // The zero vector, used to set default values
 #define ZERO_VECTOR (sf::Vector2f(0.0f, 0.0f))
+// The dimensions of a typical sprite
+#define SPRITE_DIM (Utility::GetInstance()->GetSpriteDim())
 // The dimensions of a typical sprite when rendered to the screen
 #define SCALED_DIM (FSCALE * Utility::GetInstance()->GetSpriteDim())
 // The default scale used by most sprites
@@ -68,9 +70,16 @@ public:
   // Initialises Sprite objects using its texture, the number of sub-textures that are contained, and the relative origin of the sprite (ranging from `0` - `1`) 
   static void InitSprite(sf::Sprite& sprite, std::string tex, sf::Vector2i subTexCount = {1, 1}, sf::Vector2f origin = {0.5f, 0.5f});
   // Initialises Text objects using its font, the text to display, its position, its relative origin (ranging from `0` to `1`), and its colour 
-  static void InitText(sf::Text& text, const sf::Font& font, std::string str, sf::Vector2f pos, sf::Vector2f origin = {0.5f, 0.5f}, sf::Color col = {173, 103, 78});
+  static void InitText(Text& text, const sf::Font& font, std::string str, sf::Vector2f pos, sf::Vector2f origin = {0.5f, 0.5f}, sf::Color col = {173, 103, 78});
   // Updates a Text object's new relative origin when its display text changes
-  static void UpdateText(sf::Text& text, std::string newStr, sf::Vector2f origin = {0.5f, 0.5f});
+  static void UpdateText(Text& text, std::string newStr, sf::Vector2f origin = {0.5f, 0.5f});
+
+  // Renders a Sprite with respect to the scale of the program
+  static void RenderSpriteWithScale(sf::RenderWindow* win, sf::Sprite& sprite, sf::Shader* shader);
+  // Renders a Text with respect to the scale of the program
+  static void RenderTextWithScale(sf::RenderWindow* win, Text& text, sf::Shader* shader);
+  // Renders a RectangleShape with respect to the scale of the program
+  static void RenderRectWithScale(sf::RenderWindow* win, sf::RectangleShape& rect, sf::Shader* shader);
 
 private:
   friend class Program; // Allows `Program` to handle sensitive functions and data members

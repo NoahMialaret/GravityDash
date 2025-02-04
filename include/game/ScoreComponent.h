@@ -47,7 +47,7 @@ private:
     
   private:
     int digit;          // The integer representation of `DisplayDigit`
-    sf::Sprite sprite;  // The graphical representation of `DisplayDigit`
+    mutable sf::Sprite sprite;  // The graphical representation of `DisplayDigit`
   };
 
 public:
