@@ -47,8 +47,8 @@ Puff::Puff(sf::Vector2f source, sf::Vector2f dir)
   }
 
   sf::Vector2f end;
-  end.x = source.x + dir.x * ProgramSettings::gameScale * Utility::GetInstance()->GetSpriteDim();
-  end.y = source.y + dir.y * ProgramSettings::gameScale;
+  end.x = source.x + dir.x * FSCALE * Utility::GetInstance()->GetSpriteDim();
+  end.y = source.y + dir.y * FSCALE;
   entity.PushPositionTransition(EASE_IN_CURVE, 400, source, end);
 }
 
@@ -123,5 +123,5 @@ SpeedLine::SpeedLine(sf::Vector2f start, float speed)
   }
 
   entity.PushAnimation(SPEEDLINE, 100, 0);
-  entity.PushPositionTransition(LINEAR_CURVE, 400, start, start + speed * sf::Vector2f(0.0f, ProgramSettings::gameScale));
+  entity.PushPositionTransition(LINEAR_CURVE, 400, start, start + speed * sf::Vector2f(0.0f, FSCALE));
 }

@@ -8,7 +8,7 @@
 #include "Event.h"
 #include "Game.h"
 #include "GameComponent.h"
-#include "ProgramSettings.h"
+#include "Settings.h"
 #include "Utility.h"
 #include "World.h"
 

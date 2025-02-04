@@ -10,7 +10,7 @@
 #include "Particle.h"
 #include "ParticleManager.h"
 #include "Utility.h"
-#include "ProgramSettings.h"
+#include "Settings.h"
 
 #include <iostream>
 #include <memory>
@@ -130,13 +130,10 @@ class PlayableCharacter : public Character
 {
 public:
   // Construct `PlayableCharacter` with the given controls used for user interfacing
-  PlayableCharacter(int charID, Controls* controls);
+  PlayableCharacter(int charID);
 
   // Updates movement information based on the controls being pressed
   void Update() override;
-
-private:
-  Controls* controls; // The mappings used by the user to control the character
 };
 
 // Represents a `Character` class that is controlled by the computer (i.e. random inputs)

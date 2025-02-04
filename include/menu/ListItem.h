@@ -7,7 +7,7 @@
 #include "Controls.h"
 #include "Event.h"
 #include "Keyboard.h"
-#include "ProgramSettings.h"
+#include "Settings.h"
 #include "RoundedRect.h"
 #include "Utility.h"
 

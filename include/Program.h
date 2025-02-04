@@ -11,10 +11,13 @@
 #include "ParticleManager.h"
 #include "AssetManager.h"
 #include "Utility.h"
-#include "ProgramSettings.h"
+#include "Settings.h"
 
 #include <algorithm>
 #include <iostream>
+
+// The path to the file that stores save data
+#define SAVE_FILE "files/save.json"
 
 // `Program` handles the programs's main window, proccesses, and objects,
 //   and is responsible for checking events, updating, and rendering objects
@@ -47,6 +50,12 @@ public:
 
 	// Returns the current program state
 	Program::State GetCurState() const;
+
+private:
+  // Loads save data from disk
+  void LoadSave(const char* filename);
+  // Writes save data to disk
+  void SaveData(const char* filename);
 
 private:
 	//SFML Objects --------------------------------------------------------

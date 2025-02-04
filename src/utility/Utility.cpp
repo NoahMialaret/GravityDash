@@ -1,5 +1,4 @@
 #include "Utility.h"
-#include "Particle.h"
 
 Utility* Utility::instance = nullptr;
 
@@ -19,44 +18,6 @@ void Utility::Clean()
   if (instance != nullptr)
     delete instance;
   instance = nullptr;
-}
-
-void Utility::LoadSave(const char *filename)
-{
-  try
-  {
-    std::ifstream file(filename);
-    nlohmann::json save = nlohmann::json::parse(file);
-
-    ProgramSettings::Init(save["settings"]);
-    Stats::Init(save["stats"]);
-
-    file.close();
-  }
-  catch (...)
-  {
-    std::cout << "Save file was corrupted or could not be found, creating new one...\n";
-    ProgramSettings::Init();
-    Stats::Init();
-    SaveData(filename);
-  }
-}
-
-void Utility::SaveData(const char* filename)
-{
-  nlohmann::json save;
-
-  ProgramSettings::Save(save);
-
-  Stats::Save(save);
-
-  std::ofstream file(filename);
-
-  file << save.dump(2);
-
-  file.close();
-
-  std::cout << "Data saved!\n";
 }
 
 int Utility::GetSpriteDim() const
@@ -152,5 +113,5 @@ void Utility::UpdateText(sf::Text& text, std::string newStr, sf::Vector2f origin
   text.setString(newStr);
 
   text.setOrigin({origin.x * text.getLocalBounds().width, 
-                  origin.y * text.getLocalBounds().height - ProgramSettings::gameScale});
+                  origin.y * text.getLocalBounds().height - FSCALE});
 }

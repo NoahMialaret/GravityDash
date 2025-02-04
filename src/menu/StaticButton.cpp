@@ -58,9 +58,9 @@ void StaticButton::ToggleHighlight()
 
 float StaticButton::GetWidth() const
 {
-  return button.getTextureRect().width * ProgramSettings::gameScale;
+  return button.getTextureRect().width * FSCALE;
 }
 float StaticButton::GetHeight() const
 {
-  return button.getTextureRect().height * ProgramSettings::gameScale;
+  return button.getTextureRect().height * FSCALE;
 }

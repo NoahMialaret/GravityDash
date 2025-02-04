@@ -10,7 +10,7 @@ TimerComponent::TimerComponent(Game* game, int maxTime)
 {
   Utility::InitSprite(refillArrow, "arrow");
 
-  timeRect = sf::RectangleShape(ProgramSettings::gameScale * sf::Vector2f(4.0f, 60.0f));
+  timeRect = sf::RectangleShape(FSCALE * sf::Vector2f(4.0f, 60.0f));
   timeRect.setFillColor(sf::Color(255, 229, 181));
   timeRect.setScale(sf::Vector2f(1.0f, -1.0f));
 
@@ -19,7 +19,7 @@ TimerComponent::TimerComponent(Game* game, int maxTime)
   std::function<void(sf::Vector2f)> updatePosFunction = [this](sf::Vector2f pos)
   {
     gauge.setPosition(pos);
-    timeRect.setPosition(pos + sf::Vector2f(0.0f, 0.5f * gauge.getGlobalBounds().height - ProgramSettings::gameScale));
+    timeRect.setPosition(pos + sf::Vector2f(0.0f, 0.5f * gauge.getGlobalBounds().height - FSCALE));
     arrowPos.x = pos.x + SCALED_DIM;
   };
   game->Attach(World::AttachPoint::right, updatePosFunction);
@@ -62,7 +62,7 @@ void TimerComponent::Update()
 
   if (timeRemaining > 0)
   {
-    timeRect.setSize(ProgramSettings::gameScale * sf::Vector2f(4.0f, (int)((gauge.getTextureRect().height - 1) * timeRemaining / maxTime)));
+    timeRect.setSize(FSCALE * sf::Vector2f(4.0f, (int)((gauge.getTextureRect().height - 1) * timeRemaining / maxTime)));
     return;
   }
 
@@ -95,7 +95,7 @@ void TimerComponent::Render(sf::RenderWindow* win) const
 void TimerComponent::AddTime(int addition)
 {
   timeRemaining += std::min(timeRemaining + addition, maxTime);
-  timeRect.setSize(ProgramSettings::gameScale * sf::Vector2f(4.0f, (int)((gauge.getTextureRect().height - 1) * timeRemaining / maxTime)));
+  timeRect.setSize(FSCALE * sf::Vector2f(4.0f, (int)((gauge.getTextureRect().height - 1) * timeRemaining / maxTime)));
 }
 
 void TimerComponent::MoveArrow()

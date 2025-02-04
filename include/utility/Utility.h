@@ -1,15 +1,12 @@
 #ifndef UTILITY_H
 #define UTILITY_H
 
-// The path to the file that stores save data
-#define SAVE_FILE "files/save.json"
-
 #include <SFML/Graphics.hpp>
 #include <nlohmann/json.hpp>
 
 #include "Bezier.h"
 #include "GameStats.h"
-#include "ProgramSettings.h"
+#include "Settings.h"
 #include "Stats.h"
 #include "AssetManager.h"
 
@@ -22,9 +19,9 @@
 // The zero vector, used to set default values
 #define ZERO_VECTOR (sf::Vector2f(0.0f, 0.0f))
 // The dimensions of a typical sprite when rendered to the screen
-#define SCALED_DIM (ProgramSettings::gameScale * Utility::GetInstance()->GetSpriteDim())
+#define SCALED_DIM (FSCALE * Utility::GetInstance()->GetSpriteDim())
 // The default scale used by most sprites
-#define DEFAULT_SCALE (sf::Vector2f(ProgramSettings::gameScale, ProgramSettings::gameScale))
+#define DEFAULT_SCALE (sf::Vector2f(FSCALE, FSCALE))
 
 // Linear bezier curve that increases at a constant rate
 #define LINEAR_CURVE   (Bezier({{0, 0},{1,1}}))
@@ -54,11 +51,6 @@ private:
 public:
   // Creates and returns the global instance of Utility
   static Utility* GetInstance();
-
-  // Loads save data from disk
-  void LoadSave(const char* filename);
-  // Writes save data to disk
-  void SaveData(const char* filename);
 
   // Returns the typical dimensions of a sprite
   int GetSpriteDim() const;

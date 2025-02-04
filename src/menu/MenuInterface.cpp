@@ -7,8 +7,7 @@ MenuInterface::MenuInterface(Event menuReturn)
 
 void MenuInterface::Update()
 {  
-  Controls* controls = ProgramSettings::GetControls();
-  if (controls->IsActionOnInitialClick(Controls::Action::escape))
+  if (Settings::GetInstance()->IsActionOnInitialClick(Controls::Action::escape))
     PUSH_EVENT(menuReturn);
 }
 
@@ -70,18 +69,17 @@ GridInterface::GridInterface(int initialHighlight, std::vector<StaticButtonInit>
 
 void GridInterface::Update()
 {
-  Controls* controls = ProgramSettings::GetControls();
-  if (controls->IsActionOnInitialClick(Controls::Action::select))
+  if (Settings::GetInstance()->IsActionOnInitialClick(Controls::Action::select))
   {
     buttons[grid[curButton]].Click();
     return;
   }
   MenuInterface::Update();
 
-  int xMove = controls->IsActionClicked(Controls::Action::right) 
-              - controls->IsActionClicked(Controls::Action::left);
-  int yMove = controls->IsActionClicked(Controls::Action::down) 
-              - controls->IsActionClicked(Controls::Action::up);
+  int xMove = Settings::GetInstance()->IsActionClicked(Controls::Action::right) 
+              - Settings::GetInstance()->IsActionClicked(Controls::Action::left);
+  int yMove = Settings::GetInstance()->IsActionClicked(Controls::Action::down) 
+              - Settings::GetInstance()->IsActionClicked(Controls::Action::up);
 
   // Returns if no movement is happening, or movement would be out-of-bounds
   if ((!xMove && !yMove) 
@@ -118,7 +116,7 @@ VerticalInterface::VerticalInterface(std::vector<StaticButtonInit>& configs, Eve
   MenuInterface(menuReturn)
 {
   StaticButton button(configs[0]);
-  float offset = button.GetHeight() + 2.0f * ProgramSettings::gameScale;
+  float offset = button.GetHeight() + 2.0f * FSCALE;
   float pos = 0.5f * offset * (configs.size() - 1);
 
   for (auto& c : configs)
@@ -134,8 +132,7 @@ VerticalInterface::VerticalInterface(std::vector<StaticButtonInit>& configs, Eve
 
 void VerticalInterface::Update()
 {
-  Controls* controls = ProgramSettings::GetControls();
-  if (controls->IsActionOnInitialClick(Controls::Action::select))
+  if (Settings::GetInstance()->IsActionOnInitialClick(Controls::Action::select))
   {
     buttons[curButton].Click();
     return;
@@ -143,8 +140,8 @@ void VerticalInterface::Update()
 
   MenuInterface::Update();
 
-  int move = controls->IsActionClicked(Controls::Action::down) 
-             - controls->IsActionClicked(Controls::Action::up);
+  int move = Settings::GetInstance()->IsActionClicked(Controls::Action::down) 
+             - Settings::GetInstance()->IsActionClicked(Controls::Action::up);
 
   if (!move || buttons.size() == 1)
     return;
@@ -175,23 +172,23 @@ GameEndInterface::GameEndInterface(std::vector<StaticButtonInit>& configs, Event
   for (auto& b : buttons)
     b.Move({4.0f * SCALED_DIM, 0});
 
-  float yPos = centre.y - ProgramSettings::gameScale * (40.0f + (GameStats::localStats.timeBoosts == -1 ? 0.0f : 7.0f)) / 2.0f;
+  float yPos = centre.y - FSCALE * (40.0f + (GameStats::localStats.timeBoosts == -1 ? 0.0f : 7.0f)) / 2.0f;
 
   Utility::InitText(displayTitle, LARGE_FONT, "results", {centre.x - 6.5f * SCALED_DIM, yPos - SCALED_DIM}, {0, 0.0f}, {255, 229, 181});
   displayTitle.setOutlineColor({173, 103, 78});
-  displayTitle.setOutlineThickness(ProgramSettings::gameScale);
+  displayTitle.setOutlineThickness(FSCALE);
 
   underline.setFillColor({173, 103, 78});
-  underline.setSize(sf::Vector2f(displayTitle.getLocalBounds().width / ProgramSettings::gameScale + 6, 1.0f));
+  underline.setSize(sf::Vector2f(displayTitle.getLocalBounds().width / FSCALE + 6, 1.0f));
   underline.setScale(DEFAULT_SCALE);
-  underline.setPosition(displayTitle.getPosition() + ProgramSettings::gameScale * sf::Vector2f(-3.0f, 17.0f));
+  underline.setPosition(displayTitle.getPosition() + FSCALE * sf::Vector2f(-3.0f, 17.0f));
 
-  float offset = 7 * ProgramSettings::gameScale;
+  float offset = 7 * FSCALE;
 
   sf::Text text;
-  Utility::InitText(text, SMALL_FONT, "jumps - " + std::to_string(GameStats::localStats.jumps), {centre.x - 6.0f * SCALED_DIM, yPos + 14.0f * ProgramSettings::gameScale}, {0, 0.0f}, {255, 229, 181});
+  Utility::InitText(text, SMALL_FONT, "jumps - " + std::to_string(GameStats::localStats.jumps), {centre.x - 6.0f * SCALED_DIM, yPos + 14.0f * FSCALE}, {0, 0.0f}, {255, 229, 181});
   text.setOutlineColor({173, 103, 78});
-  text.setOutlineThickness(ProgramSettings::gameScale);
+  text.setOutlineThickness(FSCALE);
 
   this->stats.push_back(text);
 
@@ -231,7 +228,7 @@ Header::Header(std::string text, float vertOffset)
 {
   Utility::InitText(displayTitle, LARGE_FONT, text, ZERO_VECTOR);
 
-  float width = displayTitle.getLocalBounds().width / ProgramSettings::gameScale + 4;
+  float width = displayTitle.getLocalBounds().width / FSCALE + 4;
 
   overline.setFillColor({173, 103, 78});
   overline.setSize(sf::Vector2f(width, 1.0f));
@@ -253,12 +250,12 @@ void Header::Render(sf::RenderWindow* win) const
 
 void Header::SetPosition(sf::Vector2f pos)
 {
-  pos.y += vertOffset - ProgramSettings::gameScale;
+  pos.y += vertOffset - FSCALE;
 
   underline.setPosition(pos);
   overline.setPosition(pos);
 
-  pos.y += - SCALED_DIM - ProgramSettings::gameScale;
+  pos.y += - SCALED_DIM - FSCALE;
   displayTitle.setPosition(pos);
 }
 
@@ -268,7 +265,7 @@ ListInterface::ListInterface(std::vector<std::pair<std::string, Interactable*>>&
   :
   MenuInterface(menuReturn),
   translation(&origin),
-  highlight({{0,0}, {2.0f * LIST_MARGIN + 2.0f * ProgramSettings::gameScale, 6 * ProgramSettings::gameScale}, sf::Color(245, 204, 164)})
+  highlight({{0,0}, {2.0f * LIST_MARGIN + 2.0f * FSCALE, 6.0f * FSCALE}, sf::Color(245, 204, 164)})
 {
   origin = ZERO_VECTOR;
 
@@ -305,13 +302,13 @@ void ListInterface::Update()
     return;
   }
 
-  Controls* controls = ProgramSettings::GetControls();
-  if (controls->IsActionOnInitialClick(Controls::Action::escape))
+  if (Settings::GetInstance()->IsActionOnInitialClick(Controls::Action::escape))
     PUSH_EVENT(menuReturn);
 
   highlight.SetColour(sf::Color(245, 204, 164));
 
-  int move = controls->IsActionClicked(Controls::Action::down) - controls->IsActionClicked(Controls::Action::up);
+  int move = Settings::GetInstance()->IsActionClicked(Controls::Action::down)  
+              - Settings::GetInstance()->IsActionClicked(Controls::Action::up);
 
   if (!move)
     return;

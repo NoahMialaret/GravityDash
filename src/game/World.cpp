@@ -4,9 +4,9 @@ World::World(sf::Vector2f size)
   :
   bounds(0.5f * SCALED_DIM * size)
 {
-  float outline = ProgramSettings::gameScale;
+  float outline = FSCALE;
   // TODO: fix world rendering
-  renderRect = sf::RectangleShape(SCALED_DIM * size);
+  renderRect = sf::RectangleShape((float)SCALED_DIM * size);
   renderRect.setOrigin(0.5f * SCALED_DIM * size);
   renderRect.setOutlineThickness(outline);
 

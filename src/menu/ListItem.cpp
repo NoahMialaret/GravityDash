@@ -82,20 +82,20 @@ RangeInteractable::RangeInteractable(int value, int min, int max)
 
 bool RangeInteractable::Update()
 {
-  if (ProgramSettings::GetControls()->IsActionOnInitialClick(Controls::Action::select))
+  if (Settings::GetInstance()->IsActionOnInitialClick(Controls::Action::select))
   {
     backup = value;
     return true;
   }
-  if (ProgramSettings::GetControls()->IsActionOnInitialClick(Controls::Action::escape))
+  if (Settings::GetInstance()->IsActionOnInitialClick(Controls::Action::escape))
   {
     value = backup;
     Utility::UpdateText(rangeText, "{" + std::to_string(value) + "}", {1.0f, 0.5f});
     return true;
   }
 
-  int delta = ProgramSettings::GetControls()->IsActionClicked(Controls::Action::right)
-            - ProgramSettings::GetControls()->IsActionClicked(Controls::Action::left);
+  int delta = Settings::GetInstance()->IsActionClicked(Controls::Action::right)
+            - Settings::GetInstance()->IsActionClicked(Controls::Action::left);
   
   if (!delta || value + delta > max || value + delta < min)
     return false;
@@ -129,20 +129,20 @@ SelectionInteractable::SelectionInteractable(int index, std::vector<std::string>
 
 bool SelectionInteractable::Update()
 {
-  if (ProgramSettings::GetControls()->IsActionOnInitialClick(Controls::Action::select))
+  if (Settings::GetInstance()->IsActionOnInitialClick(Controls::Action::select))
   {
     backup = value;
     return true;
   }
-  if (ProgramSettings::GetControls()->IsActionOnInitialClick(Controls::Action::escape))
+  if (Settings::GetInstance()->IsActionOnInitialClick(Controls::Action::escape))
   {
     value = backup;
     Utility::UpdateText(selectionText, "{" + selections[value] + "}", {1.0f, 0.5f});
     return true;
   }
 
-  int delta = ProgramSettings::GetControls()->IsActionClicked(Controls::Action::right)
-     - ProgramSettings::GetControls()->IsActionClicked(Controls::Action::left);
+  int delta = Settings::GetInstance()->IsActionClicked(Controls::Action::right)
+     - Settings::GetInstance()->IsActionClicked(Controls::Action::left);
   
   if (!delta)
     return false;
@@ -178,8 +178,8 @@ KeybindInteractable::KeybindInteractable(sf::Keyboard::Key keyCode)
                     ZERO_VECTOR, {1.0f, 0.5f}, {255, 229, 181});
   
   float width = controlText.getGlobalBounds().getSize().x;
-  keyBg = RoundedRect(controlText.getPosition() + sf::Vector2f(-width / 2.0f, -ProgramSettings::gameScale), 
-                      sf::Vector2f(width + 4.0f * ProgramSettings::gameScale, 6.0f * ProgramSettings::gameScale), 
+  keyBg = RoundedRect(controlText.getPosition() + sf::Vector2f(-width / 2.0f, -FSCALE), 
+                      sf::Vector2f(width + 4.0f * FSCALE, 6.0f * FSCALE), 
                       {173, 103, 78});
 }
 
@@ -196,7 +196,7 @@ bool KeybindInteractable::Update()
   Utility::UpdateText(controlText, codeString, {1.0f, 0.5f});
   float width = controlText.getGlobalBounds().getSize().x;
   keyBg.SetHorizontal(controlText.getPosition().x - width / 2.0f);
-  keyBg.SetDim(sf::Vector2f(width + 4.0f * ProgramSettings::gameScale, 6.0f * ProgramSettings::gameScale));
+  keyBg.SetDim(sf::Vector2f(width + 4.0f * FSCALE, 6.0f * FSCALE));
   
   return true;
 }
@@ -209,7 +209,7 @@ void KeybindInteractable::Render(sf::RenderWindow* win) const
 
 void KeybindInteractable::SetPosition(sf::Vector2f& pos)
 {
-  pos.x -= 2 * ProgramSettings::gameScale;
+  pos.x -= 2 * FSCALE;
   float width = controlText.getGlobalBounds().getSize().x;
   keyBg.SetHorizontal(controlText.getPosition().x - width / 2.0f);
   keyBg.SetVertical(pos.y);
@@ -241,7 +241,7 @@ bool ListItem::Update()
     return true;
   }
 
-  if (ProgramSettings::p1Controls.IsActionOnInitialClick(Controls::Action::select))
+  if (Settings::GetInstance()->IsActionOnInitialClick(Controls::Action::select))
   {
     isActive = true;
     return true;

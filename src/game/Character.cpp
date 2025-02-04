@@ -4,7 +4,7 @@ Character::Character(int charID)
   : 
   charID(charID),
   entity("character", {4, NUM_ANIMS}),
-  acceleration(0.2f * ProgramSettings::gameScale),
+  acceleration(0.2f * FSCALE),
   reticle("reticle")
 {
   vel.y = 1000.0f;
@@ -349,10 +349,9 @@ void Character::Stun()
 // Playable Character
 // ------------------
 
-PlayableCharacter::PlayableCharacter(int charID, Controls* controls)
+PlayableCharacter::PlayableCharacter(int charID)
   : 
-  Character(charID),
-  controls(controls)
+  Character(charID)
 {}
 
 void PlayableCharacter::Update()
@@ -363,13 +362,14 @@ void PlayableCharacter::Update()
     return;
   }
 
-  if (controls->IsActionOnInitialClick(Controls::Action::jump))
+  if (Settings::GetInstance()->IsActionOnInitialClick(Controls::Action::jump, charID))
     Jump();
 
-  else if(controls->IsActionOnInitialClick(Controls::Action::special))
+  else if(Settings::GetInstance()->IsActionOnInitialClick(Controls::Action::special, charID))
     SuperJump();
 
-  horiDir = controls->IsActionHeld(Controls::Action::right) - controls->IsActionHeld(Controls::Action::left);
+  horiDir = Settings::GetInstance()->IsActionHeld(Controls::Action::right, charID) 
+          - Settings::GetInstance()->IsActionHeld(Controls::Action::left, charID);
 
   Character::Update();
 }

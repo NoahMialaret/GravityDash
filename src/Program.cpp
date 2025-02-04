@@ -2,7 +2,7 @@
 
 Program::Program(const char* name)
 {
-  Utility::GetInstance()->LoadSave(SAVE_FILE);
+  LoadSave(SAVE_FILE);
 
 	std::cout << "--=== Program Init ===--\n"  << "Initialising SFML Window...\n";
 
@@ -22,8 +22,8 @@ Program::Program(const char* name)
 		std::cout << "\tWindow dimensions: " << windowSize.x << "px x " << windowSize.y << "px\n";
 		std::cout << "\tDesktop dimensions: " << desktop.width << "px x " << desktop.height << "px\n";
 
-		ProgramSettings::gameScale = scale;
-    ProgramSettings::windowDim = windowSize;
+		Settings::GetInstance()->SetSetting(Settings::Setting::scale, scale);
+    Settings::GetInstance()->windowDim = windowSize;
 
 		window.create(sf::VideoMode(windowSize.x, windowSize.y), name, sf::Style::Close);
 
@@ -64,7 +64,7 @@ Program::Program(const char* name)
 
 Program::~Program()
 {
-  Utility::GetInstance()->SaveData(SAVE_FILE);
+  SaveData(SAVE_FILE);
 
 	std::cout << "Cleaning program...\n";
 
@@ -238,4 +238,43 @@ void Program::Render()
 Program::State Program::GetCurState() const 
 {
 	return curState;
+}
+
+
+void Program::LoadSave(const char* filename)
+{
+  try
+  {
+    std::ifstream file(filename);
+    nlohmann::json save = nlohmann::json::parse(file);
+
+    Settings::GetInstance()->Load(save["settings"]);
+    Stats::Init(save["stats"]);
+
+    file.close();
+  }
+  catch (...)
+  {
+    std::cout << "Save file was corrupted or could not be found, creating new one...\n";
+    Settings::GetInstance()->Load();
+    Stats::Init();
+    SaveData(filename);
+  }
+}
+
+void Program::SaveData(const char* filename)
+{
+  nlohmann::json save;
+
+  Settings::GetInstance()->Save(save);
+
+  Stats::Save(save);
+
+  std::ofstream file(filename);
+
+  file << save.dump(2);
+
+  file.close();
+
+  std::cout << "Data saved!\n";
 }

@@ -6,7 +6,7 @@
 #include "AnimationHandler.h"
 #include "Clock.h"
 #include "Entity.h"
-#include "ProgramSettings.h"
+#include "Settings.h"
 
 #include <iostream>
 

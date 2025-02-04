@@ -6,7 +6,7 @@
 #include "Event.h"
 #include "AssetManager.h"
 #include "Utility.h"
-#include "ProgramSettings.h"
+#include "Settings.h"
 
 #include <string>
 #include <vector>
@@ -15,9 +15,9 @@
 #define MEDIUM 1
 #define LARGE 2
 
-#define SMALL_TEXT_OFFSET ProgramSettings::gameScale * sf::Vector2f(0.0f, -0.5f)
-#define MEDIUM_TEXT_OFFSET ProgramSettings::gameScale * sf::Vector2f(-2.5f, 6.0f)
-#define LARGE_TEXT_OFFSET ProgramSettings::gameScale * sf::Vector2f(-2.5f, 5.0f)
+#define SMALL_TEXT_OFFSET FSCALE * sf::Vector2f(0.0f, -0.5f)
+#define MEDIUM_TEXT_OFFSET FSCALE * sf::Vector2f(-2.5f, 6.0f)
+#define LARGE_TEXT_OFFSET FSCALE * sf::Vector2f(-2.5f, 5.0f)
 
 // `StaticButtonInit` stores the confguration variables used when initialising a `StaticButton`
 struct StaticButtonInit

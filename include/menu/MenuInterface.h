@@ -11,7 +11,7 @@
 #include "Event.h" 
 #include "GameStats.h"
 #include "ListItem.h"
-#include "ProgramSettings.h"
+#include "Settings.h"
 #include "StaticButton.h"
 #include "Utility.h"
 
@@ -36,7 +36,7 @@ protected:
 };
 
 // The vertical offset of the top and bottom row from the centre of the grid
-#define GRID_VERT_POS (2.0f * float(SCALED_DIM) - ProgramSettings::gameScale)
+#define GRID_VERT_POS (2.0f * float(SCALED_DIM) - FSCALE)
 
 // `GridInterface` specifies a layout where buttons are arranged on a 2 x 3 grid
 class GridInterface : public MenuInterface

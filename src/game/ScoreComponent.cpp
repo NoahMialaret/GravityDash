@@ -9,8 +9,8 @@ ScoreComponent::ScoreComponent(Game* game)
     if (digits.empty())
       return;
 
-    float width = ProgramSettings::gameScale * digits.front().GetTextureRectWidth();
-    sf::Vector2f offset(-0.5f * width * ((float)digits.size() - 1.0f), -ProgramSettings::gameScale);
+    float width = FSCALE * digits.front().GetTextureRectWidth();
+    sf::Vector2f offset(-0.5f * width * ((float)digits.size() - 1.0f), -FSCALE);
     for (auto& digit : digits)
     {
       digit.SetPositon(pos + offset);

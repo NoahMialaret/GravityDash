@@ -1,7 +1,7 @@
 {
   "settings": {
     "accessibility": {
-      "colourHelp": false,
+      "colourHelp": 0,
       "player": 2,
       "saw": 3,
       "target": 1,
@@ -13,40 +13,36 @@
       "sfx": 10
     },
     "multiplayer": {
-      "p1Colour": 0,
+      "p1Colour": 2,
       "p1Controls": {
-        "down": "s",
-        "escape": "esc",
-        "jump": "space",
-        "left": "a",
-        "right": "d",
-        "select": "space",
-        "special": "lshft",
-        "up": "w"
+        "down": 18,
+        "escape": 36,
+        "jump": 57,
+        "left": 0,
+        "right": 3,
+        "select": 57,
+        "special": 38,
+        "up": 22
       },
-      "p2Colour": 0,
+      "p2Colour": 1,
       "p2Controls": {
-        "down": "down",
-        "escape": "p-down",
-        "jump": "up",
-        "left": "left",
-        "right": "right",
-        "select": "p-up",
-        "special": "rshft",
-        "up": "up"
+        "jump": 73,
+        "left": 71,
+        "right": 72,
+        "special": 42
       }
     },
     "video": {
-      "autoScale": true,
+      "autoScale": 1,
       "colour": 0,
-      "fullscreen": false,
-      "scale": 6.0
+      "fullscreen": 0,
+      "scale": 6
     }
   },
   "stats": {
     "combos": 0,
     "coop": [
-      50,
+      0,
       0,
       0
     ],
@@ -54,14 +50,14 @@
     "hits": 0,
     "jumps": 0,
     "min": [
-      100,
-      1,
+      0,
+      0,
       0
     ],
     "rush": [
-      200,
-      34,
-      5
+      0,
+      0,
+      0
     ],
     "specialJumps": 0
   }

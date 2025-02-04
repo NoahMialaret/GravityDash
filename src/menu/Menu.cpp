@@ -87,39 +87,40 @@ MenuInterface* Menu::LoadMenu(Type menuType)
     std::vector<std::pair<std::string, Interactable*>> interactables =
     {
       // Video - 0
-      {"auto-scale",  new ToggleInteractable(true)},
-      {"scale",       new RangeInteractable(6, 1 ,32)},
-      {"fullscreen",  new ToggleInteractable(false)},
-      {"colour",      new SelectionInteractable(0, colours)},
+      {"auto-scale",  new ToggleInteractable(GET_SETTING(Settings::Setting::autoScale))},
+      {"scale",       new RangeInteractable(GET_SETTING(Settings::Setting::scale), 1 ,32)},
+      {"fullscreen",  new ToggleInteractable(GET_SETTING(Settings::Setting::fullscreen))},
+      {"colour",      new SelectionInteractable(GET_SETTING(Settings::Setting::colour), colours)},
 
       // Audio - 4
-      {"music", new RangeInteractable(5, 0, 10)},
-      {"sfx",   new RangeInteractable(3, 0, 10)},
+      {"music", new RangeInteractable(GET_SETTING(Settings::Setting::music), 0, 10)},
+      {"sfx",   new RangeInteractable(GET_SETTING(Settings::Setting::sfx), 0, 10)},
 
       // Controls - 6
-      {"left",        new KeybindInteractable(KEYBIND_ACTION(1, Controls::Action::left))},
-      {"right",       new KeybindInteractable(KEYBIND_ACTION(1, Controls::Action::right))},
-      {"up",          new KeybindInteractable(KEYBIND_ACTION(1, Controls::Action::up))},
-      {"down",        new KeybindInteractable(KEYBIND_ACTION(1, Controls::Action::down))},
-      {"jump",        new KeybindInteractable(KEYBIND_ACTION(1, Controls::Action::jump))},
-      {"select",      new KeybindInteractable(KEYBIND_ACTION(1, Controls::Action::select))},
-      {"special",     new KeybindInteractable(KEYBIND_ACTION(1, Controls::Action::special))},
-      {"pause/exit",  new KeybindInteractable(KEYBIND_ACTION(1, Controls::Action::escape))},
+      {"left",        new KeybindInteractable((sf::Keyboard::Key)GET_SETTING(Settings::Setting::left))},
+      {"right",       new KeybindInteractable((sf::Keyboard::Key)GET_SETTING(Settings::Setting::right))},
+      {"up",          new KeybindInteractable((sf::Keyboard::Key)GET_SETTING(Settings::Setting::up))},
+      {"down",        new KeybindInteractable((sf::Keyboard::Key)GET_SETTING(Settings::Setting::down))},
+      {"jump",        new KeybindInteractable((sf::Keyboard::Key)GET_SETTING(Settings::Setting::jump))},
+      {"select",      new KeybindInteractable((sf::Keyboard::Key)GET_SETTING(Settings::Setting::select))},
+      {"special",     new KeybindInteractable((sf::Keyboard::Key)GET_SETTING(Settings::Setting::special))},
+      {"pause/exit",  new KeybindInteractable((sf::Keyboard::Key)GET_SETTING(Settings::Setting::escape))},
 
       // Multiplayer - 14
-      {"p1-colour",   new SelectionInteractable(0, colours)},
-      {"p2-colour",   new SelectionInteractable(1, colours)},
-      {"p2-left",     new KeybindInteractable(KEYBIND_ACTION(2, Controls::Action::left))},
-      {"p2-right",    new KeybindInteractable(KEYBIND_ACTION(2, Controls::Action::right))},
-      {"p2-jump",     new KeybindInteractable(KEYBIND_ACTION(2, Controls::Action::jump))},
-      {"p2-special",  new KeybindInteractable(KEYBIND_ACTION(2, Controls::Action::special))},
+      {"p1-colour",   new SelectionInteractable(GET_SETTING(Settings::Setting::p1Col), colours)},
+      {"p2-colour",   new SelectionInteractable(GET_SETTING(Settings::Setting::p2Col), colours)},
+      {"p2-left",     new KeybindInteractable((sf::Keyboard::Key)GET_SETTING(Settings::Setting::p2Left))},
+      {"p2-right",    new KeybindInteractable((sf::Keyboard::Key)GET_SETTING(Settings::Setting::p2Left))},
+      {"p2-jump",     new KeybindInteractable((sf::Keyboard::Key)GET_SETTING(Settings::Setting::p2Left))},
+      {"p2-special",  new KeybindInteractable((sf::Keyboard::Key)GET_SETTING(Settings::Setting::p2Left))},
 
       // Accessibility - 20
-      {"colour-help", new ToggleInteractable(false)},
-      {"world",       new SelectionInteractable(0, colours)},
-      {"player",      new SelectionInteractable(1, colours)},
-      {"target",      new SelectionInteractable(2, colours)},
-      {"saw",         new SelectionInteractable(3, colours)}
+      {"colour-help", new ToggleInteractable(GET_SETTING(Settings::Setting::p1Col))},
+      {"world",       new SelectionInteractable(GET_SETTING(Settings::Setting::accWorldCol), colours)},
+      {"player",      new SelectionInteractable(GET_SETTING(Settings::Setting::accPlayerCol), colours)},
+      {"target",      new SelectionInteractable(GET_SETTING(Settings::Setting::accTargetCol), colours)},
+      {"saw",         new SelectionInteractable(GET_SETTING(Settings::Setting::accSawCol), colours)},
+      {"time",         new SelectionInteractable(GET_SETTING(Settings::Setting::accTimeCol), colours)},
     };
 
     std::vector<std::pair<int, std::string>> headers =

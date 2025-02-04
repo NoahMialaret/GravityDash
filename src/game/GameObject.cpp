@@ -104,7 +104,7 @@ Saw::Saw(const sf::Vector2f& worldBounds)
   int isOnTop = dist(Utility::GetInstance()->GetRNG());
   int isGoingRight = dist(Utility::GetInstance()->GetRNG());
 
-  vel = 0.0625f * ProgramSettings::gameScale * (isGoingRight ? 1.0f : -1.0f);
+  vel = 0.0625f * FSCALE * (isGoingRight ? 1.0f : -1.0f);
   pos->x = (isGoingRight ? -1.0f : 1.0f) * worldBounds.x + posBuffer;
   pos->y = (isOnTop ? -1.0f : 1.0f) * worldBounds.y;
 }
@@ -181,7 +181,7 @@ MovingTarget::MovingTarget(const sf::Vector2f& worldBounds)
   yBase = pos->y;
 
   std::uniform_real_distribution<float> floatDist(0.3f, 1.0f);
-  vel = 0.0625 * floatDist(Utility::GetInstance()->GetRNG()) * ProgramSettings::gameScale * (isGoingRight ? 1.0f : -1.0f);
+  vel = 0.0625 * floatDist(Utility::GetInstance()->GetRNG()) * FSCALE * (isGoingRight ? 1.0f : -1.0f);
   oscillationSpeed = 64.0f * vel;
   
   if (!isGoingRight)
@@ -196,7 +196,7 @@ void MovingTarget::Update()
     return;
 
   float rad = (float)Clock::GetInstance()->Elapsed() / 1024.0f * oscillationSpeed;
-  pos->y = yBase + 0.5f * ProgramSettings::gameScale * std::sin(rad);
+  pos->y = yBase + 0.5f * FSCALE * std::sin(rad);
 }
 
 void MovingTarget::HandleCollision(Character *character)
@@ -241,7 +241,7 @@ TimeBonus::TimeBonus(const sf::Vector2f& worldBounds)
   pos->y = yDist(Utility::GetInstance()->GetRNG());
 
   std::uniform_real_distribution<float> floatDist(0.3f, 1.0f);
-  vel = 1.5f * 0.0625f * floatDist(Utility::GetInstance()->GetRNG()) * ProgramSettings::gameScale * (isGoingRight ? 1.0f : -1.0f);
+  vel = 1.5f * 0.0625f * floatDist(Utility::GetInstance()->GetRNG()) * FSCALE * (isGoingRight ? 1.0f : -1.0f);
 }
 
 void TimeBonus::HandleCollision(Character *character)

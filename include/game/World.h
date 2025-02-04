@@ -4,7 +4,7 @@
 #include <SFML/Graphics.hpp>
 
 #include "Attachment.h"
-#include "ProgramSettings.h"
+#include "Settings.h"
 #include "Utility.h"
 
 #include <functional>

@@ -6,7 +6,7 @@
 #include "Game.h"
 #include "GameComponent.h"
 #include "Number.h"
-#include "ProgramSettings.h"
+#include "Settings.h"
 #include "Utility.h"
 #include "World.h"
 
