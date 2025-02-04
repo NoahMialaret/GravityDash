@@ -163,18 +163,24 @@ void Settings::SetSetting(Setting setting, int val)
       || (setting >= Setting::p2Left && setting <= Setting::p2Special))
     InitControls();
 
-  else if (setting == Setting::autoScale && autoScaleVal != settings[(int)Setting::scale])
-    PUSH_EVENT(Event::Type::updateScale);
-  else if (setting == Setting::scale && !settings[(int)Setting::autoScale])
-    PUSH_EVENT(Event::Type::updateScale);
-
   else if (setting == Setting::fullscreen)
-    PUSH_EVENT(Event::Type::fullscreen);
+    PUSH_EVENT(Event::Type::updateWindow);
+
+  if (settings[(int)Setting::fullscreen])
+    return;
+
+  else if (setting == Setting::autoScale && autoScaleVal != settings[(int)Setting::scale])
+    PUSH_EVENT(Event::Type::updateWindow);
+
+  else if (setting == Setting::scale && !settings[(int)Setting::autoScale])
+    PUSH_EVENT(Event::Type::updateWindow);
 
 }
 
 int Settings::GetScale() const
 {
+  if (settings[(int)Setting::fullscreen])
+    return 2 * autoScaleVal;
   return settings[(int)Setting::autoScale] ? autoScaleVal : settings[(int)Setting::scale];
 }
 

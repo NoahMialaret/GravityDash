@@ -19,7 +19,7 @@
 // The path to the file that stores save data
 #define SAVE_FILE "files/save.json"
 // The aspect ratio of the window
-#define ASPECT_RATIO sf::Vector2u(160, 90);
+#define ASPECT_RATIO (sf::Vector2u(160, 90));
 
 // `Program` handles the programs's main window, proccesses, and objects,
 //   and is responsible for checking events, updating, and rendering objects

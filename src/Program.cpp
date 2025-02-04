@@ -25,9 +25,6 @@ Program::Program(const char* name)
     std::cout << "\tWindow dimensions: " << window.getSize().x << "px x " << window.getSize().y << "px\n";
     std::cout << "\tDesktop dimensions: " << desktop.width << "px x " << desktop.height << "px\n";
 
-    // Sets the max framerate of the window to improve performance
-    window.setFramerateLimit(Settings::targetFrameRate);
-
     // Sets the window to be the middle of the desktop
     window.setPosition(sf::Vector2i((desktop.width - window.getSize().x) / 2, (desktop.height - window.getSize().y) / 2));
 
@@ -142,11 +139,8 @@ void Program::ProcessEvents()
                                           event.data.updateSettings.value);
       break;
 
-    case Event::Type::updateScale:
+    case Event::Type::updateWindow:
       UpdateWindow();
-      break;
-
-    case Event::Type::fullscreen:
       break;
 		
 		default: // Game related event
@@ -281,11 +275,18 @@ void Program::SaveData(const char* filename)
 
 void Program::UpdateWindow()
 {
-  sf::Vector2u windowSize = (unsigned int)SCALE * ASPECT_RATIO;
+  sf::Vector2u windowSize;
+
+  windowSize = (unsigned int)SCALE * ASPECT_RATIO;
 
   Settings::GetInstance()->windowDim = windowSize;
 
-  window.create(sf::VideoMode(windowSize.x, windowSize.y), name, sf::Style::Close);
+  window.close();
+
+  if (GET_SETTING(Settings::Setting::fullscreen))
+    window.create(sf::VideoMode::getFullscreenModes()[0], name, sf::Style::Fullscreen);
+  else
+    window.create(sf::VideoMode(windowSize.x, windowSize.y), name, sf::Style::Close);
 
   mainView = window.getDefaultView();
 
@@ -293,7 +294,12 @@ void Program::UpdateWindow()
 
   window.setView(mainView);
 
+  // Disables holding the key counting as a press as this is handled in `Keyboard`
   window.setKeyRepeatEnabled(false);
 
+  // Hides the mouse as it is not used
   window.setMouseCursorVisible(false);
+
+  // Sets the max framerate of the window to improve performance
+  window.setFramerateLimit(Settings::targetFrameRate);
 }
