@@ -46,6 +46,7 @@ void Settings::Load()
   };
 
   InitControls();
+  SetWorldColour();
 }
 
 void Settings::Load(nlohmann::json& json)
@@ -87,6 +88,7 @@ void Settings::Load(nlohmann::json& json)
     };
 
     InitControls();
+    SetWorldColour();
   }
   catch (...)
   {
@@ -189,6 +191,11 @@ int Settings::GetScale() const
   if (settings[(int)Setting::fullscreen])
     return 2 * autoScaleVal;
   return settings[(int)Setting::autoScale] ? autoScaleVal : settings[(int)Setting::scale];
+}
+
+sf::Vector2u Settings::GetWindowDim() const
+{
+  return windowDim;
 }
 
 bool Settings::IsActionOnInitialClick(Controls::Action action, int player)

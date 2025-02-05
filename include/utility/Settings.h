@@ -97,7 +97,10 @@ public:
   // Sets the value of an associated setting
   void SetSetting(Setting setting, int val);
 
+  // Returns the scale of the program given the value of the fullscreen and auto-scale settings
   int GetScale() const;
+  // Returns the dimensions of the window
+  sf::Vector2u GetWindowDim() const;
 
   // Returns whether the key associated with an Action is being held for a given player
   bool IsActionOnInitialClick(Controls::Action action, int player = 0);

@@ -2,6 +2,7 @@
 
 uniform sampler2D texture;  // The texture that is being referenced
 uniform int colorID;        // Determines which colour to render the texture in
+uniform vec2 screenDim;     // The dimensions of the screen
 
 mat4 brown = mat4(
   vec4(255.0, 229.0, 181.0, 255.0),
@@ -35,6 +36,11 @@ void main()
 {
   // lookup the pixel in the texture
   vec4 pixel = texture2D(texture, gl_TexCoord[0].xy);
+
+  vec2 fc = gl_FragCoord.xy - screenDim.xy / 2;
+  if (abs(fc.x) >= screenDim.x / 2 
+      || abs(fc.y) >= screenDim.y / 2)
+    return;
 
   gl_FragColor = gl_Color * pixel;
 

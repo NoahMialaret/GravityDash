@@ -296,14 +296,14 @@ void ListInterface::Update()
 
   if (list[curIndex].Update())
   {
-    highlight.SetColour(LIGHT);
+    highlight.SetColour(DARK);
     return;
   }
 
   if (Settings::GetInstance()->IsActionOnInitialClick(Controls::Action::escape))
     PUSH_EVENT(menuReturn);
 
-  highlight.SetColour(LIGHTEST);
+  highlight.SetColour(LIGHT);
 
   int move = Settings::GetInstance()->IsActionClicked(Controls::Action::down)  
               - Settings::GetInstance()->IsActionClicked(Controls::Action::up);

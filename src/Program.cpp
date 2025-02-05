@@ -304,5 +304,12 @@ void Program::UpdateWindow()
   // Sets the max framerate of the window to improve performance
   window.setFramerateLimit(Settings::targetFrameRate);
 
+  window.setVerticalSyncEnabled(true);
+
   ENTITY_SHADER.setUniform("scale", SCALE);
+  WORLD_SHADER.setUniform("scale", SCALE);
+
+  STATIC_SHADER.setUniform("screenDim", {sf::Vector2f(windowSize)});
+  ENTITY_SHADER.setUniform("screenDim", {sf::Vector2f(windowSize)});
+  RECT_SHADER.setUniform("screenDim", {sf::Vector2f(windowSize)});
 }

@@ -2,7 +2,8 @@
 
 // Shader used for rendering shapes
 
-uniform int colorID;  // Determines which colour to render the pixel in
+uniform int colorID;    // Determines which colour to render the pixel in
+uniform vec2 screenDim; // The dimensions of the screen
 
 mat4 brown = mat4(
   vec4(255.0, 229.0, 181.0, 255.0),
@@ -34,6 +35,11 @@ mat4 purple = mat4(
 
 void main()
 {
+  vec2 fc = gl_FragCoord.xy - screenDim.xy / 2;
+  if (abs(fc.x) >= screenDim.x / 2 
+      || abs(fc.y) >= screenDim.y / 2)
+    return;
+
   gl_FragColor = gl_Color;
 
   if (gl_FragColor.a <= 0.0)
