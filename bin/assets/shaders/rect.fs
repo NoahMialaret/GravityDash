@@ -1,7 +1,8 @@
 #version 120
 
-uniform sampler2D texture;  // The texture that is being referenced
-uniform int colorID;        // Determines which colour to render the texture in
+// Shader used for rendering shapes
+
+uniform int colorID;  // Determines which colour to render the pixel in
 
 mat4 brown = mat4(
   vec4(255.0, 229.0, 181.0, 255.0),
@@ -33,10 +34,7 @@ mat4 purple = mat4(
 
 void main()
 {
-  // lookup the pixel in the texture
-  vec4 pixel = texture2D(texture, gl_TexCoord[0].xy);
-
-  gl_FragColor = gl_Color * pixel;
+  gl_FragColor = gl_Color;
 
   if (gl_FragColor.a <= 0.0)
     return;

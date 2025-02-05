@@ -213,6 +213,7 @@ void Settings::SetWorldColour()
     col = settings[(int)Setting::accWorldCol];
   STATIC_SHADER.setUniform("colorID", col);
   WORLD_SHADER.setUniform("colorID", col);
+  RECT_SHADER.setUniform("colorID", col);
 }
 
 Settings::Colours Settings::GetPlayerColour(int id)

@@ -86,7 +86,7 @@ void TimerComponent::Update()
 
 void TimerComponent::Render(sf::RenderWindow* win) const
 {
-  Utility::RenderRectWithScale(win, timeRect, &STATIC_SHADER);
+  Utility::RenderRectWithScale(win, timeRect);
   Utility::RenderSpriteWithScale(win, gauge, &STATIC_SHADER);
   if (!done && showArrow)
     Utility::RenderSpriteWithScale(win, refillArrow, &STATIC_SHADER);

@@ -66,7 +66,7 @@ void RoundedRect::SetColour(sf::Color col)
 
 void RoundedRect::Render(sf::RenderWindow* win) const
 {
-  Utility::RenderRectWithScale(win, main, &STATIC_SHADER);
-  Utility::RenderRectWithScale(win, left, &STATIC_SHADER);
-  Utility::RenderRectWithScale(win, right, &STATIC_SHADER);
+  Utility::RenderRectWithScale(win, main);
+  Utility::RenderRectWithScale(win, left);
+  Utility::RenderRectWithScale(win, right);
 }

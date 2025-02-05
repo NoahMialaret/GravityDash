@@ -31,7 +31,7 @@ void World::Update()
 
 void World::Render(sf::RenderWindow* win) const
 {
-  Utility::RenderRectWithScale(win, renderRect, &WORLD_SHADER);
+  // Utility::RenderRectWithScale(win, renderRect, &WORLD_SHADER);
   // win->draw(renderRect, &WORLD_SHADER);
 }
 

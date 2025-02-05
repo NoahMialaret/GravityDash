@@ -28,12 +28,23 @@
 #define ENTITY_SHADER AssetManager::GetInstance()->GetShad("entity")
 // Gets a reference to the shader used for rendering static UI elements 
 #define STATIC_SHADER AssetManager::GetInstance()->GetShad("static")
+// Gets a reference to the shader used for rendering text and rectangles 
+#define RECT_SHADER AssetManager::GetInstance()->GetShad("rect")
 
 // Stores the relative origin as seperate since
 struct Text
 {
   sf::Text drawable;
   sf::Vector2f origin;
+};
+
+// Stores variables used by the rectangle shader
+struct Rect
+{
+  sf::RectangleShape drawable;
+  int fillCol0;
+  int fillCol1;
+  int outlineCol;
 };
 
 // The `AssetManager` class is a global singleton that provides an interface to access

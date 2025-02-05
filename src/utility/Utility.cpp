@@ -132,7 +132,7 @@ void Utility::RenderSpriteWithScale(sf::RenderWindow* win, sf::Sprite& sprite, s
   sprite.setScale(scale);
 }
 
-void Utility::RenderTextWithScale(sf::RenderWindow* win, Text& text, sf::Shader* shader)
+void Utility::RenderTextWithScale(sf::RenderWindow* win, Text& text)
 {
   sf::Vector2f pos = text.drawable.getPosition();
   float outline = text.drawable.getOutlineThickness();
@@ -145,14 +145,14 @@ void Utility::RenderTextWithScale(sf::RenderWindow* win, Text& text, sf::Shader*
   text.drawable.setOrigin({text.origin.x * text.drawable.getLocalBounds().width, 
                   text.origin.y * text.drawable.getLocalBounds().height - FSCALE});
 
-  win->draw(text.drawable, shader);
+  win->draw(text.drawable, &STATIC_SHADER);
 
   text.drawable.setPosition(pos);
   text.drawable.setOutlineThickness(outline);
   text.drawable.setCharacterSize(size);
 }
 
-void Utility::RenderRectWithScale(sf::RenderWindow* win, sf::RectangleShape& rect, sf::Shader* shader)
+void Utility::RenderRectWithScale(sf::RenderWindow* win, sf::RectangleShape& rect)
 {
   sf::Vector2f pos = rect.getPosition();
   sf::Vector2f size = rect.getSize();
@@ -164,7 +164,7 @@ void Utility::RenderRectWithScale(sf::RenderWindow* win, sf::RectangleShape& rec
   rect.setOrigin(FSCALE * origin);
   rect.setOutlineThickness(FSCALE * outline);
 
-  win->draw(rect, shader);
+  win->draw(rect, &RECT_SHADER);
 
   rect.setPosition(pos);
   rect.setSize(size);

@@ -77,9 +77,9 @@ public:
   // Renders a Sprite with respect to the scale of the program
   static void RenderSpriteWithScale(sf::RenderWindow* win, sf::Sprite& sprite, sf::Shader* shader);
   // Renders a Text with respect to the scale of the program
-  static void RenderTextWithScale(sf::RenderWindow* win, Text& text, sf::Shader* shader);
+  static void RenderTextWithScale(sf::RenderWindow* win, Text& text);
   // Renders a RectangleShape with respect to the scale of the program
-  static void RenderRectWithScale(sf::RenderWindow* win, sf::RectangleShape& rect, sf::Shader* shader);
+  static void RenderRectWithScale(sf::RenderWindow* win, sf::RectangleShape& rect);
 
 private:
   friend class Program; // Allows `Program` to handle sensitive functions and data members

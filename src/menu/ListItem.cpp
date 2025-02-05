@@ -37,7 +37,7 @@ bool StaticInteractable::Update()
 
 void StaticInteractable::Render(sf::RenderWindow* win) const
 {
-  Utility::RenderTextWithScale(win, staticText, &STATIC_SHADER);
+  Utility::RenderTextWithScale(win, staticText);
 }
 
 void StaticInteractable::SetPosition(sf::Vector2f& pos)
@@ -145,7 +145,7 @@ bool RangeInteractable::Update()
 
 void RangeInteractable::Render(sf::RenderWindow* win) const
 {
-  Utility::RenderTextWithScale(win, rangeText, &STATIC_SHADER);
+  Utility::RenderTextWithScale(win, rangeText);
 }
 
 void RangeInteractable::SetPosition(sf::Vector2f& pos)
@@ -207,7 +207,7 @@ bool SelectionInteractable::Update()
 
 void SelectionInteractable::Render(sf::RenderWindow* win) const
 {
-  Utility::RenderTextWithScale(win, selectionText, &STATIC_SHADER);
+  Utility::RenderTextWithScale(win, selectionText);
 }
 
 void SelectionInteractable::SetPosition(sf::Vector2f& pos)
@@ -268,7 +268,7 @@ bool KeybindInteractable::Update()
 void KeybindInteractable::Render(sf::RenderWindow* win) const
 {
   keyBg.Render(win);
-  Utility::RenderTextWithScale(win, controlText, &STATIC_SHADER);
+  Utility::RenderTextWithScale(win, controlText);
 }
 
 void KeybindInteractable::SetPosition(sf::Vector2f& pos)
@@ -311,7 +311,7 @@ bool ListItem::Update()
 
 void ListItem::Render(sf::RenderWindow *win) const
 {
-  Utility::RenderTextWithScale(win, displayName, &STATIC_SHADER);
+  Utility::RenderTextWithScale(win, displayName);
   interactable.get()->Render(win);
 }
 

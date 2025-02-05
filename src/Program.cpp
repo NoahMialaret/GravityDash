@@ -206,6 +206,7 @@ void Program::Update()
   if (curState != State::gameplay)
     menu.get()->Update();
 
+  if (curState != State::paused)
   ParticleManager::GetInstance()->UpdateParticles();
 
 	Keyboard::GetInstance()->Update();

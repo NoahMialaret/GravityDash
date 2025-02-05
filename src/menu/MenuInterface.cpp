@@ -214,10 +214,10 @@ GameEndInterface::GameEndInterface(std::vector<StaticButtonInit>& configs, Event
 void GameEndInterface::Render(sf::RenderWindow* win) const
 {
   VerticalInterface::Render(win);
-  Utility::RenderTextWithScale(win, displayTitle, &STATIC_SHADER);
-  Utility::RenderRectWithScale(win, underline, &STATIC_SHADER);
+  Utility::RenderTextWithScale(win, displayTitle);
+  Utility::RenderRectWithScale(win, underline);
   for (auto& s : stats)
-    Utility::RenderTextWithScale(win, s, &STATIC_SHADER);
+    Utility::RenderTextWithScale(win, s);
 }
 
 
@@ -241,9 +241,9 @@ Header::Header(std::string text, float vertOffset)
 
 void Header::Render(sf::RenderWindow* win) const
 {
-  Utility::RenderTextWithScale(win, displayTitle, &STATIC_SHADER);
-  Utility::RenderRectWithScale(win, overline, &STATIC_SHADER);
-  Utility::RenderRectWithScale(win, underline, &STATIC_SHADER);
+  Utility::RenderTextWithScale(win, displayTitle);
+  Utility::RenderRectWithScale(win, overline);
+  Utility::RenderRectWithScale(win, underline);
 }
 
 void Header::SetPosition(sf::Vector2f pos)
