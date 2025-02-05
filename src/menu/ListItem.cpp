@@ -37,7 +37,7 @@ bool StaticInteractable::Update()
 
 void StaticInteractable::Render(sf::RenderWindow* win) const
 {
-  Utility::RenderTextWithScale(win, staticText, nullptr);
+  Utility::RenderTextWithScale(win, staticText, &STATIC_SHADER);
 }
 
 void StaticInteractable::SetPosition(sf::Vector2f& pos)
@@ -78,7 +78,7 @@ bool ToggleInteractable::Update()
 
 void ToggleInteractable::Render(sf::RenderWindow* win) const
 {
-  Utility::RenderSpriteWithScale(win, toggleSprite, &WORLD_SHADER);
+  Utility::RenderSpriteWithScale(win, toggleSprite, &STATIC_SHADER);
 }
 
 void ToggleInteractable::SetPosition(sf::Vector2f& pos)
@@ -145,7 +145,7 @@ bool RangeInteractable::Update()
 
 void RangeInteractable::Render(sf::RenderWindow* win) const
 {
-  Utility::RenderTextWithScale(win, rangeText, nullptr);
+  Utility::RenderTextWithScale(win, rangeText, &STATIC_SHADER);
 }
 
 void RangeInteractable::SetPosition(sf::Vector2f& pos)
@@ -207,7 +207,7 @@ bool SelectionInteractable::Update()
 
 void SelectionInteractable::Render(sf::RenderWindow* win) const
 {
-  Utility::RenderTextWithScale(win, selectionText, nullptr);
+  Utility::RenderTextWithScale(win, selectionText, &STATIC_SHADER);
 }
 
 void SelectionInteractable::SetPosition(sf::Vector2f& pos)
@@ -222,12 +222,12 @@ KeybindInteractable::KeybindInteractable(sf::Keyboard::Key keyCode, Event::Type 
   Interactable((int)keyCode, eventType)
 {
   Utility::InitText(controlText, SMALL_FONT, Keyboard::GetInstance()->GetStringFromKeyCode(keyCode), 
-                    ZERO_VECTOR, {1.0f, 0.5f}, {255, 229, 181});
+                    ZERO_VECTOR, {1.0f, 0.5f}, LIGHTEST);
   
   float width = controlText.drawable.getGlobalBounds().getSize().x;
   keyBg = RoundedRect(controlText.drawable.getPosition() + sf::Vector2f(-width / 2.0f, -1.0f), 
                       sf::Vector2f(width + 4.0f, 6.0f), 
-                      {173, 103, 78});
+                      DARKEST);
 }
 
 KeybindInteractable::KeybindInteractable(Settings::Setting setting)
@@ -235,12 +235,12 @@ KeybindInteractable::KeybindInteractable(Settings::Setting setting)
   Interactable(setting)
 {
   Utility::InitText(controlText, SMALL_FONT, Keyboard::GetInstance()->GetStringFromKeyCode((sf::Keyboard::Key)(*value)), 
-                    ZERO_VECTOR, {1.0f, 0.5f}, {255, 229, 181});
+                    ZERO_VECTOR, {1.0f, 0.5f}, LIGHTEST);
   
   float width = controlText.drawable.getGlobalBounds().getSize().x;
   keyBg = RoundedRect(controlText.drawable.getPosition() + sf::Vector2f(-width / 2.0f, -1.0f), 
                       sf::Vector2f(width + 4.0f, 6.0f), 
-                      {173, 103, 78});
+                      DARKEST);
 }
 
 bool KeybindInteractable::Update()
@@ -268,7 +268,7 @@ bool KeybindInteractable::Update()
 void KeybindInteractable::Render(sf::RenderWindow* win) const
 {
   keyBg.Render(win);
-  Utility::RenderTextWithScale(win, controlText, nullptr);
+  Utility::RenderTextWithScale(win, controlText, &STATIC_SHADER);
 }
 
 void KeybindInteractable::SetPosition(sf::Vector2f& pos)
@@ -311,7 +311,7 @@ bool ListItem::Update()
 
 void ListItem::Render(sf::RenderWindow *win) const
 {
-  Utility::RenderTextWithScale(win, displayName, nullptr);
+  Utility::RenderTextWithScale(win, displayName, &STATIC_SHADER);
   interactable.get()->Render(win);
 }
 

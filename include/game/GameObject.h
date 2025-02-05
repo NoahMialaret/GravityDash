@@ -29,9 +29,8 @@ public:
   virtual void HandleCollision(Character* character);
   // Processes the tag and its related event
   virtual void ProcessTag();
-
   // Renders the object
-  void Render(sf::RenderWindow *win) const;
+  virtual void Render(sf::RenderWindow *win) const;
 
   // Returns the position of the object
   sf::Vector2f GetPosition();
@@ -77,6 +76,8 @@ public:
   void HandleCollision(Character* character) override;
   // Tombstones and freezes the object if it was tagged
   void ProcessTag() override;
+  // Renders Saw with respect to its colour
+  void Render(sf::RenderWindow* win) const override;
 
   // Causes the saw to move outside of the game region
   void Deactivate() override;
@@ -100,6 +101,8 @@ public:
   void HandleCollision(Character* character) override;
   // Tombstones the object and creates an explosion if it was tagged
   void ProcessTag() override;
+  // Renders Target with respect to its colour
+  void Render(sf::RenderWindow* win) const override;
 
 private:
   float oscillationSpeed;  // How fast the object oscillates
@@ -118,6 +121,8 @@ public:
   void HandleCollision(Character* character) override;
   // Tombstones the object and creates an explosion if it was tagged
   void ProcessTag() override;
+  // Renders TimeBonus with respect to its colour
+  void Render(sf::RenderWindow* win) const override;
 };
 
 #endif

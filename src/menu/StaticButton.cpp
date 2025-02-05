@@ -30,8 +30,8 @@ StaticButton::StaticButton(StaticButtonInit &config, sf::Vector2f pos)
 
 void StaticButton::Render(sf::RenderWindow *win) const
 {
-  Utility::RenderSpriteWithScale(win, button, &WORLD_SHADER);
-  Utility::RenderTextWithScale(win, displayName, nullptr);
+  Utility::RenderSpriteWithScale(win, button, &STATIC_SHADER);
+  Utility::RenderTextWithScale(win, displayName, &STATIC_SHADER);
 }
 
 void StaticButton::Move(sf::Vector2f offset)

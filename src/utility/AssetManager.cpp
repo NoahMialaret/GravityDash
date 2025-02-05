@@ -67,14 +67,12 @@ AssetManager::AssetManager()
     path.assign(dir);
     for (auto& file : std::filesystem::directory_iterator{path})
     {
-      if (!file.path().has_stem() || !file.path().has_extension() || file.path().extension() != ".vs")
+      if (!file.path().has_stem() || !file.path().has_extension())
         continue;
 
-      if (!shaders[file.path().stem()].loadFromFile(dir + file.path().stem().string() + ".vs", 
-                                                    dir + file.path().stem().string() + ".fs"))
+      if (!shaders[file.path().stem()].loadFromFile(file.path(), sf::Shader::Type::Fragment))
       {
-        std::cout << "WARNING: Could not load shader: " << file.path().stem()
-                  << " - Note that both a .vs and .fs shader of the same name is expected\n";
+        std::cout << "WARNING: Could not load fragment shader: " << file.path().stem() << "\n";
         shaders.erase(file.path().stem());
         continue;
       }

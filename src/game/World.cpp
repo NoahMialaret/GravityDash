@@ -20,6 +20,8 @@ World::World(sf::Vector2f size)
   attachments[(int)AttachPoint::topRight]    = Attachment({0.65f * bounds.x, -bounds.y - outline});
   attachments[(int)AttachPoint::bottomLeft]  = Attachment({-0.65f * bounds.x, bounds.y + outline});
   attachments[(int)AttachPoint::bottomRight] = Attachment({0.65f * bounds.x, bounds.y + outline});
+
+  ENTITY_SHADER.setUniform("worldDim", sf::Glsl::Vec2(bounds));
 }
 
 void World::Update()

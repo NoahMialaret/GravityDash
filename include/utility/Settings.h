@@ -4,6 +4,7 @@
 #include <SFML/Graphics.hpp>
 #include <nlohmann/json.hpp>
 
+#include "AssetManager.h"
 #include "Controls.h"
 #include "Event.h"
 #include "Keyboard.h"
@@ -105,8 +106,8 @@ public:
   // Returns whether the key associated with an Action is registered as a click for a given player
   bool IsActionClicked(Controls::Action action, int player = 0);
 
-  // Gets the render colour for the game world and background
-  Colours GetWorldColour();
+  // Sets the render colour used in the world and static shader
+  void SetWorldColour();
   // Gets the render colour of the specified player
   Colours GetPlayerColour(int id);
   // Gets the render colour of target entities

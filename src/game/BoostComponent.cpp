@@ -46,7 +46,7 @@ BoostComponent::BoostMeter::BoostMeter(Game *game, int id, int limit)
 {
   Utility::InitSprite(gauge, "boost_meter", {1, 1}, {0.5f, 0.0f});
 
-  fill.setFillColor(sf::Color(255, 229, 181));
+  fill.setFillColor(LIGHTEST);
   fill.setSize({0.0f, 2.0f});
 
   std::function<void(sf::Vector2f)> updatePosFunction = [this](sf::Vector2f pos)
@@ -77,8 +77,8 @@ void BoostComponent::BoostMeter::Update()
 
 void BoostComponent::BoostMeter::Render(sf::RenderWindow* win) const
 {
-  Utility::RenderRectWithScale(win, fill, nullptr);
-  Utility::RenderSpriteWithScale(win, gauge, &WORLD_SHADER);
+  Utility::RenderRectWithScale(win, fill, &STATIC_SHADER);
+  Utility::RenderSpriteWithScale(win, gauge, &STATIC_SHADER);
 }
 
 void BoostComponent::BoostMeter::Increment(int amount)

@@ -57,7 +57,10 @@ void Character::Update()
 
     if (runParticleTimer <= 0)
     {
-      ParticleManager::GetInstance()->CreateParticle(Puff(*pos, sf::Vector2f(- (float)horiDir, (isUpright ? -1.0f : 1.0f))));
+      ParticleManager::GetInstance()->CreateParticle(
+        Puff(*pos, 
+             sf::Vector2f(- (float)horiDir, (isUpright ? -1.0f : 1.0f)),
+             (int)Settings::GetInstance()->GetPlayerColour(charID)));
       runParticleTimer = 150;
     }
     break;
@@ -87,8 +90,7 @@ void Character::Update()
 
 void Character::Render(sf::RenderWindow* win) const
 {
-  // TODO: Update when shaders are redone
-  // Utility::GetInstance()->GetEntityShader().setUniform("colorID", charID);
+  ENTITY_SHADER.setUniform("colorID", (int)Settings::GetInstance()->GetPlayerColour(charID));
   if (invincibilityTimer <= 0 || (Clock::GetInstance()->Elapsed() / 64) % 2)
     entity.Render(win);
 
@@ -324,7 +326,10 @@ void Character::Land()
   entity.SetAnimation(LAND_ANIM, 100, 0, 300);
   entity.PushAnimation(finalJump ? REST_ANIM : IDLE_ANIM, 150);
 
-  ParticleManager::GetInstance()->CreateParticle(Dust(*pos, !isUpright));
+  ParticleManager::GetInstance()->CreateParticle(
+    Dust(*pos, 
+         !isUpright, 
+         (int)Settings::GetInstance()->GetPlayerColour(charID)));
 
   if (queueFinalJump)
   {

@@ -82,7 +82,7 @@ MenuInterface* Menu::LoadMenu(Type menuType)
   }
   case Type::options:
   {
-    std::vector<std::string> colours{ "orange", "green", "purple", "blue"};
+    std::vector<std::string> colours{ "brown", "green", "blue", "purple"};
 
     std::vector<std::pair<std::string, Interactable*>> interactables =
     {

@@ -213,7 +213,7 @@ void Program::Update()
 
 void Program::Render()
 {
-	window.clear(sf::Color(230, 176, 138));
+	window.clear({255, 255, 255});
 
 	if (curState == State::notRunning) 
 		return;
@@ -302,4 +302,6 @@ void Program::UpdateWindow()
 
   // Sets the max framerate of the window to improve performance
   window.setFramerateLimit(Settings::targetFrameRate);
+
+  ENTITY_SHADER.setUniform("scale", SCALE);
 }
