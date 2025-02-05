@@ -4,7 +4,7 @@
 #include "SFML/Graphics.hpp"
 
 #include "Utility.h"
-#include "ProgramSettings.h"
+#include "Settings.h"
 
 class RoundedRect
 {
@@ -24,9 +24,9 @@ public:
 private:
   sf::Vector2f centre;
 
-  sf::RectangleShape main;
-  sf::RectangleShape left;
-  sf::RectangleShape right;
+  mutable sf::RectangleShape main;
+  mutable sf::RectangleShape left;
+  mutable sf::RectangleShape right;
 };
 
 #endif

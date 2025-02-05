@@ -11,7 +11,7 @@
 #include "Event.h" 
 #include "GameStats.h"
 #include "ListItem.h"
-#include "ProgramSettings.h"
+#include "Settings.h"
 #include "StaticButton.h"
 #include "Utility.h"
 
@@ -31,12 +31,12 @@ public:
   virtual void Render(sf::RenderWindow* win) const = 0;
 
 protected:
-  // sf::Text Title;
+  // mutable Text Title;
   Event menuReturn; // The event that is pushed when the menu is escaped from
 };
 
 // The vertical offset of the top and bottom row from the centre of the grid
-#define GRID_VERT_POS (2.0f * float(SCALED_DIM) - ProgramSettings::gameScale)
+#define GRID_VERT_POS (2.0f * float(SPRITE_DIM) - 1.0f)
 
 // `GridInterface` specifies a layout where buttons are arranged on a 2 x 3 grid
 class GridInterface : public MenuInterface
@@ -86,9 +86,9 @@ public:
   void Render(sf::RenderWindow* win) const override;
 
 private:
-  sf::Text displayTitle;        // The title to be displayed above the stats
-  sf::RectangleShape underline; // The underline for the title
-  std::vector<sf::Text> stats;  // A list of text drawables representing the different stats to display
+  mutable Text displayTitle;        // The title to be displayed above the stats
+  mutable sf::RectangleShape underline; // The underline for the title
+  mutable std::vector<Text> stats;  // A list of text drawables representing the different stats to display
 };
 
 // The `Header` class is a graphical class used by `ListInterface` to display header text along with an under/over-line
@@ -105,9 +105,9 @@ public:
   void SetPosition(sf::Vector2f pos);
 
 private:
-  sf::Text displayTitle;        // The graphical text portion of the Header
-  sf::RectangleShape overline;  // The Header's overline, which appears above the text
-  sf::RectangleShape underline; // The Header's underline, which appears below the text
+  mutable Text displayTitle;        // The graphical text portion of the Header
+  mutable sf::RectangleShape overline;  // The Header's overline, which appears above the text
+  mutable sf::RectangleShape underline; // The Header's underline, which appears below the text
 
   float vertOffset; // The vertical offset of the Header from some origin
 };

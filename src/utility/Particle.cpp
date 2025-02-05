@@ -14,9 +14,7 @@ bool Particle::HasFinished() const
 void Particle::Update()
 {
   if (timer <= 0)
-  {
     return;
-  }
 
   timer -= DELTA_TIME;
 
@@ -26,9 +24,7 @@ void Particle::Update()
 void Particle::Render(sf::RenderWindow *win) const
 {
   if (timer > 0)
-  {
     entity.Render(win);
-  }
 }
 
 // ============
@@ -42,13 +38,11 @@ Puff::Puff(sf::Vector2f source, sf::Vector2f dir)
   entity.PushAnimation(PUFF, 100, 0);
 
   if (dir.y > 0)
-  {
     entity.FlipY();
-  }
 
   sf::Vector2f end;
-  end.x = source.x + dir.x * ProgramSettings::gameScale * Utility::GetInstance()->GetSpriteDim();
-  end.y = source.y + dir.y * ProgramSettings::gameScale;
+  end.x = source.x + dir.x * SPRITE_DIM;
+  end.y = source.y + dir.y;
   entity.PushPositionTransition(EASE_IN_CURVE, 400, source, end);
 }
 
@@ -68,19 +62,17 @@ Dust::Dust(sf::Vector2f source, bool flip)
   }
 
   entity.PushAnimation(DUST, 50, 0);
-  entity.PushPositionTransition(EASE_IN_CURVE, 200, source, source + sf::Vector2f(SCALED_DIM, 0.0f));
+  entity.PushPositionTransition(EASE_IN_CURVE, 200, source, source + sf::Vector2f(SPRITE_DIM, 0.0f));
 
   entityMirror.FlipX();
   entityMirror.PushAnimation(DUST, 50, 0);
-  entityMirror.PushPositionTransition(EASE_IN_CURVE, 200, source, source - sf::Vector2f(SCALED_DIM, 0.0f));
+  entityMirror.PushPositionTransition(EASE_IN_CURVE, 200, source, source - sf::Vector2f(SPRITE_DIM, 0.0f));
 }
 
 void Dust::Update()
 {
   if (timer <= 0)
-  {
     return;
-  }
 
   Particle::Update();
   entityMirror.Update();
@@ -89,9 +81,7 @@ void Dust::Update()
 void Dust::Render(sf::RenderWindow* win) const
 {
   if (timer <= 0)
-  {
     return;
-  }
 
   Particle::Render(win);
   entityMirror.Render(win);
@@ -118,10 +108,8 @@ SpeedLine::SpeedLine(sf::Vector2f start, float speed)
   Particle(400)
 {
   if (speed < 0)
-  {
     entity.FlipY();
-  }
 
   entity.PushAnimation(SPEEDLINE, 100, 0);
-  entity.PushPositionTransition(LINEAR_CURVE, 400, start, start + speed * sf::Vector2f(0.0f, ProgramSettings::gameScale));
+  entity.PushPositionTransition(LINEAR_CURVE, 400, start, start + speed * sf::Vector2f(0.0f, 1.0f));
 }

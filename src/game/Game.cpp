@@ -2,6 +2,9 @@
 
 Game::Game(int numHumans, int numComputers)
 {
+  assert(numHumans <= 2);
+  assert(numHumans + numComputers <= 4);
+
   world = std::make_unique<World>();
 
   int numPlayers = std::min(4, numHumans + numComputers);
@@ -9,7 +12,7 @@ Game::Game(int numHumans, int numComputers)
   for (int i = 0; i < numPlayers; i++)
   {
     if (i < numHumans)
-		  characters.push_back(std::make_unique<PlayableCharacter>(i, ProgramSettings::GetControls(i)));
+		  characters.push_back(std::make_unique<PlayableCharacter>(i));
     else
       characters.push_back(std::make_unique<ComputerCharacter>(i));
   }
@@ -145,7 +148,7 @@ void Game::UpdateAttachment(World::AttachPoint point)
 void Game::CorrectCharacterPos(Character* character)
 {
 	sf::Vector2f playerPos = character->GetPosition();
-	float posBuffer = 0.5f * SCALED_DIM;
+	float posBuffer = 0.5f * SPRITE_DIM;
 
 	sf::Vector2f bounds = world.get()->GetBounds();
 

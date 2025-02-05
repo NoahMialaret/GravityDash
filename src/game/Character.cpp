@@ -4,7 +4,7 @@ Character::Character(int charID)
   : 
   charID(charID),
   entity("character", {4, NUM_ANIMS}),
-  acceleration(0.2f * ProgramSettings::gameScale),
+  acceleration(0.2f),
   reticle("reticle")
 {
   vel.y = 1000.0f;
@@ -155,11 +155,11 @@ bool Character::Hit(sf::Vector2f source)
 
   // y = ent.y +- sqrt(radius^2-(this.x-ent.x)^2)
   pos->y = source.y + (isUpright ? -1.0f : 1.0f) 
-    * std::sqrt(SCALED_DIM * SCALED_DIM
+    * std::sqrt(SPRITE_DIM * SPRITE_DIM
     - (pos->x - source.x) * (pos->x - source.x));
 
-  vel.y = (isUpright ? -3.0f : 3.0f);
-  vel.x = (pos->x < source.x? -10.0f : 10.0f);
+  vel.y = (isUpright ? -1.5f : 1.5f);
+  vel.x = (pos->x < source.x ? -2.0f : 2.0f);
 
   if (queueFinalJump)
   {
@@ -261,7 +261,7 @@ void Character::UpdateReticle()
     }
   } 
 
-  *reticlePos = *pos + (isUpright ? -3.0f : 3.0f) * SCALED_DIM 
+  *reticlePos = *pos + (isUpright ? -3.0f : 3.0f) * SPRITE_DIM 
     * sf::Vector2f(std::sin(reticleAngle), std::cos(reticleAngle));
   reticle.Update();
 }
@@ -349,10 +349,9 @@ void Character::Stun()
 // Playable Character
 // ------------------
 
-PlayableCharacter::PlayableCharacter(int charID, Controls* controls)
+PlayableCharacter::PlayableCharacter(int charID)
   : 
-  Character(charID),
-  controls(controls)
+  Character(charID)
 {}
 
 void PlayableCharacter::Update()
@@ -363,13 +362,14 @@ void PlayableCharacter::Update()
     return;
   }
 
-  if (controls->IsActionOnInitialClick(Controls::Action::jump))
+  if (Settings::GetInstance()->IsActionOnInitialClick(Controls::Action::jump, charID))
     Jump();
 
-  else if(controls->IsActionOnInitialClick(Controls::Action::special))
+  else if(Settings::GetInstance()->IsActionOnInitialClick(Controls::Action::special, charID))
     SuperJump();
 
-  horiDir = controls->IsActionHeld(Controls::Action::right) - controls->IsActionHeld(Controls::Action::left);
+  horiDir = Settings::GetInstance()->IsActionHeld(Controls::Action::right, charID) 
+          - Settings::GetInstance()->IsActionHeld(Controls::Action::left, charID);
 
   Character::Update();
 }

@@ -22,6 +22,13 @@
 // Gets a reference to the shader used for rendering entities
 #define ENTITY_SHADER AssetManager::GetInstance()->GetShad("entity")
 
+// Stores the relative origin as seperate since
+struct Text
+{
+  sf::Text drawable;
+  sf::Vector2f origin;
+};
+
 // The `AssetManager` class is a global singleton that provides an interface to access
 //   the program's various graphical assets, including textures, fonts, and shaders
 class AssetManager

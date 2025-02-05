@@ -92,7 +92,8 @@ void Entity::Render(sf::RenderWindow *win) const
 
   sprite.setRotation(rotation);
 
-  win->draw(sprite, &ENTITY_SHADER);
+  Utility::RenderSpriteWithScale(win, sprite, &ENTITY_SHADER);
+  // win->draw(sprite);
 }
 
 void Entity::FlipX()

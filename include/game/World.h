@@ -4,7 +4,7 @@
 #include <SFML/Graphics.hpp>
 
 #include "Attachment.h"
-#include "ProgramSettings.h"
+#include "Settings.h"
 #include "Utility.h"
 
 #include <functional>
@@ -48,7 +48,7 @@ public:
 
 private:
   sf::Vector2f bounds;            // The bounds of the world
-  sf::RectangleShape renderRect;  // The rectangle used to render the world
+  mutable sf::RectangleShape renderRect;  // The rectangle used to render the world
 
   std::vector<Attachment> attachments{(int)AttachPoint::null}; // Points on the world border that components can attach to
 };

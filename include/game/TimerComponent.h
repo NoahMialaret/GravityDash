@@ -8,7 +8,7 @@
 #include "Event.h"
 #include "Game.h"
 #include "GameComponent.h"
-#include "ProgramSettings.h"
+#include "Settings.h"
 #include "Utility.h"
 #include "World.h"
 
@@ -34,10 +34,10 @@ private:
   void MoveArrow();
 
 private:
-  sf::Sprite gauge;             // The sprite for the timer gauge
-  sf::RectangleShape timeRect;  // The rectangle used to display how much time is left
+  mutable sf::Sprite gauge;             // The sprite for the timer gauge
+  mutable sf::RectangleShape timeRect;  // The rectangle used to display how much time is left
   
-  sf::Sprite refillArrow;             // The sprite used to display how much time boost has been collected
+  mutable sf::Sprite refillArrow;             // The sprite used to display how much time boost has been collected
   sf::Vector2f arrowPos;              // The position of the refill arrow
   bool showArrow = false;             // Whether `refillArrow` is rendered
   BezierTransition<float> arrowYMove; // The transition used to smoothly move the arrow up and down

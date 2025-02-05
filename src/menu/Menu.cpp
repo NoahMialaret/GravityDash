@@ -87,39 +87,40 @@ MenuInterface* Menu::LoadMenu(Type menuType)
     std::vector<std::pair<std::string, Interactable*>> interactables =
     {
       // Video - 0
-      {"auto-scale",  new ToggleInteractable(true)},
-      {"scale",       new RangeInteractable(6, 1 ,32)},
-      {"fullscreen",  new ToggleInteractable(false)},
-      {"colour",      new SelectionInteractable(0, colours)},
+      {"auto-scale",  new ToggleInteractable(Settings::Setting::autoScale)},
+      {"scale",       new RangeInteractable(Settings::Setting::scale, 1 ,32)},
+      {"fullscreen",  new ToggleInteractable(Settings::Setting::fullscreen)},
+      {"colour",      new SelectionInteractable(Settings::Setting::colour, colours)},
 
       // Audio - 4
-      {"music", new RangeInteractable(5, 0, 10)},
-      {"sfx",   new RangeInteractable(3, 0, 10)},
+      {"music", new RangeInteractable(Settings::Setting::music, 0, 10)},
+      {"sfx",   new RangeInteractable(Settings::Setting::sfx, 0, 10)},
 
       // Controls - 6
-      {"left",        new KeybindInteractable(KEYBIND_ACTION(1, Controls::Action::left))},
-      {"right",       new KeybindInteractable(KEYBIND_ACTION(1, Controls::Action::right))},
-      {"up",          new KeybindInteractable(KEYBIND_ACTION(1, Controls::Action::up))},
-      {"down",        new KeybindInteractable(KEYBIND_ACTION(1, Controls::Action::down))},
-      {"jump",        new KeybindInteractable(KEYBIND_ACTION(1, Controls::Action::jump))},
-      {"select",      new KeybindInteractable(KEYBIND_ACTION(1, Controls::Action::select))},
-      {"special",     new KeybindInteractable(KEYBIND_ACTION(1, Controls::Action::special))},
-      {"pause/exit",  new KeybindInteractable(KEYBIND_ACTION(1, Controls::Action::escape))},
+      {"left",        new KeybindInteractable(Settings::Setting::left)},
+      {"right",       new KeybindInteractable(Settings::Setting::right)},
+      {"up",          new KeybindInteractable(Settings::Setting::up)},
+      {"down",        new KeybindInteractable(Settings::Setting::down)},
+      {"jump",        new KeybindInteractable(Settings::Setting::jump)},
+      {"select",      new KeybindInteractable(Settings::Setting::select)},
+      {"special",     new KeybindInteractable(Settings::Setting::special)},
+      {"pause/exit",  new KeybindInteractable(Settings::Setting::escape)},
 
       // Multiplayer - 14
-      {"p1-colour",   new SelectionInteractable(0, colours)},
-      {"p2-colour",   new SelectionInteractable(1, colours)},
-      {"p2-left",     new KeybindInteractable(KEYBIND_ACTION(2, Controls::Action::left))},
-      {"p2-right",    new KeybindInteractable(KEYBIND_ACTION(2, Controls::Action::right))},
-      {"p2-jump",     new KeybindInteractable(KEYBIND_ACTION(2, Controls::Action::jump))},
-      {"p2-special",  new KeybindInteractable(KEYBIND_ACTION(2, Controls::Action::special))},
+      {"p1-colour",   new SelectionInteractable(Settings::Setting::p1Col, colours)},
+      {"p2-colour",   new SelectionInteractable(Settings::Setting::p2Col, colours)},
+      {"p2-left",     new KeybindInteractable(Settings::Setting::p2Left)},
+      {"p2-right",    new KeybindInteractable(Settings::Setting::p2Right)},
+      {"p2-jump",     new KeybindInteractable(Settings::Setting::p2Jump)},
+      {"p2-special",  new KeybindInteractable(Settings::Setting::p2Special)},
 
       // Accessibility - 20
-      {"colour-help", new ToggleInteractable(false)},
-      {"world",       new SelectionInteractable(0, colours)},
-      {"player",      new SelectionInteractable(1, colours)},
-      {"target",      new SelectionInteractable(2, colours)},
-      {"saw",         new SelectionInteractable(3, colours)}
+      {"colour-help", new ToggleInteractable(Settings::Setting::colourHelp)},
+      {"world",       new SelectionInteractable(Settings::Setting::accWorldCol, colours)},
+      {"player",      new SelectionInteractable(Settings::Setting::accPlayerCol, colours)},
+      {"target",      new SelectionInteractable(Settings::Setting::accTargetCol, colours)},
+      {"saw",         new SelectionInteractable(Settings::Setting::accSawCol, colours)},
+      {"time",        new SelectionInteractable(Settings::Setting::accTimeCol, colours)},
     };
 
     std::vector<std::pair<int, std::string>> headers =
@@ -177,8 +178,8 @@ MenuInterface* Menu::LoadMenu(Type menuType)
   {
     std::vector<StaticButtonInit> buttons =
     {
-      {"retry",       {Event::Type::gameReset}, SMALL},
-      {"main menu",   {Event::Type::gameExit},  SMALL}
+      {"retry", {Event::Type::gameReset}, SMALL},
+      {"leave", {Event::Type::gameExit},  SMALL}
     };
 
     event.type = Event::Type::gameExit;

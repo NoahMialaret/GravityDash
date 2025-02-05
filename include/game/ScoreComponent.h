@@ -6,7 +6,7 @@
 #include "Game.h"
 #include "GameComponent.h"
 #include "Number.h"
-#include "ProgramSettings.h"
+#include "Settings.h"
 #include "Utility.h"
 #include "World.h"
 
@@ -47,7 +47,7 @@ private:
     
   private:
     int digit;          // The integer representation of `DisplayDigit`
-    sf::Sprite sprite;  // The graphical representation of `DisplayDigit`
+    mutable sf::Sprite sprite;  // The graphical representation of `DisplayDigit`
   };
 
 public:

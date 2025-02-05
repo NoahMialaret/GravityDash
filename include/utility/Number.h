@@ -2,7 +2,7 @@
 #define SCORE_H
 
 #include "Utility.h"
-#include "ProgramSettings.h"
+#include "Settings.h"
 
 #include <list>
 

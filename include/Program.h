@@ -11,10 +11,15 @@
 #include "ParticleManager.h"
 #include "AssetManager.h"
 #include "Utility.h"
-#include "ProgramSettings.h"
+#include "Settings.h"
 
 #include <algorithm>
 #include <iostream>
+
+// The path to the file that stores save data
+#define SAVE_FILE "files/save.json"
+// The aspect ratio of the window
+#define ASPECT_RATIO (sf::Vector2u(160, 90));
 
 // `Program` handles the programs's main window, proccesses, and objects,
 //   and is responsible for checking events, updating, and rendering objects
@@ -49,12 +54,22 @@ public:
 	Program::State GetCurState() const;
 
 private:
+  // Loads save data from disk
+  void LoadSave(const char* filename);
+  // Writes save data to disk
+  void SaveData(const char* filename);
+
+  // Updates the window size and scale of the program
+  void UpdateWindow();
+
+private:
 	//SFML Objects --------------------------------------------------------
   sf::RenderWindow window;	// The window of the program 
 	sf::View mainView; 			  // Represents the region of the gameworld that should be displayed
 
 	//Program Variables ---------------------------------------------------
 	State curState = State::notRunning; // The current state of the game
+  const char* name;
 
 	//Program Objects ----------------------------------------------------- 
 	std::unique_ptr<GameManager> gameManager = nullptr; // The object which handles game logic

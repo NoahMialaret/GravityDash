@@ -1,46 +1,32 @@
 #include "Program.h"
 
 Program::Program(const char* name)
+  :
+  name(name)
 {
-  Utility::GetInstance()->LoadSave(SAVE_FILE);
+  LoadSave(SAVE_FILE);
 
 	std::cout << "--=== Program Init ===--\n"  << "Initialising SFML Window...\n";
 
-		sf::VideoMode desktop = sf::VideoMode::getDesktopMode();	
-		sf::Vector2f minWindowSize(160, 90); // Window has a 16:9 aspect ratio
-		sf::Vector2f windowSize = minWindowSize;
-		int scale = 1;
+    // Finds the scale at which the window would be at least half the size of the desktop
+    sf::VideoMode desktop = sf::VideoMode::getDesktopMode();
+    sf::Vector2u windowSize = ASPECT_RATIO;
+    int scale = 1;
+    while (windowSize.x < desktop.width / 2 && windowSize.y < desktop.height / 2)
+    {
+      windowSize += ASPECT_RATIO;
+      scale++;
+    }
+    Settings::GetInstance()->autoScaleVal = scale;
 
-    // Creates a window that is at least half the size of the desktop
-		while (windowSize.x < desktop.width / 2 && windowSize.y < desktop.height / 2)
-		{
-			windowSize += minWindowSize;
-			scale++;
-		}
+    UpdateWindow();
 
-		std::cout << "\tGame scale: " << scale << '\n';
-		std::cout << "\tWindow dimensions: " << windowSize.x << "px x " << windowSize.y << "px\n";
-		std::cout << "\tDesktop dimensions: " << desktop.width << "px x " << desktop.height << "px\n";
-
-		ProgramSettings::gameScale = scale;
-    ProgramSettings::windowDim = windowSize;
-
-		window.create(sf::VideoMode(windowSize.x, windowSize.y), name, sf::Style::Close);
+    std::cout << "\tGame scale: " << SCALE << '\n';
+    std::cout << "\tWindow dimensions: " << window.getSize().x << "px x " << window.getSize().y << "px\n";
+    std::cout << "\tDesktop dimensions: " << desktop.width << "px x " << desktop.height << "px\n";
 
     // Sets the window to be the middle of the desktop
-		window.setPosition(sf::Vector2i((desktop.width - window.getSize().x) / 2, (desktop.height - window.getSize().y) / 2));
-
-		window.setKeyRepeatEnabled(false);
-
-		window.setMouseCursorVisible(false);
-
-		mainView = window.getDefaultView();
-
-		mainView.setCenter({0.0f, 0.0f});
-
-		window.setView(mainView);
-
-		window.setVerticalSyncEnabled(true);
+    window.setPosition(sf::Vector2i((desktop.width - window.getSize().x) / 2, (desktop.height - window.getSize().y) / 2));
 
   // Textures and Shaders
 
@@ -64,7 +50,7 @@ Program::Program(const char* name)
 
 Program::~Program()
 {
-  Utility::GetInstance()->SaveData(SAVE_FILE);
+  SaveData(SAVE_FILE);
 
 	std::cout << "Cleaning program...\n";
 
@@ -147,6 +133,15 @@ void Program::ProcessEvents()
       ParticleManager::Clean();
 			curState = State::gameplay;
 			break;
+
+    case Event::Type::updateSettings:
+      Settings::GetInstance()->SetSetting((Settings::Setting)event.data.updateSettings.setting, 
+                                          event.data.updateSettings.value);
+      break;
+
+    case Event::Type::updateWindow:
+      UpdateWindow();
+      break;
 		
 		default: // Game related event
       gameManager.get()->ProcessEvents(event);
@@ -238,4 +233,73 @@ void Program::Render()
 Program::State Program::GetCurState() const 
 {
 	return curState;
+}
+
+void Program::LoadSave(const char* filename)
+{
+  try
+  {
+    std::ifstream file(filename);
+    nlohmann::json save = nlohmann::json::parse(file);
+
+    Settings::GetInstance()->Load(save["settings"]);
+    Stats::Init(save["stats"]);
+
+    file.close();
+  }
+  catch (...)
+  {
+    std::cout << "Save file was corrupted or could not be found, creating new one...\n";
+    Settings::GetInstance()->Load();
+    Stats::Init();
+    SaveData(filename);
+  }
+}
+
+void Program::SaveData(const char* filename)
+{
+  nlohmann::json save;
+
+  Settings::GetInstance()->Save(save);
+
+  Stats::Save(save);
+
+  std::ofstream file(filename);
+
+  file << save.dump(2);
+
+  file.close();
+
+  std::cout << "Data saved!\n";
+}
+
+void Program::UpdateWindow()
+{
+  sf::Vector2u windowSize;
+
+  windowSize = (unsigned int)SCALE * ASPECT_RATIO;
+
+  Settings::GetInstance()->windowDim = windowSize;
+
+  window.close();
+
+  if (GET_SETTING(Settings::Setting::fullscreen))
+    window.create(sf::VideoMode::getFullscreenModes()[0], name, sf::Style::Fullscreen);
+  else
+    window.create(sf::VideoMode(windowSize.x, windowSize.y), name, sf::Style::Close);
+
+  mainView = window.getDefaultView();
+
+  mainView.setCenter(ZERO_VECTOR);
+
+  window.setView(mainView);
+
+  // Disables holding the key counting as a press as this is handled in `Keyboard`
+  window.setKeyRepeatEnabled(false);
+
+  // Hides the mouse as it is not used
+  window.setMouseCursorVisible(false);
+
+  // Sets the max framerate of the window to improve performance
+  window.setFramerateLimit(Settings::targetFrameRate);
 }

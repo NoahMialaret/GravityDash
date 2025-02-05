@@ -9,7 +9,7 @@
 #include "Entity.h"
 #include "Event.h"
 #include "Particle.h"
-#include "ProgramSettings.h"
+#include "Settings.h"
 #include "Utility.h"
 
 #include <iostream>

@@ -7,7 +7,7 @@
 #include "GameManager.h"
 #include "ListItem.h"
 #include "MenuInterface.h"
-#include "ProgramSettings.h"
+#include "Settings.h"
 #include "StaticButton.h"
 #include "Utility.h"
 
@@ -15,7 +15,7 @@
 #include <stack>
 
 // Returns the keybinding associated with the `action` for a given player `p`
-#define KEYBIND_ACTION(p, action) (sf::Keyboard::Key)ProgramSettings::GetControls(p)->GetAction(action)
+// #define KEYBIND_ACTION(p, action) (sf::Keyboard::Key)Settings::GetInstance()->GetSetting()->GetAction(action)
 
 // `Menu` provides a simple interface to load and interface with the menu objects of the program,  
 class Menu

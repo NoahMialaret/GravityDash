@@ -47,12 +47,12 @@ BoostComponent::BoostMeter::BoostMeter(Game *game, int id, int limit)
   Utility::InitSprite(gauge, "boost_meter", {1, 1}, {0.5f, 0.0f});
 
   fill.setFillColor(sf::Color(255, 229, 181));
-  fill.setSize({0.0f, 2.0f * ProgramSettings::gameScale});
+  fill.setSize({0.0f, 2.0f});
 
   std::function<void(sf::Vector2f)> updatePosFunction = [this](sf::Vector2f pos)
   {
     gauge.setPosition(pos);
-    fill.setPosition(pos - sf::Vector2f(gauge.getGlobalBounds().width / 2 - ProgramSettings::gameScale, 0.0f));
+    fill.setPosition(pos - sf::Vector2f(gauge.getGlobalBounds().width / 2 - 1, 0.0f));
   };
   game->Attach(World::AttachPoint((int)World::AttachPoint::topLeft + id), updatePosFunction);
   
@@ -72,13 +72,13 @@ void BoostComponent::BoostMeter::Update()
   fillAmount = std::max(fillAmount - DELTA_TIME, 0);
 
   int width = (gauge.getTextureRect().width - 2.0f) * (float)fillAmount / (float)limit;
-  fill.setSize(ProgramSettings::gameScale * sf::Vector2f((float)width, 2.0f));
+  fill.setSize(sf::Vector2f((float)width, 2.0f));
 }
 
 void BoostComponent::BoostMeter::Render(sf::RenderWindow* win) const
 {
-  win->draw(fill);
-  win->draw(gauge);
+  Utility::RenderRectWithScale(win, fill, nullptr);
+  Utility::RenderSpriteWithScale(win, gauge, &WORLD_SHADER);
 }
 
 void BoostComponent::BoostMeter::Increment(int amount)
@@ -89,7 +89,7 @@ void BoostComponent::BoostMeter::Increment(int amount)
   fillAmount += amount;
   if (fillAmount >= limit)
   {
-    fill.setSize(ProgramSettings::gameScale * sf::Vector2f(gauge.getTextureRect().width - 2.0f, 2.0f));
+    fill.setSize(sf::Vector2f(gauge.getTextureRect().width - 2.0f, 2.0f));
     
     PUSH_EVENT(Event::Type::boostFull, {.value = id});
   }
@@ -98,5 +98,5 @@ void BoostComponent::BoostMeter::Increment(int amount)
 void BoostComponent::BoostMeter::Clear()
 {
   fillAmount = 0;
-  fill.setSize({0.0f, 2.0f * ProgramSettings::gameScale});
+  fill.setSize({0.0f, 2.0f});
 }
