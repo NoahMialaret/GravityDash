@@ -38,15 +38,6 @@ struct Text
   sf::Vector2f origin;
 };
 
-// Stores variables used by the rectangle shader
-struct Rect
-{
-  sf::RectangleShape drawable;
-  int fillCol0;
-  int fillCol1;
-  int outlineCol;
-};
-
 // The `AssetManager` class is a global singleton that provides an interface to access
 //   the program's various graphical assets, including textures, fonts, and shaders
 class AssetManager

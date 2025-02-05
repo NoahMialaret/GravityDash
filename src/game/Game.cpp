@@ -63,8 +63,6 @@ void Game::ProcessEvent(Event& event)
 
 void Game::Update()
 {
-  world.get()->Update();
-  
 	for (auto& character : characters)
 		character.get()->Update();
 

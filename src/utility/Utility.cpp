@@ -106,20 +106,13 @@ void Utility::InitText(Text& text, const sf::Font& font, std::string str, sf::Ve
   text.drawable.setFont(font);
   text.drawable.setString(str);
   text.origin = origin;
-
-  // UpdateText(text, str, origin);
 }
-
-// void Utility::UpdateText(Text& text, std::string newStr, sf::Vector2f origin)
-// {
-//   text.drawable.setString(newStr);
-
-//   text..setOrigin({origin.x * text.getLocalBounds().width, 
-//                   origin.y * text.getLocalBounds().height - 1.0f});
-// }
 
 void Utility::RenderSpriteWithScale(sf::RenderWindow* win, sf::Sprite& sprite, sf::Shader* shader)
 {
+  if (shader == nullptr)
+    shader = &STATIC_SHADER;
+    
   sf::Vector2f pos = sprite.getPosition();
   sf::Vector2f scale = sprite.getScale();
 
@@ -132,8 +125,11 @@ void Utility::RenderSpriteWithScale(sf::RenderWindow* win, sf::Sprite& sprite, s
   sprite.setScale(scale);
 }
 
-void Utility::RenderTextWithScale(sf::RenderWindow* win, Text& text)
+void Utility::RenderTextWithScale(sf::RenderWindow* win, Text& text, sf::Shader* shader)
 {
+  if (shader == nullptr)
+    shader = &STATIC_SHADER;
+
   sf::Vector2f pos = text.drawable.getPosition();
   float outline = text.drawable.getOutlineThickness();
   float size = text.drawable.getCharacterSize();
@@ -145,15 +141,18 @@ void Utility::RenderTextWithScale(sf::RenderWindow* win, Text& text)
   text.drawable.setOrigin({text.origin.x * text.drawable.getLocalBounds().width, 
                   text.origin.y * text.drawable.getLocalBounds().height - FSCALE});
 
-  win->draw(text.drawable, &STATIC_SHADER);
+  win->draw(text.drawable, shader);
 
   text.drawable.setPosition(pos);
   text.drawable.setOutlineThickness(outline);
   text.drawable.setCharacterSize(size);
 }
 
-void Utility::RenderRectWithScale(sf::RenderWindow* win, sf::RectangleShape& rect)
+void Utility::RenderRectWithScale(sf::RenderWindow* win, sf::RectangleShape& rect, sf::Shader* shader)
 {
+  if (shader == nullptr)
+    shader = &RECT_SHADER;
+
   sf::Vector2f pos = rect.getPosition();
   sf::Vector2f size = rect.getSize();
   sf::Vector2f origin = rect.getOrigin();
@@ -164,7 +163,7 @@ void Utility::RenderRectWithScale(sf::RenderWindow* win, sf::RectangleShape& rec
   rect.setOrigin(FSCALE * origin);
   rect.setOutlineThickness(FSCALE * outline);
 
-  win->draw(rect, &RECT_SHADER);
+  win->draw(rect, shader);
 
   rect.setPosition(pos);
   rect.setSize(size);

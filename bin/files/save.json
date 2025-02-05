@@ -34,7 +34,7 @@
     },
     "video": {
       "autoScale": 1,
-      "colour": 2,
+      "colour": 3,
       "fullscreen": 0,
       "scale": 6
     }
