@@ -206,6 +206,7 @@ void Program::Update()
   if (curState != State::gameplay)
     menu.get()->Update();
 
+  if (curState != State::paused)
   ParticleManager::GetInstance()->UpdateParticles();
 
 	Keyboard::GetInstance()->Update();
@@ -213,7 +214,7 @@ void Program::Update()
 
 void Program::Render()
 {
-	window.clear(sf::Color(230, 176, 138));
+	window.clear({255, 255, 255});
 
 	if (curState == State::notRunning) 
 		return;
@@ -302,4 +303,14 @@ void Program::UpdateWindow()
 
   // Sets the max framerate of the window to improve performance
   window.setFramerateLimit(Settings::targetFrameRate);
+
+  window.setVerticalSyncEnabled(true);
+
+  ENTITY_SHADER.setUniform("scale", SCALE);
+  WORLD_SHADER.setUniform("scale", SCALE);
+  RECT_SHADER.setUniform("scale", SCALE);
+
+  STATIC_SHADER.setUniform("screenDim", {sf::Vector2f(windowSize)});
+  ENTITY_SHADER.setUniform("screenDim", {sf::Vector2f(windowSize)});
+  RECT_SHADER.setUniform("screenDim", {sf::Vector2f(windowSize)});
 }

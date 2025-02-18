@@ -3,6 +3,9 @@
 Menu::Menu(Type startMenu)
 {
   Push(startMenu);
+  lighter.setFillColor({200, 200, 200, 150});
+  lighter.setSize((sf::Vector2f)ASPECT_RATIO);
+  lighter.setPosition(-0.5f * (sf::Vector2f)ASPECT_RATIO);
 }
 
 void Menu::Update()
@@ -13,8 +16,11 @@ void Menu::Update()
 
 void Menu::Render(sf::RenderWindow* win) const
 {
+  Utility::RenderRectWithScale(win, lighter);
+
   if (!menuStack.empty())
     menuStack.top().get()->Render(win);
+
 }
 
 void Menu::ReloadStack(Type menuType)
@@ -82,7 +88,7 @@ MenuInterface* Menu::LoadMenu(Type menuType)
   }
   case Type::options:
   {
-    std::vector<std::string> colours{ "orange", "green", "purple", "blue"};
+    std::vector<std::string> colours{ "brown", "green", "blue", "purple"};
 
     std::vector<std::pair<std::string, Interactable*>> interactables =
     {

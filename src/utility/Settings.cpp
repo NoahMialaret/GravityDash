@@ -46,6 +46,7 @@ void Settings::Load()
   };
 
   InitControls();
+  SetWorldColour();
 }
 
 void Settings::Load(nlohmann::json& json)
@@ -87,6 +88,7 @@ void Settings::Load(nlohmann::json& json)
     };
 
     InitControls();
+    SetWorldColour();
   }
   catch (...)
   {
@@ -163,16 +165,23 @@ void Settings::SetSetting(Setting setting, int val)
       || (setting >= Setting::p2Left && setting <= Setting::p2Special))
     InitControls();
 
+  if (setting == Setting::colour
+      || setting == Setting::colourHelp
+      || setting == Setting::accWorldCol)
+    SetWorldColour();
+
   else if (setting == Setting::fullscreen)
     PUSH_EVENT(Event::Type::updateWindow);
 
   if (settings[(int)Setting::fullscreen])
     return;
 
-  else if (setting == Setting::autoScale && autoScaleVal != settings[(int)Setting::scale])
+  else if (setting == Setting::autoScale 
+          && autoScaleVal != settings[(int)Setting::scale])
     PUSH_EVENT(Event::Type::updateWindow);
 
-  else if (setting == Setting::scale && !settings[(int)Setting::autoScale])
+  else if (setting == Setting::scale 
+          && !settings[(int)Setting::autoScale])
     PUSH_EVENT(Event::Type::updateWindow);
 
 }
@@ -182,6 +191,11 @@ int Settings::GetScale() const
   if (settings[(int)Setting::fullscreen])
     return 2 * autoScaleVal;
   return settings[(int)Setting::autoScale] ? autoScaleVal : settings[(int)Setting::scale];
+}
+
+sf::Vector2u Settings::GetWindowDim() const
+{
+  return windowDim;
 }
 
 bool Settings::IsActionOnInitialClick(Controls::Action action, int player)
@@ -199,11 +213,14 @@ bool Settings::IsActionClicked(Controls::Action action, int player)
   return (player == 0 ? p1Controls : p2Controls).get()->IsActionClicked(action);
 }
 
-Settings::Colours Settings::GetWorldColour()
+void Settings::SetWorldColour()
 {
-  return (Settings::Colours)(settings[(int)Setting::colourHelp] 
-          ? settings[(int)Setting::accWorldCol] 
-          : settings[(int)Setting::colour]);
+  int col = settings[(int)Setting::colour];
+  if (settings[(int)Setting::colourHelp])
+    col = settings[(int)Setting::accWorldCol];
+  STATIC_SHADER.setUniform("colorID", col);
+  WORLD_SHADER.setUniform("colorID", col);
+  RECT_SHADER.setUniform("colorID", col);
 }
 
 Settings::Colours Settings::GetPlayerColour(int id)

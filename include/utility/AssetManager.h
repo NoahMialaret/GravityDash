@@ -7,6 +7,11 @@
 #include <iostream>
 #include <unordered_map>
 
+#define LIGHTEST  sf::Color(200, 200, 200)
+#define LIGHT     sf::Color(150, 150, 150)
+#define DARK      sf::Color(100, 100, 100)
+#define DARKEST   sf::Color( 50,  50,  50)
+
 // Shorthand for accessing `AssetManager`'s `GetTex()` function
 #define GET_TEXTURE(texName) AssetManager::GetInstance()->GetTex(texName)
 
@@ -17,10 +22,14 @@
 // Gets a reference to the large program font 
 #define LARGE_FONT AssetManager::GetInstance()->GetFont("largeFont")
 
-// Gets a reference to the shader used for rendering the world and static elements
+// Gets a reference to the shader used for rendering the world
 #define WORLD_SHADER AssetManager::GetInstance()->GetShad("world")
 // Gets a reference to the shader used for rendering entities
 #define ENTITY_SHADER AssetManager::GetInstance()->GetShad("entity")
+// Gets a reference to the shader used for rendering static UI elements 
+#define STATIC_SHADER AssetManager::GetInstance()->GetShad("static")
+// Gets a reference to the shader used for rendering text and rectangles 
+#define RECT_SHADER AssetManager::GetInstance()->GetShad("rect")
 
 // Stores the relative origin as seperate since
 struct Text

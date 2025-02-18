@@ -144,6 +144,12 @@ void Saw::ProcessTag()
   entity.ClearAnimation();
 }
 
+void Saw::Render(sf::RenderWindow* win) const
+{
+  ENTITY_SHADER.setUniform("colorID", (int)Settings::GetInstance()->GetSawColour());
+  GameObject::Render(win);
+}
+
 void Saw::Deactivate()
 {
   entity.PushPositionTransition(LINEAR_CURVE, 200, (pos->y < 0 ? -1.0f : 1.0f) * sf::Vector2f(0.0f, SPRITE_DIM));
@@ -213,7 +219,13 @@ void MovingTarget::ProcessTag()
     return;
 
   tombstone = true;
-  ParticleManager::GetInstance()->CreateParticle(Explosion(*pos));
+  ParticleManager::GetInstance()->CreateParticle(Explosion(*pos, (int)Settings::GetInstance()->GetTargetColour()));
+}
+
+void MovingTarget::Render(sf::RenderWindow* win) const
+{
+  ENTITY_SHADER.setUniform("colorID", (int)Settings::GetInstance()->GetTargetColour());
+  GameObject::Render(win);
 }
 
 // = --------------- =
@@ -258,5 +270,11 @@ void TimeBonus::ProcessTag()
     return;
 
   tombstone = true;
-  ParticleManager::GetInstance()->CreateParticle(Explosion(*pos));
+  ParticleManager::GetInstance()->CreateParticle(Explosion(*pos, (int)Settings::GetInstance()->GetTimeColour()));
+}
+
+void TimeBonus::Render(sf::RenderWindow* win) const
+{
+  ENTITY_SHADER.setUniform("colorID", (int)Settings::GetInstance()->GetTimeColour());
+  GameObject::Render(win);
 }

@@ -24,6 +24,8 @@
 #define SCALED_DIM (FSCALE * Utility::GetInstance()->GetSpriteDim())
 // The default scale used by most sprites
 #define DEFAULT_SCALE (sf::Vector2f(FSCALE, FSCALE))
+// The aspect ratio of the window
+#define ASPECT_RATIO (sf::Vector2u(160, 90))
 
 // Linear bezier curve that increases at a constant rate
 #define LINEAR_CURVE   (Bezier({{0, 0},{1,1}}))
@@ -70,16 +72,14 @@ public:
   // Initialises Sprite objects using its texture, the number of sub-textures that are contained, and the relative origin of the sprite (ranging from `0` - `1`) 
   static void InitSprite(sf::Sprite& sprite, std::string tex, sf::Vector2i subTexCount = {1, 1}, sf::Vector2f origin = {0.5f, 0.5f});
   // Initialises Text objects using its font, the text to display, its position, its relative origin (ranging from `0` to `1`), and its colour 
-  static void InitText(Text& text, const sf::Font& font, std::string str, sf::Vector2f pos, sf::Vector2f origin = {0.5f, 0.5f}, sf::Color col = {173, 103, 78});
-  // Updates a Text object's new relative origin when its display text changes
-  static void UpdateText(Text& text, std::string newStr, sf::Vector2f origin = {0.5f, 0.5f});
+  static void InitText(Text& text, const sf::Font& font, std::string str, sf::Vector2f pos, sf::Vector2f origin = {0.5f, 0.5f}, sf::Color col = DARKEST);
 
-  // Renders a Sprite with respect to the scale of the program
-  static void RenderSpriteWithScale(sf::RenderWindow* win, sf::Sprite& sprite, sf::Shader* shader);
-  // Renders a Text with respect to the scale of the program
-  static void RenderTextWithScale(sf::RenderWindow* win, Text& text, sf::Shader* shader);
-  // Renders a RectangleShape with respect to the scale of the program
-  static void RenderRectWithScale(sf::RenderWindow* win, sf::RectangleShape& rect, sf::Shader* shader);
+  // Renders a Sprite with respect to the scale of the program, shader defaults to the 'static' shader
+  static void RenderSpriteWithScale(sf::RenderWindow* win, sf::Sprite& sprite, sf::Shader* shader = nullptr);
+  // Renders a Text with respect to the scale of the program, shader defaults to the 'static' shader
+  static void RenderTextWithScale(sf::RenderWindow* win, Text& text, sf::Shader* shader = nullptr);
+  // Renders a RectangleShape with respect to the scale of the program, shader defaults to the 'rect' shader
+  static void RenderRectWithScale(sf::RenderWindow* win, sf::RectangleShape& rect, sf::Shader* shader = nullptr, bool twoTone = false);
 
 private:
   friend class Program; // Allows `Program` to handle sensitive functions and data members

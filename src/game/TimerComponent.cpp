@@ -11,7 +11,7 @@ TimerComponent::TimerComponent(Game* game, int maxTime)
   Utility::InitSprite(refillArrow, "arrow");
 
   timeRect = sf::RectangleShape(sf::Vector2f(4.0f, 60.0f));
-  timeRect.setFillColor(sf::Color(255, 229, 181));
+  timeRect.setFillColor(LIGHTEST);
   timeRect.setScale(sf::Vector2f(1.0f, -1.0f));
 
   Utility::InitSprite(gauge, "timer", {1, 1}, {0.0f, 0.5f});
@@ -86,10 +86,10 @@ void TimerComponent::Update()
 
 void TimerComponent::Render(sf::RenderWindow* win) const
 {
-  Utility::RenderRectWithScale(win, timeRect, nullptr);
-  Utility::RenderSpriteWithScale(win, gauge, nullptr);
+  Utility::RenderRectWithScale(win, timeRect);
+  Utility::RenderSpriteWithScale(win, gauge, &STATIC_SHADER);
   if (!done && showArrow)
-    Utility::RenderSpriteWithScale(win, refillArrow, nullptr);
+    Utility::RenderSpriteWithScale(win, refillArrow, &STATIC_SHADER);
 }
 
 void TimerComponent::AddTime(int addition)

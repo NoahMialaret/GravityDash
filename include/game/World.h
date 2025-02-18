@@ -34,8 +34,6 @@ public:
 public:
   // Constructs World based on the given size (in tiles)
   World(sf::Vector2f size = DEFAULT_WORLD_SIZE);
-  // Updates the world size if it is currently changing size
-  void Update();
   // Renders the playable region as a rectangle
   void Render(sf::RenderWindow* win) const;
 
@@ -47,8 +45,8 @@ public:
   void UpdateAttachment(World::AttachPoint point);
 
 private:
-  sf::Vector2f bounds;            // The bounds of the world
-  mutable sf::RectangleShape renderRect;  // The rectangle used to render the world
+  sf::Vector2f bounds;                   // The bounds of the world
+  mutable sf::RectangleShape worldRect;  // The rectangle used to render the world
 
   std::vector<Attachment> attachments{(int)AttachPoint::null}; // Points on the world border that components can attach to
 };

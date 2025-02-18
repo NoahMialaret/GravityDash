@@ -1,10 +1,13 @@
 #version 120
 
-uniform sampler2D texture;  // The texture that is being referenced
-uniform int colorID;        // Determines which colour to render the texture in
-uniform int scale;          // Determines cutofff for rendering within the bounds of the world
-uniform vec2 screenDim;     // The dimensions of the screen
-uniform vec2 worldDim;      // The dimensions of the world without scaling
+// Shader used for rendering shapes
+
+uniform int colorID;    // Determines which colour to render the pixel in
+uniform vec2 screenDim; // The dimensions of the screen
+uniform int scale;      // Determines cutofff for rendering within the bounds of the world
+uniform vec2 pos;       // The position of the rect
+uniform bool twoTone;   // Whether to two-tone colour the rectangle
+uniform int timer;      // The timer used to animate the two-tone
 
 mat4x3 brown = mat4x3(
   vec3(255.0, 229.0, 181.0),
@@ -36,18 +39,12 @@ mat4x3 purple = mat4x3(
 
 void main()
 {
-  // lookup the pixel in the texture
-  vec4 pixel = texture2D(texture, gl_TexCoord[0].xy);
-
-  // Clips pixels to be within the world boundary
-  vec2 scaledWorldDim = worldDim.xy * scale;
   vec2 fc = gl_FragCoord.xy - screenDim.xy / 2;
-  if (abs(fc.x) >= scaledWorldDim.x 
-      || abs(fc.y) >= scaledWorldDim.y)
+  if (abs(fc.x) >= screenDim.x / 2 
+      || abs(fc.y) >= screenDim.y / 2)
     return;
 
-
-  gl_FragColor = gl_Color * pixel;
+  gl_FragColor = gl_Color;
 
   if (gl_FragColor.a <= 0.0)
     return;
@@ -66,7 +63,12 @@ void main()
   {
     if (gl_FragColor.r <= 0.2 + i * 0.2)
     {
-      gl_FragColor.rgb = col[3 - i];
+      float offset = mod(floor(timer / 400), 4);
+      if (i != 0 && twoTone && 
+          mod(floor((pos.x - fc.x) / scale + offset) + floor((pos.y - fc.y) / scale + offset), 4) >= 2)
+        gl_FragColor.rgb = col[3 - i + 1].rgb;
+      else
+        gl_FragColor.rgb = col[3 - i].rgb;
       break;
     }
   }

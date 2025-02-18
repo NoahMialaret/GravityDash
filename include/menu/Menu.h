@@ -56,6 +56,9 @@ private:
 private:
   // The stack of interfaces representing the path the user took to arrive at the interface at `top()`
   std::stack<std::unique_ptr<MenuInterface>> menuStack;
+
+  // Used to lighten the background to make UI elements easier to see
+  mutable sf::RectangleShape lighter;
 };
 
 #endif

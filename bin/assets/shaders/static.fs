@@ -2,9 +2,7 @@
 
 uniform sampler2D texture;  // The texture that is being referenced
 uniform int colorID;        // Determines which colour to render the texture in
-uniform int scale;          // Determines cutofff for rendering within the bounds of the world
 uniform vec2 screenDim;     // The dimensions of the screen
-uniform vec2 worldDim;      // The dimensions of the world without scaling
 
 mat4x3 brown = mat4x3(
   vec3(255.0, 229.0, 181.0),
@@ -39,13 +37,10 @@ void main()
   // lookup the pixel in the texture
   vec4 pixel = texture2D(texture, gl_TexCoord[0].xy);
 
-  // Clips pixels to be within the world boundary
-  vec2 scaledWorldDim = worldDim.xy * scale;
   vec2 fc = gl_FragCoord.xy - screenDim.xy / 2;
-  if (abs(fc.x) >= scaledWorldDim.x 
-      || abs(fc.y) >= scaledWorldDim.y)
+  if (abs(fc.x) >= screenDim.x / 2 
+      || abs(fc.y) >= screenDim.y / 2)
     return;
-
 
   gl_FragColor = gl_Color * pixel;
 

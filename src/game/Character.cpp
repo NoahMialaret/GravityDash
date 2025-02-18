@@ -1,8 +1,9 @@
 #include "Character.h"
 
-Character::Character(int charID)
+Character::Character(int charID, int playerNum)
   : 
   charID(charID),
+  playerNum(playerNum),
   entity("character", {4, NUM_ANIMS}),
   acceleration(0.2f),
   reticle("reticle")
@@ -57,7 +58,10 @@ void Character::Update()
 
     if (runParticleTimer <= 0)
     {
-      ParticleManager::GetInstance()->CreateParticle(Puff(*pos, sf::Vector2f(- (float)horiDir, (isUpright ? -1.0f : 1.0f))));
+      ParticleManager::GetInstance()->CreateParticle(
+        Puff(*pos, 
+             sf::Vector2f(- (float)horiDir, (isUpright ? -1.0f : 1.0f)),
+             (int)Settings::GetInstance()->GetPlayerColour(playerNum)));
       runParticleTimer = 150;
     }
     break;
@@ -87,8 +91,7 @@ void Character::Update()
 
 void Character::Render(sf::RenderWindow* win) const
 {
-  // TODO: Update when shaders are redone
-  // Utility::GetInstance()->GetEntityShader().setUniform("colorID", charID);
+  ENTITY_SHADER.setUniform("colorID", (int)Settings::GetInstance()->GetPlayerColour(playerNum));
   if (invincibilityTimer <= 0 || (Clock::GetInstance()->Elapsed() / 64) % 2)
     entity.Render(win);
 
@@ -324,7 +327,10 @@ void Character::Land()
   entity.SetAnimation(LAND_ANIM, 100, 0, 300);
   entity.PushAnimation(finalJump ? REST_ANIM : IDLE_ANIM, 150);
 
-  ParticleManager::GetInstance()->CreateParticle(Dust(*pos, !isUpright));
+  ParticleManager::GetInstance()->CreateParticle(
+    Dust(*pos, 
+         !isUpright, 
+         (int)Settings::GetInstance()->GetPlayerColour(playerNum)));
 
   if (queueFinalJump)
   {
@@ -349,9 +355,9 @@ void Character::Stun()
 // Playable Character
 // ------------------
 
-PlayableCharacter::PlayableCharacter(int charID)
+PlayableCharacter::PlayableCharacter(int charID, int playerNum)
   : 
-  Character(charID)
+  Character(charID, playerNum)
 {}
 
 void PlayableCharacter::Update()
@@ -378,9 +384,9 @@ void PlayableCharacter::Update()
 // Computer Character
 // ------------------
 
-ComputerCharacter::ComputerCharacter(int charID)
+ComputerCharacter::ComputerCharacter(int charID, int playerNum)
   :
-  Character(charID)
+  Character(charID, playerNum)
 {}
 
 void ComputerCharacter::Update()

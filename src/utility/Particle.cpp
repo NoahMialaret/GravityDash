@@ -1,9 +1,10 @@
 #include "Particle.h"
 
-Particle::Particle(int timer)
+Particle::Particle(int timer, int colID)
   :
   entity("particles", {4, 4}),
-  timer(timer)
+  timer(timer),
+  colID(colID)
 {}
 
 bool Particle::HasFinished() const
@@ -22,7 +23,8 @@ void Particle::Update()
 }
 
 void Particle::Render(sf::RenderWindow *win) const
-{
+{  
+  ENTITY_SHADER.setUniform("colorID", colID);
   if (timer > 0)
     entity.Render(win);
 }
@@ -31,9 +33,9 @@ void Particle::Render(sf::RenderWindow *win) const
 // --- Puff ---
 // ============
 
-Puff::Puff(sf::Vector2f source, sf::Vector2f dir)
+Puff::Puff(sf::Vector2f source, sf::Vector2f dir, int colID)
   :
-  Particle(400)
+  Particle(400, colID)
 {
   entity.PushAnimation(PUFF, 100, 0);
 
@@ -50,9 +52,9 @@ Puff::Puff(sf::Vector2f source, sf::Vector2f dir)
 // --- Dust ---
 // ============
 
-Dust::Dust(sf::Vector2f source, bool flip)
+Dust::Dust(sf::Vector2f source, bool flip, int colID)
   :
-  Particle(200),
+  Particle(200, colID),
   entityMirror("particles", {4, 4})
 {
   if (flip)
@@ -91,9 +93,9 @@ void Dust::Render(sf::RenderWindow* win) const
 // --- Explosion ---
 // =================
 
-Explosion::Explosion(sf::Vector2f source)
+Explosion::Explosion(sf::Vector2f source, int colID)
   :
-  Particle(100)
+  Particle(100, colID)
 {
   entity.PushAnimation(EXPLOSION, 25, 0);
   entity.PushPositionTransition(LINEAR_CURVE, 0, source, source);
@@ -103,9 +105,9 @@ Explosion::Explosion(sf::Vector2f source)
 // --- SpeedLine ---
 // =================
 
-SpeedLine::SpeedLine(sf::Vector2f start, float speed)
+SpeedLine::SpeedLine(sf::Vector2f start, float speed, int colID)
   :
-  Particle(400)
+  Particle(400, colID)
 {
   if (speed < 0)
     entity.FlipY();

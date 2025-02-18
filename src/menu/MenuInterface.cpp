@@ -176,20 +176,18 @@ GameEndInterface::GameEndInterface(std::vector<StaticButtonInit>& configs, Event
 
   Utility::InitText(displayTitle, LARGE_FONT, "results", 
                     {centre.x - 6.5f * SPRITE_DIM, yPos - SPRITE_DIM}, 
-                    {0.0f, 0.0f}, {255, 229, 181});
-  displayTitle.drawable.setOutlineColor({173, 103, 78});
-  displayTitle.drawable.setOutlineThickness(1.0f);
+                    {0.0f, 0.0f}, DARKEST);
 
-  underline.setFillColor({173, 103, 78});
+  underline.setFillColor(DARKEST);
   underline.setSize(sf::Vector2f(displayTitle.drawable.getLocalBounds().width + 6, 1.0f));
   underline.setPosition(displayTitle.drawable.getPosition() + sf::Vector2f(-3.0f, 17.0f));
 
   float offset = 7;
 
   Text text;
-  Utility::InitText(text, SMALL_FONT, "jumps - " + std::to_string(GameStats::localStats.jumps), {centre.x - 6.0f * SPRITE_DIM, yPos + 14.0f}, {0, 0.0f}, {255, 229, 181});
-  text.drawable.setOutlineColor({173, 103, 78});
-  text.drawable.setOutlineThickness(1.0f);
+  Utility::InitText(text, SMALL_FONT, "jumps - " + std::to_string(GameStats::localStats.jumps), 
+                    {centre.x - 6.0f * SPRITE_DIM, yPos + 14.0f}, 
+                    {0, 0.0f}, DARKEST);
 
   this->stats.push_back(text);
 
@@ -214,10 +212,10 @@ GameEndInterface::GameEndInterface(std::vector<StaticButtonInit>& configs, Event
 void GameEndInterface::Render(sf::RenderWindow* win) const
 {
   VerticalInterface::Render(win);
-  Utility::RenderTextWithScale(win, displayTitle, nullptr);
-  Utility::RenderRectWithScale(win, underline, nullptr);
+  Utility::RenderTextWithScale(win, displayTitle);
+  Utility::RenderRectWithScale(win, underline);
   for (auto& s : stats)
-    Utility::RenderTextWithScale(win, s, nullptr);
+    Utility::RenderTextWithScale(win, s);
 }
 
 
@@ -230,20 +228,20 @@ Header::Header(std::string text, float vertOffset)
 
   float width = displayTitle.drawable.getLocalBounds().width + 4;
 
-  overline.setFillColor({173, 103, 78});
+  overline.setFillColor(DARKEST);
   overline.setSize(sf::Vector2f(width, 1.0f));
   overline.setOrigin({width / 2.0f, 5.0f});
 
-  underline.setFillColor({173, 103, 78});
+  underline.setFillColor(DARKEST);
   underline.setSize(sf::Vector2f(width, 1.0f));
   underline.setOrigin({width / 2.0f, - 4.0f});
 }
 
 void Header::Render(sf::RenderWindow* win) const
 {
-  Utility::RenderTextWithScale(win, displayTitle, nullptr);
-  Utility::RenderRectWithScale(win, overline, nullptr);
-  Utility::RenderRectWithScale(win, underline, nullptr);
+  Utility::RenderTextWithScale(win, displayTitle);
+  Utility::RenderRectWithScale(win, overline);
+  Utility::RenderRectWithScale(win, underline);
 }
 
 void Header::SetPosition(sf::Vector2f pos)
@@ -263,7 +261,7 @@ ListInterface::ListInterface(std::vector<std::pair<std::string, Interactable*>>&
   :
   MenuInterface(menuReturn),
   translation(&origin),
-  highlight({{0,0}, {2.0f * LIST_MARGIN + 2.0f, 6.0f}, sf::Color(245, 204, 164)})
+  highlight({{0,0}, {2.0f * LIST_MARGIN + 2.0f, 6.0f}, LIGHT})
 {
   origin = ZERO_VECTOR;
 
@@ -296,14 +294,14 @@ void ListInterface::Update()
 
   if (list[curIndex].Update())
   {
-    highlight.SetColour(sf::Color(230, 176, 138));
+    highlight.SetColour(DARK);
     return;
   }
 
   if (Settings::GetInstance()->IsActionOnInitialClick(Controls::Action::escape))
     PUSH_EVENT(menuReturn);
 
-  highlight.SetColour(sf::Color(245, 204, 164));
+  highlight.SetColour(LIGHT);
 
   int move = Settings::GetInstance()->IsActionClicked(Controls::Action::down)  
               - Settings::GetInstance()->IsActionClicked(Controls::Action::up);

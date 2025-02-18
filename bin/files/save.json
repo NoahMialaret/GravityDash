@@ -33,8 +33,8 @@
       }
     },
     "video": {
-      "autoScale": 1,
-      "colour": 0,
+      "autoScale": 0,
+      "colour": 3,
       "fullscreen": 0,
       "scale": 6
     }

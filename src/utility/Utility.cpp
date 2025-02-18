@@ -106,20 +106,13 @@ void Utility::InitText(Text& text, const sf::Font& font, std::string str, sf::Ve
   text.drawable.setFont(font);
   text.drawable.setString(str);
   text.origin = origin;
-
-  // UpdateText(text, str, origin);
 }
-
-// void Utility::UpdateText(Text& text, std::string newStr, sf::Vector2f origin)
-// {
-//   text.drawable.setString(newStr);
-
-//   text..setOrigin({origin.x * text.getLocalBounds().width, 
-//                   origin.y * text.getLocalBounds().height - 1.0f});
-// }
 
 void Utility::RenderSpriteWithScale(sf::RenderWindow* win, sf::Sprite& sprite, sf::Shader* shader)
 {
+  if (shader == nullptr)
+    shader = &STATIC_SHADER;
+    
   sf::Vector2f pos = sprite.getPosition();
   sf::Vector2f scale = sprite.getScale();
 
@@ -134,6 +127,9 @@ void Utility::RenderSpriteWithScale(sf::RenderWindow* win, sf::Sprite& sprite, s
 
 void Utility::RenderTextWithScale(sf::RenderWindow* win, Text& text, sf::Shader* shader)
 {
+  if (shader == nullptr)
+    shader = &STATIC_SHADER;
+
   sf::Vector2f pos = text.drawable.getPosition();
   float outline = text.drawable.getOutlineThickness();
   float size = text.drawable.getCharacterSize();
@@ -152,17 +148,25 @@ void Utility::RenderTextWithScale(sf::RenderWindow* win, Text& text, sf::Shader*
   text.drawable.setCharacterSize(size);
 }
 
-void Utility::RenderRectWithScale(sf::RenderWindow* win, sf::RectangleShape& rect, sf::Shader* shader)
+void Utility::RenderRectWithScale(sf::RenderWindow* win, sf::RectangleShape& rect, sf::Shader* shader, bool twoTone)
 {
+  if (shader == nullptr)
+    shader = &RECT_SHADER;
+
   sf::Vector2f pos = rect.getPosition();
   sf::Vector2f size = rect.getSize();
   sf::Vector2f origin = rect.getOrigin();
   float outline = rect.getOutlineThickness();
 
+
   rect.setPosition(FSCALE * pos);
   rect.setSize(FSCALE * size);
   rect.setOrigin(FSCALE * origin);
   rect.setOutlineThickness(FSCALE * outline);
+  
+  shader->setUniform("pos", rect.getPosition());
+  shader->setUniform("twoTone", twoTone);
+  shader->setUniform("timer", Clock::GetInstance()->Elapsed());
 
   win->draw(rect, shader);
 

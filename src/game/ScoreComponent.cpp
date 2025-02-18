@@ -123,7 +123,7 @@ ScoreComponent::DisplayDigit::operator int() const
 
 void ScoreComponent::DisplayDigit::Render(sf::RenderWindow* win) const
 {
-  Utility::RenderSpriteWithScale(win, sprite, nullptr);
+  Utility::RenderSpriteWithScale(win, sprite, &STATIC_SHADER);
 }
 
 void ScoreComponent::DisplayDigit::SetPositon(sf::Vector2f newPos)
