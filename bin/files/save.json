@@ -24,7 +24,7 @@
         "special": 38,
         "up": 22
       },
-      "p2Colour": 0,
+      "p2Colour": 1,
       "p2Controls": {
         "jump": 73,
         "left": 71,

@@ -79,7 +79,7 @@ public:
   // Renders a Text with respect to the scale of the program, shader defaults to the 'static' shader
   static void RenderTextWithScale(sf::RenderWindow* win, Text& text, sf::Shader* shader = nullptr);
   // Renders a RectangleShape with respect to the scale of the program, shader defaults to the 'rect' shader
-  static void RenderRectWithScale(sf::RenderWindow* win, sf::RectangleShape& rect, sf::Shader* shader = nullptr);
+  static void RenderRectWithScale(sf::RenderWindow* win, sf::RectangleShape& rect, sf::Shader* shader = nullptr, bool twoTone = false);
 
 private:
   friend class Program; // Allows `Program` to handle sensitive functions and data members

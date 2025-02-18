@@ -77,7 +77,7 @@ void BoostComponent::BoostMeter::Update()
 
 void BoostComponent::BoostMeter::Render(sf::RenderWindow* win) const
 {
-  Utility::RenderRectWithScale(win, fill);
+  Utility::RenderRectWithScale(win, fill, &RECT_SHADER, fillAmount >= limit);
   Utility::RenderSpriteWithScale(win, gauge, &STATIC_SHADER);
 }
 

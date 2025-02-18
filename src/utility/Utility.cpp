@@ -148,7 +148,7 @@ void Utility::RenderTextWithScale(sf::RenderWindow* win, Text& text, sf::Shader*
   text.drawable.setCharacterSize(size);
 }
 
-void Utility::RenderRectWithScale(sf::RenderWindow* win, sf::RectangleShape& rect, sf::Shader* shader)
+void Utility::RenderRectWithScale(sf::RenderWindow* win, sf::RectangleShape& rect, sf::Shader* shader, bool twoTone)
 {
   if (shader == nullptr)
     shader = &RECT_SHADER;
@@ -158,10 +158,15 @@ void Utility::RenderRectWithScale(sf::RenderWindow* win, sf::RectangleShape& rec
   sf::Vector2f origin = rect.getOrigin();
   float outline = rect.getOutlineThickness();
 
+
   rect.setPosition(FSCALE * pos);
   rect.setSize(FSCALE * size);
   rect.setOrigin(FSCALE * origin);
   rect.setOutlineThickness(FSCALE * outline);
+  
+  shader->setUniform("pos", rect.getPosition());
+  shader->setUniform("twoTone", twoTone);
+  shader->setUniform("timer", Clock::GetInstance()->Elapsed());
 
   win->draw(rect, shader);
 

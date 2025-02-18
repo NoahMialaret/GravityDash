@@ -308,6 +308,7 @@ void Program::UpdateWindow()
 
   ENTITY_SHADER.setUniform("scale", SCALE);
   WORLD_SHADER.setUniform("scale", SCALE);
+  RECT_SHADER.setUniform("scale", SCALE);
 
   STATIC_SHADER.setUniform("screenDim", {sf::Vector2f(windowSize)});
   ENTITY_SHADER.setUniform("screenDim", {sf::Vector2f(windowSize)});

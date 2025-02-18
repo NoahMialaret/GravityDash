@@ -4,6 +4,10 @@
 
 uniform int colorID;    // Determines which colour to render the pixel in
 uniform vec2 screenDim; // The dimensions of the screen
+uniform int scale;      // Determines cutofff for rendering within the bounds of the world
+uniform vec2 pos;       // The position of the rect
+uniform bool twoTone;   // Whether to two-tone colour the rectangle
+uniform int timer;      // The timer used to animate the two-tone
 
 mat4x3 brown = mat4x3(
   vec3(255.0, 229.0, 181.0),
@@ -59,7 +63,12 @@ void main()
   {
     if (gl_FragColor.r <= 0.2 + i * 0.2)
     {
-      gl_FragColor.rgb = col[3 - i].rgb;
+      float offset = mod(floor(timer / 400), 4);
+      if (i != 0 && twoTone && 
+          mod(floor((pos.x - fc.x) / scale + offset) + floor((pos.y - fc.y) / scale + offset), 4) >= 2)
+        gl_FragColor.rgb = col[3 - i + 1].rgb;
+      else
+        gl_FragColor.rgb = col[3 - i].rgb;
       break;
     }
   }

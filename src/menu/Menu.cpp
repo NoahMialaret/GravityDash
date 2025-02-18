@@ -3,7 +3,7 @@
 Menu::Menu(Type startMenu)
 {
   Push(startMenu);
-  lighter.setFillColor({200, 200, 200, 100});
+  lighter.setFillColor({200, 200, 200, 150});
   lighter.setSize((sf::Vector2f)ASPECT_RATIO);
   lighter.setPosition(-0.5f * (sf::Vector2f)ASPECT_RATIO);
 }
