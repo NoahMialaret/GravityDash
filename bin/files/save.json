@@ -13,7 +13,7 @@
       "sfx": 10
     },
     "multiplayer": {
-      "p1Colour": 3,
+      "p1Colour": 2,
       "p1Controls": {
         "down": 18,
         "escape": 36,
@@ -24,7 +24,7 @@
         "special": 38,
         "up": 22
       },
-      "p2Colour": 1,
+      "p2Colour": 0,
       "p2Controls": {
         "jump": 73,
         "left": 71,
@@ -33,7 +33,7 @@
       }
     },
     "video": {
-      "autoScale": 1,
+      "autoScale": 0,
       "colour": 3,
       "fullscreen": 0,
       "scale": 6

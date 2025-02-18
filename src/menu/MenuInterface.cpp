@@ -176,9 +176,7 @@ GameEndInterface::GameEndInterface(std::vector<StaticButtonInit>& configs, Event
 
   Utility::InitText(displayTitle, LARGE_FONT, "results", 
                     {centre.x - 6.5f * SPRITE_DIM, yPos - SPRITE_DIM}, 
-                    {0.0f, 0.0f}, LIGHTEST);
-  displayTitle.drawable.setOutlineColor(DARKEST);
-  displayTitle.drawable.setOutlineThickness(1.0f);
+                    {0.0f, 0.0f}, DARKEST);
 
   underline.setFillColor(DARKEST);
   underline.setSize(sf::Vector2f(displayTitle.drawable.getLocalBounds().width + 6, 1.0f));
@@ -187,9 +185,9 @@ GameEndInterface::GameEndInterface(std::vector<StaticButtonInit>& configs, Event
   float offset = 7;
 
   Text text;
-  Utility::InitText(text, SMALL_FONT, "jumps - " + std::to_string(GameStats::localStats.jumps), {centre.x - 6.0f * SPRITE_DIM, yPos + 14.0f}, {0, 0.0f}, LIGHTEST);
-  text.drawable.setOutlineColor(DARKEST);
-  text.drawable.setOutlineThickness(1.0f);
+  Utility::InitText(text, SMALL_FONT, "jumps - " + std::to_string(GameStats::localStats.jumps), 
+                    {centre.x - 6.0f * SPRITE_DIM, yPos + 14.0f}, 
+                    {0, 0.0f}, DARKEST);
 
   this->stats.push_back(text);
 

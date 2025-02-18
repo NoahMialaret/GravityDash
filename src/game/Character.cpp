@@ -1,8 +1,9 @@
 #include "Character.h"
 
-Character::Character(int charID)
+Character::Character(int charID, int playerNum)
   : 
   charID(charID),
+  playerNum(playerNum),
   entity("character", {4, NUM_ANIMS}),
   acceleration(0.2f),
   reticle("reticle")
@@ -60,7 +61,7 @@ void Character::Update()
       ParticleManager::GetInstance()->CreateParticle(
         Puff(*pos, 
              sf::Vector2f(- (float)horiDir, (isUpright ? -1.0f : 1.0f)),
-             (int)Settings::GetInstance()->GetPlayerColour(charID)));
+             (int)Settings::GetInstance()->GetPlayerColour(playerNum)));
       runParticleTimer = 150;
     }
     break;
@@ -90,7 +91,7 @@ void Character::Update()
 
 void Character::Render(sf::RenderWindow* win) const
 {
-  ENTITY_SHADER.setUniform("colorID", (int)Settings::GetInstance()->GetPlayerColour(charID));
+  ENTITY_SHADER.setUniform("colorID", (int)Settings::GetInstance()->GetPlayerColour(playerNum));
   if (invincibilityTimer <= 0 || (Clock::GetInstance()->Elapsed() / 64) % 2)
     entity.Render(win);
 
@@ -329,7 +330,7 @@ void Character::Land()
   ParticleManager::GetInstance()->CreateParticle(
     Dust(*pos, 
          !isUpright, 
-         (int)Settings::GetInstance()->GetPlayerColour(charID)));
+         (int)Settings::GetInstance()->GetPlayerColour(playerNum)));
 
   if (queueFinalJump)
   {
@@ -354,9 +355,9 @@ void Character::Stun()
 // Playable Character
 // ------------------
 
-PlayableCharacter::PlayableCharacter(int charID)
+PlayableCharacter::PlayableCharacter(int charID, int playerNum)
   : 
-  Character(charID)
+  Character(charID, playerNum)
 {}
 
 void PlayableCharacter::Update()
@@ -383,9 +384,9 @@ void PlayableCharacter::Update()
 // Computer Character
 // ------------------
 
-ComputerCharacter::ComputerCharacter(int charID)
+ComputerCharacter::ComputerCharacter(int charID, int playerNum)
   :
-  Character(charID)
+  Character(charID, playerNum)
 {}
 
 void ComputerCharacter::Update()

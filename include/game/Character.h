@@ -33,7 +33,8 @@ public:
   enum class State
   {
     idle,
-    moving, // Cannot jump if `curState` is any of the below states
+    moving, 
+    // Cannot jump if `curState` is any of the below states
     airborne,
     stunned,
     dead
@@ -41,7 +42,7 @@ public:
 
 public:
   // Constructs `character` and its entities
-  Character(int charID);
+  Character(int charID, int playerNum);
 
   // Updates the characters's state, animation, position based on its current state
   virtual void Update();
@@ -93,7 +94,8 @@ protected:
   void Stun();
 
 protected:
-  int charID = 0;  // The identifier used for lookup, colouring, and events
+  int charID = 0;     // The unique identifier used by game components and events
+  int playerNum = 0;  // Used for colour lookup
 
   State curState = State::idle; // The current state of the player
 
@@ -107,7 +109,7 @@ protected:
   float acceleration = 0; // How much the velocity changes each frame
 
   bool isUpright = true;  // Whether the character is standing upright in relation to the window
-  bool grounded = false;
+  bool grounded = false;  // Whether the character is currently grouned
 
   bool queueFinalJump = false;  // Used to enable the final jump if the character is already mid-jump
   bool finalJump =      false;  // Whether this is the player's last jump
@@ -130,7 +132,7 @@ class PlayableCharacter : public Character
 {
 public:
   // Construct `PlayableCharacter` with the given controls used for user interfacing
-  PlayableCharacter(int charID);
+  PlayableCharacter(int charID, int playerNum);
 
   // Updates movement information based on the controls being pressed
   void Update() override;
@@ -141,7 +143,7 @@ class ComputerCharacter : public Character
 {
 public:
   // Constructs `ComputerCharacter` by only calling the `Character` contructor
-  ComputerCharacter(int charID);
+  ComputerCharacter(int charID, int playerNum);
 
   // Updates movement information based on randomness, with additional weight
   // to the action already being performed

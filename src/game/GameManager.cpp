@@ -88,10 +88,10 @@ void GameManager::LoadRushPreset()
 
 void GameManager::LoadCoopPreset()
 {
-  game = std::make_unique<Game>(1, 1);
+  game = std::make_unique<Game>(2, 0);
 }
 
 void GameManager::LoadVsPreset()
 {
-  game = std::make_unique<Game>(1, 1);
+  game = std::make_unique<Game>(2, 0);
 }

@@ -7,14 +7,18 @@ Game::Game(int numHumans, int numComputers)
 
   world = std::make_unique<World>();
 
-  int numPlayers = std::min(4, numHumans + numComputers);
+  int numPlayers = numHumans + numComputers;
   comboCount = std::vector<int>(numPlayers, 0);
   for (int i = 0; i < numPlayers; i++)
   {
+    // Different playerNums are passed based on if the game is 
+    // single- or multi-player for proper colour lookup
     if (i < numHumans)
-		  characters.push_back(std::make_unique<PlayableCharacter>(i));
+		  characters.push_back(std::make_unique<PlayableCharacter>
+        (i, numHumans == 1 ? 0 : i + 1));
     else
-      characters.push_back(std::make_unique<ComputerCharacter>(i));
+      characters.push_back(std::make_unique<ComputerCharacter>
+        (i, 0));
   }
 }
 
@@ -103,7 +107,10 @@ void Game::Update()
   }
 
   if (gameOver)
+  {
     PUSH_EVENT(Event::Type::gameDone);
+    objects.clear();
+  }
 }
 
 void Game::Render(sf::RenderWindow* win) const
