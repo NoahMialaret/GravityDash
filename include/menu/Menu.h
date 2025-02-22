@@ -44,6 +44,8 @@ public:
 
   // Resets the interface stack and loads a new interface
   void ReloadStack(Type menuType); 
+  // Clears the menu stack
+  void Clear();
   // Pushes an interface to the stack
   void Push(Type menuType); 
   // Pops an interface from the stack and returns to the previous interface

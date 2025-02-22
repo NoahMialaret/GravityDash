@@ -15,10 +15,10 @@ AssetManager::AssetManager()
       if (!file.path().has_stem())
         continue;
 
-      if (!textures[file.path().stem()].loadFromFile(file.path()))
+      if (!textures[file.path().stem().string()].loadFromFile(file.path()))
       {
-        std::cout << "WARNING: Could not load texture: " << file.path().stem() << '\n';
-        textures.erase(file.path().stem());
+        std::cout << "WARNING: Could not load texture: " << file.path().stem().string() << '\n';
+        textures.erase(file.path().stem().string());
         continue;
       }
     }
@@ -39,10 +39,10 @@ AssetManager::AssetManager()
       if (!file.path().has_stem())
         continue;
 
-      if (!fonts[file.path().stem()].loadFromFile(file.path()))
+      if (!fonts[file.path().stem().string()].loadFromFile(file.path()))
       {
-        std::cout << "WARNING: Could not load font: " << file.path().stem() << '\n';
-        fonts.erase(file.path().stem());
+        std::cout << "WARNING: Could not load font: " << file.path().stem().string() << '\n';
+        fonts.erase(file.path().stem().string());
         continue;
       }
     }
@@ -70,13 +70,13 @@ AssetManager::AssetManager()
       if (!file.path().has_stem() || !file.path().has_extension())
         continue;
 
-      if (!shaders[file.path().stem()].loadFromFile(file.path(), sf::Shader::Type::Fragment))
+      if (!shaders[file.path().stem().string()].loadFromFile(file.path().string(), sf::Shader::Type::Fragment))
       {
-        std::cout << "WARNING: Could not load fragment shader: " << file.path().stem() << "\n";
-        shaders.erase(file.path().stem());
+        std::cout << "WARNING: Could not load fragment shader: " << file.path().stem().string() << "\n";
+        shaders.erase(file.path().stem().string());
         continue;
       }
-      shaders[file.path().stem()].setUniform("texture", sf::Shader::CurrentTexture);
+      shaders[file.path().stem().string()].setUniform("texture", sf::Shader::CurrentTexture);
     }
     if (shaders.empty())
       std::cout << "WARNING: No shaders were loaded, expected shaders to be in 'assets/shaders'\n";

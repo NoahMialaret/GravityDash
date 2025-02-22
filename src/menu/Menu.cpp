@@ -11,24 +11,37 @@ Menu::Menu(Type startMenu)
 void Menu::Update()
 {
   if (!menuStack.empty())
+  {
     menuStack.top().get()->Update();
+    return;
+  }
+  
+  if (!Settings::GetInstance()->IsActionOnInitialClick(Controls::Action::escape))
+    return;
+
+  // No menu is present and pause button is pressed -> pause game
+  PUSH_EVENT({Event::Type::pause});
 }
 
 void Menu::Render(sf::RenderWindow* win) const
 {
+  if (menuStack.empty())
+    return;
   Utility::RenderRectWithScale(win, lighter);
 
-  if (!menuStack.empty())
-    menuStack.top().get()->Render(win);
-
+  menuStack.top().get()->Render(win);
 }
 
 void Menu::ReloadStack(Type menuType)
 {
+  Clear();
+  Push(menuType);
+}
+
+void Menu::Clear()
+{
   while(!menuStack.empty())
     menuStack.pop();
-
-  Push(menuType);
 }
 
 void Menu::Push(Type menuType)

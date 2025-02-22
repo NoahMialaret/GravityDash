@@ -88,17 +88,19 @@ void Program::ProcessEvents()
 		case Event::Type::gameNew: // New game
 			std::cout << "Initialising new game...\n";
       gameManager = std::make_unique<GameManager>((GameManager::Preset)event.data.value);
-			menu.get()->ReloadStack(Menu::Type::pause);
+			menu.get()->Clear();
       ParticleManager::Clean();
 			curState = State::gameplay;
 			break;
 
     case Event::Type::pause: // Pause
+      assert(curState == State::gameplay);
       menu.get()->Push(Menu::Type::pause);
       curState = State::paused;
       break;
 
     case Event::Type::resume: // Resume
+      assert(curState == State::paused);
       menu.get()->Return();
       curState = State::gameplay;
       break;
@@ -129,7 +131,7 @@ void Program::ProcessEvents()
     case Event::Type::gameReset: // Game is restarted (with the same preset)
 			std::cout << "Resetting game...\n";
       gameManager = std::make_unique<GameManager>(gameManager.get()->GetPreset());
-			menu.get()->ReloadStack(Menu::Type::pause);
+			menu.get()->Clear();
       ParticleManager::Clean();
 			curState = State::gameplay;
 			break;
@@ -161,31 +163,8 @@ void Program::ProcessEvents()
       return;
 
 		case sf::Event::KeyPressed: // Key is pressed
-			switch (SFMLevent.key.code) 
-			{
-			case sf::Keyboard::R: // Quick restart (for debugging)
-				std::cout << "Restarting Program!\n";
-        gameManager = std::make_unique<GameManager>(GameManager::Preset::title);
-        menu = std::make_unique<Menu>(Menu::Type::main);
-				curState = State::mainMenu;
-				break;
-
-      case sf::Keyboard::Escape:
-      {
-        if (curState == State::gameplay)
-        {
-          menu.get()->Push(Menu::Type::pause);
-          curState = State::paused;
-          break;
-        }
-        [[fallthrough]];
-      }
-			
-			default: // Add key to keymap
-				Keyboard::GetInstance()->AddKeyPress(SFMLevent.key.code);
-				break;
-			}
-			break;
+      Keyboard::GetInstance()->AddKeyPress(SFMLevent.key.code);
+      break;
 
 		default:
 			break;
@@ -203,8 +182,7 @@ void Program::Update()
   if (curState != State::paused)
     gameManager.get()->Update();
 
-  if (curState != State::gameplay)
-    menu.get()->Update();
+  menu.get()->Update();
 
   if (curState != State::paused)
   ParticleManager::GetInstance()->UpdateParticles();
@@ -225,8 +203,7 @@ void Program::Render()
 
   ParticleManager::GetInstance()->RenderParticles(&window);
 
-  if (curState != State::gameplay)
-    menu.get()->Render(&window);
+  menu.get()->Render(&window);
 
 	window.display();	
 }
