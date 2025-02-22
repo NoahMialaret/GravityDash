@@ -2,13 +2,15 @@
 
 Utility* Utility::instance = nullptr;
 
+Utility::Utility()
+  :
+  rng(std::random_device()())
+{}
+
 Utility* Utility::GetInstance()
 {
   if (instance == nullptr)
-  {
     instance = new Utility();
-    std::mt19937(std::random_device()());
-  }
 
   return instance;
 }

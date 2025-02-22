@@ -46,7 +46,7 @@ public:
 
 private:
   // Private constructor as only one instance should exist in the program
-  Utility() = default;
+  Utility();
   // The global Utility instance
   static Utility* instance;
   // Deletes the Utility instance

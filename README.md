@@ -31,8 +31,9 @@ By default, the game uses the standard WASD control scheme, using the WASD keys 
 **Should the settings become corrupted or otherwise prevent you from playing the game, simply delete the JSON file found in `files/save.json` to reset the settings back to default.**
 
 ## Building
-To build this project, you first must obtain the project files by either downloading the source code or cloning this repository. Once the project has been downloaded, navigate to the root directory and run the following CMake command:
+To build this project, you first must obtain the project files by either downloading the source code or cloning this repository. Once the project has been downloaded, navigate to the root directory and run the following CMake commands to first generate the build files and the build the full project:
 ```
+cmake -B build
 cmake --build build --config Release
 ```
 Upon completion, the game files can be found in the `bin/` directory, alongside the game's sprites, shaders, and other files found in the `assets/` and `files/`directory. **Attempting to run the game without one or all of these files present may cause graphical errors!**
