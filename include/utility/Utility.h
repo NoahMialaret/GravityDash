@@ -2,7 +2,7 @@
 #define UTILITY_H
 
 #include <SFML/Graphics.hpp>
-#include <nlohmann/json.hpp>
+#include <json.hpp>
 
 #include "Bezier.h"
 #include "GameStats.h"

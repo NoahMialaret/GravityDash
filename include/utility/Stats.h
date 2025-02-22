@@ -1,7 +1,7 @@
 #ifndef STATS_H
 #define STATS_H
 
-#include <nlohmann/json.hpp>
+#include <json.hpp>
 
 #include <iostream>
 #include <vector>

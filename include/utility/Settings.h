@@ -2,7 +2,7 @@
 #define SETTINGS_H
 
 #include <SFML/Graphics.hpp>
-#include <nlohmann/json.hpp>
+#include <json.hpp>
 
 #include "AssetManager.h"
 #include "Controls.h"
