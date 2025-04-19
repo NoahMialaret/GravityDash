@@ -15,7 +15,7 @@ AssetManager::AssetManager()
       if (!file.path().has_stem())
         continue;
 
-      if (!textures[file.path().stem().string()].loadFromFile(file.path()))
+      if (!textures[file.path().stem().string()].loadFromFile(file.path().string()))
       {
         std::cout << "WARNING: Could not load texture: " << file.path().stem().string() << '\n';
         textures.erase(file.path().stem().string());
@@ -39,7 +39,7 @@ AssetManager::AssetManager()
       if (!file.path().has_stem())
         continue;
 
-      if (!fonts[file.path().stem().string()].loadFromFile(file.path()))
+      if (!fonts[file.path().stem().string()].loadFromFile(file.path().string()))
       {
         std::cout << "WARNING: Could not load font: " << file.path().stem().string() << '\n';
         fonts.erase(file.path().stem().string());
