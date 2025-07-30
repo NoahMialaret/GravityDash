@@ -172,7 +172,7 @@ GameEndInterface::GameEndInterface(std::vector<StaticButtonInit>& configs, Event
   for (auto& b : buttons)
     b.Move({4.0f * SPRITE_DIM, 0});
 
-  float yPos = centre.y - (40.0f + (GameStats::localStats.timeBoosts == -1 ? 0.0f : 7.0f)) / 2.0f;
+  float yPos = centre.y - 20.0f;
 
   Utility::InitText(displayTitle, LARGE_FONT, "results", 
                     {centre.x - 6.5f * SPRITE_DIM, yPos - SPRITE_DIM}, 
@@ -185,26 +185,23 @@ GameEndInterface::GameEndInterface(std::vector<StaticButtonInit>& configs, Event
   float offset = 7;
 
   Text text;
-  Utility::InitText(text, SMALL_FONT, "jumps - " + std::to_string(GameStats::localStats.jumps), 
-                    {centre.x - 6.0f * SPRITE_DIM, yPos + 14.0f}, 
+  Utility::InitText(text, SMALL_FONT, "jumps - " + std::to_string(GET_LOCAL_STAT(Stats::StatType::jumps)), 
+                    {centre.x - 6.5f * SPRITE_DIM, yPos + 14.0f}, 
                     {0, 0.0f}, DARKEST);
 
   this->stats.push_back(text);
 
-  text.drawable.setString("hits - " + std::to_string(GameStats::localStats.hits));
+  text.drawable.setString("times hits - " + std::to_string(GET_LOCAL_STAT(Stats::StatType::hits)));
   text.drawable.move({0.0f, offset});
   this->stats.push_back(text);
-  text.drawable.setString("specials - " + std::to_string(GameStats::localStats.specials));
-  text.drawable.move({0.0f, offset});
-  this->stats.push_back(text);
-  text.drawable.setString("3+ combos - " + std::to_string(GameStats::localStats.combos));
+  text.drawable.setString("specials - " + std::to_string(GET_LOCAL_STAT(Stats::StatType::specials)));
   text.drawable.move({0.0f, offset});
   this->stats.push_back(text);
 
-  if (GameStats::localStats.timeBoosts == -1)
+  if (GET_LOCAL_STAT(Stats::StatType::refills) == 0)
     return;
 
-  text.drawable.setString("cycles - " + std::to_string(GameStats::localStats.timeBoosts));
+  text.drawable.setString("Refills - " + std::to_string(GET_LOCAL_STAT(Stats::StatType::refills)));
   text.drawable.move({0.0f, offset});
   this->stats.push_back(text);
 }

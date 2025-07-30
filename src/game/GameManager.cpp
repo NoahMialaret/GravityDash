@@ -72,11 +72,16 @@ void GameManager::LoadMinutePreset()
 {
   game = std::make_unique<Game>(1, 0);
 
-  components.push_front(std::make_unique<TimerComponent>(game.get(), 60000));
+  int timerTime = 60000;
+  // Secret method to play with only 10 seconds (good for the 'rush' mode)
+  if (Settings::GetInstance()->IsActionHeld(Controls::Action::special))
+    timerTime = 10000;
+
+  components.push_front(std::make_unique<TimerComponent>(game.get(), timerTime));
   components.push_front(std::make_unique<BoostComponent>(game.get(), 30000));
   components.push_front(std::make_unique<ObjectSpawnComponent<MovingTarget>>(game.get(), 150, 100, 0.9f));
   components.push_front(std::make_unique<ObjectSpawnComponent<Saw>>(game.get(), 1500, 500));
-  components.push_front(std::make_unique<ScoreComponent>(game.get()));
+  components.push_front(std::make_unique<ScoreComponent>(game.get(), GetStatGameType()));
 }
 
 void GameManager::LoadRushPreset()
@@ -94,4 +99,24 @@ void GameManager::LoadCoopPreset()
 void GameManager::LoadVsPreset()
 {
   game = std::make_unique<Game>(2, 0);
+}
+
+Stats::StatType GameManager::GetStatGameType() const
+{
+  switch (preset)
+  {
+  case Preset::minute:
+    return Stats::StatType::minScores;
+
+  case Preset::rush:
+    return Stats::StatType::rushScores;
+
+  case Preset::coop:
+    return Stats::StatType::coopScores;
+  
+  default:
+    break;
+  }
+
+  return Stats::StatType::null;
 }

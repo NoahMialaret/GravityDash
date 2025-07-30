@@ -9,10 +9,10 @@
 #include "BezierTransition.h"
 #include "Controls.h"
 #include "Event.h" 
-#include "GameStats.h"
 #include "ListItem.h"
 #include "Settings.h"
 #include "StaticButton.h"
+#include "Stats.h"
 #include "Utility.h"
 
 #include <assert.h>

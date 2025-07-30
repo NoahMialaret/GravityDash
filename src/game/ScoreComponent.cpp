@@ -1,8 +1,9 @@
 #include "ScoreComponent.h"
 
-ScoreComponent::ScoreComponent(Game* game)
+ScoreComponent::ScoreComponent(Game* game, Stats::StatType gameType)
   :
-  GameComponent(game)
+  GameComponent(game),
+  gameType(gameType)
 {
   std::function<void(sf::Vector2f)> updatePosFunction = [this](sf::Vector2f pos)
   {
@@ -27,6 +28,8 @@ void ScoreComponent::ProcessEvent(Event& event)
   {
   case Event::Type::timerRefill:
     multiplier += 0.1f;
+    if (multiplier >= 2.0f)
+      multiplier = 2.0f;
     break;
 
   case Event::Type::playerCombo:
@@ -63,6 +66,11 @@ void ScoreComponent::ProcessEvent(Event& event)
     Add(-5000 * multiplier);
     break;
 
+  case Event::Type::gameDone:
+    std::cout << "Game Over! You scored " << ToInt() << " points\n";
+    PUSH_EVENT(Event(Event::Type::newScore, {.newScore = {(int)gameType, (int)ToInt()}}));
+    break;
+
   default:
     break;
   }
@@ -85,6 +93,17 @@ void ScoreComponent::Add(int amount)
 
   if (originalSize != (int)digits.size())
     game->UpdateAttachment(World::AttachPoint::top);
+}
+
+int ScoreComponent::ToInt() const
+{
+  int score = 0;
+  for (auto& digit : digits)
+  {
+    score *= 10;
+    score += (int)digit;
+  }
+  return score;
 }
 
 ScoreComponent::DisplayDigit::DisplayDigit(int digit)

@@ -134,12 +134,12 @@ MenuInterface* Menu::LoadMenu(Type menuType)
       {"p2-special",  new KeybindInteractable(Settings::Setting::p2Special)},
 
       // Accessibility - 20
-      {"colour-help", new ToggleInteractable(Settings::Setting::colourHelp)},
-      {"world",       new SelectionInteractable(Settings::Setting::accWorldCol, colours)},
-      {"player",      new SelectionInteractable(Settings::Setting::accPlayerCol, colours)},
-      {"target",      new SelectionInteractable(Settings::Setting::accTargetCol, colours)},
-      {"saw",         new SelectionInteractable(Settings::Setting::accSawCol, colours)},
-      {"time",        new SelectionInteractable(Settings::Setting::accTimeCol, colours)},
+      {"distinct-cols", new ToggleInteractable(Settings::Setting::colourHelp)},
+      {"world",         new SelectionInteractable(Settings::Setting::accWorldCol, colours)},
+      {"player",        new SelectionInteractable(Settings::Setting::accPlayerCol, colours)},
+      {"target",        new SelectionInteractable(Settings::Setting::accTargetCol, colours)},
+      {"saw",           new SelectionInteractable(Settings::Setting::accSawCol, colours)},
+      {"time",          new SelectionInteractable(Settings::Setting::accTimeCol, colours)},
     };
 
     std::vector<std::pair<int, std::string>> headers =
@@ -158,33 +158,38 @@ MenuInterface* Menu::LoadMenu(Type menuType)
     std::vector<std::pair<std::string, Interactable*>> interactables =
     {
       // Stats - 0
-      {"games-played", new StaticInteractable(86)},
-      {"jumps", new StaticInteractable(1421)},
-      {"specials", new StaticInteractable(142)},
-      {"hits", new StaticInteractable(64)},
-
-      // 1-Min - 4
-      {"1st", new StaticInteractable(100)},
-      {"2nd", new StaticInteractable(50)},
-      {"3rd", new StaticInteractable(25)},
-
-      // Rush - 7
-      {"1st", new StaticInteractable(100)},
-      {"2nd", new StaticInteractable(50)},
-      {"3rd", new StaticInteractable(25)},
-
-      // Co-op - 10
-      {"1st", new StaticInteractable(100)},
-      {"2nd", new StaticInteractable(50)},
-      {"3rd", new StaticInteractable(25)}
+      {"games-played", new StaticInteractable(GET_STAT(Stats::StatType::gamesPlayed))},
+      {"jumps", new StaticInteractable(GET_STAT(Stats::StatType::jumps))},
+      {"specials", new StaticInteractable(GET_STAT(Stats::StatType::specials))},
+      {"times-hit", new StaticInteractable(GET_STAT(Stats::StatType::hits))},
     };
+
+    std::vector<std::string> positions{"1st", "2nd", "3rd", "4th", "5th"};
+    std::vector<Stats::StatType> scoreStats
+    {
+      Stats::StatType::minScores, 
+      Stats::StatType::rushScores, 
+      Stats::StatType::coopScores
+    };
+
+    for (auto& scoreStat : scoreStats)
+    {
+      for (int i = 0; i < positions.size() && i < MAX_HIGHSCORES; i++)
+      {
+        interactables.push_back
+        ({
+          positions[i], 
+          new StaticInteractable(GET_HIGHSCORE(scoreStat, i))
+        });
+      }
+    }
 
     std::vector<std::pair<int, std::string>> headers =
     {
       {0,  "statistics"},
       {4,  "1-minute"},
-      {7,  "rush"},
-      {10, "co-op"}
+      {4 + MAX_HIGHSCORES,  "rush"},
+      {4 + 2 * MAX_HIGHSCORES, "co-op"}
     };
 
     return new ListInterface(interactables, headers, event);

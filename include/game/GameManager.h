@@ -10,6 +10,7 @@
 #include "ObjectSpawnComponent.h"
 #include "ScoreComponent.h"
 #include "TimerComponent.h"
+#include "Settings.h"
 
 #include <memory>
 #include <list>
@@ -55,6 +56,9 @@ private:
   void LoadCoopPreset();
   // Loads the game configuration used for versus play
   void LoadVsPreset();
+
+  // Returns the `StatType` associated with the preset chosen
+  Stats::StatType GetStatGameType() const;
 
 private:
   Preset preset; // The preset used to create the game, also used for statistics

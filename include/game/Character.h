@@ -83,10 +83,10 @@ protected:
   // Updates the reticle's position and entity with reference to the character
   void UpdateReticle();
 
-  // Attempts to cause the character to jump
-  void Jump();
-  // Attempts to cause the character to perform a "super jump"
-  void SuperJump();
+  // Attempts to cause the character to jump, returns true on success
+  bool Jump();
+  // Attempts to cause the character to perform a "super jump", returns true on success
+  bool SuperJump();
   // Handles animations and other variable management when landing from a jump
   void Land();
 
