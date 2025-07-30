@@ -75,14 +75,21 @@ void Stats::ProcessEvents(const Event& event)
 
     case StatType::jumps:
       jumps.value++;
+      localJumps++;
       break;
 
     case StatType::specials:
       specialJumps.value++;
+      localSpecialJumps++;
       break;
 
     case StatType::hits:
       hits.value++;
+      localHits++;
+      break;
+
+    case StatType::refills:
+      localRefills++;
       break;
     
     default:
@@ -92,6 +99,14 @@ void Stats::ProcessEvents(const Event& event)
 
   case Event::Type::newScore:
     InsertScore((StatType)event.data.newScore.gameType, event.data.newScore.score);
+    break;
+
+  case Event::Type::gameNew:
+  case Event::Type::gameReset:
+    localJumps = 0;
+    localSpecialJumps = 0;
+    localHits = 0;
+    localRefills = 0;
     break;
   
   default:
@@ -149,6 +164,28 @@ int Stats::GetStat(StatType stat, unsigned int position)
     break;
   }
 
+  return 0;
+}
+
+int Stats::GetLocalStat(StatType stat)
+{
+  switch (stat)
+  {
+  case StatType::jumps:
+    return localJumps;
+
+  case StatType::specials:
+    return localSpecialJumps;
+
+  case StatType::hits:
+    return localHits;
+
+  case StatType::refills:
+    return localRefills;
+
+  default:
+    break;
+  }
   return 0;
 }
 

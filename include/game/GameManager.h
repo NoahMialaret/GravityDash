@@ -10,6 +10,7 @@
 #include "ObjectSpawnComponent.h"
 #include "ScoreComponent.h"
 #include "TimerComponent.h"
+#include "Settings.h"
 
 #include <memory>
 #include <list>

@@ -5,7 +5,6 @@
 #include <json.hpp>
 
 #include "Bezier.h"
-#include "GameStats.h"
 #include "Settings.h"
 #include "Stats.h"
 #include "AssetManager.h"

@@ -73,6 +73,7 @@ void TimerComponent::Update()
     MoveArrow();
 
     PUSH_EVENT(Event::Type::timerRefill);
+    PUSH_EVENT(Event(Event::Type::incrementStat, {.value = (int)Stats::StatType::refills}));
     
     return;
   }

@@ -10,7 +10,8 @@
 
 #define MAX_HIGHSCORES 3
 
-#define GET_STAT(scoreStat) (Stats::GetInstance()->GetStat(scoreStat))
+#define GET_STAT(stat) (Stats::GetInstance()->GetStat(stat))
+#define GET_LOCAL_STAT(stat) (Stats::GetInstance()->GetLocalStat(stat))
 #define GET_HIGHSCORE(scoreStat, position) (Stats::GetInstance()->GetStat(scoreStat, position))
 
 // Static class used to store game statistics and high scores
@@ -23,6 +24,7 @@ public:
     jumps,
     specials,
     hits,
+    refills,
     minScores,
     rushScores,
     coopScores,
@@ -58,7 +60,10 @@ public:
   void Save(nlohmann::json& save);
 
   // Returns the value of a specified stat, `position` is used to return a certain rank for highscore stats
-  int GetStat(StatType score, unsigned int position = 0);
+  int GetStat(StatType stat, unsigned int position = 0);
+
+  // Retruns the local per-game version of a specified stat
+  int GetLocalStat(StatType stat);
 
   // Attempts to insert a new high score into the specified highscore stat
   void InsertScore(StatType scoreStat, int score);
@@ -76,6 +81,12 @@ public:
   Stat<int> jumps;
   Stat<int> specialJumps;
   Stat<int> hits;
+
+  // Per-game stats
+  int localJumps = 0;
+  int localSpecialJumps = 0;
+  int localHits = 0;
+  int localRefills = 0;
 };
 
 #endif

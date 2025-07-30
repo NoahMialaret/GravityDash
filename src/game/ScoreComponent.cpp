@@ -28,6 +28,8 @@ void ScoreComponent::ProcessEvent(Event& event)
   {
   case Event::Type::timerRefill:
     multiplier += 0.1f;
+    if (multiplier >= 2.0f)
+      multiplier = 2.0f;
     break;
 
   case Event::Type::playerCombo:

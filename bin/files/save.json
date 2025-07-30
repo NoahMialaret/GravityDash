@@ -45,9 +45,9 @@
       0,
       0
     ],
-    "gamesPlayed": 5,
-    "hits": 14,
-    "jumps": 825,
+    "gamesPlayed": 22,
+    "hits": 28,
+    "jumps": 1309,
     "min": [
       86100,
       76950,
@@ -55,9 +55,9 @@
     ],
     "rush": [
       262345,
-      0,
-      0
+      186255,
+      77210
     ],
-    "specialJumps": 16
+    "specialJumps": 21
   }
 }
