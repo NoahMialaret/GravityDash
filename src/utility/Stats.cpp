@@ -11,9 +11,9 @@ void Stats::Clean()
 
 Stats::Stats()
 {
-  minHighScores   = {{}, "min"};
-  rushHighScores  = {{}, "rush"};
-  coopHighScores  = {{}, "coop"};
+  minHighScores   = {std::vector<int>(MAX_HIGHSCORES, 0), "min"};
+  rushHighScores  = {std::vector<int>(MAX_HIGHSCORES, 0), "rush"};
+  coopHighScores  = {std::vector<int>(MAX_HIGHSCORES, 0), "coop"};
 
   gamesPlayed   = {0, "gamesPlayed"};
   jumps         = {0, "jumps"};
