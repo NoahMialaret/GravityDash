@@ -155,6 +155,7 @@ bool Character::Hit(sf::Vector2f source)
   entity.SetAnimation(STUN_ANIM, 100);
 
   PUSH_EVENT(Event::Type::playerHit, {.value = charID});
+  PUSH_EVENT(Event(Event::Type::incrementStat, {.value = (int)Stats::StatType::hits}));
 
   // y = ent.y +- sqrt(radius^2-(this.x-ent.x)^2)
   pos->y = source.y + (isUpright ? -1.0f : 1.0f) 
@@ -269,10 +270,10 @@ void Character::UpdateReticle()
   reticle.Update();
 }
 
-void Character::Jump()
+bool Character::Jump()
 {
   if (!grounded)
-    return;
+    return false;
 
   curState = State::airborne;
   
@@ -288,12 +289,13 @@ void Character::Jump()
   reticleAngle = 0.0f;
 
   PUSH_EVENT(Event::Type::playerJump, {.value = charID});
+  return true;
 }
 
-void Character::SuperJump()
+bool Character::SuperJump()
 {
   if (!canSuperJump || finalJump || !grounded)
-    return;
+    return false;
 
   curState = State::airborne;
 
@@ -314,6 +316,7 @@ void Character::SuperJump()
   reticleAngle = 0.0f;
 
   PUSH_EVENT(Event::Type::playerSuper, {.value = charID});
+  return true;
 }
 
 void Character::Land()
@@ -369,10 +372,16 @@ void PlayableCharacter::Update()
   }
 
   if (Settings::GetInstance()->IsActionOnInitialClick(Controls::Action::jump, charID))
-    Jump();
+  {
+    if(Jump())
+      PUSH_EVENT(Event(Event::Type::incrementStat, {.value = (int)Stats::StatType::jumps}));
+  }
 
   else if(Settings::GetInstance()->IsActionOnInitialClick(Controls::Action::special, charID))
-    SuperJump();
+  {
+    if(SuperJump())
+      PUSH_EVENT(Event(Event::Type::incrementStat, {.value = (int)Stats::StatType::specials}));
+  }
 
   horiDir = Settings::GetInstance()->IsActionHeld(Controls::Action::right, charID) 
           - Settings::GetInstance()->IsActionHeld(Controls::Action::left, charID);

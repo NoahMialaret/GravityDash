@@ -52,7 +52,7 @@ private:
 
 public:
   // Constucts `ScoreComponent` with a base score of `0` and attaching to the top of the world
-  ScoreComponent(Game* game);
+  ScoreComponent(Game* game, Stats::StatType gameType);
 
   // Processes score related events, such as when a player has completed a combo
   void ProcessEvent(Event& event) override;
@@ -65,9 +65,13 @@ private:
   // Adds `amount` to the score
   void Add(int amount);
 
+  // Returns the integer representation of the score
+  int ToInt() const;
+
 private:
   std::list<DisplayDigit> digits{0}; // A list of drawable digits, from most to least significant
 
+  Stats::StatType gameType;
   float multiplier = 1.0f;
 };
 

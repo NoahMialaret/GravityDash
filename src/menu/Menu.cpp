@@ -161,7 +161,7 @@ MenuInterface* Menu::LoadMenu(Type menuType)
       {"games-played", new StaticInteractable(GET_STAT(Stats::StatType::gamesPlayed))},
       {"jumps", new StaticInteractable(GET_STAT(Stats::StatType::jumps))},
       {"specials", new StaticInteractable(GET_STAT(Stats::StatType::specials))},
-      {"hits", new StaticInteractable(GET_STAT(Stats::StatType::hits))},
+      {"times-hit", new StaticInteractable(GET_STAT(Stats::StatType::hits))},
     };
 
     std::vector<std::string> positions{"1st", "2nd", "3rd", "4th", "5th"};

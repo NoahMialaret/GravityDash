@@ -39,6 +39,12 @@ public:
     int value;
   };
 
+  struct NewScore
+  {
+    int gameType;
+    int score;
+  };
+
   enum class Type
   {
     programClose, // null
@@ -74,7 +80,11 @@ public:
 
     // Settings events
     updateSettings, // `UpdateSetting`
-    updateWindow,    // null
+    updateWindow,   // null
+
+    // Stat events
+    incrementStat,  // int (`StatType`)
+    newScore,       // `NewScore`
 
     null, // null
   };
@@ -86,6 +96,7 @@ public:
     ComboEvent combo;
     CollisionEvent collision;
     UpdateSettingsEvent updateSettings;
+    NewScore newScore;
   };
 
   Event() = default;

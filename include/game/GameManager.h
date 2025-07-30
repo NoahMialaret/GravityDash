@@ -56,6 +56,9 @@ private:
   // Loads the game configuration used for versus play
   void LoadVsPreset();
 
+  // Returns the `StatType` associated with the preset chosen
+  Stats::StatType GetStatGameType() const;
+
 private:
   Preset preset; // The preset used to create the game, also used for statistics
 

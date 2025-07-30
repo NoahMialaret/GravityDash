@@ -145,10 +145,12 @@ void Program::ProcessEvents()
       UpdateWindow();
       break;
 		
-		default: // Game related event
-      gameManager.get()->ProcessEvents(event);
+		default:
 			break;
 		}
+
+    gameManager.get()->ProcessEvents(event);
+    Stats::GetInstance()->ProcessEvents(event);
 	}
 
 	sf::Event SFMLevent;

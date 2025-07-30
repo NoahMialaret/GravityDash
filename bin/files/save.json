@@ -1,7 +1,7 @@
 {
   "settings": {
     "accessibility": {
-      "colourHelp": 1,
+      "colourHelp": 0,
       "player": 3,
       "saw": 2,
       "target": 1,
@@ -33,7 +33,7 @@
       }
     },
     "video": {
-      "autoScale": 1,
+      "autoScale": 0,
       "colour": 0,
       "fullscreen": 0,
       "scale": 6
@@ -41,23 +41,23 @@
   },
   "stats": {
     "coop": [
-      68,
-      54,
-      24
-    ],
-    "gamesPlayed": 2,
-    "hits": 1,
-    "jumps": 23,
-    "min": [
-      5229,
+      0,
       0,
       0
+    ],
+    "gamesPlayed": 5,
+    "hits": 14,
+    "jumps": 825,
+    "min": [
+      86100,
+      76950,
+      73300
     ],
     "rush": [
-      10000,
+      262345,
       0,
       0
     ],
-    "specialJumps": 0
+    "specialJumps": 16
   }
 }

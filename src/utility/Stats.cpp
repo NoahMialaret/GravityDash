@@ -62,6 +62,43 @@ Stats* Stats::GetInstance()
   return instance;
 }
 
+void Stats::ProcessEvents(const Event& event)
+{
+  switch (event.type)
+  {
+  case Event::Type::incrementStat:
+    switch ((StatType)event.data.value)
+    {
+    case StatType::gamesPlayed:
+      gamesPlayed.value++;
+      break;
+
+    case StatType::jumps:
+      jumps.value++;
+      break;
+
+    case StatType::specials:
+      specialJumps.value++;
+      break;
+
+    case StatType::hits:
+      hits.value++;
+      break;
+    
+    default:
+      break;
+    }
+    break;
+
+  case Event::Type::newScore:
+    InsertScore((StatType)event.data.newScore.gameType, event.data.newScore.score);
+    break;
+  
+  default:
+    break;
+  }
+}
+
 void Stats::Save(nlohmann::json &save)
 {
   save["stats"] = 

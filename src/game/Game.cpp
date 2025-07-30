@@ -109,6 +109,7 @@ void Game::Update()
   if (gameOver)
   {
     PUSH_EVENT(Event::Type::gameDone);
+    PUSH_EVENT(Event(Event::Type::incrementStat, {.value = (int)Stats::StatType::gamesPlayed}));
     objects.clear();
   }
 }

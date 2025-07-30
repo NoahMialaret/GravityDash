@@ -3,6 +3,8 @@
 
 #include <json.hpp>
 
+#include "Event.h"
+
 #include <iostream>
 #include <vector>
 
@@ -24,6 +26,7 @@ public:
     minScores,
     rushScores,
     coopScores,
+    null,
   };
 
   template <typename T>
@@ -47,6 +50,9 @@ private:
 public:
   // Creates and returns the global instance of Stats
   static Stats* GetInstance();
+
+  // Process statistics related game events
+  void ProcessEvents(const Event& event);
 
   // Writes stored data to a `JSON` object
   void Save(nlohmann::json& save);
