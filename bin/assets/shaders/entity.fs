@@ -39,6 +39,8 @@ void main()
   // lookup the pixel in the texture
   vec4 pixel = texture2D(texture, gl_TexCoord[0].xy);
 
+  gl_FragColor = vec4(0.0);
+
   // Clips pixels to be within the world boundary
   vec2 scaledWorldDim = worldDim.xy * scale;
   vec2 fc = gl_FragCoord.xy - screenDim.xy / 2;
