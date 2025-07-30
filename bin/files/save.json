@@ -40,17 +40,16 @@
     }
   },
   "stats": {
-    "combos": 0,
     "coop": [
-      0,
-      0,
-      0
+      68,
+      54,
+      24
     ],
-    "gamesPlayed": 0,
-    "hits": 0,
-    "jumps": 0,
+    "gamesPlayed": 2,
+    "hits": 1,
+    "jumps": 23,
     "min": [
-      0,
+      5229,
       0,
       0
     ],

@@ -1,46 +1,52 @@
 #include "Stats.h"
 
-std::vector<int> Stats::minHighScores;
-std::vector<int> Stats::rushHighScores;
-std::vector<int> Stats::coopHighScores;
+Stats* Stats::instance = nullptr;
 
-int Stats::gamesPlayed;
-int Stats::jumps;
-int Stats::specialJumpes;
-int Stats::combos;
-int Stats::hits;
-
-void Stats::Init()
+void Stats::Clean()
 {
-  minHighScores =  {0,0,0};
-  rushHighScores = {0,0,0};
-  coopHighScores = {0,0,0};
-
-  gamesPlayed =   0;
-  jumps =         0;
-  specialJumpes = 0;
-  combos =        0;
-  hits =          0;
+  if (instance != nullptr)
+    delete instance;
+  instance = nullptr;
 }
 
-void Stats::Init(nlohmann::json& stats)
+Stats::Stats()
+{
+  minHighScores   = {{}, "min"};
+  rushHighScores  = {{}, "rush"};
+  coopHighScores  = {{}, "coop"};
+
+  gamesPlayed   = {0, "gamesPlayed"};
+  jumps         = {0, "jumps"};
+  specialJumps  = {0, "specialJumps"};
+  hits          = {0, "hits"};
+}
+
+void Stats::Load(nlohmann::json& stats)
 {
   try
   {
-    minHighScores = {stats["min"][0], stats["min"][1], stats["min"][2]};
-    std::sort(minHighScores.begin(), minHighScores.end(), std::greater());
+    std::vector<Stat<std::vector<int>>*> highScoreTrackers
+    {
+      &minHighScores, 
+      &rushHighScores, 
+      &coopHighScores
+    };
 
-    rushHighScores = {stats["rush"][0], stats["rush"][1], stats["rush"][2]};
-    std::sort(rushHighScores.begin(), rushHighScores.end(), std::greater());
+    for (auto& tracker : highScoreTrackers)
+    {
+      tracker->value = {};
+      for (auto& score : stats[tracker->id])
+        tracker->value.push_back(score);
 
-    coopHighScores = {stats["coop"][0], stats["coop"][1], stats["coop"][2]};
-    std::sort(coopHighScores.begin(), coopHighScores.end(), std::greater());
+      std::sort(tracker->value.begin(), tracker->value.end(), std::greater());
 
-    gamesPlayed =   stats["gamesPlayed"];
-    jumps =         stats["jumps"];
-    specialJumpes = stats["specialJumps"];
-    combos =        stats["combos"];
-    hits =          stats["hits"];
+      tracker->value.resize(MAX_HIGHSCORES);
+    }
+
+    gamesPlayed.value   = stats[gamesPlayed.id];
+    jumps.value         = stats[jumps.id];
+    specialJumps.value  = stats[specialJumps.id];
+    hits.value          = stats[hits.id];
   }
   catch(...)
   {
@@ -49,44 +55,93 @@ void Stats::Init(nlohmann::json& stats)
   }
 }
 
+Stats* Stats::GetInstance()
+{
+  if (instance == nullptr)
+    instance = new Stats();
+  return instance;
+}
+
 void Stats::Save(nlohmann::json &save)
 {
-  save["stats"] = {
-    {"min", minHighScores},
-    {"rush", rushHighScores},
-    {"coop", coopHighScores},
-    {"gamesPlayed", gamesPlayed},
-    {"jumps", jumps},
-    {"specialJumps", specialJumpes},
-    {"combos", combos},
-    {"hits", hits}
+  save["stats"] = 
+  {
+    {minHighScores.id,  minHighScores.value},
+    {rushHighScores.id, rushHighScores.value},
+    {coopHighScores.id, coopHighScores.value},
+    {gamesPlayed.id,    gamesPlayed.value},
+    {jumps.id,          jumps.value},
+    {specialJumps.id,   specialJumps.value},
+    {hits.id,           hits.value}
   };
 }
 
-void Stats::InsertHighScore(HighScoreModes mode, int score)
+int Stats::GetStat(StatType stat, unsigned int position)
 {
-  std::vector<int>* highScore = nullptr;
-
-  switch (mode)
+  switch (stat)
   {
-  case HighScoreModes::oneMinute:
-    highScore = &minHighScores;
-    break;
-  case HighScoreModes::rush:
-    highScore = &rushHighScores;
-    break;
-  case HighScoreModes::coop:
-    highScore = &coopHighScores;
+  case StatType::gamesPlayed:
+    return gamesPlayed.value;
+
+  case StatType::jumps:
+    return jumps.value;
+
+  case StatType::specials:
+    return specialJumps.value;
+
+  case StatType::hits:
+    return hits.value;
+
+  case StatType::minScores:
+    if (position > minHighScores.value.size())
+      return 0;
+    return minHighScores.value[position];
+
+  case StatType::rushScores:
+    if (position > rushHighScores.value.size())
+      return 0;
+    return rushHighScores.value[position];
+
+  case StatType::coopScores:
+    if (position > coopHighScores.value.size())
+      return 0;
+    return coopHighScores.value[position];
+  
+  default:
+    std::cout << "Stat type not recognised\n";
     break;
   }
 
-  for (int i = 0; i < (int)highScore->size(); i++)
+  return 0;
+}
+
+void Stats::InsertScore(StatType scoreStat, int score)
+{
+  std::vector<int>* tracker = nullptr;
+
+  switch (scoreStat)
   {
-    if (score > (*highScore)[i])
-    {
-      int temp = (*highScore)[i];
-      (*highScore)[i] = score;
-      score = temp;
-    }
+  case StatType::minScores:
+    tracker = &minHighScores.value;
+    break;
+
+  case StatType::rushScores:
+    tracker = &rushHighScores.value;
+    break;
+
+  case StatType::coopScores:
+    tracker = &coopHighScores.value;
+    break;
+  
+  default:
+    std::cout << "Score type not recognised\n";
+    return;
   }
+
+  if (tracker == nullptr)
+    return;
+
+  tracker->push_back(score);
+  std::sort(tracker->begin(), tracker->end(), std::greater());
+  tracker->resize(MAX_HIGHSCORES);
 }

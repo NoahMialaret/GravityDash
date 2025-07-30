@@ -6,41 +6,70 @@
 #include <iostream>
 #include <vector>
 
+#define MAX_HIGHSCORES 3
+
+#define GET_STAT(scoreStat) (Stats::GetInstance()->GetStat(scoreStat))
+#define GET_HIGHSCORE(scoreStat, position) (Stats::GetInstance()->GetStat(scoreStat, position))
+
 // Static class used to store game statistics and high scores
 class Stats
 {
 public:
-  // The game modes which have tracked highscores
-  enum class HighScoreModes
+  enum class StatType
   {
-    oneMinute,
-    rush,
-    coop
+    gamesPlayed,
+    jumps,
+    specials,
+    hits,
+    minScores,
+    rushScores,
+    coopScores,
   };
 
-public:
-  // Initialises variables with default values
-  static void Init();
+  template <typename T>
+  struct Stat
+  {
+    T value;
+    std::string id;
+  };
+
+private:
+  // Private constructor as only one instance should exist in the program
+  Stats();
+  // The global Stats instance
+  static Stats* instance;
+  // Deletes the Stats instance
+  static void Clean();
+
   // Initialises variables using data stored in a `JSON` object
-  static void Init(nlohmann::json& stats);
-  // Writes stored data to a `JSON` object
-  static void Save(nlohmann::json& save);
-
-  // Inserts a score into the stored list of highscores, maintaining order
-  static void InsertHighScore(HighScoreModes mode, int score);
+  void Load(nlohmann::json& save);
 
 public:
+  // Creates and returns the global instance of Stats
+  static Stats* GetInstance();
+
+  // Writes stored data to a `JSON` object
+  void Save(nlohmann::json& save);
+
+  // Returns the value of a specified stat, `position` is used to return a certain rank for highscore stats
+  int GetStat(StatType score, unsigned int position = 0);
+
+  // Attempts to insert a new high score into the specified highscore stat
+  void InsertScore(StatType scoreStat, int score);
+
+public:
+  friend class Program; // Allows `Program` to handle sensitive functions and data members
+
   // Vectors that store the highscores for various modes
-  static std::vector<int> minHighScores;
-  static std::vector<int> rushHighScores;
-  static std::vector<int> coopHighScores;
+  Stat<std::vector<int>> minHighScores;
+  Stat<std::vector<int>> rushHighScores;
+  Stat<std::vector<int>> coopHighScores;
 
   // Other game related statistics
-  static int gamesPlayed;
-  static int jumps;
-  static int specialJumpes;
-  static int combos;
-  static int hits;
+  Stat<int> gamesPlayed;
+  Stat<int> jumps;
+  Stat<int> specialJumps;
+  Stat<int> hits;
 };
 
 #endif

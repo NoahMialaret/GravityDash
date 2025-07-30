@@ -221,7 +221,7 @@ void Program::LoadSave(const char* filename)
     nlohmann::json save = nlohmann::json::parse(file);
 
     Settings::GetInstance()->Load(save["settings"]);
-    Stats::Init(save["stats"]);
+    Stats::GetInstance()->Load(save["stats"]);
 
     file.close();
   }
@@ -229,7 +229,7 @@ void Program::LoadSave(const char* filename)
   {
     std::cout << "Save file was corrupted or could not be found, creating new one...\n";
     Settings::GetInstance()->Load();
-    Stats::Init();
+    Stats::Clean();
     SaveData(filename);
   }
 }
@@ -240,7 +240,7 @@ void Program::SaveData(const char* filename)
 
   Settings::GetInstance()->Save(save);
 
-  Stats::Save(save);
+  Stats::GetInstance()->Save(save);
 
   std::ofstream file(filename);
 
