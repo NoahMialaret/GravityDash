@@ -1,7 +1,7 @@
 {
   "settings": {
     "accessibility": {
-      "colourHelp": 0,
+      "colourHelp": 1,
       "player": 3,
       "saw": 2,
       "target": 1,
@@ -54,7 +54,7 @@
       0
     ],
     "rush": [
-      0,
+      10000,
       0,
       0
     ],
